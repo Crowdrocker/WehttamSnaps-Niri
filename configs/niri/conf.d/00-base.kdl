@@ -1,7 +1,9 @@
 // === BASE CONFIGURATION ===
 // Core Niri settings for WehttamSnaps setup
 // GitHub: https://github.com/Crowdrocker
-
+config-notification {
+    disable-failed
+}
 // === INPUT CONFIGURATION ===
 input {
     keyboard {
@@ -63,8 +65,8 @@ layout {
     // Focus follows mouse for quick navigation
     focus-ring {
         width 3
-        active-color "#89b4fa"  // Catppuccin blue
-        inactive-color "#45475a"  // Catppuccin surface0
+        active-gradient from="#f30808" to="#d508f3" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#08f3ec" to="#7bf308" angle=45 relative-to="workspace-view"
     }
 
     border {
@@ -188,11 +190,13 @@ spawn-at-startup "blueman-applet"
 // Idle management
 spawn-at-startup "sh" "-c" "swayidle -w timeout 600 'swaylock' timeout 900 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock'"
 
-// === DEBUG ===
+// Debug options (disable in production)
 debug {
-    // Enable for troubleshooting
-    render-drm-device "/dev/dri/card1"  // Adjust for your AMD GPU
-
-    // Uncomment for FPS counter
-    // fps-overlay
+    //enable-offload-optimizations true
+    //enable-xwayland-timeout true
+    render-drm-device "/dev/dri/renderD128"
+    honor-xdg-activation-with-invalid-serial
+}
+clipboard {
+    disable-primary
 }

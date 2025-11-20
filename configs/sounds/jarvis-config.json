@@ -1,0 +1,50 @@
+{
+    "version": "1.0",
+    "theme": "J.A.R.V.I.S.",
+    "brand": "WehttamSnaps",
+    "description": "J.A.R.V.I.S. sound pack for WehttamSnaps workstation",
+    "sounds": {
+        "startup": {
+            "file": "jarvis-startup.mp3",
+            "description": "Allow me to introduce myself, I am JARVIS, a virtual artificial intelligence. All systems are ready for gaming and work.",
+            "trigger": "system_startup",
+            "volume": 0.8
+        },
+        "shutdown": {
+            "file": "jarvis-shutdown.mp3",
+            "description": "Shutting down. Have a good day, Matthew.",
+            "trigger": "system_shutdown",
+            "volume": 0.8
+        },
+        "notification": {
+            "file": "jarvis-notification.mp3",
+            "description": "Matthew, you have a notification.",
+            "trigger": "system_notification",
+            "volume": 0.6
+        },
+        "warning": {
+            "file": "jarvis-warning.mp3",
+            "description": "Warning: System temperature critical.",
+            "trigger": "system_warning",
+            "volume": 0.9
+        },
+        "gaming": {
+            "file": "jarvis-gaming.mp3",
+            "description": "Gaming mode activated. Systems at maximum performance.",
+            "trigger": "gaming_mode_activated",
+            "volume": 0.8
+        },
+        "streaming": {
+            "file": "jarvis-streaming.mp3",
+            "description": "Streaming systems online. All feeds operational.",
+            "trigger": "streaming_mode_activated",
+            "volume": 0.8
+        }
+    },
+    "audio_settings": {
+        "default_volume": 0.7,
+        "fade_duration": 0.5,
+        "sample_rate": 44100,
+        "channels": 2
+    }
+}

@@ -1,0 +1,256 @@
+/**
+ * @name LunarCord (HyprLuna theme)
+ * @description A dark, minimaldiscord theme with Material You colors.
+ * @author Nixev
+ * @version 2.0.0
+ * @invite nAHD9keWr
+ * @website https://hyprluna.vercel.app
+*/
+
+@import url("https://refact0r.github.io/midnight-discord/build/midnight.css");
+
+
+/* color options */
+:root {
+    --colors: on; /* turn off to use discord default colors */
+
+    /* text colors */
+    --text-0: {{colors.background.default.hex}}; /* text on colored elements */
+    --text-1: {{colors.on_background.default.hex}}; /* default text on colored elements */
+    --text-2: {{colors.on_surface.default.hex}}; /* headings and important text */
+    --text-3: {{colors.on_surface_variant.default.hex}}; /* normal text */
+    --text-4: {{colors.outline.default.hex}}; /* icon buttons and channels */
+    --text-5: {{colors.outline_variant.default.hex}}; /* muted channels/chats and timestamps */
+
+    /* background and dark colors */
+    --bg-1: {{colors.surface_container_lowest.default.hex}}; /* dark buttons when clicked */
+    --bg-2: {{colors.surface_container_low.default.hex}}; /* dark buttons */
+    --bg-3: {{colors.surface_container.default.hex}}; /* spacing, secondary elements */
+    --bg-4: {{colors.surface.default.hex}}; /* main background color */
+    --hover: {{colors.surface_container_high.default.hex}}; /* channels and buttons when hovered */
+    --active: {{colors.surface_container_highest.default.hex}}; /* channels and buttons when clicked or selected */
+    --active-2: {{colors.surface.default.hex}}; /* extra state for transparent buttons */
+    --message-hover: {{colors.surface_variant.default.hex}}; /* messages when hovered */
+
+    /* accent colors */
+    --accent-1: {{colors.primary.default.hex}}; /* links and other accent text */
+    --accent-2: {{colors.primary_container.default.hex}}; /* small accent elements */
+    --accent-3: {{colors.secondary.default.hex}}; /* accent buttons */
+    --accent-4: {{colors.secondary_container.default.hex}}; /* accent buttons when hovered */
+    --accent-5: {{colors.tertiary.default.hex}}; /* accent buttons when clicked */
+    --accent-new: {{colors.error.default.hex}}; /* stuff that's normally red like mute/deafen buttons */
+    --mention: linear-gradient(
+        to right,
+        color-mix(in hsl, {{colors.primary_container.default.hex}}, transparent 70%) 60%,
+        transparent
+    ); /* background of messages that mention you */
+    --mention-hover: linear-gradient(
+        to right,
+        color-mix(in hsl, {{colors.primary_container.default.hex}}, transparent 75%) 60%,
+        transparent
+    ); /* background of messages that mention you when hovered */
+    --reply: linear-gradient(
+        to right,
+        color-mix(in hsl, {{colors.tertiary_container.default.hex}}, transparent 70%) 60%,
+        transparent
+    ); /* background of messages that reply to you */
+    --reply-hover: linear-gradient(
+        to right,
+        color-mix(in hsl, {{colors.tertiary_container.default.hex}}, transparent 75%) 60%,
+        transparent
+    ); /* background of messages that reply to you when hovered */
+
+    /* status indicator colors */
+    --online: {{colors.primary.default.hex}}; /* change to #43a25a for default */
+    --dnd: {{colors.error.default.hex}}; /* change to #d83a42 for default */
+    --idle: {{colors.tertiary.default.hex}}; /* change to #ca9654 for default */
+    --streaming: {{colors.secondary.default.hex}}; /* change to #593695 for default */
+    --offline: {{colors.outline.default.hex}}; /* change to #83838b for default offline color */
+
+    /* border colors */
+    --border-light: {{colors.surface_container_high.default.hex}}; /* light border color */
+    --border: {{colors.surface_container_highest.default.hex}}; /* normal border color */
+    --button-border: {{colors.surface_container_high.default.hex}}; /* neutral border color of buttons */
+
+    /* base colors */
+    --red-1: {{colors.error.default.hex}};
+    --red-2: {{colors.error_container.default.hex}};
+    --red-3: {{colors.on_error.default.hex}};
+    --red-4: {{colors.on_error_container.default.hex}};
+    --red-5: {{colors.error.default.hex}};
+
+    --green-1: {{colors.primary.default.hex}};
+    --green-2: {{colors.primary_container.default.hex}};
+    --green-3: {{colors.on_primary.default.hex}};
+    --green-4: {{colors.on_primary_container.default.hex}};
+    --green-5: {{colors.primary.default.hex}};
+
+    --blue-1: {{colors.primary.default.hex}};
+    --blue-2: {{colors.primary_container.default.hex}};
+    --blue-3: {{colors.on_primary.default.hex}};
+    --blue-4: {{colors.on_primary_container.default.hex}};
+    --blue-5: {{colors.primary.default.hex}};
+
+    --yellow-1: {{colors.tertiary.default.hex}};
+    --yellow-2: {{colors.tertiary_container.default.hex}};
+    --yellow-3: {{colors.on_tertiary.default.hex}};
+    --yellow-4: {{colors.on_tertiary_container.default.hex}};
+    --yellow-5: {{colors.tertiary.default.hex}};
+
+    --purple-1: {{colors.secondary.default.hex}};
+    --purple-2: {{colors.secondary_container.default.hex}};
+    --purple-3: {{colors.on_secondary.default.hex}};
+    --purple-4: {{colors.on_secondary_container.default.hex}};
+    --purple-5: {{colors.secondary.default.hex}};
+}
+
+/* Improve timestamp/clock readability */
+/* Target timestamps with various selector patterns to work across Discord versions */
+[class*="timestamp"] time,
+[class*="timestamp"] time[id*="message-timestamp"],
+[id*="message-timestamp"] time,
+span[class*="timestamp"] time {
+    color: var(--text-3) !important; /* Use normal text color for better contrast */
+    opacity: 0.85 !important; /* Slightly muted but still readable */
+}
+
+/* Hover state for timestamps - make them fully visible */
+[class*="timestamp"]:hover time,
+[id*="message-timestamp"]:hover time,
+span[class*="timestamp"]:hover time {
+    color: var(--text-2) !important; /* Use heading color on hover */
+    opacity: 1 !important;
+}
+
+/* Improve slowmode cooldown and typing indicator readability */
+[class*="cooldownText"],
+[class*="cooldownWrapper"],
+[class*="cooldownText"] svg,
+.cooldownText_b21699,
+.cooldownWrapper_b21699 {
+    color: var(--text-3) !important; /* Use normal text color for better contrast */
+    opacity: 0.85 !important; /* Slightly muted but still readable */
+}
+
+/* Slowmode icon color */
+[class*="slowModeIcon"],
+.slowModeIcon_b21699 {
+    color: var(--text-3) !important;
+    opacity: 0.85 !important;
+}
+
+/* Typing indicator text */
+[class*="typing"] [class*="text"],
+[class*="typingDots"] [class*="text"],
+.typing_b88801 .text_b88801 {
+    color: var(--text-3) !important;
+    opacity: 0.85 !important;
+}
+
+[class*="postTitleText"],
+[class*="postTitleText"] span,
+h3[class*="postTitleText"],
+[class*="heading-lg"][class*="postTitleText"],
+[data-text-variant*="heading"] [class*="postTitleText"] {
+    color: var(--text-2) !important;
+    opacity: 0.9 !important;
+}
+
+[class*="postTitleText"]:hover,
+[class*="postTitleText"]:hover span,
+h3[class*="postTitleText"]:hover {
+    color: var(--text-2) !important;
+    opacity: 1 !important;
+}
+
+[class*="messageContent"],
+[class*="markup"] {
+    line-height: 1.35 !important;
+    color: var(--text-3) !important;
+    opacity: 0.85 !important;
+}
+
+/* Improve message input/editor text readability */
+[class*="editor"] [class*="markup"],
+[class*="slateTextArea"] [class*="markup"],
+[class*="slateTextArea"],
+[role="textbox"][class*="markup"],
+[role="textbox"][class*="editor"],
+[class*="editor"] [class*="slateTextArea"],
+[data-slate-editor="true"] {
+    color: var(--text-3) !important;
+    opacity: 0.9 !important;
+    line-height: 1.4 !important;
+}
+
+/* Empty/placeholder text in message input */
+[class*="emptyText"],
+[class*="emptyText"] span,
+[data-slate-zero-width] {
+    color: var(--text-4) !important;
+    opacity: 0.7 !important;
+}
+
+[class*="messageContent"][class*="deleted"],
+[class*="text-sm"][class*="messageContent"][class*="deleted"],
+[data-text-variant*="text-sm"][class*="messageContent"][class*="deleted"] {
+    color: var(--text-3) !important;
+    opacity: 0.85 !important;
+}
+
+[class*="messageContent"][class*="deleted"]:hover,
+[class*="messageContent"][class*="deleted"]:hover span {
+    color: var(--text-2) !important;
+    opacity: 1 !important;
+}
+
+/* Improve tooltip readability */
+[class*="tooltip"],
+[class*="tooltip"] *,
+[role="tooltip"],
+[role="tooltip"] * {
+    color: var(--text-2) !important;
+}
+
+[class*="tooltipText"],
+[class*="tooltipContent"],
+[class*="tooltip"] span,
+[class*="tooltip"] div {
+    color: var(--text-2) !important;
+    opacity: 1 !important;
+}
+
+/* Improve link readability - ONLY target link callout containers (not channels or other UI) */
+/* Override CSS variables only within link callout containers */
+div[class*="linkCalloutContainer"] {
+    --text-muted: var(--text-3) !important;
+    --text-default: var(--accent-1) !important;
+}
+
+/* Make muted parts (protocol, path) more readable - only direct child spans in link containers */
+div[class*="linkCalloutContainer"] > span[class*="normal"][data-text-variant*="normal"][style*="--text-muted"],
+div[class*="linkCalloutContainer"] > span[class*="normal"][style*="color: var(--text-muted)"] {
+    color: var(--text-3) !important;
+    opacity: 0.9 !important;
+}
+
+/* Make the domain (semibold part) stand out with accent color - only direct child spans in link containers */
+div[class*="linkCalloutContainer"] > span[class*="semibold"],
+div[class*="linkCalloutContainer"] > span[data-text-variant*="semibold"],
+div[class*="linkCalloutContainer"] > span[style*="color: var(--text-default)"] {
+    color: var(--accent-1) !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+}
+
+/* Hover state for link containers - only affects spans inside link containers */
+div[class*="linkCalloutContainer"]:hover > span[class*="normal"][data-text-variant*="normal"] {
+    color: var(--text-2) !important;
+    opacity: 1 !important;
+}
+
+div[class*="linkCalloutContainer"]:hover > span[class*="semibold"],
+div[class*="linkCalloutContainer"]:hover > span[data-text-variant*="semibold"] {
+    color: var(--accent-1) !important;
+    opacity: 1 !important;
+}

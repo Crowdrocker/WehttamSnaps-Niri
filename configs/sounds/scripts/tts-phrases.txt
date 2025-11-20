@@ -1,0 +1,40 @@
+=== J.A.R.V.I.S. Time-Aware Phrases ===
+
+For 101soundboards.com, use voice: 73296-jarvis-v1-paul-bettany-tts-computer-ai-voice
+
+=== TIME-BASED GREETINGS ===
+
+MORNING (5 AM - 11:59 AM):
+"Good morning, Matthew. All systems operational."
+
+AFTERNOON (12 PM - 5:59 PM):
+"Good afternoon, Matthew. All systems operational."
+
+EVENING (6 PM - 4:59 AM):
+"Good evening, Matthew. All systems operational."
+
+=== ALTERNATIVE TIME REFERENCES ===
+
+"Allow me to introduce myself, I am JARVIS, a virtual artificial intelligence. All systems are ready for gaming and work."
+
+"Current time: 9 AM. All systems operational."
+
+"Current time: 3 PM. All systems operational."
+
+"Current time: 9 PM. All systems operational."
+
+=== DYNAMIC TIME PHRASES ===
+
+"The time is now 8 AM. All systems ready for a productive day."
+
+"The time is now 2 PM. Systems running optimally."
+
+"The time is now 8 PM. Evening mode activated."
+
+=== SYSTEM STATUS WITH TIME ===
+
+"System check complete. Current time: 7 AM. All systems nominal."
+
+"System check complete. Current time: 1 PM. All systems nominal."
+
+"System check complete. Current time: 10 PM. All systems nominal."
