@@ -1,0 +1,7 @@
+# Instagram webapp configuration
+# Usage: webapp instagram
+
+WEBAPP_NAME="Instagram"
+WEBAPP_URL="https://www.instagram.com"
+WEBAPP_ICON="instagram"
+WEBAPP_BROWSER="brave"

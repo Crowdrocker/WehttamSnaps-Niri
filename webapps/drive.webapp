@@ -1,0 +1,7 @@
+# Google Drive webapp configuration
+# Usage: webapp drive
+
+WEBAPP_NAME="Drive"
+WEBAPP_URL="https://drive.google.com"
+WEBAPP_ICON="folder-cloud"
+WEBAPP_BROWSER="brave"

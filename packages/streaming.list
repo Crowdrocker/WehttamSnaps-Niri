@@ -1,0 +1,26 @@
+## 🎥 streaming.list - Streaming & Recording
+
+```
+# === OBS STUDIO ===
+obs-studio
+obs-vaapi
+obs-vkcapture
+
+# === SCREEN RECORDING ===
+wf-recorder
+gpu-screen-recorder
+
+# === AUDIO PROCESSING ===
+easyeffects
+calf
+lsp-plugins
+
+# === STREAMING TOOLS ===
+v4l2loopback-dkms
+
+# === CHAT OVERLAYS ===
+# Run as webapps or:
+webcord-bin
+discord
+telegram-desktop
+```

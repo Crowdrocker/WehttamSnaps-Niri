@@ -1,0 +1,8 @@
+# Discord webapp configuration
+# Usage: webapp discord
+# Keybind: Mod + W, D
+
+WEBAPP_NAME="Discord"
+WEBAPP_URL="https://discord.com/app"
+WEBAPP_ICON="discord"
+WEBAPP_BROWSER="brave"

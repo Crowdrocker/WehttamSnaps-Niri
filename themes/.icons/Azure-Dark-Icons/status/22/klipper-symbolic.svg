@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="22"
+   height="22"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="klipper-symbolic.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.6590909"
+     inkscape:cx="10.855643"
+     inkscape:cy="38.572179"
+     inkscape:window-width="1920"
+     inkscape:window-height="994"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <style
+     type="text/css"
+     id="current-color-scheme">
+      .ColorScheme-Text {
+        color:#fcfcfc;
+      }
+      .ColorScheme-Background {
+        color:#eff0f1;
+      }
+      .ColorScheme-Highlight {
+        color:#3daee9;
+      }
+      .ColorScheme-ViewText {
+        color:#31363b;
+      }
+      .ColorScheme-ViewBackground {
+        color:#fcfcfc;
+      }
+      .ColorScheme-ViewHover {
+        color:#93cee9;
+      }
+      .ColorScheme-ViewFocus{
+        color:#3daee9;
+      }
+      .ColorScheme-ButtonText {
+        color:#31363b;
+      }
+      .ColorScheme-ButtonBackground {
+        color:#eff0f1;
+      }
+      .ColorScheme-ButtonHover {
+        color:#93cee9;
+      }
+      .ColorScheme-ButtonFocus{
+        color:#3daee9;
+      }
+      </style>
+  <g
+     id="22-22-klipper">
+    <rect
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4148"
+       width="22"
+       height="22"
+       x="1.3415527e-07"
+       y="0" />
+    <path
+       d="M 7.0001159,8 H 15.000033 V 9 H 7.0001159 Z"
+       id="path1550-6-5-6"
+       style="color:#d6dbf1;fill:#d3dae3;fill-opacity:1;stroke-width:0.0266403"
+       sodipodi:nodetypes="ccccc"
+       class="ColorScheme-Text" />
+    <path
+       d="m 7.0001159,11 h 8.0000311 l -1.14e-4,1 H 7.0001469 Z"
+       id="path1552-7-6-7"
+       style="color:#d6dbf1;fill:#d3dae3;fill-opacity:1;stroke-width:0.0266403"
+       sodipodi:nodetypes="ccccc"
+       class="ColorScheme-Text" />
+    <path
+       d="M 7.0001159,14.000083 12.000147,14 v 1 H 7.0001469 Z"
+       id="path1554-5-2-5"
+       style="color:#d6dbf1;fill:#d3dae3;fill-opacity:1;stroke-width:0.0266403"
+       sodipodi:nodetypes="ccccc"
+       class="ColorScheme-Text" />
+    <path
+       id="_13.Clipboard-3"
+       data-name="13.Clipboard"
+       d="M 15.788,18.999884 H 6.212 C 5.4323025,18.999884 5,18.477197 5,17.708795 V 5.435205 C 5,4.6668029 5.5323025,4 6.312,4 h 0.959 c 0.7291469,0 0.7291469,1 0,1 H 6.4117652 C 6.0219157,5 6,5.0505774 6,5.4347645 V 17.60859 C 6,17.992829 6.0219157,18 6.4117652,18 H 15.588241 C 15.978076,18 16,17.992838 16,17.60859 V 5.4347645 C 16,5.0505774 15.978076,5 15.588241,5 H 14.729 c -0.794102,0 -0.757834,-1 0,-1 h 0.959 C 16.467705,4 17,4.5666088 17,5.335 v 12.374 c 0,0.768424 -0.432295,1.290884 -1.212,1.290884 z M 14.882354,5.7825883 c 0,0.1921146 -0.157989,0.3478235 -0.352937,0.3478235 H 7.4705889 c -0.4705723,0 -0.4705723,-0.6956473 0,-0.6956473 0.2660759,-0.04129 0.5126229,-0.1628334 0.705883,-0.3478234 L 8.8823547,4.3912932 C 9.0578899,4.1831309 9.3139223,4.0569788 9.5882373,4.0434698 h 0.352941 c 0,-1.3912929 2.1176507,-1.3912929 2.1176507,0 h 0.352941 c 0.277107,0.0026 0.537483,0.1309371 0.705878,0.3478234 l 0.705888,0.6956479 c 0.193264,0.184906 0.439807,0.3064151 0.705881,0.3478234 0.194942,0 0.352937,0.1557029 0.352937,0.3478238 z M 11,3.6956465 c -0.194936,0 -0.35294,0.1557206 -0.35294,0.3478234 h 0.705882 C 11.352942,3.8513744 11.194953,3.6956465 11,3.6956465 Z"
+       fill-rule="evenodd"
+       sodipodi:nodetypes="ssssssssssssssssssssssssccccccccccssccs"
+       style="fill:#d3dae3;fill-opacity:1;stroke-width:0.350374" />
+  </g>
+</svg>

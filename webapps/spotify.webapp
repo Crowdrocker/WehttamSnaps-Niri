@@ -1,0 +1,8 @@
+# Spotify webapp configuration
+# Usage: webapp spotify
+# Keybind: Mod + W, S
+
+WEBAPP_NAME="Spotify"
+WEBAPP_URL="https://open.spotify.com"
+WEBAPP_ICON="spotify"
+WEBAPP_BROWSER="brave"

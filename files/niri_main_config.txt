@@ -1,0 +1,40 @@
+// === WEHTTAMSNAPS NIRI CONFIGURATION ===
+// Author: Matthew (WehttamSnaps)
+// GitHub: https://github.com/Crowdrocker
+// System: snaps-pc (wehttamsnaps)
+//
+// This is the main loader file - all configuration is modular
+// Edit specific files in conf.d/ for targeted changes
+
+// Load modular configuration files
+// Files are processed in order, later files override earlier ones
+
+// Base configuration (essential settings)
+@import "conf.d/00-base.kdl"
+
+// Keybindings (all keyboard shortcuts)
+@import "conf.d/10-keybinds.kdl"
+
+// Window rules (app-specific behavior)
+@import "conf.d/20-rules.kdl"
+
+// Workspace configuration
+@import "conf.d/30-workspaces.kdl"
+
+// Gaming-specific settings
+@import "conf.d/40-gaming.kdl"
+
+// User overrides (your custom tweaks)
+@import "conf.d/99-overrides.kdl"
+
+// === QUICK REFERENCE ===
+// Essential keybinds:
+// Mod+Space  - Noctalia launcher
+// Mod+Enter  - Ghostty terminal
+// Mod+H      - Help/keybindings
+// Mod+Q      - Close window
+// Mod+G      - Gaming mode toggle
+//
+// Monitor: DP-3 @ 1920x1080 60Hz
+// GPU: AMD RX 580 (Mesa/AMDGPU)
+// Shell: Noctalia (Quickshell)

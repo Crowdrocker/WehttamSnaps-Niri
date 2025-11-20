@@ -1,0 +1,7 @@
+# Reddit webapp configuration
+# Usage: webapp reddit
+
+WEBAPP_NAME="Reddit"
+WEBAPP_URL="https://www.reddit.com"
+WEBAPP_ICON="reddit"
+WEBAPP_BROWSER="brave"

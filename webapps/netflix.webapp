@@ -1,0 +1,7 @@
+# Netflix webapp configuration
+# Usage: webapp netflix
+
+WEBAPP_NAME="Netflix"
+WEBAPP_URL="https://www.netflix.com"
+WEBAPP_ICON="netflix"
+WEBAPP_BROWSER="brave"

@@ -1,0 +1,7 @@
+# X (Twitter) webapp configuration
+# Usage: webapp twitter or webapp x
+
+WEBAPP_NAME="X"
+WEBAPP_URL="https://x.com"
+WEBAPP_ICON="twitter"
+WEBAPP_BROWSER="brave"

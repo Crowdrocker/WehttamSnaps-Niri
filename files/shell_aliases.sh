@@ -1,0 +1,399 @@
+#!/bin/bash
+# === WEHTTAMSNAPS SHELL ALIASES ===
+# GitHub: https://github.com/Crowdrocker
+# Add to ~/.bashrc or ~/.zshrc:
+# source ~/.config/wehttamsnaps/configs/shell/.aliases
+
+# === SYSTEM MANAGEMENT ===
+
+# Update system
+alias update='paru -Syu'
+alias update-all='paru -Syu && flatpak update -y'
+alias update-check='paru -Qu'
+alias update-mirrors='sudo reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist'
+
+# Clean system
+alias clean='paru -Sc --noconfirm'
+alias clean-orphans='paru -Rns $(paru -Qtdq) --noconfirm 2>/dev/null || echo "No orphans to remove"'
+alias clean-cache='paru -Scc --noconfirm && rm -rf ~/.cache/paru ~/.cache/yay'
+alias clean-all='clean && clean-orphans && clean-cache'
+
+# Package search
+alias search='paru -Ss'
+alias install='paru -S'
+alias remove='paru -Rns'
+alias list-installed='paru -Qe'
+alias list-aur='paru -Qm'
+
+# === WEHTTAMSNAPS SCRIPTS ===
+
+# Gaming
+alias gaming='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh'
+alias gaming-on='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh on'
+alias gaming-off='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh off'
+alias gaming-status='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh status'
+
+# Audio
+alias audio='~/.config/wehttamsnaps/scripts/audio-setup.sh'
+alias audio-test='~/.config/wehttamsnaps/scripts/audio-setup.sh test'
+alias audio-restart='~/.config/wehttamsnaps/scripts/audio-setup.sh restart'
+alias qpw='qpwgraph'
+alias pavu='pavucontrol'
+
+# J.A.R.V.I.S.
+alias jarvis='~/.config/wehttamsnaps/scripts/jarvis-manager.sh'
+alias jarvis-test='~/.config/wehttamsnaps/scripts/jarvis-manager.sh test'
+alias jarvis-list='~/.config/wehttamsnaps/scripts/jarvis-manager.sh list'
+
+# Webapps
+alias webapp='~/.config/wehttamsnaps/scripts/webapp-launcher.sh'
+alias webapp-list='~/.config/wehttamsnaps/scripts/webapp-launcher.sh list'
+
+# KeyHints
+alias keys='~/.config/wehttamsnaps/scripts/KeyHints.sh'
+alias keybinds='~/.config/wehttamsnaps/scripts/KeyHints.sh'
+
+# Welcome app
+alias welcome='~/.config/wehttamsnaps/scripts/welcome.py --force'
+
+# === NIRI / WAYLAND ===
+
+# Niri commands
+alias niri-reload='niri msg action reload-config'
+alias niri-validate='niri validate'
+alias niri-logs='journalctl --user -u niri.service -f'
+alias niri-restart='systemctl --user restart niri.service'
+
+# Screenshot shortcuts
+alias screenshot='grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png'
+alias screenshot-area='grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png'
+
+# === FILE MANAGEMENT ===
+
+# Enhanced ls commands
+alias ls='ls --color=auto'
+alias ll='ls -lah --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+alias lt='ls -lahtr --color=auto'  # Sort by time
+
+# Better file operations
+alias cp='cp -i'  # Confirm before overwrite
+alias mv='mv -i'
+alias rm='rm -i'
+alias mkdir='mkdir -p'
+
+# Directory navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ~='cd ~'
+alias -- -='cd -'  # Go back to previous directory
+
+# === PHOTOGRAPHY ===
+
+# Quick launch photo apps
+alias gimp='gimp &> /dev/null &'
+alias darktable='darktable &> /dev/null &'
+alias krita='krita &> /dev/null &'
+alias digikam='digikam &> /dev/null &'
+alias inkscape='inkscape &> /dev/null &'
+alias blender='blender &> /dev/null &'
+
+# Photo workspace
+alias photo='niri msg action focus-workspace 3'
+
+# === GAMING ===
+
+# Game launchers
+alias steam-launch='steam &> /dev/null &'
+alias lutris-launch='lutris &> /dev/null &'
+alias protonup='protonup-qt &> /dev/null &'
+
+# Gaming workspace
+alias game='niri msg action focus-workspace 9'
+
+# Check gamemode
+alias gamemode-status='gamemoded -s'
+
+# Monitor GPU
+alias gpu='radeontop'
+alias gpu-temp='cat /sys/class/drm/card0/device/hwmon/hwmon0/temp1_input | awk "{print \$1/1000 \"°C\"}"'
+
+# === SYSTEM MONITORING ===
+
+# System info
+alias fetch='fastfetch'
+alias neofetch='fastfetch'  # For muscle memory
+alias sysinfo='fastfetch'
+
+# Process monitoring
+alias top='btop'
+alias htop='btop'
+alias ps-all='ps aux | less'
+alias ps-grep='ps aux | grep -i'
+
+# Disk usage
+alias df='df -h'
+alias du='du -h'
+alias disk='df -h | grep -E "^/dev/"'
+alias diskusage='du -sh * | sort -h'
+
+# Memory
+alias free='free -h'
+alias mem='free -h'
+
+# === NETWORK ===
+
+# Network info
+alias ip='ip -c addr'
+alias ports='netstat -tulanp'
+alias listening='lsof -i -P -n | grep LISTEN'
+alias ping='ping -c 5'
+alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python -'
+
+# === GIT ===
+
+# Git shortcuts
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --oneline --graph --decorate'
+alias gd='git diff'
+alias gb='git branch'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+
+# WehttamSnaps specific
+alias push-configs='cd ~/.config/wehttamsnaps && git add . && git commit -m "Update configs" && git push'
+
+# === TEXT EDITING ===
+
+# Editor shortcuts
+alias vim='nvim'
+alias vi='nvim'
+alias edit='kate'
+alias nano='micro'  # If you prefer micro over nano
+
+# === PRODUCTIVITY ===
+
+# Terminal tools
+alias c='clear'
+alias h='history'
+alias j='jobs'
+alias weather='curl wttr.in'
+alias cheat='curl cheat.sh'
+
+# Date/Time
+alias now='date +"%Y-%m-%d %H:%M:%S"'
+alias timestamp='date +%s'
+
+# === STREAMING / OBS ===
+
+# OBS shortcuts
+alias obs-start='obs &> /dev/null &'
+alias stream='niri msg action focus-workspace 8'
+
+# Audio routing
+alias audio-obs='qpwgraph &> /dev/null &'
+
+# === FILE COMPRESSION ===
+
+# Archive operations
+alias untar='tar -xvf'
+alias targz='tar -czvf'
+alias tarxz='tar -cJvf'
+alias extract='aunpack'  # If you have atool installed
+
+# === FLATPAK ===
+
+# Flatpak shortcuts
+alias flat-update='flatpak update -y'
+alias flat-list='flatpak list'
+alias flat-search='flatpak search'
+alias flat-install='flatpak install'
+alias flat-remove='flatpak uninstall'
+alias flat-run='flatpak run'
+
+# === SYSTEMD ===
+
+# Systemd shortcuts
+alias sctl='systemctl'
+alias sctlu='systemctl --user'
+alias jctl='journalctl'
+alias jctlu='journalctl --user'
+
+# Quick service commands
+alias start='systemctl start'
+alias stop='systemctl stop'
+alias restart='systemctl restart'
+alias status='systemctl status'
+alias enable='systemctl enable'
+alias disable='systemctl disable'
+
+# User services
+alias ustart='systemctl --user start'
+alias ustop='systemctl --user stop'
+alias urestart='systemctl --user restart'
+alias ustatus='systemctl --user status'
+
+# === SAFETY ALIASES ===
+
+# Protect against mistakes
+alias rm-safe='rm -I'  # Prompt before removing more than 3 files
+alias rm-force='command rm'  # Bypass alias if you really need raw rm
+
+# === QUICK ACCESS ===
+
+# Common directories
+alias downloads='cd ~/Downloads'
+alias pictures='cd ~/Pictures'
+alias screenshots='cd ~/Pictures/Screenshots'
+alias documents='cd ~/Documents'
+alias config='cd ~/.config'
+alias wehttam='cd ~/.config/wehttamsnaps'
+alias niri-config='cd ~/.config/niri'
+
+# === BACKUP / SYNC ===
+
+# Config backup
+alias backup-configs='tar -czvf ~/backup-configs-$(date +%Y%m%d).tar.gz ~/.config/wehttamsnaps ~/.config/niri ~/.config/ghostty'
+alias save-configs='~/.config/wehttamsnaps/scripts/save-configs.sh'
+
+# === HARDWARE INFO ===
+
+# System info
+alias cpu='lscpu'
+alias cpu-temp='sensors | grep -i "Package id 0"'
+alias hw='hwinfo --short'
+alias usb='lsusb'
+alias pci='lspci'
+
+# === POWER MANAGEMENT ===
+
+# Power commands
+alias suspend='systemctl suspend'
+alias hibernate='systemctl hibernate'
+alias poweroff='systemctl poweroff'
+alias reboot='systemctl reboot'
+
+# === BLUETOOTH ===
+
+# Bluetooth shortcuts (if you use bluetooth)
+alias bt='bluetoothctl'
+alias bt-on='bluetoothctl power on'
+alias bt-off='bluetoothctl power off'
+alias bt-scan='bluetoothctl scan on'
+
+# === DOCKER (if installed) ===
+
+# Docker shortcuts
+alias docker-ps='docker ps'
+alias docker-images='docker images'
+alias docker-clean='docker system prune -af'
+
+# === PHOTOGRAPHY WORKFLOW ===
+
+# Complete photo workflow
+alias photo-import='digikam &> /dev/null &'
+alias photo-raw='darktable &> /dev/null &'
+alias photo-edit='gimp &> /dev/null &'
+alias photo-draw='krita &> /dev/null &'
+
+# === FUN ===
+
+# Colorful output
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# Matrix effect (requires cmatrix)
+alias matrix='cmatrix'
+
+# Cowsay + fortune (if installed)
+alias fortune='fortune | cowsay'
+
+# === CUSTOM FUNCTIONS ===
+
+# Create directory and cd into it
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Extract any archive
+extract() {
+    if [ -f "$1" ] ; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Find file by name
+ff() {
+    find . -type f -name "*$1*"
+}
+
+# Find directory by name
+fd() {
+    find . -type d -name "*$1*"
+}
+
+# Quick note taking
+note() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): $*" >> ~/.notes.txt
+}
+
+# Show notes
+shownotes() {
+    cat ~/.notes.txt
+}
+
+# Weather for specific location
+weather() {
+    curl wttr.in/"${1:-Lincoln,Nebraska}"
+}
+
+# === WEHTTAMSNAPS SPECIFIC ===
+
+# Quick access to docs
+alias docs='cd ~/.config/wehttamsnaps/docs && ls'
+alias readme='cat ~/.config/wehttamsnaps/README.md | less'
+
+# Quick config edit
+alias edit-niri='kate ~/.config/niri/config.kdl'
+alias edit-ghostty='kate ~/.config/ghostty/config'
+alias edit-starship='kate ~/.config/starship.toml'
+alias edit-aliases='kate ~/.config/wehttamsnaps/configs/shell/.aliases'
+
+# Quick reload aliases
+alias reload-aliases='source ~/.config/wehttamsnaps/configs/shell/.aliases'
+alias reload-shell='source ~/.bashrc'  # or ~/.zshrc
+
+# === NOTES ===
+# Add to ~/.bashrc or ~/.zshrc:
+# source ~/.config/wehttamsnaps/configs/shell/.aliases
+#
+# Or for zsh:
+# echo "source ~/.config/wehttamsnaps/configs/shell/.aliases" >> ~/.zshrc
+#
+# For bash:
+# echo "source ~/.config/wehttamsnaps/configs/shell/.aliases" >> ~/.bashrc

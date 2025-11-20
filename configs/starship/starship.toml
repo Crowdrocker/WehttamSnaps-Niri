@@ -1,0 +1,260 @@
+# === STARSHIP PROMPT CONFIGURATION ===
+# WehttamSnaps Niri Setup
+# GitHub: https://github.com/Crowdrocker
+#
+# Starship - Fast, customizable shell prompt
+# Photography • Gaming • Content Creation
+
+# Overall format
+format = """
+[╭─](bold blue)\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$rust\
+$package\
+$cmd_duration\
+$line_break\
+[╰─](bold blue)$character"""
+
+# Prompt character
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[✗](bold red)"
+vimcmd_symbol = "[V](bold green)"
+
+# Username
+[username]
+style_user = "bold cyan"
+style_root = "bold red"
+format = "[$user]($style) "
+disabled = false
+show_always = true
+
+# Hostname
+[hostname]
+ssh_only = false
+format = "[@$hostname](bold yellow) "
+disabled = false
+
+# Directory
+[directory]
+style = "bold blue"
+format = "[$path]($style)[$read_only]($read_only_style) "
+truncation_length = 3
+truncate_to_repo = true
+read_only = " 🔒"
+
+# Git branch
+[git_branch]
+symbol = " "
+style = "bold purple"
+format = "[$symbol$branch]($style) "
+
+# Git status
+[git_status]
+style = "bold red"
+format = "([$all_status$ahead_behind]($style) )"
+conflicted = "🏳 "
+ahead = "⇡${count} "
+behind = "⇣${count} "
+diverged = "⇕⇡${ahead_count}⇣${behind_count} "
+untracked = "🤷 "
+stashed = "📦 "
+modified = "📝 "
+staged = '[++\($count\)](green) '
+renamed = "👅 "
+deleted = "🗑 "
+
+# Command duration
+[cmd_duration]
+min_time = 2_000
+format = "took [$duration](bold yellow) "
+disabled = false
+
+# Package version
+[package]
+symbol = "📦 "
+style = "bold yellow"
+format = "[$symbol$version]($style) "
+disabled = false
+
+# Python
+[python]
+symbol = " "
+style = "bold yellow"
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+pyenv_version_name = false
+detect_extensions = ["py"]
+detect_files = [".python-version", "Pipfile", "__pycache__", "pyproject.toml", "requirements.txt", "setup.py", "tox.ini"]
+
+# Node.js
+[nodejs]
+symbol = " "
+style = "bold green"
+format = "[$symbol($version )]($style)"
+detect_extensions = ["js", "mjs", "cjs", "ts"]
+detect_files = ["package.json", ".node-version"]
+
+# Rust
+[rust]
+symbol = " "
+style = "bold red"
+format = "[$symbol($version )]($style)"
+
+# Docker
+[docker_context]
+symbol = " "
+style = "bold blue"
+format = "[$symbol$context]($style) "
+disabled = false
+
+# === SYSTEM STATUS ===
+
+# Battery (if on laptop)
+[battery]
+full_symbol = "🔋"
+charging_symbol = "⚡"
+discharging_symbol = "💀"
+disabled = true  # Enable if using laptop
+
+[[battery.display]]
+threshold = 10
+style = "bold red"
+
+[[battery.display]]
+threshold = 30
+style = "bold yellow"
+
+# Memory usage
+[memory_usage]
+disabled = true
+threshold = 75
+format = "via $symbol [${ram}( | ${swap})]($style) "
+symbol = "🐏"
+style = "bold dimmed white"
+
+# === GAMING & PERFORMANCE ===
+
+# Time (useful for streaming/recording)
+[time]
+disabled = false
+format = '🕙[\[ $time \]]($style) '
+time_format = "%T"
+style = "bold cyan"
+
+# === PHOTOGRAPHY / CREATIVE ===
+
+# Custom module for WehttamSnaps branding
+[custom.wehttamsnaps]
+command = "echo '📸'"
+when = "test -d ~/.config/wehttamsnaps"
+format = "[$output]($style) "
+style = "bold magenta"
+disabled = true  # Enable to show camera emoji when in WehttamSnaps directory
+
+# === GAMING MODE INDICATOR ===
+
+# Show if gaming mode is active
+[custom.gaming_mode]
+command = "cat ~/.cache/wehttamsnaps/gaming-mode-state 2>/dev/null || echo ''"
+when = "test -f ~/.cache/wehttamsnaps/gaming-mode-state && grep -q 'on' ~/.cache/wehttamsnaps/gaming-mode-state"
+format = "[🎮 GAMING]($style) "
+style = "bold red"
+disabled = false
+
+# === LANGUAGES & TOOLS ===
+
+# C/C++
+[c]
+symbol = " "
+style = "bold blue"
+format = "[$symbol($version(-$name) )]($style)"
+
+# Go
+[golang]
+symbol = " "
+style = "bold cyan"
+format = "[$symbol($version )]($style)"
+
+# Java
+[java]
+symbol = " "
+style = "bold red"
+format = "[$symbol($version )]($style)"
+
+# Lua
+[lua]
+symbol = " "
+style = "bold blue"
+format = "[$symbol($version )]($style)"
+
+# === CLOUD & CONTAINERS ===
+
+# Kubernetes
+[kubernetes]
+symbol = "☸ "
+style = "bold blue"
+format = '[$symbol$context( \($namespace\))]($style) '
+disabled = true
+
+# AWS
+[aws]
+symbol = "  "
+style = "bold yellow"
+format = '[$symbol($profile )(\($region\) )]($style)'
+disabled = true
+
+# === SHELLS ===
+
+[shell]
+fish_indicator = ""
+bash_indicator = "bash"
+zsh_indicator = "zsh"
+disabled = true
+
+# === NIRI INTEGRATION ===
+
+# Environment variables
+[env_var.WAYLAND_DISPLAY]
+symbol = "🪟 "
+style = "bold green"
+format = "[$symbol$env_value]($style) "
+disabled = true  # Enable to show Wayland session
+
+# === LINE BREAK ===
+
+[line_break]
+disabled = false
+
+# === CUSTOM ALIASES SUGGESTIONS ===
+# Add these to your shell config:
+#
+# alias update='paru -Syu'
+# alias clean='paru -Sc && paru -Rns $(paru -Qtdq)'
+# alias gaming='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh'
+# alias audio='~/.config/wehttamsnaps/scripts/audio-setup.sh'
+# alias jarvis='~/.config/wehttamsnaps/scripts/jarvis-manager.sh'
+# alias ll='ls -lah'
+# alias la='ls -A'
+# alias fetch='fastfetch'
+
+# === NOTES ===
+# Location: ~/.config/starship.toml
+# Reload: Start new shell or `source ~/.bashrc` / `source ~/.zshrc`
+# Docs: https://starship.rs/config/
+#
+# Add to shell config (~/.bashrc or ~/.zshrc):
+# eval "$(starship init bash)"  # for bash
+# eval "$(starship init zsh)"   # for zsh
+#
+# Features:
+# - Shows git status with icons
+# - Command duration for long commands
+# - Gaming mode indicator
+# - Language/tool version detection
+# - Fast and minimal

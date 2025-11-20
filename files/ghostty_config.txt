@@ -1,0 +1,167 @@
+# === GHOSTTY TERMINAL CONFIGURATION ===
+# WehttamSnaps Niri Setup
+# GitHub: https://github.com/Crowdrocker
+#
+# Ghostty - GPU-accelerated terminal
+# Optimized for Fira Code with ligatures
+
+# === FONT CONFIGURATION ===
+font-family = "Fira Code"
+font-size = 12
+font-style = normal
+font-style-bold = bold
+font-style-italic = italic
+font-style-bold-italic = bold-italic
+
+# Enable font ligatures (-> => != etc.)
+font-feature = "liga"
+font-feature = "calt"
+
+# Font rendering
+font-thicken = true
+
+# === THEME / COLORS ===
+# Catppuccin Mocha theme (matches Noctalia)
+background = #1e1e2e
+foreground = #cdd6f4
+
+# Cursor
+cursor-color = #f5e0dc
+cursor-style = block
+cursor-style-blink = true
+
+# Selection
+selection-background = #585b70
+selection-foreground = #cdd6f4
+
+# Regular colors
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#89b4fa
+palette = 5=#f5c2e7
+palette = 6=#94e2d5
+palette = 7=#bac2de
+
+# Bright colors
+palette = 8=#585b70
+palette = 9=#f38ba8
+palette = 10=#a6e3a1
+palette = 11=#f9e2af
+palette = 12=#89b4fa
+palette = 13=#f5c2e7
+palette = 14=#94e2d5
+palette = 15=#a6adc8
+
+# === WINDOW CONFIGURATION ===
+window-padding-x = 8
+window-padding-y = 8
+window-padding-balance = true
+
+# Window decorations (handled by Niri)
+window-decoration = false
+
+# Opacity
+background-opacity = 0.95
+
+# Theme
+theme = dark
+
+# === BEHAVIOR ===
+# Shell
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
+
+# Copy/Paste
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+
+# Mouse
+mouse-hide-while-typing = true
+
+# Scrollback
+scrollback-limit = 10000
+
+# === PERFORMANCE ===
+# Rendering backend (auto-detect best)
+gtk-renderer = auto
+
+# === KEYBINDINGS ===
+# Copy/Paste
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+
+# Font size
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+0=reset_font_size
+
+# Scrolling
+keybind = ctrl+shift+up=scroll_page_up
+keybind = ctrl+shift+down=scroll_page_down
+keybind = ctrl+shift+home=scroll_to_top
+keybind = ctrl+shift+end=scroll_to_bottom
+
+# Tabs
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_surface
+keybind = ctrl+shift+left=previous_tab
+keybind = ctrl+shift+right=next_tab
+keybind = ctrl+shift+1=goto_tab:1
+keybind = ctrl+shift+2=goto_tab:2
+keybind = ctrl+shift+3=goto_tab:3
+keybind = ctrl+shift+4=goto_tab:4
+keybind = ctrl+shift+5=goto_tab:5
+
+# Splits
+keybind = ctrl+shift+e=new_split:right
+keybind = ctrl+shift+o=new_split:down
+
+# Search
+keybind = ctrl+shift+f=toggle_quick_terminal
+
+# Clear
+keybind = ctrl+shift+k=clear_screen
+
+# === ADVANCED ===
+# Link handling
+link-url = true
+
+# Bell
+visual-bell = false
+audible-bell = false
+
+# Title
+window-title-font-family = "Fira Code"
+
+# Auto-update
+auto-update = check
+
+# === NIRI INTEGRATION ===
+# Ghostty respects Wayland protocols
+# Window rules handled by Niri config
+
+# === OPTIONAL FEATURES ===
+# Uncomment to enable
+
+# Image support (requires Ghostty with image support)
+# image-support = true
+
+# === WEHTTAMSNAPS BRANDING ===
+# Custom startup message
+# startup-message = "WehttamSnaps Terminal | Photography • Gaming • Content"
+
+# === NOTES ===
+# Location: ~/.config/ghostty/config
+# Reload: Restart Ghostty or Ctrl+Shift+R (if supported)
+# Docs: https://ghostty.org/docs
+#
+# Keybinds:
+# - Ctrl+Shift+C/V - Copy/Paste
+# - Ctrl+Shift+T - New tab
+# - Ctrl+Shift+E/O - Split terminal
+# - Ctrl+Plus/Minus - Font size
+#
+# Integrates with Starship prompt automatically

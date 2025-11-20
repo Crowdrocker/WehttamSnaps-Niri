@@ -1,0 +1,175 @@
+// === WEHTTAMSNAPS PLYMOUTH THEME ===
+// GitHub: https://github.com/Crowdrocker
+// Spinning camera aperture logo with progress bar
+// Photography • Gaming • Content Creation
+
+// === SCREEN SETUP ===
+Window.GetMaxWidth = fun () {
+  return Window.GetWidth();
+};
+
+Window.GetMaxHeight = fun () {
+  return Window.GetHeight();
+};
+
+screen_width = Window.GetWidth();
+screen_height = Window.GetHeight();
+
+// === BACKGROUND ===
+// Dark background (WehttamSnaps branding)
+Window.SetBackgroundTopColor(0.11, 0.11, 0.18);     // #1e1e2e (Catppuccin)
+Window.SetBackgroundBottomColor(0.11, 0.11, 0.18);
+
+// === LOGO SETUP ===
+// Camera aperture logo (spinning)
+logo_image = Image("logo.png");
+logo_width = logo_image.GetWidth();
+logo_height = logo_image.GetHeight();
+
+// Scale logo to reasonable size (200x200 pixels)
+logo_scale = 200.0 / logo_height;
+logo_image = logo_image.Scale(logo_width * logo_scale, logo_height * logo_scale);
+
+// Center logo
+logo_sprite = Sprite(logo_image);
+logo_sprite.SetX((screen_width - logo_image.GetWidth()) / 2);
+logo_sprite.SetY((screen_height - logo_image.GetHeight()) / 2 - 80);
+
+// === ROTATION ANIMATION ===
+// Spinning effect for camera aperture
+global.angle = 0;
+
+fun rotate_logo() {
+  global.angle = global.angle + 0.05;  // Rotation speed (adjust for faster/slower)
+  if (global.angle >= 6.283185) {  // 2*PI
+    global.angle = 0;
+  }
+  
+  // Apply rotation to logo
+  rotated_image = logo_image.Rotate(global.angle);
+  logo_sprite.SetImage(rotated_image);
+}
+
+Plymouth.SetRefreshFunction(rotate_logo);
+
+// === BRAND TEXT ===
+brand_image = Image.Text("WehttamSnaps", 1.0, 1.0, 1.0, 1.0, "Fira Code 18");
+brand_sprite = Sprite(brand_image);
+brand_sprite.SetX((screen_width - brand_image.GetWidth()) / 2);
+brand_sprite.SetY(logo_sprite.GetY() + logo_image.GetHeight() + 20);
+
+// Tagline
+tagline_image = Image.Text("Photography • Gaming • Content", 0.54, 0.71, 0.98, 1.0, "Fira Code 12");
+tagline_sprite = Sprite(tagline_image);
+tagline_sprite.SetX((screen_width - tagline_image.GetWidth()) / 2);
+tagline_sprite.SetY(brand_sprite.GetY() + brand_image.GetHeight() + 10);
+
+// === PROGRESS BAR ===
+progress_bar_width = 300;
+progress_bar_height = 6;
+progress_bar_x = (screen_width - progress_bar_width) / 2;
+progress_bar_y = screen_height - 100;
+
+// Progress bar background
+progress_bg = Image("progress_bg.png");
+progress_bg_sprite = Sprite(progress_bg);
+progress_bg_sprite.SetPosition(progress_bar_x, progress_bar_y, 1);
+
+// Progress bar fill
+progress_fill = Image("progress_fill.png");
+progress_fill_sprite = Sprite();
+progress_fill_sprite.SetPosition(progress_bar_x, progress_bar_y, 2);
+
+// Update progress
+fun progress_callback(duration, progress) {
+  if (progress > 1.0) {
+    progress = 1.0;
+  }
+  
+  // Scale progress bar
+  new_progress_width = progress_bar_width * progress;
+  scaled_progress = progress_fill.Scale(new_progress_width, progress_bar_height);
+  progress_fill_sprite.SetImage(scaled_progress);
+}
+
+Plymouth.SetBootProgressFunction(progress_callback);
+
+// === BOOT STATUS MESSAGE ===
+message_sprite = Sprite();
+message_sprite.SetPosition(0, screen_height - 40, 10000);
+
+fun message_callback(text) {
+  message_image = Image.Text(text, 0.7, 0.7, 0.7, 1.0, "Fira Code 12");
+  message_sprite.SetImage(message_image);
+  message_sprite.SetX((screen_width - message_image.GetWidth()) / 2);
+}
+
+Plymouth.SetMessageFunction(message_callback);
+
+// === PASSWORD PROMPT (for encrypted drives) ===
+question_sprite = Sprite();
+question_sprite.SetPosition(0, screen_height / 2 + 100, 10000);
+
+answer_sprite = Sprite();
+answer_sprite.SetPosition(0, screen_height / 2 + 130, 10000);
+
+fun display_question_callback(prompt, entry) {
+  question_image = Image.Text(prompt, 1.0, 1.0, 1.0, 1.0, "Fira Code 14");
+  question_sprite.SetImage(question_image);
+  question_sprite.SetX((screen_width - question_image.GetWidth()) / 2);
+  
+  // Show entry (with bullets for password)
+  entry_text = "";
+  for (i = 0; i < entry.GetLength(); i++) {
+    entry_text += "•";
+  }
+  
+  answer_image = Image.Text(entry_text, 0.54, 0.71, 0.98, 1.0, "Fira Code 14");
+  answer_sprite.SetImage(answer_image);
+  answer_sprite.SetX((screen_width - answer_image.GetWidth()) / 2);
+}
+
+Plymouth.SetDisplayQuestionFunction(display_question_callback);
+
+// === QUIT CALLBACK ===
+fun quit_callback() {
+  // Fade out effect
+  logo_sprite.SetOpacity(0);
+  brand_sprite.SetOpacity(0);
+  tagline_sprite.SetOpacity(0);
+}
+
+Plymouth.SetQuitFunction(quit_callback);
+
+// === CUSTOM MESSAGES ===
+// J.A.R.V.I.S. style boot messages
+startup_messages = [
+  "Initializing WehttamSnaps workstation...",
+  "All systems operational.",
+  "Photography mode: Ready",
+  "Gaming performance: Optimized",
+  "Welcome back, Matthew."
+];
+
+current_message = 0;
+message_counter = 0;
+
+fun update_startup_message() {
+  message_counter = message_counter + 1;
+  
+  if (message_counter > 50) {  // Change message every ~50 frames
+    message_counter = 0;
+    current_message = current_message + 1;
+    
+    if (current_message < 5) {
+      message_callback(startup_messages[current_message]);
+    }
+  }
+}
+
+// Hook into refresh to cycle messages
+old_refresh = Plymouth.SetRefreshFunction;
+Plymouth.SetRefreshFunction(fun () {
+  rotate_logo();
+  update_startup_message();
+});

@@ -1,0 +1,57 @@
+## 🎮 gaming.list - Gaming Packages
+
+```
+# === STEAM ===
+steam
+steam-native-runtime
+
+# === PROTON & COMPATIBILITY ===
+proton-ge-custom-bin
+protonup-qt
+wine-staging
+wine-mono
+wine-gecko
+winetricks
+
+# === GAME LAUNCHERS ===
+lutris
+heroic-games-launcher-bin
+
+# === PERFORMANCE ===
+gamemode
+lib32-gamemode
+gamescope
+mangohud
+lib32-mangohud
+goverlay
+
+# === GPU DRIVERS (AMD RX 580) ===
+mesa
+lib32-mesa
+vulkan-radeon
+lib32-vulkan-radeon
+vulkan-icd-loader
+lib32-vulkan-icd-loader
+vulkan-mesa-layers
+lib32-vulkan-mesa-layers
+mesa-utils
+vulkan-tools
+
+# === ADDITIONAL LIBRARIES ===
+lib32-pipewire
+lib32-pipewire-jack
+vkd3d
+lib32-vkd3d
+dxvk-bin
+lib32-nvidia-utils
+
+# === INPUT ===
+antimicrox
+sc-controller
+
+# === MOD MANAGERS ===
+# Run via Wine/Lutris:
+# - Vortex
+# - Mod Organizer 2
+# - Wabbajack
+```

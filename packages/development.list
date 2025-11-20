@@ -1,0 +1,50 @@
+## 🔧 development.list - Development Tools
+
+```
+# === LANGUAGES ===
+python
+python-pip
+nodejs
+npm
+rust
+go
+
+# === BUILD TOOLS ===
+cmake
+make
+gcc
+clang
+
+# === VERSION CONTROL ===
+git
+git-lfs
+lazygit
+
+# === EDITORS / IDEs ===
+code
+neovim
+vim
+
+# === CONTAINERS ===
+docker
+docker-compose
+podman
+
+# === DATABASES ===
+postgresql
+mariadb
+
+# === DEBUGGING ===
+gdb
+valgrind
+strace
+
+# === PYTHON TOOLS ===
+python-virtualenv
+python-pipenv
+python-poetry
+
+# === NODE TOOLS ===
+yarn
+pnpm
+```

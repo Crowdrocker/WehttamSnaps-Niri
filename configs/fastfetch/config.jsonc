@@ -1,0 +1,157 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+
+  // === WEHTTAMSNAPS FASTFETCH CONFIGURATION ===
+  // GitHub: https://github.com/Crowdrocker
+  // Photography • Gaming • Content Creation
+
+  "logo": {
+    "source": "arch",
+    "color": {
+      "1": "blue",
+      "2": "cyan"
+    },
+    "padding": {
+      "top": 1,
+      "left": 2
+    }
+  },
+
+  "display": {
+    "separator": " → ",
+    "color": {
+      "keys": "blue",
+      "title": "cyan"
+    }
+  },
+
+  "modules": [
+    {
+      "type": "title",
+      "format": "{user-name-colored}@{host-name-colored}",
+      "color": {
+        "user": "cyan",
+        "host": "blue"
+      }
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "custom",
+      "format": "WehttamSnaps Workstation",
+      "outputColor": "magenta"
+    },
+    {
+      "type": "os",
+      "key": " OS",
+      "keyColor": "blue"
+    },
+    {
+      "type": "host",
+      "key": "󰇅 Host",
+      "keyColor": "blue"
+    },
+    {
+      "type": "kernel",
+      "key": " Kernel",
+      "keyColor": "blue"
+    },
+    {
+      "type": "uptime",
+      "key": "󰅐 Uptime",
+      "keyColor": "blue"
+    },
+    {
+      "type": "packages",
+      "key": "󰏖 Packages",
+      "keyColor": "blue"
+    },
+    {
+      "type": "shell",
+      "key": " Shell",
+      "keyColor": "blue"
+    },
+    {
+      "type": "display",
+      "key": "󰍹 Display",
+      "keyColor": "blue",
+      "compactType": "original"
+    },
+    {
+      "type": "wm",
+      "key": " WM",
+      "keyColor": "blue"
+    },
+    {
+      "type": "wmtheme",
+      "key": "󰉼 WM Theme",
+      "keyColor": "blue"
+    },
+    {
+      "type": "terminal",
+      "key": " Terminal",
+      "keyColor": "blue"
+    },
+    {
+      "type": "terminalfont",
+      "key": " Term Font",
+      "keyColor": "blue"
+    },
+    {
+      "type": "cpu",
+      "key": "󰻠 CPU",
+      "keyColor": "green",
+      "temp": true
+    },
+    {
+      "type": "gpu",
+      "key": "󰢮 GPU",
+      "keyColor": "green",
+      "temp": true,
+      "driverSpecific": true
+    },
+    {
+      "type": "memory",
+      "key": " Memory",
+      "keyColor": "yellow"
+    },
+    {
+      "type": "swap",
+      "key": "󰓡 Swap",
+      "keyColor": "yellow"
+    },
+    {
+      "type": "disk",
+      "key": "󰋊 Disk (/)",
+      "keyColor": "yellow",
+      "folders": "/"
+    },
+    {
+      "type": "disk",
+      "key": "󰋊 Disk (/home)",
+      "keyColor": "yellow",
+      "folders": "/home"
+    },
+    {
+      "type": "localip",
+      "key": "󰩟 Local IP",
+      "keyColor": "cyan",
+      "compact": true
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "custom",
+      "format": "Photography • Gaming • Content Creation",
+      "outputColor": "blue"
+    },
+    {
+      "type": "colors",
+      "symbol": "circle"
+    }
+  ]
+}

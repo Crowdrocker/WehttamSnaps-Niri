@@ -1,0 +1,94 @@
+## 📦 core.list - Essential Packages (Required)
+
+```
+# === COMPOSITOR & WINDOW MANAGER ===
+niri
+quickshell
+noctalia-shell
+
+# === TERMINAL ===
+ghostty
+foot
+
+# === DISPLAY SERVER ===
+xorg-xwayland
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+
+# === AUDIO ===
+pipewire
+wireplumber
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+pavucontrol
+qpwgraph
+
+# === BASIC UTILITIES ===
+git
+git-lfs
+brightnessctl
+playerctl
+cliphist
+grim
+slurp
+swappy
+wl-clipboard
+
+# === FILE MANAGER ===
+thunar
+thunar-archive-plugin
+thunar-volman
+tumbler
+ffmpegthumbnailer
+
+# === BROWSER ===
+brave-bin
+
+# === TEXT EDITOR ===
+kate
+neovim
+
+# === SYSTEM TOOLS ===
+fastfetch
+starship
+btop
+polkit
+hyprpolkitagent
+
+# === FONTS ===
+ttf-fira-code
+ttf-jetbrains-mono-nerd
+ttf-roboto
+noto-fonts
+noto-fonts-emoji
+noto-fonts-cjk
+
+# === THEMING ===
+matugen-git
+qt6ct
+kvantum
+gtk3
+gtk4
+
+# === BASE SYSTEM ===
+base
+base-devel
+linux
+linux-firmware
+linux-headers
+intel-ucode
+amd-ucode
+
+# === BOOTLOADER ===
+grub
+efibootmgr
+os-prober
+
+# === NETWORKING ===
+networkmanager
+nm-connection-editor
+network-manager-applet
+iwd
+dhcpcd
+```

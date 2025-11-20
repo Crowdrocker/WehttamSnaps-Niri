@@ -1,0 +1,7 @@
+# Notion webapp configuration
+# Usage: webapp notion
+
+WEBAPP_NAME="Notion"
+WEBAPP_URL="https://www.notion.so"
+WEBAPP_ICON="notion"
+WEBAPP_BROWSER="brave"

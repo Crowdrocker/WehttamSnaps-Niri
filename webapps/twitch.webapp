@@ -1,0 +1,8 @@
+# Twitch webapp configuration
+# Usage: webapp twitch
+# Keybind: Mod + W, T
+
+WEBAPP_NAME="Twitch"
+WEBAPP_URL="https://www.twitch.tv"
+WEBAPP_ICON="twitch"
+WEBAPP_BROWSER="brave"

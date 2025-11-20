@@ -1,0 +1,41 @@
+## 📷 photography.list - Photography & Creative Tools
+
+```
+# === RAW PROCESSING ===
+darktable
+rawtherapee
+
+# === PHOTO EDITING ===
+gimp
+krita
+
+# === PHOTO MANAGEMENT ===
+digikam
+shotwell
+
+# === VECTOR GRAPHICS ===
+inkscape
+
+# === 3D MODELING ===
+blender
+
+# === IMAGE VIEWERS ===
+gwenview
+nomacs
+qview
+loupe
+
+# === COLOR MANAGEMENT ===
+colord
+argyllcms
+
+# === WACOM TABLET (if you use one) ===
+# xf86-input-wacom
+# libwacom
+
+# === GIMP PLUGINS ===
+gimp-help-en
+gimp-plugin-gmic
+
+# === INKSCAPE EXTRAS ===
+inkscape-docs

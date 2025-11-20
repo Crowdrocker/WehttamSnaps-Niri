@@ -1,0 +1,109 @@
+## 🛠️ optional.list - Nice-to-Have Packages
+
+```
+# === ADDITIONAL TERMINALS ===
+kitty
+alacritty
+
+# === ADDITIONAL EDITORS ===
+code
+micro
+
+# === FILE MANAGERS ===
+dolphin
+nautilus
+ranger
+nnn
+yazi
+
+# === BROWSERS ===
+firefox
+chromium
+zen-browser-bin
+
+# === MEDIA PLAYERS ===
+mpv
+mpv-mpris
+vlc
+celluloid
+
+# === MUSIC ===
+spotify-launcher
+cmus
+ncmpcpp
+mpd
+
+# === ARCHIVE TOOLS ===
+ark
+file-roller
+p7zip
+unrar
+unzip
+zip
+
+# === PDF VIEWERS ===
+zathura
+zathura-pdf-mupdf
+okular
+evince
+
+# === OFFICE ===
+libreoffice-fresh
+
+# === EMAIL ===
+thunderbird
+
+# === SYSTEM MONITORS ===
+gnome-system-monitor
+mission-center
+
+# === DISK UTILITIES ===
+gparted
+gnome-disk-utility
+btrfs-assistant
+
+# === DEVELOPMENT ===
+github-desktop-plus-bin
+docker
+docker-compose
+
+# === VIRTUALIZATION ===
+# virt-manager
+# qemu-full
+# libvirt
+
+# === SECURITY ===
+keepassxc
+
+# === NETWORKING TOOLS ===
+wireshark-qt
+nmap
+
+# === DOWNLOAD MANAGERS ===
+qbittorrent
+yt-dlp
+
+# === PRODUCTIVITY ===
+obsidian
+notion-app-enhanced
+
+# === SCREENSHOT TOOLS ===
+flameshot
+
+# === WALLPAPER TOOLS ===
+azote
+waypaper
+swww
+hyprpaper
+
+# === FUN ===
+cmatrix
+lolcat
+cowsay
+fortune-mod
+sl
+
+# === PLYMOUTH THEMES ===
+plymouth
+plymouth-theme-arch-charge
+```

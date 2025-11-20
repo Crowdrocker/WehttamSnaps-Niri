@@ -1,0 +1,7 @@
+# ChatGPT webapp configuration
+# Usage: webapp chatgpt
+
+WEBAPP_NAME="ChatGPT"
+WEBAPP_URL="https://chat.openai.com"
+WEBAPP_ICON="ai"
+WEBAPP_BROWSER="brave"

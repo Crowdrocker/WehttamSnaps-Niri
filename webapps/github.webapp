@@ -1,0 +1,8 @@
+# GitHub webapp configuration
+# Usage: webapp github
+# Keybind: Mod + W, G
+
+WEBAPP_NAME="GitHub"
+WEBAPP_URL="https://github.com/Crowdrocker"
+WEBAPP_ICON="github"
+WEBAPP_BROWSER="brave"

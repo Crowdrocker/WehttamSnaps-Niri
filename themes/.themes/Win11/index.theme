@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Win11
+Comment=An Materia Gtk+ theme based on Elegant Design
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Win11
+MetacityTheme=Win11
+IconTheme=Win11
+CursorTheme=Win11
+ButtonLayout=close,minimize,maximize:menu

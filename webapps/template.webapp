@@ -1,0 +1,7 @@
+# Webapp configuration template
+# Copy this file and customize for your needs
+
+WEBAPP_NAME="AppName"
+WEBAPP_URL="https://example.com"
+WEBAPP_ICON="web-browser"
+WEBAPP_BROWSER="brave"  # brave, firefox, or chromium

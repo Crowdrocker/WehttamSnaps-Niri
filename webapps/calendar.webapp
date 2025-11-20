@@ -1,0 +1,7 @@
+# Google Calendar webapp configuration
+# Usage: webapp calendar
+
+WEBAPP_NAME="Calendar"
+WEBAPP_URL="https://calendar.google.com"
+WEBAPP_ICON="calendar"
+WEBAPP_BROWSER="brave"

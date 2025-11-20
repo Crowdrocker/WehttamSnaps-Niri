@@ -1,0 +1,8 @@
+# Gmail webapp configuration
+# Usage: webapp gmail
+# Keybind: Mod + W, M
+
+WEBAPP_NAME="Gmail"
+WEBAPP_URL="https://mail.google.com"
+WEBAPP_ICON="mail"
+WEBAPP_BROWSER="brave"

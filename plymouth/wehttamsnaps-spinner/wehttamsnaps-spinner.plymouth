@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=WehttamSnaps Spinner
+Description=Spinning camera aperture logo for WehttamSnaps workstation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/wehttamsnaps-spinner
+ScriptFile=/usr/share/plymouth/themes/wehttamsnaps-spinner/wehttamsnaps-spinner.script
