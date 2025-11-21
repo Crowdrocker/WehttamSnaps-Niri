@@ -72,7 +72,7 @@ This repository contains a complete, modular Niri configuration featuring:
 
 ## 📝 Update Your Documentation
 
-Add to `docs/QUICKSTART.md` and `README.md`:
+
 
 ```markdown
 ### 🛡️ Config Validation
