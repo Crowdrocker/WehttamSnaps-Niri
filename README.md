@@ -70,6 +70,49 @@ This repository contains a complete, modular Niri configuration featuring:
 - **Consistent Styling** – GTK, Qt, terminal themes
 - **Custom Plymouth** – Animated boot screen with WehttamSnaps logo
 
+## 📝 Update Your Documentation
+
+Add to `docs/QUICKSTART.md` and `README.md`:
+
+```markdown
+### 🛡️ Config Validation
+
+Real-time config validation with desktop notifications:
+
+```bash
+# Enable config watcher (automatic on boot)
+systemctl --user enable --now config-watcher.service
+
+# Validate all configs manually
+Mod + Alt + V
+# or
+validate-config
+```
+
+**Features:**
+- ✅ Instant error notifications when you save
+- ✅ J.A.R.V.I.S. warning sounds
+- ✅ Detailed error messages
+- ✅ Prevents broken configs
+```
+
+---
+
+## 🎨 Integration with Your Setup
+
+### Already Integrated:
+- ✅ J.A.R.V.I.S. warning sound on errors
+- ✅ Uses your notification system (Noctalia/mako)
+- ✅ Logs to `~/.cache/wehttamsnaps/`
+- ✅ Follows WehttamSnaps branding
+- ✅ Works with all your configs
+
+### Add to Aliases:
+Already included in `.aliases`:
+```bash
+alias validate-config='~/.config/wehttamsnaps/scripts/config-watcher.sh validate'
+alias watch-config='~/.config/wehttamsnaps/scripts/config-watcher.sh start'
+```
 ---
 
 ## 📦 Installation

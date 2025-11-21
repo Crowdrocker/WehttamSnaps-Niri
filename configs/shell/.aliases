@@ -26,7 +26,8 @@ alias list-installed='paru -Qe'
 alias list-aur='paru -Qm'
 
 # === WEHTTAMSNAPS SCRIPTS ===
-
+alias validate-config='~/.config/wehttamsnaps/scripts/config-watcher.sh validate'
+alias watch-config='~/.config/wehttamsnaps/scripts/config-watcher.sh start'
 # Gaming
 alias gaming='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh'
 alias gaming-on='~/.config/wehttamsnaps/scripts/toggle-gamemode.sh on'
