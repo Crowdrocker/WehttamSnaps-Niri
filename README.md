@@ -46,11 +46,10 @@
   <img src="https://github.com/Crowdrocker/Telegram-Animated-Emojis/blob/main/People/Thumbs%20Up.webp" alt="Up" width="38" height="38" />
 </h3>
 
-```
 
----
 
-## 🎯 Overview
+<a id="Overview"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Overview" width="450"/>
 
 This repository contains a complete, modular Niri configuration featuring:
 
@@ -63,8 +62,9 @@ This repository contains a complete, modular Niri configuration featuring:
 
 ---
 
-## 💻 System Specifications
 
+💻 <a id="System Specifications"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=SystemSpecifications" width="450"/>
 - **Hardware:** Dell XPS 8700
 - **CPU:** Intel Core i7-4790 @ 4.00 GHz (8 cores)
 - **GPU:** AMD RX 580 Series
@@ -74,8 +74,9 @@ This repository contains a complete, modular Niri configuration featuring:
 
 ---
 
-## ✨ Features
 
+✨ <a id="Features"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Features" width="450"/>
 ### Compositor & Shell
 - **Niri** – Modern scrollable-tiling Wayland compositor
 - **Noctalia Shell** – Quickshell-based panel with custom widgets
@@ -103,53 +104,11 @@ This repository contains a complete, modular Niri configuration featuring:
 - **Consistent Styling** – GTK, Qt, terminal themes
 - **Custom Plymouth** – Animated boot screen with WehttamSnaps logo
 
-## 📝 Update Your Documentation
-
-
-
-```markdown
-### 🛡️ Config Validation
-
-Real-time config validation with desktop notifications:
-
-```bash
-# Enable config watcher (automatic on boot)
-systemctl --user enable --now config-watcher.service
-
-# Validate all configs manually
-Mod + Alt + V
-# or
-validate-config
-```
-
-**Features:**
-- ✅ Instant error notifications when you save
-- ✅ J.A.R.V.I.S. warning sounds
-- ✅ Detailed error messages
-- ✅ Prevents broken configs
-```
-
 ---
 
-## 🎨 Integration with Your Setup
 
-### Already Integrated:
-- ✅ J.A.R.V.I.S. warning sound on errors
-- ✅ Uses your notification system (Noctalia/mako)
-- ✅ Logs to `~/.cache/wehttamsnaps/`
-- ✅ Follows WehttamSnaps branding
-- ✅ Works with all your configs
-
-### Add to Aliases:
-Already included in `.aliases`:
-```bash
-alias validate-config='~/.config/wehttamsnaps/scripts/config-watcher.sh validate'
-alias watch-config='~/.config/wehttamsnaps/scripts/config-watcher.sh start'
-```
----
-
-## 📦 Installation
-
+📦<a id="Installation"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Installation" width="450"/>
 ### Prerequisites
 
 ```bash
@@ -180,8 +139,9 @@ The installer will:
 
 ---
 
-## 🎹 Keybindings
 
+🎹<a id="Keybindings"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Keybindings" width="450"/>
 ### Core Navigation
 | Shortcut | Action |
 |----------|--------|
@@ -223,8 +183,9 @@ The installer will:
 
 ---
 
-## 📁 Repository Structure
 
+📁<a id="Repository Structure"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=RepositoryStructure" width="450"/>
 ```
 ~/.config/wehttamsnaps/
 ├── README.md                    # This file
@@ -292,9 +253,9 @@ The installer will:
     ├── photography.list        # Photo editing tools
     └── optional.list           # Nice-to-have packages
 ```
-```markdown
-### 🎨 Wallpaper Management
 
+🎨<a id="Wallpaper Management"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=WallpaperManagement" width="450"/>
 Download wallpapers from Wallhaven:
 
 ```bash
@@ -313,9 +274,6 @@ Mod + Shift + W
 ```
 
 See `scripts/wallpaper-manager.sh` for full features.
-```
-
----
 
 ## 🎯 Why This is Better Than Manual Downloads
 
@@ -340,8 +298,9 @@ wp download-search
 
 ---
 
-## 📦 Integration Points
-
+##  
+📦<a id="Integration Points"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=IntegrationPoints" width="450"/>
 ### With Noctalia:
 ✅ Wallpapers auto-detected in `~/.config/wehttamsnaps/wallpapers/`  
 ✅ Can set via IPC: `qs -c noctalia-shell ipc call wallpaper set`  
@@ -401,8 +360,9 @@ docs/
 ```
 ---
 
-## 🎮 Gaming Optimizations
-
+  
+🎮<a id="Gaming Optimizations"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=GamingOptimizations" width="450"/>
 ### Supported Games (Pre-configured)
 - Call of Duty HQ
 - Cyberpunk 2077
@@ -429,8 +389,9 @@ See `docs/GAMING.md` for detailed per-game configurations and troubleshooting.
 
 ---
 
-## 🎨 Customization
 
+🎨<a id="Customization"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Customization" width="450"/>
 ### Change Theme
 ```bash
 # Open Noctalia settings
@@ -459,8 +420,9 @@ qpwgraph
 
 ---
 
-## 🔊 J.A.R.V.I.S. Integration
 
+🔊<a id="J.A.R.V.I.S. Integration"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=J.A.R.V.I.S.Integration" width="450"/>
 J.A.R.V.I.S. provides audio feedback for system events:
 
 - **Startup:** "Allow me to introduce myself, I am JARVIS..."
@@ -475,8 +437,9 @@ Edit `scripts/jarvis-manager.sh` to add or modify sound triggers.
 
 ---
 
-## 📸 Photography Workflow
-
+  
+📸<a id="Photography Workflow"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=PhotographyWorkflow" width="450"/>
 Optimized window rules and keybindings for:
 - **GIMP** – Full screen, workspace 3
 - **Darktable** – Full screen, workspace 3
@@ -490,8 +453,9 @@ Quick access:
 
 ---
 
-## 🛠️ Troubleshooting
 
+🛠️<a id="Troubleshooting"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Troubleshooting" width="450"/>
 ### Niri won't start
 ```bash
 # Check logs
@@ -526,8 +490,9 @@ See `docs/TROUBLESHOOTING.md` for more solutions.
 
 ---
 
-## 🤝 Contributing
 
+🤝<a id="Contributing"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Contributing" width="450"/>
 Contributions welcome! Please:
 1. Fork the repository
 2. Create a feature branch
@@ -561,3 +526,6 @@ MIT License – See LICENSE file for details.
 ---
 
 **Made with ❤️ by WehttamSnaps**
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Crowdrocker/WehttamSnaps-Niri&type=date&legend=top-left)](https://www.star-history.com/#Crowdrocker/WehttamSnaps-Niri&type=date&legend=top-left)
