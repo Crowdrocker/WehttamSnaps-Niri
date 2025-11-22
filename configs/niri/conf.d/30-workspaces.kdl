@@ -28,10 +28,15 @@ workspace "3" {
     name "Photo"
     icon "📷"
 
+    layout {
+        border {
+            active-gradient from="#fab387" to="#f38ba8" angle=45 relative-to="workspace-view"
+        }
+    }
+}
     // Workspace 3: Photography & photo editing
     // Apps: GIMP, Darktable, Krita, RawTherapee, DigiKam
-    // Primary workspace for WehttamSnaps photo work
-}
+
 
 workspace "4" {
     name "Design"

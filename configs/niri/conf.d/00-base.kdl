@@ -71,8 +71,8 @@ layout {
 
     border {
         width 2
-        active-color "#89b4fa"
-        inactive-color "#313244"  // Catppuccin surface1
+        active-gradient from="#89b4fa" to="#cba6f7" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
     }
 
     // Struts for Noctalia bar (adjust if using top bar)

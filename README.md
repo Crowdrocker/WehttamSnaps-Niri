@@ -15,6 +15,11 @@
 
 > *A professional Arch Linux Niri configuration optimized for photography, content creation, and gaming.*
 
+```markdown
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux)
+![Niri](https://img.shields.io/badge/WM-Niri-89b4fa)
+```
 ---
 
 ## 🎯 Overview
