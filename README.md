@@ -34,15 +34,17 @@
 
 </div><br>
 
+<div align="center">
+  
 <a href="#installation"><kbd> <br> Installation <br> </kbd></a>&ensp;&ensp;
-<a href="#updating"><kbd> <br> Updating <br> </kbd></a>&ensp;&ensp;
-<a href="#themes"><kbd> <br> Themes <br> </kbd></a>&ensp;&ensp;
-<a href="#styles"><kbd> <br> Styles <br> </kbd></a>&ensp;&ensp;
-<a href="CONTRIBUTING.md"><kbd> <br> Contributing <br> </kbd></a>&ensp;&ensp;
-<a href="KEYBINDINGS.md"><kbd> <br> Keybindings <br> </kbd></a>&ensp;&ensp;
-<a href="https://www.youtube.com/watch?v=2rWqdKU1vu8&list=PLt8rU_ebLsc5yEHUVsAQTqokIBMtx3RFY&index=1"><kbd> <br> Youtube <br> </kbd></a>&ensp;&ensp;
-<a href="https://hydeproject.pages.dev/"><kbd> <br> Wiki <br> </kbd></a>&ensp;&ensp;
-<a href="https://discord.gg/qWehcFJxPa"><kbd> <br> Discord <br> </kbd></a>
+<a href="#Customization"><kbd> <br> Customization <br> </kbd></a>&ensp;&ensp;
+<a href="#Overview"><kbd> <br> Overview <br> </kbd></a>&ensp;&ensp;
+<a href="#Features"><kbd> <br> Features <br> </kbd></a>&ensp;&ensp;
+<a href="#Contributing"><kbd> <br> Contributing <br> </kbd></a>&ensp;&ensp;
+<a href="#Keybindings"><kbd> <br> Keybindings <br> </kbd></a>&ensp;&ensp;
+  
+<br/>
+</div>
 
 <div align="center">
 
@@ -57,7 +59,18 @@
   <img src="https://github.com/Crowdrocker/Telegram-Animated-Emojis/blob/main/People/Thumbs%20Up.webp" alt="Up" width="38" height="38" />
 </h3>
 
+  
+📸<a id="Screenshots"></a>
+<img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Screenshots" width="450"/>
+<p align="center">
+  <img src="screenshots/desktop-overview.png" width="48%" alt="Desktop Overview">
+  <img src="screenshots/gradient-borders.png" width="48%" alt="Gradient Borders">
+</p>
 
+<p align="center">
+  <img src="screenshots/gaming-workspace.png" width="48%" alt="Gaming">
+  <img src="screenshots/photo-editing.png" width="48%" alt="Photography">
+</p>
 
 <a id="Overview"></a>
 <img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Overview" width="450"/>
