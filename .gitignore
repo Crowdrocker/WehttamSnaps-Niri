@@ -9,6 +9,10 @@
 *.log
 *.log.*
 *.sig
-
+.cache/
+*.log
+*~
+*.swp
+wallpaper-config.json
 pkg/
 src/
