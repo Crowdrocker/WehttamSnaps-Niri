@@ -1,18 +1,33 @@
-*.tar
-*.tar.*
-*.jar
-*.exe
-*.msi
-*.deb
-*.zip
-*.tgz
-*.log
-*.log.*
-*.sig
+# Personal data
+wallpaper-config.json
+welcome.json
+
+# Cache
 .cache/
 *.log
+
+# Temporary files
 *~
 *.swp
-wallpaper-config.json
-pkg/
-src/
+*.swo
+*.tmp
+.DS_Store
+
+# Local customizations
+configs/niri/conf.d/99-overrides.kdl
+
+# API keys (if accidentally added)
+*-api-key.txt
+*.secret
+
+# Build artifacts
+*.o
+*.so
+*.pyc
+
+# Editor directories
+.vscode/
+.idea/
+
+# System files
+Thumbs.db
