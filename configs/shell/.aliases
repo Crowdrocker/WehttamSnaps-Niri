@@ -25,6 +25,13 @@ alias remove='paru -Rns'
 alias list-installed='paru -Qe'
 alias list-aur='paru -Qm'
 
+# Toggle wallpaper automation
+alias wallpaper='~/.config/wehttamsnaps/scripts/wallpaper-manager.sh'
+alias wp='~/.config/wehttamsnaps/scripts/wallpaper-manager.sh'
+alias wp-search='~/.config/wehttamsnaps/scripts/wallpaper-manager.sh search'
+alias wp-random='~/.config/wehttamsnaps/scripts/wallpaper-manager.sh random'
+alias wp-list='~/.config/wehttamsnaps/scripts/wallpaper-manager.sh list'
+
 # === WEHTTAMSNAPS SCRIPTS ===
 alias validate-config='~/.config/wehttamsnaps/scripts/config-watcher.sh validate'
 alias watch-config='~/.config/wehttamsnaps/scripts/config-watcher.sh start'

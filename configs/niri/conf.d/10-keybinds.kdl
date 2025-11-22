@@ -84,6 +84,13 @@ binds {
     // DigiKam (photo management)
     Mod+Shift+P { spawn "digikam"; }
 
+    // Download random wallpaper
+    Mod+Ctrl+W { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/wallpaper-manager.sh random 1 && notify-send 'Wallpaper downloaded'"; }
+
+    // Open wallpaper folder
+    Mod+Shift+Ctrl+W { spawn "thunar" "$HOME/.config/wehttamsnaps/wallpapers"; }
+
+
     // === WEBAPPS ===
 
     // YouTube

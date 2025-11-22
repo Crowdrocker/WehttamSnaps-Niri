@@ -259,7 +259,113 @@ The installer will:
     ├── photography.list        # Photo editing tools
     └── optional.list           # Nice-to-have packages
 ```
+```markdown
+### 🎨 Wallpaper Management
 
+Download wallpapers from Wallhaven:
+
+```bash
+# Configure API key
+wallpaper-manager.sh set-key YOUR_KEY
+
+# Search and download
+wallpaper-manager.sh search "nature"
+wallpaper-manager.sh download-search
+
+# Random wallpapers
+wallpaper-manager.sh random 10
+
+# Set via Noctalia
+Mod + Shift + W
+```
+
+See `scripts/wallpaper-manager.sh` for full features.
+```
+
+---
+
+## 🎯 Why This is Better Than Manual Downloads
+
+### Before:
+1. Go to Wallhaven website
+2. Search wallpapers
+3. Click each one
+4. Download manually
+5. Move to wallpapers folder
+6. Set via Noctalia
+
+### After:
+```bash
+wp search "cyberpunk neon"
+wp download-search
+# Enter: all
+
+# Done! All wallpapers downloaded and ready in Noctalia
+```
+
+**Time saved:** ~30 seconds per wallpaper = 5 minutes for 10 wallpapers!
+
+---
+
+## 📦 Integration Points
+
+### With Noctalia:
+✅ Wallpapers auto-detected in `~/.config/wehttamsnaps/wallpapers/`  
+✅ Can set via IPC: `qs -c noctalia-shell ipc call wallpaper set`  
+✅ Works with Noctalia's wallpaper selector (`Mod + Shift + W`)  
+✅ Compatible with Material You color generation
+---
+
+## 🎨 Popular Search Examples for Photography
+
+```bash
+# Landscape photography
+wp search "landscape photography"
+wp search "mountain sunset golden hour"
+wp search "forest fog morning"
+
+# Urban photography
+wp search "street photography night"
+wp search "architecture modern building"
+wp search "urban cityscape"
+
+# Nature macro
+wp search "macro photography flowers"
+wp search "water droplets close up"
+wp search "insect macro detail"
+
+# Minimalist
+wp search "minimalist photography"
+wp search "simple composition"
+wp search "negative space"
+
+# Your brand style
+wp search "photography professional"
+wp search "editorial photography"
+wp search "commercial photography"
+```
+
+---
+
+## 📂 File Structure
+
+```
+~/.config/wehttamsnaps/
+├── scripts/
+│   └── wallpaper-manager.sh ✅ NEW!
+├── wallpaper-config.json ✅ NEW! (API key stored here)
+└── wallpapers/ ✅ NEW! (Downloaded wallpapers)
+    ├── 983651_1920x1080.jpg
+    ├── 953847_2560x1440.jpg
+    └── ...
+
+~/.cache/wehttamsnaps/wallpapers/
+├── last-search.json (Search results cache)
+└── wallpaper-manager.log (Activity log)
+
+docs/
+└── WALLPAPER-MANAGER.md ✅ NEW!
+```
 ---
 
 ## 🎮 Gaming Optimizations

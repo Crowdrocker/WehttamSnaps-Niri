@@ -60,17 +60,18 @@ layout {
     
     default-column-width { proportion 0.5; }
     
-    // Focus follows mouse for quick navigation
+    // Focus ring with gradient
     focus-ring {
         width 3
-        active-color "#89b4fa"  // Catppuccin blue
-        inactive-color "#45475a"  // Catppuccin surface0
+        active-gradient from="#89b4fa" to="#b4c8fa" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=45 relative-to="workspace-view"
     }
     
+    // Window borders with WehttamSnaps gradient (Photography Blue/Purple)
     border {
         width 2
-        active-color "#89b4fa"
-        inactive-color "#313244"  // Catppuccin surface1
+        active-gradient from="#89b4fa" to="#cba6f7" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
     }
     
     // Struts for Noctalia bar (adjust if using top bar)
