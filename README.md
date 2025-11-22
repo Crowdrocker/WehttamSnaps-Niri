@@ -15,11 +15,25 @@
 
 > *A professional Arch Linux Niri configuration optimized for photography, content creation, and gaming.*
 
-```markdown
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux)
+![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Niri](https://img.shields.io/badge/WM-Niri-89b4fa)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Stars](https://img.shields.io/github/stars/Crowdrocker/WehttamSnaps-Niri?style=social)
 ```
+
+### 3. Set Repository Topics:
+
+Click ⚙️ next to "About" → Add topics:
+```
+arch-linux niri wayland dotfiles ricing photography gaming noctalia
+```
+
+### 4. Add Description:
+
+In "About" section:
+```
+Professional Arch Linux Niri configuration for photography, gaming, and content creation. Features gradient borders, J.A.R.V.I.S. integration, and comprehensive documentation.
 ---
 
 ## 🎯 Overview
