@@ -1,38 +1,50 @@
-# WehttamSnaps – Arch Linux Niri Configuration
+<div align = center>
+  
+<a href="https://discord.gg/9bAVTCNZ">
+    <img alt="Dynamic JSON Badge" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscordapp.com%2Fapi%2Finvites%2Fyour-invite-code%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&suffix=%20members&style=for-the-badge&logo=discord&logoSize=auto&label=WehttamSnaps%20Community&labelColor=ebbcba&color=8A2BE2">
+</a>
 
-```
-██╗    ██╗███████╗██╗  ██╗████████╗████████╗ █████╗ ███╗   ███╗███████╗███╗   ██╗ █████╗ ██████╗ ███████╗
-██║    ██║██╔════╝██║  ██║╚══██╔══╝╚══██╔══╝██╔══██╗████╗ ████║██╔════╝████╗  ██║██╔══██╗██╔══██╗██╔════╝
-██║ █╗ ██║█████╗  ███████║   ██║      ██║   ███████║██╔████╔██║███████╗██╔██╗ ██║███████║██████╔╝███████╗
-██║███╗██║██╔══╝  ██╔══██║   ██║      ██║   ██╔══██║██║╚██╔╝██║╚════██║██║╚██╗██║██╔══██║██╔═══╝ ╚════██║
-╚███╔███╔╝███████╗██║  ██║   ██║      ██║   ██║  ██║██║ ╚═╝ ██║███████║██║ ╚████║██║  ██║██║     ███████║
- ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚══════╝
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="400" />
+</p>
 
-**Author:** Matthew (wehttamsnaps)  
-**GitHub:** [github.com/Crowdrocker](https://github.com/Crowdrocker)  
-**Twitch/YouTube:** WehttamSnaps
+<h3 align="center">
+<img align="center" width="80%" src=https://raw.githubusercontent.com/Crowdrocker/Snaps-Dots/main/assets/github-header.png />
+</h3>
 
-> *A professional Arch Linux Niri configuration optimized for photography, content creation, and gaming.*
+<p align="center">
+  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="400" />
+</p>
+
+<div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Niri](https://img.shields.io/badge/WM-Niri-89b4fa)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen)
 ![Stars](https://img.shields.io/github/stars/Crowdrocker/WehttamSnaps-Niri?style=social)
-```
-```
-## 📸 Screenshots
 
-<p align="center">
-  <img src="screenshots/desktop-overview.png" width="48%" alt="Desktop Overview">
-  <img src="screenshots/gradient-borders.png" width="48%" alt="Gradient Borders">
-</p>
+ 
+[![Twitch](https://img.shields.io/badge/Twitch-WehttamSnaps-9146FF?style=for-the-badge&logo=twitch)](https://www.twitch.tv/wehttamsnaps)
+[![YouTube](https://img.shields.io/badge/YouTube-WehttamSnaps-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/@WehttamSnaps)
+[![GitHub](https://img.shields.io/badge/GitHub-Crowdrocker-181717?style=for-the-badge&logo=github)](https://github.com/Crowdrocker)
 
-<p align="center">
-  <img src="screenshots/gaming-workspace.png" width="48%" alt="Gaming">
-  <img src="screenshots/photo-editing.png" width="48%" alt="Photography">
-</p>
+</div>
+
+</div><br>
+
+<div align="center">
+
+![GitHub Repo stars](https://img.shields.io/github/stars/Crowdrocker/WehttamSnaps-Niri?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/Crowdrocker/WehttamSnaps-Niri?style=for-the-badge&color=b4befe) 
+<br/>
+</div>
+
+<h3 align="center">
+  <img src="https://github.com/Crowdrocker/Telegram-Animated-Emojis/blob/main/Activity/Video%20Game.webp" alt="Game" width="38" height="38" />
+  Professional Arch Linux configuration optimized for photography, gaming, and content creation.
+  <img src="https://github.com/Crowdrocker/Telegram-Animated-Emojis/blob/main/People/Thumbs%20Up.webp" alt="Up" width="38" height="38" />
+</h3>
 
 ```
 
