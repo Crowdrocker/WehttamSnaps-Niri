@@ -15,11 +15,27 @@
 
 > *A professional Arch Linux Niri configuration optimized for photography, content creation, and gaming.*
 
-```markdown
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux)
+![Arch Linux](https://img.shields.io/badge/Arch-Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Niri](https://img.shields.io/badge/WM-Niri-89b4fa)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Stars](https://img.shields.io/github/stars/Crowdrocker/WehttamSnaps-Niri?style=social)
 ```
+```
+## 📸 Screenshots
+
+<p align="center">
+  <img src="screenshots/desktop-overview.png" width="48%" alt="Desktop Overview">
+  <img src="screenshots/gradient-borders.png" width="48%" alt="Gradient Borders">
+</p>
+
+<p align="center">
+  <img src="screenshots/gaming-workspace.png" width="48%" alt="Gaming">
+  <img src="screenshots/photo-editing.png" width="48%" alt="Photography">
+</p>
+
+```
+
 ---
 
 ## 🎯 Overview
