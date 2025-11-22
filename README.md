@@ -5,15 +5,15 @@
 </a>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="400" />
+  <img src="https://github.com/Crowdrocker/WehttamSnaps-Niri/blob/main/assets/latte.png" width="400" />
 </p>
 
 <h3 align="center">
-<img align="center" width="80%" src=https://raw.githubusercontent.com/Crowdrocker/Snaps-Dots/main/assets/github-header.png />
+<img align="center" width="80%" src=https://github.com/Crowdrocker/WehttamSnaps-Niri/blob/main/assets/github-header.png />
 </h3>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="400" />
+  <img src="https://github.com/Crowdrocker/WehttamSnaps-Niri/blob/main/assets/latte.png" width="400" />
 </p>
 
 <div align="center">
