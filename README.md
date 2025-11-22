@@ -21,19 +21,21 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Stars](https://img.shields.io/github/stars/Crowdrocker/WehttamSnaps-Niri?style=social)
 ```
-
-### 3. Set Repository Topics:
-
-Click ⚙️ next to "About" → Add topics:
 ```
-arch-linux niri wayland dotfiles ricing photography gaming noctalia
+## 📸 Screenshots
+
+<p align="center">
+  <img src="screenshots/desktop-overview.png" width="48%" alt="Desktop Overview">
+  <img src="screenshots/gradient-borders.png" width="48%" alt="Gradient Borders">
+</p>
+
+<p align="center">
+  <img src="screenshots/gaming-workspace.png" width="48%" alt="Gaming">
+  <img src="screenshots/photo-editing.png" width="48%" alt="Photography">
+</p>
+
 ```
 
-### 4. Add Description:
-
-In "About" section:
-```
-Professional Arch Linux Niri configuration for photography, gaming, and content creation. Features gradient borders, J.A.R.V.I.S. integration, and comprehensive documentation.
 ---
 
 ## 🎯 Overview
