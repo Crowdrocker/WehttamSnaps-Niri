@@ -1118,7 +1118,7 @@ paru -S curl jq
 ### 3. Configure API Key
 
 ```bash
-~/.config/wehttamsnaps/scripts/wallpaper-manager.sh set-key YOUR_API_KEY_HERE
+~/.config/wehttamsnaps/scripts/wallpaper-manager.sh set-key q4eGGZuTQk9ksdrijxT9g6NIOqHEL5Ls
 
 # Verify
 ~/.config/wehttamsnaps/scripts/wallpaper-manager.sh show-key
