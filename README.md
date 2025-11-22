@@ -34,9 +34,20 @@
 
 </div><br>
 
+<a href="#installation"><kbd> <br> Installation <br> </kbd></a>&ensp;&ensp;
+<a href="#updating"><kbd> <br> Updating <br> </kbd></a>&ensp;&ensp;
+<a href="#themes"><kbd> <br> Themes <br> </kbd></a>&ensp;&ensp;
+<a href="#styles"><kbd> <br> Styles <br> </kbd></a>&ensp;&ensp;
+<a href="CONTRIBUTING.md"><kbd> <br> Contributing <br> </kbd></a>&ensp;&ensp;
+<a href="KEYBINDINGS.md"><kbd> <br> Keybindings <br> </kbd></a>&ensp;&ensp;
+<a href="https://www.youtube.com/watch?v=2rWqdKU1vu8&list=PLt8rU_ebLsc5yEHUVsAQTqokIBMtx3RFY&index=1"><kbd> <br> Youtube <br> </kbd></a>&ensp;&ensp;
+<a href="https://hydeproject.pages.dev/"><kbd> <br> Wiki <br> </kbd></a>&ensp;&ensp;
+<a href="https://discord.gg/qWehcFJxPa"><kbd> <br> Discord <br> </kbd></a>
+
 <div align="center">
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Crowdrocker/WehttamSnaps-Niri?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/Crowdrocker/WehttamSnaps-Niri?style=for-the-badge&color=b4befe) 
+
 <br/>
 </div>
 
