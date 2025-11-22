@@ -493,11 +493,26 @@ See `docs/TROUBLESHOOTING.md` for more solutions.
 
 🤝<a id="Contributing"></a>
 <img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Contributing" width="450"/>
-Contributions welcome! Please:
+
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### How to Contribute
+
 1. Fork the repository
-2. Create a feature branch
-3. Test your changes
-4. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Areas for Contribution
+
+- Additional color schemes
+- More webapp configs
+- Translation support
+- Bug fixes
+- Documentation improvements
+- Additional game launch options
 
 ---
 
@@ -526,6 +541,6 @@ MIT License – See LICENSE file for details.
 ---
 
 **Made with ❤️ by WehttamSnaps**
-## Star History
+If you found this helpful, please consider giving it a star! It helps others discover this project.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Crowdrocker/WehttamSnaps-Niri&type=date&legend=top-left)](https://www.star-history.com/#Crowdrocker/WehttamSnaps-Niri&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=Crowdrocker/WehttamSnaps-Niri&type=Date)](https://star-history.com/#Crowdrocker/WehttamSnaps-Niri&Date)
