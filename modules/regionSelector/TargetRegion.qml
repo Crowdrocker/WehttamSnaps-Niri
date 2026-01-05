@@ -33,6 +33,9 @@ Rectangle {
     Behavior on opacity {
         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
     }
+    Behavior on color {
+        animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+    }
     x: hasValidGeometry ? clientDimensions.at[0] : 0
     y: hasValidGeometry ? clientDimensions.at[1] : 0
     width: hasValidGeometry ? clientDimensions.size[0] : 0
@@ -68,7 +71,7 @@ Rectangle {
                     visible: active
                     sourceComponent: IconImage {
                         implicitSize: Appearance.font.pixelSize.larger
-                        source: Quickshell.iconPath(AppSearch.guessIcon(root.text), "image-missing")
+                        source: AppSearch.getIconSource(root.text)
                     }
                 }
 

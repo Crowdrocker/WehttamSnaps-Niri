@@ -81,9 +81,35 @@ MouseArea {
         opacity: root.showLoginView ? 1 : 0
         Behavior on opacity {
             NumberAnimation {
-                duration: Appearance.animation.elementMove.duration
-                easing.type: Appearance.animation.elementMove.type
+                duration: 350
+                easing.type: Easing.OutCubic
             }
+        }
+    }
+    
+    // Unlock success overlay (fade to white/black on unlock)
+    Rectangle {
+        id: unlockOverlay
+        anchors.fill: parent
+        color: Appearance.m3colors?.m3background ?? "#1a1a2e"
+        opacity: 0
+        z: 100
+        
+        NumberAnimation {
+            id: unlockFadeAnim
+            target: unlockOverlay
+            property: "opacity"
+            from: 0; to: 1
+            duration: 300
+            easing.type: Easing.InQuad
+        }
+    }
+    
+    // Trigger unlock animation before actually unlocking
+    Connections {
+        target: root.context
+        function onUnlocked(action) {
+            unlockFadeAnim.start()
         }
     }
 
@@ -93,18 +119,18 @@ MouseArea {
         anchors.fill: parent
         opacity: root.showLoginView ? 0 : 1
         visible: opacity > 0
-        scale: root.showLoginView ? 0.95 : 1
+        scale: root.showLoginView ? 0.92 : 1
         
         Behavior on opacity {
             NumberAnimation {
-                duration: Appearance.animation.elementMove.duration
-                easing.type: Appearance.animation.elementMove.type
+                duration: 400
+                easing.type: Easing.OutCubic
             }
         }
         Behavior on scale {
             NumberAnimation {
-                duration: Appearance.animation.elementMove.duration
-                easing.type: Easing.OutCubic
+                duration: 450
+                easing.type: Easing.OutBack
             }
         }
         
@@ -228,13 +254,7 @@ MouseArea {
                 }
                 
                 function getWeatherIconWithTime(code: string): string {
-                    const baseIcon = Icons.getWeatherIcon(code) ?? "cloud"
-                    const isNight = isNightTime()
-                    if (isNight) {
-                        if (baseIcon === "clear_day") return "clear_night"
-                        if (baseIcon === "partly_cloudy_day") return "partly_cloudy_night"
-                    }
-                    return baseIcon
+                    return Icons.getWeatherIcon(code, Weather.isNightNow()) ?? "cloud"
                 }
                 
                 MaterialSymbol {
@@ -350,25 +370,28 @@ MouseArea {
         anchors.fill: parent
         opacity: root.showLoginView ? 1 : 0
         visible: opacity > 0
-        scale: root.showLoginView ? 1 : 1.05
         
         Behavior on opacity {
             NumberAnimation {
-                duration: Appearance.animation.elementMove.duration
-                easing.type: Appearance.animation.elementMove.type
-            }
-        }
-        Behavior on scale {
-            NumberAnimation {
-                duration: Appearance.animation.elementMove.duration
+                duration: 400
                 easing.type: Easing.OutCubic
             }
         }
 
-        // Centered login content
+        // Centered login content with staggered animation
         ColumnLayout {
+            id: loginContent
             anchors.centerIn: parent
             spacing: 16
+            
+            // Animation properties for stagger effect
+            property real animProgress: root.showLoginView ? 1 : 0
+            Behavior on animProgress {
+                NumberAnimation {
+                    duration: 500
+                    easing.type: Easing.OutCubic
+                }
+            }
             
             // User Avatar - Material You style (large circular with accent ring)
             Item {
@@ -376,6 +399,15 @@ MouseArea {
                 Layout.alignment: Qt.AlignHCenter
                 width: 100
                 height: 100
+                
+                // Stagger animation
+                opacity: Math.min(1, loginContent.animProgress * 3)
+                scale: 0.8 + (0.2 * Math.min(1, loginContent.animProgress * 3))
+                transformOrigin: Item.Center
+                
+                Behavior on scale {
+                    NumberAnimation { duration: 350; easing.type: Easing.OutBack }
+                }
                 
                 // Accent ring behind avatar
                 Rectangle {
@@ -466,6 +498,10 @@ MouseArea {
                 font.family: Appearance.font.family.main
                 color: Appearance.colors.colOnSurface
                 
+                // Stagger animation (delayed)
+                opacity: Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.3))
+                transform: Translate { y: (1 - Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.3))) * 15 }
+                
                 layer.enabled: true
                 layer.effect: DropShadow {
                     horizontalOffset: 0
@@ -489,6 +525,14 @@ MouseArea {
                     ? Appearance.colors.colPrimary 
                     : ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.7)
                 border.width: loginPasswordField.activeFocus ? 2 : 1
+                
+                // Stagger animation (more delayed)
+                opacity: Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.5))
+                
+                // Combined transform for stagger Y + shake X
+                property real staggerY: (1 - Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.5))) * 20
+                property real shakeOffset: 0
+                transform: Translate { x: passwordContainer.shakeOffset; y: passwordContainer.staggerY }
                 
                 Behavior on border.color {
                     animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
@@ -633,9 +677,6 @@ MouseArea {
                 }
                 
                 // Shake animation
-                property real shakeOffset: 0
-                transform: Translate { x: passwordContainer.shakeOffset }
-                
                 SequentialAnimation {
                     id: wrongPasswordShakeAnim
                     NumberAnimation { target: passwordContainer; property: "shakeOffset"; to: -20; duration: 50 }
@@ -918,44 +959,32 @@ MouseArea {
             return
         }
         
-        // Capture printable character BEFORE switching view so we don't lose it
-        const isPrintable = event.text.length > 0 && !event.modifiers && event.text.charCodeAt(0) >= 32
-        const capturedChar = isPrintable ? event.text : ""
-        
         // Switch to login view on any key press
         if (!root.showLoginView) {
             root.currentView = "login"
-            // Add the captured character immediately to context (syncs to field)
-            if (capturedChar.length > 0) {
-                // Use Qt.callLater to ensure the field is ready before adding text
-                Qt.callLater(() => {
-                    root.context.currentText += capturedChar
-                    loginPasswordField.forceActiveFocus()
-                })
-                event.accepted = true
-            } else {
-                // Focus the field after view switch
-                Qt.callLater(() => loginPasswordField.forceActiveFocus())
-            }
+            // Capture printable character and add to password field
+            const inputChar = event.text
+            Qt.callLater(() => {
+                loginPasswordField.forceActiveFocus()
+                if (inputChar.length === 1 && inputChar.charCodeAt(0) >= 32) {
+                    loginPasswordField.text += inputChar
+                }
+            })
             return
         }
         
         if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-            root.hasAttemptedUnlock = true
-            root.context.tryUnlock(root.ctrlHeld)
+            if (root.context.currentText.length > 0) {
+                root.hasAttemptedUnlock = true
+                root.context.tryUnlock(root.ctrlHeld)
+            }
             event.accepted = true
             return
         }
         
-        // Ensure field has focus before accepting input
+        // Ensure field has focus
         if (!loginPasswordField.activeFocus) {
             loginPasswordField.forceActiveFocus()
-        }
-        
-        // Let the TextInput handle the key naturally when it has focus
-        if (isPrintable && loginPasswordField.activeFocus) {
-            // Don't manually add - let TextInput handle it
-            event.accepted = false
         }
     }
     
@@ -994,11 +1023,23 @@ MouseArea {
         id: focusEnsureTimer
         interval: 100
         running: GlobalStates.screenLocked && root.visible
-        repeat: false
+        repeat: true
+        property int attempts: 0
         onTriggered: {
+            attempts++
+            if (attempts > 30) {  // Stop after 3 seconds
+                repeat = false
+                return
+            }
             if (!root.activeFocus && !loginPasswordField.activeFocus) {
                 root.forceActiveFocus()
+            } else {
+                // Focus acquired, stop retrying
+                repeat = false
             }
+        }
+        onRunningChanged: {
+            if (running) attempts = 0
         }
     }
     

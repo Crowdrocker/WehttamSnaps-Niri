@@ -207,7 +207,7 @@ Item {
             anchors.margins: root.dialogMargins
             implicitHeight: dialogColumnLayout.implicitHeight
 
-            color: Appearance.colors.colSurfaceContainerHigh
+            color: Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface : Appearance.colors.colSurfaceContainerHigh
             radius: Appearance.rounding.normal
 
             function addTask() {

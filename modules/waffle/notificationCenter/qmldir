@@ -9,5 +9,6 @@ FocusFooter 1.0 FocusFooter.qml
 SmallBorderedIconButton 1.0 SmallBorderedIconButton.qml
 SmallBorderedIconAndTextButton 1.0 SmallBorderedIconAndTextButton.qml
 WNotificationAppIcon 1.0 WNotificationAppIcon.qml
+WNotificationDismissAnim 1.0 WNotificationDismissAnim.qml
 WNotificationGroup 1.0 WNotificationGroup.qml
 WSingleNotification 1.0 WSingleNotification.qml

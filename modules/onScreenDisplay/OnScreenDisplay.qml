@@ -32,6 +32,10 @@ Scope {
             id: "media",
             sourceUrl: "indicators/MediaIndicator.qml"
         },
+        {
+            id: "voiceSearch",
+            sourceUrl: "indicators/VoiceSearchIndicator.qml"
+        },
     ]
 
     function triggerOsd() {
@@ -107,6 +111,19 @@ Scope {
 
     // Media OSD is triggered via IPC only (not on every track change)
     // See services/MprisController.qml IpcHandler
+
+    Connections {
+        target: VoiceSearch
+        function onRunningChanged() {
+            if (VoiceSearch.running) {
+                root.currentIndicator = "voiceSearch";
+                GlobalStates.osdVolumeOpen = true;
+                osdTimeout.stop(); // Don't auto-hide while active
+            } else {
+                osdTimeout.restart();
+            }
+        }
+    }
 
     Loader {
         id: osdLoader
@@ -203,7 +220,7 @@ Scope {
                                 property real padding: 10
                                 implicitHeight: protectionMessageRowLayout.implicitHeight + padding * 2
                                 implicitWidth: protectionMessageRowLayout.implicitWidth + padding * 2
-                                radius: Appearance.rounding.normal
+                                radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
 
                                 RowLayout {
                                     id: protectionMessageRowLayout

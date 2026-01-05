@@ -148,7 +148,7 @@ Rectangle {
                             
                             // Try desktop entry icon
                             const entry = DesktopEntries.byId(de) ?? DesktopEntries.heuristicLookup(de);
-                            if (entry?.icon) return Quickshell.iconPath(entry.icon, "");
+                            if (entry?.icon) return AppSearch.resolveIcon(entry.icon, "");
                             
                             // Fallback to identity as icon name
                             if (identity) return Quickshell.iconPath(identity, "");

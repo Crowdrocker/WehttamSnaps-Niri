@@ -75,7 +75,12 @@ Item {
                     spacing: 4
 
                     model: ScriptModel {
-                        values: Network.wifiNetworks
+                        values: [...Network.wifiNetworks].sort((a, b) => {
+                            // Active networks first, then by signal strength
+                            if (a.active && !b.active) return -1;
+                            if (!a.active && b.active) return 1;
+                            return b.strength - a.strength;
+                        })
                     }
                     delegate: WWifiNetworkItem {
                         required property WifiAccessPoint modelData
@@ -96,8 +101,11 @@ Item {
                 }
                 text: Translation.tr("More Internet settings")
                 onClicked: {
-                    Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "sidebarLeft", "toggle"]);
-                    Quickshell.execDetached(["bash", "-c", Config.options.apps.network]);
+                    GlobalStates.waffleActionCenterOpen = false
+                    const cmd = Network.ethernet
+                        ? (Config.options?.apps?.networkEthernet ?? "nm-connection-editor")
+                        : (Config.options?.apps?.network ?? "nm-connection-editor")
+                    ShellExec.execCmd(cmd)
                 }
             }
             WBorderlessButton {

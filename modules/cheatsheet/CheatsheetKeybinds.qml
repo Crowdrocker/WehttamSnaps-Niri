@@ -3,13 +3,14 @@ pragma ComponentBehavior: Bound
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
 StyledFlickable {
     id: root
-    
+
     readonly property var keybinds: CompositorService.isNiri ? NiriKeybinds.keybinds : HyprlandKeybinds.keybinds
     readonly property var categories: keybinds?.children ?? []
     property string searchText: ""
@@ -117,8 +118,12 @@ StyledFlickable {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 200
-            radius: Appearance.rounding.normal
-            color: Appearance.colors.colLayer1
+            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                 : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+                 : Appearance.colors.colLayer1
+            border.width: Appearance.inirEverywhere ? 1 : 0
+            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
             visible: !root.hasResults && root.searchText.length > 0
 
             CheatsheetNoResults {
@@ -131,8 +136,12 @@ StyledFlickable {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: keybindsColumn.implicitHeight + 16
-            radius: Appearance.rounding.normal
-            color: Appearance.colors.colLayer1
+            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                 : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+                 : Appearance.colors.colLayer1
+            border.width: Appearance.inirEverywhere ? 1 : 0
+            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
             visible: root.hasResults
 
             Column {

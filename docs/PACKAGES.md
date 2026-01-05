@@ -6,7 +6,7 @@ The PKGBUILDs live in `sdata/dist-arch/`.
 
 ---
 
-## Core (`ii-niri-core`)
+## Core (`iNiR-core`)
 
 Essential packages for Niri + ii to function.
 
@@ -38,7 +38,7 @@ Essential packages for Niri + ii to function.
 
 ---
 
-## Quickshell (`ii-niri-quickshell`)
+## Quickshell (`iNiR-quickshell`)
 
 Qt6 stack and Quickshell runtime.
 
@@ -82,7 +82,7 @@ Qt6 stack and Quickshell runtime.
 
 ---
 
-## Audio (`ii-niri-audio`)
+## Audio (`iNiR-audio`)
 
 Audio stack and media controls.
 
@@ -99,7 +99,7 @@ Audio stack and media controls.
 
 ---
 
-## Screenshots & Recording (`ii-niri-screencapture`)
+## Screenshots & Recording (`iNiR-screencapture`)
 
 Region tools dependencies.
 
@@ -116,7 +116,7 @@ Region tools dependencies.
 
 ---
 
-## Input Toolkit (`ii-niri-toolkit`)
+## Input Toolkit (`iNiR-toolkit`)
 
 Input simulation, hardware control, and idle management.
 
@@ -134,7 +134,7 @@ Input simulation, hardware control, and idle management.
 
 ---
 
-## Fonts & Theming (`ii-niri-fonts`)
+## Fonts & Theming (`iNiR-fonts`)
 
 Fonts, theming, and utilities.
 
@@ -173,12 +173,15 @@ Fonts, theming, and utilities.
 
 ## Optional
 
-Not installed by default, but useful.
+Not installed by default, but useful. The shell handles their absence gracefully.
 
-| Package | Purpose |
-|---------|---------|
-| `cava` | Audio visualizer (in ii-niri-audio) |
-| `easyeffects` | Audio effects |
-| `warp-cli` | Cloudflare WARP |
-| `ollama` | Local LLM |
-| `mpvpaper` | Video wallpapers |
+| Package | Purpose | Used by |
+|---------|---------|---------|
+| `warp-cli` | Cloudflare WARP VPN toggle | Quick toggles panel |
+| `blueman` | Bluetooth manager GUI | Bluetooth settings button |
+| `ollama` | Local LLM for AI chat | Sidebar AI assistant |
+| `mpvpaper` | Video wallpapers | Wallpaper selector |
+| `cava` | Audio visualizer | Bar widget (optional) |
+| `easyeffects` | Audio effects | Quick toggles panel |
+
+> **Note:** `cava` and `easyeffects` are included in `iNiR-audio` but are optional features. The toggles will be hidden if the packages aren't installed.

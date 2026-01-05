@@ -13,7 +13,7 @@ import qs.modules.waffle.looks
 WBarAttachedPanelContent {
     id: root
 
-    readonly property bool barAtBottom: Config.options.waffles.bar.bottom
+    readonly property bool barAtBottom: Config.options?.waffles?.bar?.bottom ?? false
     revealFromSides: true
     revealFromLeft: false
 

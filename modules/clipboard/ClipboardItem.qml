@@ -36,15 +36,23 @@ RippleButton {
 
     implicitHeight: rowLayout.implicitHeight + root.buttonVerticalPadding * 2
     implicitWidth: rowLayout.implicitWidth + root.buttonHorizontalPadding * 2
-    buttonRadius: Appearance.rounding.small
+    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
     // M3 consistent colors: transparent by default, layer3 on hover/select, primaryContainer on press
-    colBackground: (root.down || root.keyboardDown) ? Appearance.colors.colPrimaryContainerActive : 
-        ((root.hovered || root.focus || root.isSelected) ? Appearance.colors.colLayer3 : 
-        "transparent")
-    colBackgroundHover: Appearance.colors.colLayer3Hover
-    colRipple: Appearance.colors.colPrimaryContainerActive
+    colBackground: (root.down || root.keyboardDown) 
+        ? (Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryContainerActive)
+        : ((root.hovered || root.focus || root.isSelected) 
+            ? (Appearance.inirEverywhere ? Appearance.inir.colLayer3 
+                : Appearance.auroraEverywhere ? Appearance.colors.colLayer3 
+                : Appearance.colors.colLayer3)
+            : "transparent")
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer3Hover 
+        : Appearance.auroraEverywhere ? Appearance.colors.colLayer3Hover 
+        : Appearance.colors.colLayer3Hover
+    colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive 
+        : Appearance.auroraEverywhere ? Appearance.colors.colLayer3Active 
+        : Appearance.colors.colPrimaryContainerActive
 
-    property string highlightPrefix: `<u><font color="${Appearance.colors.colPrimary}">`
+    property string highlightPrefix: `<u><font color="${Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary}">`
     property string highlightSuffix: `</font></u>`
     function highlightContent(content, query) {
         if (!query || query.length === 0 || content == query || fontType === "monospace")
@@ -150,7 +158,7 @@ RippleButton {
             MaterialSymbol {
                 text: root.materialSymbol
                 iconSize: 30
-                color: Appearance.m3colors.m3onSurface
+                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
             }
         }
 
@@ -159,7 +167,7 @@ RippleButton {
             StyledText {
                 text: root.bigText
                 font.pixelSize: Appearance.font.pixelSize.larger
-                color: Appearance.m3colors.m3onSurface
+                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
             }
         }
 
@@ -171,7 +179,7 @@ RippleButton {
             spacing: 0
             StyledText {
                 font.pixelSize: Appearance.font.pixelSize.smaller
-                color: (root.isSelected || root.hovered || root.focus) ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colSubtext
+                color: (root.isSelected || root.hovered || root.focus) ? (Appearance.inirEverywhere ? Appearance.inir.colOnSelection : Appearance.m3colors.m3onPrimaryContainer) : (Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext)
                 visible: root.itemType && root.itemType != Translation.tr("App")
                 text: root.itemType
             }
@@ -182,14 +190,14 @@ RippleButton {
                     sourceComponent: Rectangle {
                         implicitWidth: activeText.implicitHeight
                         implicitHeight: activeText.implicitHeight
-                        radius: Appearance.rounding.full
-                        color: Appearance.colors.colPrimary
+                        radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
                         MaterialSymbol {
                             id: activeText
                             anchors.centerIn: parent
                             text: "check"
                             font.pixelSize: Appearance.font.pixelSize.normal
-                            color: Appearance.m3colors.m3onPrimary
+                            color: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.m3colors.m3onPrimary
                         }
                     }
                 }
@@ -207,7 +215,7 @@ RippleButton {
                     textFormat: Text.StyledText // RichText also works, but StyledText ensures elide work
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.family: Appearance.font.family[root.fontType]
-                    color: (root.isSelected || root.hovered || root.focus) ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
+                    color: (root.isSelected || root.hovered || root.focus) ? (Appearance.inirEverywhere ? Appearance.inir.colOnSelection : Appearance.m3colors.m3onPrimaryContainer) : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface)
                     horizontalAlignment: Text.AlignLeft
                     elide: Text.ElideRight
                     text: `${root.displayContent}`
@@ -215,10 +223,11 @@ RippleButton {
             }
             Loader { // Clipboard image preview
                 // Don't use Layout.fillWidth - let the image determine its own size
+                // Use rowLayout.width to avoid binding loop with contentColumn
                 active: root.cliphistRawString && Cliphist.entryIsImage(root.cliphistRawString)
                 sourceComponent: CliphistImage {
                     entry: root.cliphistRawString
-                    maxWidth: contentColumn.width
+                    maxWidth: rowLayout.width - iconLoader.width - rowLayout.spacing - 160
                     maxHeight: root.compactClipboardPreview ? 80 : 140
                     blur: root.blurImage
                     blurText: root.blurImageText
@@ -232,7 +241,7 @@ RippleButton {
             visible: (root.hovered || root.focus)
             id: clickAction
             font.pixelSize: Appearance.font.pixelSize.normal
-            color: Appearance.colors.colOnPrimaryContainer
+            color: Appearance.inirEverywhere ? Appearance.inir.colOnSelection : Appearance.colors.colOnPrimaryContainer
             horizontalAlignment: Text.AlignRight
             text: root.itemClickActionName
         }
@@ -253,10 +262,10 @@ RippleButton {
                     property string materialIconName: modelData.materialIcon ?? ""
                     implicitHeight: 32
                     implicitWidth: 32
-                    buttonRadius: Appearance.rounding.small
+                    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
 
-                    colBackgroundHover: Appearance.colors.colLayer4Hover
-                    colRipple: Appearance.colors.colLayer4Active
+                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer3Hover : Appearance.colors.colLayer4Hover
+                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colLayer4Active
 
                     contentItem: Item {
                         id: actionContentItem
@@ -267,7 +276,7 @@ RippleButton {
                             sourceComponent: MaterialSymbol {
                                 text: actionButton.materialIconName
                                 font.pixelSize: Appearance.font.pixelSize.large
-                                color: Appearance.m3colors.m3onSurface
+                                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
                             }
                         }
                         Loader {

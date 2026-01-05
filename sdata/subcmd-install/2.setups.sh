@@ -1,4 +1,4 @@
-# System setup for ii-niri
+# System setup for iNiR
 # This script is meant to be sourced.
 
 # shellcheck shell=bash

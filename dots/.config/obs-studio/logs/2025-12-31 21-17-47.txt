@@ -1,0 +1,368 @@
+21:17:47.004: Platform: Wayland
+21:17:47.004: CPU Name: Intel(R) Core(TM) i7-4790 CPU @ 3.60GHz
+21:17:47.004: CPU Speed: 3593.685MHz
+21:17:47.004: Physical Cores: 4, Logical Cores: 8
+21:17:47.004: Physical Memory: 15941MB Total, 939MB Free
+21:17:47.004: Kernel Version: Linux 6.12.63-1-lts
+21:17:47.004: Distribution: "Arch Linux" Unknown
+21:17:47.004: Desktop Environment: niri (niri)
+21:17:47.004: Session Type: wayland
+21:17:47.007: Current Date/Time: 2025-12-31, 21:17:47
+21:17:47.007: Browser Hardware Acceleration: true
+21:17:47.007: Qt Version: 6.10.1 (runtime), 6.10.0 (compiled)
+21:17:47.007: Portable mode: false
+21:17:47.064: OBS 32.0.2 (linux)
+21:17:47.064: ---------------------------------
+21:17:47.069: ---------------------------------
+21:17:47.069: audio settings reset:
+21:17:47.069: 	samples per sec: 48000
+21:17:47.069: 	speakers:        2
+21:17:47.069: 	max buffering:   960 milliseconds
+21:17:47.069: 	buffering type:  dynamically increasing
+21:17:47.072: ---------------------------------
+21:17:47.072: Initializing OpenGL...
+21:17:47.072: Using EGL/Wayland
+21:17:47.113: Initialized EGL 1.5
+21:17:47.131: Loading up OpenGL on adapter AMD AMD Radeon RX 580 Series (radeonsi, polaris10, ACO, DRM 3.61, 6.12.63-1-lts)
+21:17:47.131: OpenGL loaded successfully, version 4.6 (Core Profile) Mesa 25.3.2-arch1.2, shading language 4.60
+21:17:47.168: ---------------------------------
+21:17:47.168: video settings reset:
+21:17:47.168: 	base resolution:   1920x1080
+21:17:47.168: 	output resolution: 1920x1080
+21:17:47.168: 	downscale filter:  Bicubic
+21:17:47.168: 	fps:               30/1
+21:17:47.168: 	format:            NV12
+21:17:47.168: 	YUV mode:          Rec. 709/Partial
+21:17:47.169: NV12 texture support enabled
+21:17:47.169: P010 texture support not available
+21:17:47.171: Audio monitoring device:
+21:17:47.171: 	name: Default
+21:17:47.171: 	id: default
+21:17:47.176: ---------------------------------
+21:17:47.177: Failed to load 'en-US' text for module: 'decklink-captions.so'
+21:17:47.180: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+21:17:47.181: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+21:17:47.181: Failed to initialize module 'decklink.so'
+21:17:47.323: [pipewire] Available capture sources:
+21:17:47.324: [pipewire]     - Monitor source
+21:17:47.324: [pipewire]     - Window source
+21:17:47.334: v4l2loopback not installed, virtual camera not registered
+21:17:47.336: [linux-vkcapture] plugin loaded successfully (version 1.5.3)
+21:17:47.368: VAAPI: API version 1.22
+21:17:47.370: FFmpeg VAAPI H264 encoding supported
+21:17:47.374: FFmpeg VAAPI AV1 encoding not supported
+21:17:47.379: FFmpeg VAAPI HEVC encoding supported
+21:17:47.385: os_dlopen(libnvidia-encode.so.1->libnvidia-encode.so.1): libnvidia-encode.so.1: cannot open shared object file: No such file or directory
+21:17:47.385: 
+21:17:47.385: NVENC not supported
+21:17:47.385: Failed to initialize module 'obs-nvenc.so'
+21:17:47.411: [obs-vaapi] version: 0.4.2, gst-runtime: 1.26.10
+21:17:51.494: [obs-vaapi] found vah264enc
+21:17:51.494: [obs-vaapi] found vah265enc
+21:17:51.494: [obs-vaapi] found vaapih265enc
+21:17:51.494: [obs-vaapi] found vaapih264enc
+21:17:51.516: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+21:17:51.516: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.10.0 | Qt version (run-time): 6.10.1
+21:17:51.516: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+21:17:51.524: [obs-websocket] [obs_module_load] Module loaded.
+21:17:51.530: ---------------------------------
+21:17:51.530:   Loaded Modules:
+21:17:51.530:     text-freetype2.so
+21:17:51.530:     rtmp-services.so
+21:17:51.530:     obs-x264.so
+21:17:51.530:     obs-websocket.so
+21:17:51.530:     obs-webrtc.so
+21:17:51.530:     obs-vst.so
+21:17:51.530:     obs-vaapi.so
+21:17:51.530:     obs-transitions.so
+21:17:51.530:     obs-qsv11.so
+21:17:51.530:     obs-outputs.so
+21:17:51.530:     obs-libfdk.so
+21:17:51.530:     obs-filters.so
+21:17:51.530:     obs-ffmpeg.so
+21:17:51.530:     linux-vkcapture.so
+21:17:51.530:     linux-v4l2.so
+21:17:51.530:     linux-pulseaudio.so
+21:17:51.530:     linux-pipewire.so
+21:17:51.530:     linux-jack.so
+21:17:51.530:     linux-capture.so
+21:17:51.530:     linux-alsa.so
+21:17:51.530:     image-source.so
+21:17:51.530:     frontend-tools.so
+21:17:51.530:     decklink-output-ui.so
+21:17:51.530:     decklink-captions.so
+21:17:51.530: ---------------------------------
+21:17:51.530: ---------------------------------
+21:17:51.530: Available Encoders:
+21:17:51.530:   Video Encoders:
+21:17:51.530: 	- ffmpeg_svt_av1 (SVT-AV1)
+21:17:51.530: 	- ffmpeg_aom_av1 (AOM AV1)
+21:17:51.530: 	- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)
+21:17:51.530: 	- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)
+21:17:51.538: 	- obs-va-vah264enc (VAAPI H.264 on Ellesmere [Radeon RX 470/480/570/570X/580/580X/590])
+21:17:51.544: 	- obs-va-vah265enc (VAAPI H.265 on Ellesmere [Radeon RX 470/480/570/570X/580/580X/590])
+21:17:51.544: 	- obs-vaapi-vaapih265enc (VAAPI H.265  (Legacy))
+21:17:51.544: 	- obs-vaapi-vaapih264enc (VAAPI H.264  (Legacy))
+21:17:51.544: 	- obs_x264 (x264)
+21:17:51.544:   Audio Encoders:
+21:17:51.544: 	- ffmpeg_aac (FFmpeg AAC)
+21:17:51.544: 	- ffmpeg_opus (FFmpeg Opus)
+21:17:51.544: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+21:17:51.544: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+21:17:51.544: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+21:17:51.544: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+21:17:51.544: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+21:17:51.544: 	- libfdk_aac (libfdk AAC)
+21:17:51.544: ==== Startup complete ===============================================
+21:17:51.572: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+21:17:51.572: All scene data cleared
+21:17:51.572: ------------------------------------------------
+21:17:51.574: Source ID 'text_gdiplus_v3' not found
+21:17:51.574: Failed to create source 'Youtube Username'!
+21:17:51.575: Source ID 'text_gdiplus_v3' not found
+21:17:51.575: Failed to create source 'Instagram Username'!
+21:17:52.586: Source ID 'browser_source' not found
+21:17:52.586: Failed to create source 'AlertBox'!
+21:17:52.674: Source ID 'browser_source' not found
+21:17:52.674: Failed to create source 'Chatbox'!
+21:17:52.755: Source ID 'dshow_input' not found
+21:17:52.755: Failed to create source 'Webcam'!
+21:17:52.755: Source ID 'game_capture' not found
+21:17:52.755: Failed to create source 'Game Capture'!
+21:17:52.850: Source ID 'text_gdiplus_v3' not found
+21:17:52.850: Failed to create source 'Bar Overlay'!
+21:17:52.850: Source ID 'text_gdiplus_v3' not found
+21:17:52.850: Failed to create source 'FaceCam'!
+21:17:52.885: ext_screencopy_manager_v1 not available
+21:17:52.890: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+21:17:52.890: pulse-input: An error occurred while getting the source info!
+21:17:52.892: Switched to scene 'Starting Screen'
+21:17:52.892: ------------------------------------------------
+21:17:52.892: Loaded scenes:
+21:17:52.893: - scene 'Livescreen':
+21:17:52.893:     - source: 'Game Capture' (game_capture)
+21:17:52.893:     - source: 'Bar Overlay' (text_gdiplus_v3)
+21:17:52.893:     - source: 'FaceCam' (text_gdiplus_v3)
+21:17:52.893:     - source: 'AlertBox' (browser_source)
+21:17:52.893:     - source: 'Game Capture 2' (vkcapture-source)
+21:17:52.893:     - source: 'Video Capture Device (PipeWire) (BETA)' (pipewire-camera-source)
+21:17:52.893: - scene 'Collab Cam Scene':
+21:17:52.893:     - source: 'Game Capture' (game_capture)
+21:17:52.893:     - source: 'Bar Overlay' (text_gdiplus_v3)
+21:17:52.893:     - source: 'FaceCam' (text_gdiplus_v3)
+21:17:52.893:     - source: 'AlertBox' (browser_source)
+21:17:52.893: - scene 'Starting Screen':
+21:17:52.893:     - source: 'Social Media (Change Me)' (scene)
+21:17:52.893:     - source: 'AlertBox' (browser_source)
+21:17:52.893:     - source: 'Starting Sceen' (image_source)
+21:17:52.893:     - source: 'Audio Input Capture (PulseAudio)' (pulse_input_capture)
+21:17:52.893: - scene 'Intermission Screen':
+21:17:52.893:     - source: 'Game Capture' (game_capture)
+21:17:52.893:     - source: 'Webcam' (dshow_input)
+21:17:52.893:     - source: 'Intermission Sceen' (image_source)
+21:17:52.893:     - source: 'Chatbox' (browser_source)
+21:17:52.893:     - source: 'Social Media (Change Me)' (scene)
+21:17:52.893:     - source: 'AlertBox' (browser_source)
+21:17:52.893: - scene 'Back Soon Screen':
+21:17:52.893:     - source: 'Backsoon sceen' (image_source)
+21:17:52.893:     - source: 'Social Media (Change Me)' (scene)
+21:17:52.893:     - source: 'AlertBox' (browser_source)
+21:17:52.893: - scene 'Ending Screen':
+21:17:52.893:     - source: 'Ending Sceen' (image_source)
+21:17:52.893:     - source: 'Social Media (Change Me)' (scene)
+21:17:52.893:     - source: 'AlertBox' (browser_source)
+21:17:52.893: - scene 'Offline Screen':
+21:17:52.893:     - source: 'Offline Sceen' (image_source)
+21:17:52.893:     - source: 'Social Media (Change Me)' (scene)
+21:17:52.893: - scene 'Social Media (Change Me)':
+21:17:52.893:     - source: 'Youtube group' (group)
+21:17:52.893:         - source: 'youtube' (image_source)
+21:17:52.893:         - source: 'Youtube Username' (text_gdiplus_v3)
+21:17:52.893:     - source: 'Instagramm' (group)
+21:17:52.893:         - source: 'Instagram' (image_source)
+21:17:52.893:         - source: 'Instagram Username' (text_gdiplus_v3)
+21:17:52.893:     - source: 'Twitter group' (group)
+21:17:52.893:         - source: 'Twitter' (image_source)
+21:17:52.893:         - source: 'Twitter Username' (text_ft2_source_v2)
+21:17:52.893: ------------------------------------------------
+21:17:52.914: [Media Source 'fire Stinger (Stinger)']: settings:
+21:17:52.914: 	input:                   /run/media/wehttamsnaps/GAMEDRIVE/linux-20240108T071141Z-001/streamlabs overlays/slobs-client/Overlays/bd4e7d1f-3180-4f7d-b4e9-9bdea85ea8bc/83.webm
+21:17:52.914: 	input_format:            (null)
+21:17:52.914: 	speed:                   100
+21:17:52.914: 	is_looping:              no
+21:17:52.914: 	is_linear_alpha:         no
+21:17:52.914: 	is_hw_decoding:          yes
+21:17:52.914: 	is_clear_on_media_end:   yes
+21:17:52.914: 	restart_on_activate:     yes
+21:17:52.914: 	close_when_inactive:     no
+21:17:52.914: 	full_decode:             no
+21:17:52.914: 	ffmpeg_options:          
+21:17:52.994: [camera-portal] Successfully accessed cameras
+21:17:53.029: [pipewire] Server version: 1.4.9
+21:17:53.029: [pipewire] Library version: 1.4.9
+21:17:53.029: [pipewire] Header version: 1.4.9
+21:17:53.029: [pipewire] Created registry 0x57e55ff21af0
+21:17:53.029: [camera-portal] Found device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+21:17:53.029: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+21:17:53.029: [pipewire] Created stream 0x793af0002e60
+21:17:53.029: [pipewire] Stream 0x793af0002e60 state: "connecting" (error: none)
+21:17:53.030: [pipewire] Playing stream 0x793af0002e60
+21:17:53.030: [camera-portal] Found device v4l2_input.pci-0000_00_14.0-usb-0_2_1.0
+21:17:53.031: [pipewire] Stream 0x793af0002e60 state: "paused" (error: none)
+21:17:53.133: [pipewire] Negotiated format:
+21:17:53.133: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+21:17:53.134: [pipewire]     Size: 1920x1080
+21:17:53.134: [pipewire]     Framerate: 5/1
+21:17:53.136: [pipewire] Stream 0x793af0002e60 state: "streaming" (error: none)
+21:18:12.228: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e56040d210 with focusing surface 0x57e560ac5620
+21:18:14.014: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e56040d210 with focusing surface 0x57e560ac5620
+21:18:15.096: obs-data.c: [obs_data_create_from_json] Failed reading json string (1): '[' or '{' expected near end of file
+21:18:15.099: User added source 'Video Capture Device (PipeWire) (BETA) 2' (pipewire-camera-source) to scene 'Starting Screen'
+21:18:15.116: [camera-portal] Selected format for ''
+21:18:15.116: [camera-portal] selected camera ''
+21:18:18.899: [camera-portal] selected camera 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:18:18.899: [camera-portal] Updating pixel formats
+21:18:18.899: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:18:18.900: obs-data.c: [obs_data_create_from_json] Failed reading json string (1): '[' or '{' expected near end of file
+21:18:18.904: [camera-portal] Updating device v4l2_input.pci-0000_00_14.0-usb-0_2_1.0
+21:18:18.905: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:18:18.905: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:18:18.905: [pipewire] Created stream 0x57e560be7910
+21:18:18.905: [pipewire] Stream 0x57e560be7910 state: "connecting" (error: none)
+21:18:18.905: [pipewire] Playing stream 0x57e560be7910
+21:18:18.906: [pipewire] Stream 0x57e560be7910 state: "paused" (error: none)
+21:18:18.907: [pipewire] Renegotiating stream
+21:18:18.937: [camera-portal] Updating device v4l2_input.pci-0000_00_14.0-usb-0_2_1.0
+21:18:19.120: [pipewire] Negotiated format:
+21:18:19.120: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+21:18:19.120: [pipewire]     Size: 1920x1080
+21:18:19.120: [pipewire]     Framerate: 5/1
+21:18:19.123: [pipewire] Stream 0x57e560be7910 state: "streaming" (error: none)
+21:18:47.540: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e56040d210 with focusing surface 0x57e560816d30
+21:18:53.424: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e56040d210 with focusing surface 0x57e560816d30
+21:18:57.460: v4l2-input: Start capture from 
+21:18:57.460: v4l2-input: Unable to open device
+21:18:57.460: v4l2-input: Initialization failed, errno: No such file or directory
+21:18:57.462: User added source 'Video Capture Device (V4L2)' (v4l2_input) to scene 'Starting Screen'
+21:18:57.481: v4l2-input: /dev/video3 seems to not support video capture
+21:18:57.481: v4l2-input: /dev/video1 seems to not support video capture
+21:18:57.482: v4l2-input: Found device 'HD Webcam C615' at /dev/video2
+21:18:57.482: v4l2-input: Found device 'C3A USB3 Video: C3A USB3 Video' at /dev/video0
+21:18:57.484: v4l2-input: Found input 'Camera 1' (Index 0)
+21:18:57.484: v4l2-controls: setting default for Power Line Frequency to 2
+21:18:57.484: v4l2-controls: setting default for Auto Exposure to 3
+21:18:57.484: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+21:18:57.484: v4l2-input: Pixelformat: Motion-JPEG (available)
+21:18:57.484: v4l2-input: Pixelformat: RGB3 (Emulated) (unavailable)
+21:18:57.484: v4l2-input: Pixelformat: BGR3 (Emulated) (available)
+21:18:57.484: v4l2-input: Pixelformat: YU12 (Emulated) (available)
+21:18:57.484: v4l2-input: Pixelformat: YV12 (Emulated) (available)
+21:18:57.485: v4l2-input: Stepwise and Continuous framesizes are currently hardcoded
+21:18:57.485: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+21:18:57.487: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+21:18:57.487: v4l2-input: Pixelformat: Motion-JPEG (available)
+21:18:57.487: v4l2-input: Pixelformat: RGB3 (Emulated) (unavailable)
+21:18:57.487: v4l2-input: Pixelformat: BGR3 (Emulated) (available)
+21:18:57.487: v4l2-input: Pixelformat: YU12 (Emulated) (available)
+21:18:57.487: v4l2-input: Pixelformat: YV12 (Emulated) (available)
+21:18:57.487: v4l2-input: Stepwise and Continuous framesizes are currently hardcoded
+21:18:57.488: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+21:18:57.490: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+21:18:57.504: v4l2-input: Start capture from /dev/video2
+21:18:57.504: v4l2-input: Unable to set input 0
+21:18:57.504: v4l2-input: Initialization failed, errno: Device or resource busy
+21:19:00.080: v4l2-input: Found input 'Camera 1' (Index 0)
+21:19:00.081: v4l2-input: Pixelformat: Motion-JPEG (available)
+21:19:00.081: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+21:19:00.081: v4l2-input: Pixelformat: RGB3 (Emulated) (unavailable)
+21:19:00.081: v4l2-input: Pixelformat: BGR3 (Emulated) (available)
+21:19:00.081: v4l2-input: Pixelformat: YU12 (Emulated) (available)
+21:19:00.081: v4l2-input: Pixelformat: YV12 (Emulated) (available)
+21:19:00.082: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+21:19:00.104: v4l2-input: Start capture from /dev/video0
+21:19:00.104: v4l2-input: Unable to set input 0
+21:19:00.104: v4l2-input: Initialization failed, errno: Device or resource busy
+21:37:37.194: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e5606bdbb0 with focusing surface 0x57e56040d210
+21:37:38.670: User Removed source 'Video Capture Device (V4L2)' (v4l2_input) from scene 'Starting Screen'
+21:42:51.794: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:42:51.795: [camera-portal] selected camera 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:42:51.795: [camera-portal] Updating pixel formats
+21:42:51.795: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+21:42:51.820: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e560cd89f0 with focusing surface 0x57e56040d210
+21:43:00.152: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e560cd89f0 with focusing surface 0x57e56040d210
+21:43:06.812: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e560cd89f0 with focusing surface 0x57e56040d210
+21:43:12.803: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e560cd89f0 with focusing surface 0x57e56040d210
+21:43:24.047: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e560cd89f0 with focusing surface 0x57e56040d210
+21:43:35.931: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x57e560cd89f0 with focusing surface 0x57e56040d210
+21:44:17.119: User switched to scene 'Livescreen'
+21:44:19.071: [pipewire] Stream 0x57e560be7910 state: "paused" (error: none)
+21:44:19.154: User switched to scene 'Collab Cam Scene'
+21:44:20.658: User switched to scene 'Intermission Screen'
+21:44:21.868: User switched to scene 'Starting Screen'
+21:44:21.939: [pipewire] Negotiated format:
+21:44:21.940: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+21:44:21.940: [pipewire]     Size: 1920x1080
+21:44:21.940: [pipewire]     Framerate: 5/1
+21:44:21.942: [pipewire] Stream 0x57e560be7910 state: "streaming" (error: none)
+21:44:23.838: [pipewire] Stream 0x793af0002e60 state: "paused" (error: none)
+21:44:24.349: User switched to scene 'Offline Screen'
+21:44:26.304: [pipewire] Stream 0x57e560be7910 state: "paused" (error: none)
+21:44:28.905: User switched to scene 'Livescreen'
+21:44:28.973: [pipewire] Negotiated format:
+21:44:28.973: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+21:44:28.973: [pipewire]     Size: 1920x1080
+21:44:28.973: [pipewire]     Framerate: 5/1
+21:44:28.974: [pipewire] Stream 0x793af0002e60 state: "streaming" (error: none)
+21:44:34.635: User switched to scene 'Starting Screen'
+21:44:34.811: [pipewire] Negotiated format:
+21:44:34.811: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+21:44:34.811: [pipewire]     Size: 1920x1080
+21:44:34.811: [pipewire]     Framerate: 5/1
+21:44:34.811: [pipewire] Stream 0x57e560be7910 state: "streaming" (error: none)
+21:44:36.604: [pipewire] Stream 0x793af0002e60 state: "paused" (error: none)
+22:17:40.657: ---------------------------------
+22:17:40.659: [FFmpeg VAAPI encoder: 'advanced_video_stream'] settings:
+22:17:40.659: 	device:       /dev/dri/by-path/pci-0000:01:00.0-render
+22:17:40.659: 	rate_control: CBR
+22:17:40.659: 	profile:      100
+22:17:40.659: 	level:        -99
+22:17:40.659: 	qp:           0
+22:17:40.659: 	bitrate:      3500
+22:17:40.659: 	maxrate:      3500
+22:17:40.659: 	keyint:       60
+22:17:40.659: 	width:        1920
+22:17:40.659: 	height:       1080
+22:17:40.659: 	b-frames:     0
+22:17:40.659: 	ffmpeg opts:  
+22:17:40.659: 
+22:17:40.664: ---------------------------------
+22:17:40.664: [FFmpeg aac encoder: 'adv_stream_audio'] bitrate: 320, channels: 2, channel_layout: stereo, track: 1
+22:17:40.664: 
+22:17:40.665: [rtmp stream: 'adv_stream'] Dynamic bitrate disabled. The encoder does not support on-the-fly bitrate reconfiguration.
+22:17:40.665: [rtmp stream: 'adv_stream'] Connecting to RTMP URL rtmp://ingest.global-contribute.live-video.net/app...
+22:17:41.616: [rtmp stream: 'adv_stream'] Connection to rtmp://ingest.global-contribute.live-video.net/app (35.55.35.39) successful
+22:17:41.646: ==== Streaming Start ===============================================
+22:17:43.059: [rtmp stream: 'adv_stream'] User stopped the stream
+22:17:43.059: Output 'adv_stream': stopping
+22:17:43.059: Output 'adv_stream': Total frames output: 38
+22:17:43.059: Output 'adv_stream': Total drawn frames: 72
+22:17:43.060: ==== Streaming Stop ================================================
+22:18:12.737: ---------------------------------
+22:18:12.737: video settings reset:
+22:18:12.737: 	base resolution:   1920x1080
+22:18:12.737: 	output resolution: 1280x720
+22:18:12.737: 	downscale filter:  Bicubic
+22:18:12.737: 	fps:               30/1
+22:18:12.737: 	format:            NV12
+22:18:12.737: 	YUV mode:          Rec. 709/Partial
+22:18:12.738: NV12 texture support enabled
+22:18:12.738: P010 texture support not available
+22:18:12.739: Settings changed (video)
+22:18:12.739: ------------------------------------------------
+23:19:49.206: [pipewire] Stream 0x57e560be7910 state: "paused" (error: none)
+23:19:50.840: [pipewire] Negotiated format:
+23:19:50.840: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+23:19:50.840: [pipewire]     Size: 1920x1080
+23:19:50.840: [pipewire]     Framerate: 5/1
+23:19:50.843: [pipewire] Stream 0x57e560be7910 state: "streaming" (error: none)
+23:20:36.187: The Wayland connection broke. Did the Wayland compositor die?

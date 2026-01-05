@@ -92,8 +92,9 @@ Item {
     Connections {
         target: Cliphist
         function onEntriesChanged() {
-            root.updateFilteredModel()
+            // Only update model if clipboard panel is open to avoid lag
             if (GlobalStates.waffleClipboardOpen) {
+                root.updateFilteredModel()
                 Qt.callLater(() => searchInput.forceActiveFocus())
             }
         }
@@ -105,6 +106,7 @@ Item {
             if (GlobalStates.waffleClipboardOpen) {
                 root.searchText = ""
                 root.showClearConfirmation = false
+                root.updateFilteredModel()  // Update immediately with current entries
                 // Refrescar el servicio Cliphist para obtener datos actualizados
                 Cliphist.refresh()
             }

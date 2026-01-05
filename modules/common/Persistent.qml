@@ -59,8 +59,12 @@ Singleton {
             property string hyprlandInstanceSignature: ""
 
             property JsonObject ai: JsonObject {
-                property string model
+                property string model: "gemini-2.5-flash"
                 property real temperature: 0.5
+            }
+
+            property JsonObject cheatsheet: JsonObject {
+                property int tabIndex: 0
             }
 
             property JsonObject sidebar: JsonObject {
@@ -77,6 +81,10 @@ Singleton {
 
             property JsonObject idle: JsonObject {
                 property bool inhibit: false
+            }
+
+            property JsonObject gameMode: JsonObject {
+                property bool manualActive: false
             }
 
             property JsonObject overlay: JsonObject {
@@ -162,17 +170,20 @@ Singleton {
                 property int tab: 0
                 property JsonObject pomodoro: JsonObject {
                     property bool running: false
+                    property bool paused: false
                     property int start: 0
                     property bool isBreak: false
                     property int cycle: 0
                 }
                 property JsonObject stopwatch: JsonObject {
                     property bool running: false
+                    property bool paused: false
                     property int start: 0
                     property list<var> laps: []
                 }
                 property JsonObject countdown: JsonObject {
                     property bool running: false
+                    property bool paused: false
                     property int start: 0
                     property int duration: 60
                 }

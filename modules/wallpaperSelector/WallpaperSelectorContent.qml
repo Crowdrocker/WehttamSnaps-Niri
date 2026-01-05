@@ -6,7 +6,7 @@ import qs.modules.common.functions
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import Qt5Compat.GraphicalEffects as GE
 import Quickshell
 import Quickshell.Io
 
@@ -15,10 +15,12 @@ MouseArea {
     property int columns: 4
     property real previewCellAspectRatio: 4 / 3
     property bool useDarkMode: Appearance.m3colors.darkmode
+    property string _lastThumbnailSizeName: ""
 
     function updateThumbnails() {
         const totalImageMargin = (Appearance.sizes.wallpaperSelectorItemMargins + Appearance.sizes.wallpaperSelectorItemPadding) * 2
         const thumbnailSizeName = Images.thumbnailSizeNameForDimensions(grid.cellWidth - totalImageMargin, grid.cellHeight - totalImageMargin)
+        root._lastThumbnailSizeName = thumbnailSizeName
         Wallpapers.generateThumbnail(thumbnailSizeName)
     }
 
@@ -26,6 +28,15 @@ MouseArea {
         target: Wallpapers
         function onDirectoryChanged() {
             root.updateThumbnails()
+        }
+    }
+
+    Connections {
+        target: Wallpapers.folderModel
+        function onCountChanged() {
+            if (!GlobalStates.wallpaperSelectorOpen) return;
+            if (!root._lastThumbnailSizeName || root._lastThumbnailSizeName.length === 0) return;
+            Wallpapers.generateThumbnail(root._lastThumbnailSizeName)
         }
     }
 
@@ -42,6 +53,7 @@ MouseArea {
 
     function selectWallpaperPath(filePath) {
         if (filePath && filePath.length > 0) {
+            const normalizedPath = FileUtils.trimFileProtocol(String(filePath))
             // Check Config first (set by settings.qml via IPC), then GlobalStates
             const configTarget = Config.options?.wallpaperSelector?.selectionTarget;
             let target = (configTarget && configTarget !== "main") ? configTarget : GlobalStates.wallpaperSelectionTarget;
@@ -49,18 +61,18 @@ MouseArea {
             switch (target) {
                 case "backdrop":
                     Config.setNestedValue("background.backdrop.useMainWallpaper", false);
-                    Config.setNestedValue("background.backdrop.wallpaperPath", filePath);
+                    Config.setNestedValue("background.backdrop.wallpaperPath", normalizedPath);
                     break;
                 case "waffle":
                     Config.setNestedValue("waffles.background.useMainWallpaper", false);
-                    Config.setNestedValue("waffles.background.wallpaperPath", filePath);
+                    Config.setNestedValue("waffles.background.wallpaperPath", normalizedPath);
                     break;
                 case "waffle-backdrop":
                     Config.setNestedValue("waffles.background.backdrop.useMainWallpaper", false);
-                    Config.setNestedValue("waffles.background.backdrop.wallpaperPath", filePath);
+                    Config.setNestedValue("waffles.background.backdrop.wallpaperPath", normalizedPath);
                     break;
                 default: // "main"
-                    Wallpapers.select(filePath, root.useDarkMode);
+                    Wallpapers.select(normalizedPath, root.useDarkMode);
                     break;
             }
             // Reset GlobalStates only (Config resets on its own via defaults)
@@ -150,8 +162,9 @@ MouseArea {
 
     StyledRectangularShadow {
         target: wallpaperGridBackground
+        visible: !Appearance.inirEverywhere
     }
-    Rectangle {
+    GlassBackground {
         id: wallpaperGridBackground
         anchors {
             fill: parent
@@ -159,10 +172,14 @@ MouseArea {
         }
         focus: true
         Keys.forwardTo: [root]
-        border.width: 1
-        border.color: Appearance.colors.colLayer0Border
-        color: Appearance.colors.colLayer0
-        radius: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1
+        border.width: (Appearance.inirEverywhere || Appearance.auroraEverywhere) ? 1 : 1
+        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+            : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : Appearance.colors.colLayer0Border
+        fallbackColor: Appearance.colors.colLayer0
+        inirColor: Appearance.inir.colLayer0
+        auroraTransparency: Appearance.aurora.overlayTransparentize
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingLarge 
+            : (Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1)
 
         property int calculatedRows: Math.ceil(grid.count / grid.columns)
 
@@ -179,7 +196,8 @@ MouseArea {
                 Layout.margins: 4
                 implicitWidth: quickDirColumnLayout.implicitWidth
                 implicitHeight: quickDirColumnLayout.implicitHeight
-                color: Appearance.colors.colLayer1
+                color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                    : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1
                 radius: wallpaperGridBackground.radius - Layout.margins
 
                 ColumnLayout {
@@ -357,7 +375,7 @@ MouseArea {
                         }
 
                         layer.enabled: true
-                        layer.effect: OpacityMask {
+                        layer.effect: GE.OpacityMask {
                             maskSource: Rectangle {
                                 width: gridDisplayRegion.width
                                 height: gridDisplayRegion.height
@@ -372,6 +390,16 @@ MouseArea {
                             bottom: parent.bottom
                             horizontalCenter: parent.horizontalCenter
                             bottomMargin: 8
+                        }
+                        
+                        // Calculate screen position for aurora blur
+                        screenX: {
+                            const mapped = extraOptions.mapToGlobal(0, 0)
+                            return mapped.x
+                        }
+                        screenY: {
+                            const mapped = extraOptions.mapToGlobal(0, 0)
+                            return mapped.y
                         }
 
                         IconToolbarButton {

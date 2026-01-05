@@ -30,8 +30,8 @@ Item {
     
     Rectangle {
         anchors.fill: rowContent
-        color: hovered ? Appearance.colors.colLayer2Hover : "transparent"
-        radius: Appearance.rounding.verysmall
+        color: hovered ? (Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover : Appearance.colors.colLayer2Hover) : "transparent"
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall
         Behavior on color { ColorAnimation { duration: 100 } }
     }
     
@@ -55,7 +55,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter
             text: root.category
             font.pixelSize: Appearance.font.pixelSize.small
-            color: Appearance.colors.colSubtext
+            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
             elide: Text.ElideRight
             leftPadding: 16
         }
@@ -78,7 +78,7 @@ Item {
             StyledText {
                 visible: root.showMainKey && root.hasModifiers
                 text: "+"
-                color: Appearance.colors.colSubtext
+                color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: Appearance.font.pixelSize.small
             }
@@ -94,7 +94,7 @@ Item {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
             font.pixelSize: Appearance.font.pixelSize.normal
-            color: Appearance.colors.colOnLayer1
+            color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
             text: root.description
             elide: Text.ElideRight
             rightPadding: 16
@@ -111,7 +111,7 @@ Item {
             rightMargin: 12
         }
         height: 1
-        color: Appearance.colors.colOutlineVariant
+        color: Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle : Appearance.colors.colOutlineVariant
         opacity: 0.3
         visible: root.showDivider
     }

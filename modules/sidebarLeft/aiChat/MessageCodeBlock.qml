@@ -34,7 +34,8 @@ ColumnLayout {
         topRightRadius: codeBlockBackgroundRounding
         bottomLeftRadius: Appearance.rounding.unsharpen
         bottomRightRadius: Appearance.rounding.unsharpen
-        color: Appearance.colors.colSurfaceContainerHighest
+        color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+            : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colSurfaceContainerHighest
         implicitHeight: codeBlockTitleBarRowLayout.implicitHeight + codeBlockHeaderPadding * 2
 
         RowLayout { // Language and buttons
@@ -90,10 +91,10 @@ ColumnLayout {
 
                     onClicked: {
                         const downloadPath = FileUtils.trimFileProtocol(Directories.downloads)
-                        Quickshell.execDetached(["bash", "-c", 
+                        Quickshell.execDetached(["/usr/bin/bash", "-c", 
                             `echo '${StringUtils.shellSingleQuoteEscape(segmentContent)}' > '${downloadPath}/code.${segmentLang || "txt"}'`
                         ])
-                        Quickshell.execDetached(["notify-send", 
+                        Quickshell.execDetached(["/usr/bin/notify-send", 
                             Translation.tr("Code saved to file"), 
                             Translation.tr("Saved to %1").arg(`${downloadPath}/code.${segmentLang || "txt"}`),
                             "-a", "Shell"
@@ -130,7 +131,8 @@ ColumnLayout {
             bottomLeftRadius: codeBlockBackgroundRounding
             topRightRadius: Appearance.rounding.unsharpen
             bottomRightRadius: Appearance.rounding.unsharpen
-            color: Appearance.colors.colLayer2
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
 
             ColumnLayout {
                 id: lineNumberColumnLayout
@@ -165,7 +167,8 @@ ColumnLayout {
             bottomLeftRadius: Appearance.rounding.unsharpen
             topRightRadius: Appearance.rounding.unsharpen
             bottomRightRadius: codeBlockBackgroundRounding
-            color: Appearance.colors.colLayer2
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
             implicitHeight: codeColumnLayout.implicitHeight
 
             ColumnLayout {
@@ -203,7 +206,7 @@ ColumnLayout {
                         contentItem: Rectangle {
                             implicitHeight: 6
                             radius: Appearance.rounding.small
-                            color: Appearance.colors.colLayer2Active
+                            color: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
                         }
                     }
 

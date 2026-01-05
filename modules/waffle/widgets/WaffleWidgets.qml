@@ -44,8 +44,8 @@ Scope {
             color: "transparent"
 
             anchors {
-                bottom: Config.options.waffles.bar.bottom
-                top: !Config.options.waffles.bar.bottom
+                bottom: Config.options?.waffles?.bar?.bottom ?? false
+                top: !(Config.options?.waffles?.bar?.bottom ?? false)
                 left: true
             }
 

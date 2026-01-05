@@ -12,7 +12,7 @@ Scope {
     
     LazyLoader {
         id: barLoader
-        active: GlobalStates.barOpen && !GlobalStates.screenLocked
+        active: GlobalStates.barOpen
         component: Variants {
             model: Quickshell.screens
             delegate: PanelWindow { // Bar window
@@ -26,8 +26,8 @@ Scope {
                 anchors {
                     left: true
                     right: true
-                    bottom: Config.options.waffles.bar.bottom
-                    top: !Config.options.waffles.bar.bottom
+                    bottom: Config.options?.waffles?.bar?.bottom ?? false
+                    top: !(Config.options?.waffles?.bar?.bottom ?? false)
                 }
 
                 color: "transparent"

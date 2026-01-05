@@ -1,0 +1,7 @@
+[Desktop Entry]
+Categories=Utility;
+Exec=flatpak run io.github.Faugus.faugus-launcher --hide
+Icon=io.github.Faugus.faugus-launcher
+MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;application/x-bat;text/x-ms-regedit
+Name=Faugus Launcher
+Type=Application

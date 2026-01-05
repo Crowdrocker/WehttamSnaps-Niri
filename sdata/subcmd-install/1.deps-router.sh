@@ -1,4 +1,4 @@
-# Dependency installation router for ii-niri
+# Dependency installation router for iNiR
 # This script is meant to be sourced.
 
 # shellcheck shell=bash

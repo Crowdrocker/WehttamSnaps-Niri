@@ -107,6 +107,7 @@ Singleton {
     // Update the layout name when it changes
     Connections {
         target: Hyprland
+        enabled: CompositorService.isHyprland
         function onRawEvent(event) {
             if (event.name === "activelayout") {
                 if (root.needsLayoutRefresh) {
@@ -122,7 +123,7 @@ Singleton {
                 root.currentLayoutName = dataString.substring(dataString.indexOf(",") + 1);
 
                 // Update layout for on-screen keyboard (osk)
-                Config.options.osk.layout = root.currentLayoutName.split(" (")[0];
+                Config.setNestedValue(["osk", "layout"], root.currentLayoutName.split(" (")[0])
             } else if (event.name == "configreloaded") {
                 // Mark layout code list to be updated when config is reloaded
                 root.needsLayoutRefresh = true;

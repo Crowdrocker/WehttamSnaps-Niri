@@ -1,0 +1,10 @@
+[soe][Reverb#0]
+amount=-6
+bassCut=196
+bypass=true
+decayTime=0.4
+diffusion=0
+hfDamp=12543
+predelay=20
+roomSize=4
+trebleCut=12543

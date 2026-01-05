@@ -28,7 +28,11 @@ Scope {
     ]
 
     property bool cheatsheetOpen: false
-    property int currentPage: 0
+    property int currentPage: Persistent.states?.cheatsheet?.tabIndex ?? 0
+    onCurrentPageChanged: {
+        if (Persistent.states?.cheatsheet)
+            Persistent.states.cheatsheet.tabIndex = currentPage
+    }
 
     function open() { cheatsheetOpen = true; }
     function close() { cheatsheetOpen = false; }
@@ -79,19 +83,25 @@ Scope {
             right: true
         }
 
-        Keys.onPressed: function(event) {
-            if (!root.cheatsheetOpen) return
-            
-            if (event.key === Qt.Key_Escape) {
-                root.close()
-                event.accepted = true
-            } else if (event.modifiers === Qt.ControlModifier) {
-                if (event.key === Qt.Key_PageDown || event.key === Qt.Key_Tab) {
-                    root.currentPage = (root.currentPage + 1) % root.pages.length
+        Item {
+            id: keyHandler
+            anchors.fill: parent
+            focus: root.cheatsheetOpen
+
+            Keys.onPressed: function(event) {
+                if (!root.cheatsheetOpen) return
+                
+                if (event.key === Qt.Key_Escape) {
+                    root.close()
                     event.accepted = true
-                } else if (event.key === Qt.Key_PageUp || event.key === Qt.Key_Backtab) {
-                    root.currentPage = (root.currentPage - 1 + root.pages.length) % root.pages.length
-                    event.accepted = true
+                } else if (event.modifiers === Qt.ControlModifier) {
+                    if (event.key === Qt.Key_PageDown || event.key === Qt.Key_Tab) {
+                        root.currentPage = (root.currentPage + 1) % root.pages.length
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_PageUp || event.key === Qt.Key_Backtab) {
+                        root.currentPage = (root.currentPage - 1 + root.pages.length) % root.pages.length
+                        event.accepted = true
+                    }
                 }
             }
         }

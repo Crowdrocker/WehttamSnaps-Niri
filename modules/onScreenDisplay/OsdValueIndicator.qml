@@ -23,14 +23,19 @@ Item {
     StyledRectangularShadow {
         target: valueIndicator
     }
-    Rectangle {
+    GlassBackground {
         id: valueIndicator
         anchors {
             fill: parent
             margins: Appearance.sizes.elevationMargin
         }
         radius: Appearance.rounding.full
-        color: Appearance.colors.colLayer0
+        fallbackColor: Appearance.colors.colLayer0
+        inirColor: Appearance.inir.colLayer1
+        auroraTransparency: Appearance.aurora.popupTransparentize
+        border.width: auroraEverywhere || inirEverywhere ? 1 : 0
+        border.color: inirEverywhere ? Appearance.inir.colBorder 
+            : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : Appearance.colors.colLayer0Border
 
         implicitWidth: valueRow.implicitWidth
         implicitHeight: valueRow.implicitHeight
@@ -55,7 +60,6 @@ Item {
                         alignWhenCentered: !root.rotateIcon
                     }
                     color: Appearance.colors.colOnLayer0
-                    renderType: Text.QtRendering
 
                     text: root.icon
                     iconSize: 20 + 10 * (root.scaleIcon ? value : 1)

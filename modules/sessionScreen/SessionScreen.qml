@@ -6,6 +6,7 @@ import qs.modules.common.functions
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -28,8 +29,8 @@ Scope {
         }
         return Quickshell.screens[0];
     }
-    property bool packageManagerRunning: false
-    property bool downloadRunning: false
+    readonly property bool packageManagerRunning: SessionWarnings.packageManagerRunning
+    readonly property bool downloadRunning: SessionWarnings.downloadRunning
 
     component DescriptionLabel: Rectangle {
         id: descriptionLabel
@@ -53,37 +54,11 @@ Scope {
         }
     }
 
-    function detectRunningStuff() {
-        packageManagerRunning = false;
-        downloadRunning = false;
-        detectPackageManagerProc.running = false;
-        detectPackageManagerProc.running = true;
-        detectDownloadProc.running = false;
-        detectDownloadProc.running = true;
-    }
-
-    Process {
-        id: detectPackageManagerProc
-        command: ["pidof", "pacman", "yay", "paru", "dnf", "zypper", "apt", "apx", "xbps", "flatpak", "snap", "apk",
-            "yum", "epsi", "pikman"]
-        onExited: (exitCode, exitStatus) => {
-            root.packageManagerRunning = (exitCode === 0);
-        }
-    }
-
-    Process {
-        id: detectDownloadProc
-        command: ["bash", "-c", "pidof curl wget aria2c yt-dlp 2>/dev/null"]
-        onExited: (exitCode, exitStatus) => {
-            root.downloadRunning = (exitCode === 0);
-        }
-    }
-
     Loader {
         id: sessionLoader
         active: GlobalStates.sessionOpen
         onActiveChanged: {
-            if (sessionLoader.active) root.detectRunningStuff();
+            if (sessionLoader.active) SessionWarnings.refresh();
         }
 
         Connections {
@@ -117,13 +92,34 @@ Scope {
                 right: true
             }
 
-            // Background blur for Niri
+            // Background wallpaper with blur (like lock screen)
+            Image {
+                id: backgroundWallpaper
+                anchors.fill: parent
+                source: Config.options?.background?.wallpaperPath ?? ""
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                
+                readonly property real blurRadius: 64
+                readonly property real blurZoom: 1.1
+                
+                layer.enabled: true
+                layer.effect: FastBlur {
+                    radius: backgroundWallpaper.blurRadius
+                }
+                
+                transform: Scale {
+                    origin.x: backgroundWallpaper.width / 2
+                    origin.y: backgroundWallpaper.height / 2
+                    xScale: backgroundWallpaper.blurZoom
+                    yScale: backgroundWallpaper.blurZoom
+                }
+            }
+            
+            // Dim overlay for better readability
             Rectangle {
                 anchors.fill: parent
-                color: ColorUtils.transparentize(Appearance.m3colors.m3background, 0.5)
-                // If Quickshell supports recursive blur or if we can use a shader, put it here.
-                // For now, relying on compositor blur if rule exists, or just semi-transparent dark background.
-                // Niri specific: layer-rule { blur; } for this namespace "quickshell:session" is needed in config.kdl
+                color: Qt.rgba(0, 0, 0, 0.4)
             }
 
             implicitWidth: root.focusedScreen?.width ?? 0
@@ -307,6 +303,7 @@ Scope {
 
     IpcHandler {
         target: "session"
+        enabled: Config.options?.panelFamily !== "waffle"
 
         function toggle(): void {
             GlobalStates.sessionOpen = !GlobalStates.sessionOpen;

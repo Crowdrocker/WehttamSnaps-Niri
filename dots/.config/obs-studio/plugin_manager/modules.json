@@ -5,8 +5,8 @@
         "encoders": [
             "obs-va-vah265enc",
             "obs-va-vah264enc",
-            "obs-vaapi-vaapih264enc",
-            "obs-vaapi-vaapih265enc"
+            "obs-vaapi-vaapih265enc",
+            "obs-vaapi-vaapih264enc"
         ],
         "id": "",
         "module_name": "obs-vaapi",

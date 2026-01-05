@@ -41,126 +41,58 @@ GroupButton {
         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
     }
 
+
+
     signal openMenu()
+
+    // TapHandler for right-click - needs to be here because contentItem has MouseAreas
+    TapHandler {
+        acceptedButtons: Qt.RightButton
+        onTapped: {
+            if (root.altAction) root.altAction();
+        }
+    }
 
     padding: 6
     horizontalPadding: padding
     verticalPadding: padding
 
-    colBackground: Appearance.colors.colLayer2
-    colBackgroundToggled: (altAction && expandedSize) ? Appearance.colors.colLayer2 : Appearance.colors.colPrimary
-    colBackgroundToggledHover: (altAction && expandedSize) ? Appearance.colors.colLayer2Hover : Appearance.colors.colPrimaryHover
-    colBackgroundToggledActive: (altAction && expandedSize) ? Appearance.colors.colLayer2Active : Appearance.colors.colPrimaryActive
-    buttonRadius: toggled ? Appearance.rounding.large : height / 2
-    buttonRadiusPressed: Appearance.rounding.normal
-    property color colText: (toggled && !(altAction && expandedSize)) ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer2
-    property color colIcon: expandedSize ? (root.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer3) : colText
+    colBackground: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+        : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
+    colBackgroundToggled: Appearance.inirEverywhere 
+        ? Appearance.inir.colLayer2
+        : (altAction && expandedSize) ? (Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2) : Appearance.colors.colPrimary
+    colBackgroundToggledHover: Appearance.inirEverywhere 
+        ? Appearance.inir.colLayer2Hover
+        : (altAction && expandedSize) ? (Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover) : Appearance.colors.colPrimaryHover
+    colBackgroundToggledActive: Appearance.inirEverywhere 
+        ? Appearance.inir.colLayer2Active
+        : (altAction && expandedSize) ? (Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active) : Appearance.colors.colPrimaryActive
+    buttonRadius: Appearance.inirEverywhere 
+        ? Appearance.inir.roundingSmall 
+        : (toggled ? Appearance.rounding.large : baseHeight / 2)
+    buttonRadiusPressed: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.normal
+    property color colText: Appearance.inirEverywhere 
+        ? (toggled ? Appearance.inir.colPrimary : Appearance.inir.colText)
+        : (toggled && !(altAction && expandedSize)) ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer2
+    property color colIcon: Appearance.inirEverywhere 
+        ? (toggled ? Appearance.inir.colPrimary : Appearance.inir.colText)
+        : expandedSize ? (root.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer3) : colText
 
     onClicked: {
         if (root.expandedSize && root.altAction) root.altAction();
         else root.mainAction();
     }
 
-    contentItem: RowLayout {
-        id: contentItem
-        spacing: 4
-        anchors {
-            centerIn: root.expandedSize ? undefined : parent
-            fill: root.expandedSize ? parent : undefined
-            leftMargin: root.horizontalPadding
-            rightMargin: root.horizontalPadding
-        }
-
-        // Icon
-        MouseArea {
-            id: iconMouseArea
-            hoverEnabled: true
-            acceptedButtons: (root.expandedSize && root.altAction) ? Qt.LeftButton : Qt.NoButton
-            Layout.alignment: Qt.AlignHCenter
-            Layout.fillHeight: true
-            Layout.topMargin: root.verticalPadding
-            Layout.bottomMargin: root.verticalPadding
-            implicitHeight: iconBackground.implicitHeight
-            implicitWidth: iconBackground.implicitWidth
-            cursorShape: Qt.PointingHandCursor
-
-            onClicked: root.mainAction()
-
-            Rectangle {
-                id: iconBackground
-                anchors.fill: parent
-                implicitWidth: height
-                radius: root.radius - root.verticalPadding
-                color: {
-                    const baseColor = root.toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer3
-                    const transparentizeAmount = (root.altAction && root.expandedSize) ? 0 : 1
-                    return ColorUtils.transparentize(baseColor, transparentizeAmount)
-                }
-
-                Behavior on radius {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
-                }
-                Behavior on color {
-                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-                }
-
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    fill: root.toggled ? 1 : 0
-                    iconSize: root.expandedSize ? 22 : 24
-                    color: root.colIcon
-                    text: root.buttonIcon
-                }
-
-                // State layer
-                Loader {
-                    anchors.fill: parent
-                    active: (root.expandedSize && root.altAction)
-                    sourceComponent: Rectangle {
-                        radius: iconBackground.radius
-                        color: ColorUtils.transparentize(root.colIcon, iconMouseArea.containsPress ? 0.88 : iconMouseArea.containsMouse ? 0.95 : 1)
-                        Behavior on color {
-                            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-                        }
-                    }
-                }
-            }
-        }
-
-        // Text column for expanded size
-        Loader {
-            Layout.alignment: Qt.AlignVCenter
-            Layout.fillWidth: true
-            visible: root.expandedSize
-            active: visible
-            sourceComponent: Column {
-                StyledText {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
-                    font.pixelSize: Appearance.font.pixelSize.smallie
-                    font.weight: 600
-                    color: root.colText
-                    elide: Text.ElideRight
-                    text: root.name
-                }
-
-                StyledText {
-                    visible: root.statusText
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                    }
-                    font {
-                        pixelSize: Appearance.font.pixelSize.smaller
-                        weight: 100
-                    }
-                    color: root.colText
-                    elide: Text.ElideRight
-                    text: root.statusText
-                }
-            }
+    contentItem: Item {
+        MaterialSymbol {
+            anchors.centerIn: parent
+            fill: root.toggled ? 1 : 0
+            iconSize: 24
+            color: root.colIcon
+            text: root.buttonIcon
         }
     }
 

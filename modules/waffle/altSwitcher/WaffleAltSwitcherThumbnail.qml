@@ -84,10 +84,7 @@ Item {
             anchors.centerIn: parent
             width: 96
             height: 96
-            source: Quickshell.iconPath(
-                AppSearch.guessIcon(root.item?.appId ?? root.item?.appName ?? ""),
-                "application-x-executable"
-            )
+            source: root.item?.icon ?? ""
             sourceSize: Qt.size(96, 96)
             fillMode: Image.PreserveAspectFit
             smooth: true
@@ -145,10 +142,7 @@ Item {
         Image {
             width: 18
             height: 18
-            source: Quickshell.iconPath(
-                AppSearch.guessIcon(root.item?.appId ?? root.item?.appName ?? ""),
-                "application-x-executable"
-            )
+            source: root.item?.icon ?? ""
             sourceSize: Qt.size(18, 18)
         }
 

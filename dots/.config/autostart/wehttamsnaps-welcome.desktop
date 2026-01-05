@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WehttamSnaps Welcome
+Comment=Welcome screen for WehttamSnaps Niri setup
+Exec=/home/wehttamsnaps/.config/wehttamsnaps/scripts/welcome.py
+Icon=user-info
+Terminal=false
+Type=Application
+Categories=System;

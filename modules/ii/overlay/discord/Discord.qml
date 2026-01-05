@@ -4,6 +4,7 @@ import Quickshell
 import qs
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 import qs.modules.ii.overlay
 import qs.services
 
@@ -35,7 +36,8 @@ StyledOverlayWidget {
                     name: "Open Discord"
                     onClicked: {
                         GlobalStates.overlayOpen = false
-                        Quickshell.execDetached(["bash", "-lc", Config.options.apps.discord])
+                        const cmd = Config.options?.apps?.discord ?? "discord"
+                        ShellExec.execCmd(cmd)
                     }
                 }
 

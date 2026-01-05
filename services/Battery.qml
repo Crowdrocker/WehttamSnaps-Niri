@@ -14,13 +14,13 @@ Singleton {
     property bool isCharging: chargeState == UPowerDeviceState.Charging
     property bool isPluggedIn: isCharging || chargeState == UPowerDeviceState.PendingCharge
     property real percentage: UPower.displayDevice?.percentage ?? 1
-    readonly property bool allowAutomaticSuspend: Config.options.battery.automaticSuspend
-    readonly property bool soundEnabled: Config.options.sounds.battery
+    readonly property bool allowAutomaticSuspend: Config.options?.battery?.automaticSuspend ?? false
+    readonly property bool soundEnabled: Config.options?.sounds?.battery ?? true
 
-    property bool isLow: available && (percentage <= Config.options.battery.low / 100)
-    property bool isCritical: available && (percentage <= Config.options.battery.critical / 100)
-    property bool isSuspending: available && (percentage <= Config.options.battery.suspend / 100)
-    property bool isFull: available && (percentage >= Config.options.battery.full / 100)
+    property bool isLow: available && (percentage <= ((Config.options?.battery?.low ?? 20) / 100))
+    property bool isCritical: available && (percentage <= ((Config.options?.battery?.critical ?? 10) / 100))
+    property bool isSuspending: available && (percentage <= ((Config.options?.battery?.suspend ?? 5) / 100))
+    property bool isFull: available && (percentage >= ((Config.options?.battery?.full ?? 95) / 100))
 
     property bool isLowAndNotCharging: isLow && !isCharging
     property bool isCriticalAndNotCharging: isCritical && !isCharging
@@ -34,7 +34,7 @@ Singleton {
     onIsLowAndNotChargingChanged: {
         if (!root.available || !isLowAndNotCharging) return;
         Quickshell.execDetached([
-            "notify-send", 
+            "/usr/bin/notify-send", 
             Translation.tr("Low battery"), 
             Translation.tr("Consider plugging in your device"), 
             "-u", "critical",
@@ -48,9 +48,9 @@ Singleton {
     onIsCriticalAndNotChargingChanged: {
         if (!root.available || !isCriticalAndNotCharging) return;
         Quickshell.execDetached([
-            "notify-send", 
+            "/usr/bin/notify-send", 
             Translation.tr("Critically low battery"), 
-            Translation.tr("Please charge!\nAutomatic suspend triggers at %1%").arg(Config.options.battery.suspend), 
+            Translation.tr("Please charge!\nAutomatic suspend triggers at %1%").arg(Config.options?.battery?.suspend ?? 5), 
             "-u", "critical",
             "-a", "Shell",
             "--hint=int:transient:1",
@@ -61,14 +61,31 @@ Singleton {
 
     onIsSuspendingAndNotChargingChanged: {
         if (root.available && isSuspendingAndNotCharging) {
-            Quickshell.execDetached(["bash", "-c", `systemctl suspend || loginctl suspend`]);
+            if (!suspendSystemctl.running && !suspendLoginctl.running) {
+                suspendSystemctl.running = true
+            }
         }
+    }
+
+    Process {
+        id: suspendSystemctl
+        command: ["/usr/bin/systemctl", "suspend"]
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode !== 0) {
+                suspendLoginctl.running = true
+            }
+        }
+    }
+
+    Process {
+        id: suspendLoginctl
+        command: ["/usr/bin/loginctl", "suspend"]
     }
 
     onIsFullAndChargingChanged: {
         if (!root.available || !isFullAndCharging) return;
         Quickshell.execDetached([
-            "notify-send",
+            "/usr/bin/notify-send",
             Translation.tr("Battery full"),
             Translation.tr("Please unplug the charger"),
             "-a", "Shell",

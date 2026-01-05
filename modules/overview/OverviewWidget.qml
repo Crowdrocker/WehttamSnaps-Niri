@@ -24,7 +24,7 @@ Item {
     property var windowAddresses: HyprlandData.addresses
     property var monitorData: HyprlandData.monitors.find(m => m.id === root.monitor?.id)
     property real scale: Config.options.overview.scale
-    property color activeBorderColor: Appearance.colors.colSecondary
+    property color activeBorderColor: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colSecondary
     property bool focusAnimEnabled: !Config.options.overview || Config.options.overview.focusAnimationEnable !== false
     property int focusAnimDuration: (Config.options.overview && Config.options.overview.focusAnimationDurationMs !== undefined)
                                     ? Config.options.overview.focusAnimationDurationMs
@@ -54,8 +54,8 @@ Item {
         const aspect = baseWorkspaceHeight <= 0 || baseWorkspaceWidth <= 0 ? 1 : baseWorkspaceHeight / baseWorkspaceWidth;
         return workspaceImplicitWidth * aspect;
     }
-    property real largeWorkspaceRadius: Appearance.rounding.large
-    property real smallWorkspaceRadius: Appearance.rounding.verysmall
+    property real largeWorkspaceRadius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large
+    property real smallWorkspaceRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall
 
     property real workspaceNumberMargin: 80
     property real workspaceNumberSize: 250 * monitor.scale
@@ -115,7 +115,11 @@ Item {
         implicitWidth: workspaceColumnLayout.implicitWidth + padding * 2
         implicitHeight: workspaceColumnLayout.implicitHeight + padding * 2
         radius: root.largeWorkspaceRadius + padding
-        color: Appearance.colors.colBackgroundSurfaceContainer
+        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+             : Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface
+             : Appearance.colors.colBackgroundSurfaceContainer
+        border.width: Appearance.inirEverywhere ? 1 : 0
+        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
 
         Column { // Workspaces
             id: workspaceColumnLayout
@@ -138,9 +142,14 @@ Item {
                             required property int index
                             property int colIndex: index
                             property int workspaceValue: root.workspaceGroup * root.workspacesShown + row.index * Config.options.overview.columns + colIndex + 1
-                            property color defaultWorkspaceColor: ColorUtils.mix(Appearance.colors.colBackgroundSurfaceContainer, Appearance.colors.colSurfaceContainerHigh, 0.8)
-                            property color hoveredWorkspaceColor: ColorUtils.mix(defaultWorkspaceColor, Appearance.colors.colLayer1Hover, 0.1)
-                            property color hoveredBorderColor: Appearance.colors.colLayer2Hover
+                            property color defaultWorkspaceColor: Appearance.inirEverywhere 
+                                ? Appearance.inir.colLayer2 
+                                : Appearance.auroraEverywhere 
+                                    ? Appearance.aurora.colSubSurface 
+                                    : ColorUtils.mix(Appearance.colors.colBackgroundSurfaceContainer, Appearance.colors.colSurfaceContainerHigh, 0.8)
+                            property color hoveredWorkspaceColor: ColorUtils.mix(defaultWorkspaceColor, 
+                                Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover : Appearance.colors.colLayer1Hover, 0.1)
+                            property color hoveredBorderColor: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer2Hover
                             property bool hoveredWhileDragging: false
 
                             implicitWidth: root.workspaceImplicitWidth
@@ -165,7 +174,7 @@ Item {
                                     weight: Font.DemiBold
                                     family: Appearance.font.family.expressive
                                 }
-                                color: ColorUtils.transparentize(Appearance.colors.colOnLayer1, 0.8)
+                                color: ColorUtils.transparentize(Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1, 0.8)
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 visible: root.showWorkspaceNumber
@@ -245,7 +254,7 @@ Item {
                 property real yWithinWorkspaceWidget: Math.max((windowData?.at[1] - (monitor?.y ?? 0) - monitorData?.reserved[1]) * root.scale, 0)
 
                 // Radius
-                property real minRadius: Appearance.rounding.small
+                property real minRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
                 property bool workspaceAtLeft: workspaceColIndex === 0
                 property bool workspaceAtRight: workspaceColIndex === Config.options.overview.columns - 1
                 property bool workspaceAtTop: workspaceRowIndex === 0

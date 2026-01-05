@@ -59,17 +59,19 @@ MaterialShape { // App icon
     }
     Loader {
         id: notifImageLoader
-        active: root.image != ""
+        active: root.image != "" && root.image !== undefined
         anchors.fill: parent
         sourceComponent: Item {
+            id: notifImageContainer
             anchors.fill: parent
+            property bool imageValid: true
             Image {
                 id: notifImage
                 anchors.fill: parent
                 readonly property int size: parent.width
-                visible: status !== Image.Error
+                visible: status === Image.Ready
 
-                source: root.image
+                source: notifImageContainer.imageValid ? root.image : ""
                 fillMode: Image.PreserveAspectCrop
                 cache: false
                 antialiasing: true
@@ -79,9 +81,14 @@ MaterialShape { // App icon
                 height: size
                 sourceSize.width: size
                 sourceSize.height: size
-                onStatusChanged: if (status === Image.Error) notifImageLoader.active = false
+                onStatusChanged: {
+                    if (status === Image.Error) {
+                        notifImageContainer.imageValid = false
+                        notifImageLoader.active = false
+                    }
+                }
 
-                layer.enabled: true
+                layer.enabled: status === Image.Ready
                 layer.effect: OpacityMask {
                     maskSource: Rectangle {
                         width: notifImage.size

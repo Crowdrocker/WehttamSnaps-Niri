@@ -10,6 +10,8 @@ import qs.modules.common.widgets
 Scope {
     id: root
 
+    Component.onCompleted: Notifications.ensureInitialized()
+
     Connections {
         target: GlobalStates
         function onWaffleNotificationCenterOpenChanged() {
@@ -44,8 +46,8 @@ Scope {
             color: "transparent"
 
             anchors {
-                bottom: Config.options.waffles.bar.bottom
-                top: !Config.options.waffles.bar.bottom
+                bottom: Config.options?.waffles?.bar?.bottom ?? false
+                top: !(Config.options?.waffles?.bar?.bottom ?? false)
                 right: true
             }
 

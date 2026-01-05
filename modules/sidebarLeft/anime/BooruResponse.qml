@@ -64,7 +64,7 @@ Rectangle {
     }
 
     radius: cleanLayout ? 0 : Appearance.rounding.normal
-    color: cleanLayout ? "transparent" : Appearance.colors.colLayer1
+    color: cleanLayout ? "transparent" : (Appearance.inirEverywhere ? Appearance.inir.colLayer1 : (Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1))
 
     ColumnLayout {
         id: columnLayout
@@ -79,7 +79,7 @@ Rectangle {
             visible: !cleanLayout
             Rectangle { // Provider name
                 id: providerNameWrapper
-                color: Appearance.colors.colSecondaryContainer
+                color: Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colSecondaryContainer
                 radius: Appearance.rounding.small
                 implicitWidth: providerName.implicitWidth + 10 * 2
                 implicitHeight: Math.max(providerName.implicitHeight + 5 * 2, 30)
@@ -159,7 +159,7 @@ Rectangle {
         StyledText { // Message
             id: messageText
             Layout.fillWidth: true
-            visible: !cleanLayout && root.responseData.message.length > 0
+            visible: root.responseData.message.length > 0 && (!cleanLayout || root.responseData.images.length === 0)
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colOnLayer1
             text: root.responseData.message
@@ -301,9 +301,9 @@ Rectangle {
                 }
 
                 buttonRadius: Appearance.rounding.small
-                colBackground: Appearance.colors.colSurfaceContainerHighest
-                colBackgroundHover: Appearance.colors.colSurfaceContainerHighestHover
-                colRipple: Appearance.colors.colSurfaceContainerHighestActive            
+                colBackground: Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colSurfaceContainerHighest
+                colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colSurfaceContainerHighestHover
+                colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colSurfaceContainerHighestActive            
 
                 contentItem: Item {
                     anchors.fill: parent
@@ -361,9 +361,9 @@ Rectangle {
                 }
 
                 buttonRadius: Appearance.rounding.small
-                colBackground: Appearance.colors.colSurfaceContainerHighest
-                colBackgroundHover: Appearance.colors.colSurfaceContainerHighestHover
-                colRipple: Appearance.colors.colSurfaceContainerHighestActive
+                colBackground: Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colSurfaceContainerHighest
+                colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colSurfaceContainerHighestHover
+                colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colSurfaceContainerHighestActive
 
                 contentItem: Item {
                     anchors.fill: parent

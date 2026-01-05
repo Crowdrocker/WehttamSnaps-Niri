@@ -105,6 +105,22 @@ bind "Super+Shift+A" { spawn "qs" "-c" "ii" "ipc" "call" "region" "search"; }
 
 ---
 
+### voiceSearch
+
+Voice search using Gemini API. Records from microphone, transcribes with Gemini, opens Google search.
+
+| Function | Description |
+|----------|-------------|
+| `start` | Start recording |
+| `stop` | Stop recording |
+| `toggle` | Toggle recording |
+
+```kdl
+bind "Super+Shift+V" { spawn "qs" "-c" "ii" "ipc" "call" "voiceSearch" "toggle"; }
+```
+
+---
+
 ### session
 
 Power menu. Logout, suspend, reboot, shutdown. The "I'm done for today" buttons.
@@ -248,13 +264,16 @@ On-screen keyboard.
 
 ---
 
-### crosshair
+### audio
 
-Gaming crosshair overlay. For when the game doesn't give you one and you need that competitive edge.
+Volume and mute control.
 
 | Function | Description |
 |----------|-------------|
-| `toggle` | Toggle crosshair visibility |
+| `volumeUp` | Increase volume |
+| `volumeDown` | Decrease volume |
+| `mute` | Toggle speaker mute |
+| `micMute` | Toggle microphone mute |
 
 ---
 
@@ -425,3 +444,13 @@ Waffle taskbar visibility.
 | `toggle` | Show/hide taskbar |
 | `open` | Show taskbar |
 | `close` | Hide taskbar |
+
+---
+
+### taskview
+
+Waffle task view (Win+Tab style).
+
+| Function | Description |
+|----------|-------------|
+| `toggle` | Open/close task view |

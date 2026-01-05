@@ -200,7 +200,13 @@ AbstractOverlayWidget {
             fill: parent
             margins: root.resizeMargin
         }
-        color: ColorUtils.transparentize(Appearance.colors.colLayer1, (root.fancyBorders && GlobalStates.overlayOpen) ? 0 : 1)
+        // Overlay no tiene blur de wallpaper, usar colores sólidos en aurora
+        color: {
+            const baseColor = Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                            : Appearance.auroraEverywhere ? Appearance.colors.colLayer1Base
+                            : Appearance.colors.colLayer1
+            return ColorUtils.transparentize(baseColor, (root.fancyBorders && GlobalStates.overlayOpen) ? 0 : 1)
+        }
         radius: root.radius
         border.color: ColorUtils.transparentize(Appearance.colors.colOutlineVariant, GlobalStates.overlayOpen ? 0 : 1)
         border.width: 1
@@ -227,7 +233,10 @@ AbstractOverlayWidget {
                 Layout.fillWidth: true
                 implicitWidth: titleBarRow.implicitWidth + root.padding * 2
                 implicitHeight: titleBarRow.implicitHeight + root.padding * 2
-                color: root.fancyBorders ? "transparent" : Appearance.colors.colLayer1
+                color: root.fancyBorders ? "transparent" 
+                     : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                     : Appearance.auroraEverywhere ? Appearance.colors.colLayer1Base
+                     : Appearance.colors.colLayer1
                 // border.color: Appearance.colors.colOutlineVariant
                 // border.width: 1
                 Behavior on opacity {

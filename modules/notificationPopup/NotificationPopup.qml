@@ -16,6 +16,8 @@ Scope {
     readonly property bool isTop: position.startsWith("top")
     readonly property bool isLeft: position.endsWith("Left")
 
+    Component.onCompleted: Notifications.ensureInitialized()
+
     PanelWindow {
         id: root
         // Hide during GameMode to avoid input interference
@@ -43,13 +45,15 @@ Scope {
 
         color: "transparent"
         implicitWidth: Appearance.sizes.notificationPopupWidth
-        implicitHeight: Math.min(listview.contentHeight + 8, screen?.height * 0.8 ?? 600)
+        implicitHeight: Math.min(listview.contentHeight + edgeMargin * 2, screen?.height * 0.8 ?? 600)
+        
+        readonly property int edgeMargin: Config.options?.notifications?.edgeMargin ?? 4
 
         NotificationListView {
             id: listview
             anchors {
                 fill: parent
-                margins: 4
+                margins: root.edgeMargin
             }
             popup: true
         }

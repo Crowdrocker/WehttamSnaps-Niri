@@ -67,6 +67,25 @@ Scope {
             width: sidebarWidth - Appearance.sizes.hyprlandGapsOut - Appearance.sizes.elevationMargin
             height: parent.height - Appearance.sizes.hyprlandGapsOut * 2
 
+            // Simple slide animation using transform (GPU-accelerated)
+            property bool animating: false
+            transform: Translate {
+                x: GlobalStates.sidebarRightOpen ? 0 : 30
+                Behavior on x {
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: 150
+                        easing.type: Easing.OutCubic
+                        onRunningChanged: sidebarContentLoader.animating = running
+                    }
+                }
+            }
+            opacity: GlobalStates.sidebarRightOpen ? 1 : 0
+            Behavior on opacity {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+            }
+
             focus: GlobalStates.sidebarRightOpen
             Keys.onPressed: (event) => {
                 if (event.key === Qt.Key_Escape) {
@@ -74,7 +93,10 @@ Scope {
                 }
             }
 
-            sourceComponent: SidebarRightContent {}
+            sourceComponent: SidebarRightContent {
+                screenWidth: sidebarRoot.screen?.width ?? 1920
+                screenHeight: sidebarRoot.screen?.height ?? 1080
+            }
         }
     }
 

@@ -63,7 +63,22 @@ Scope {
     function tryUnlock(alsoInhibitIdle = false) {
         root.alsoInhibitIdle = alsoInhibitIdle;
         root.unlockInProgress = true;
+        pamTimeoutTimer.restart();
         pam.start();
+    }
+
+    // Safety timeout - if PAM doesn't respond in 10 seconds, reset state
+    Timer {
+        id: pamTimeoutTimer
+        interval: 10000
+        onTriggered: {
+            if (root.unlockInProgress) {
+                console.warn("[LockContext] PAM timeout - resetting state");
+                root.unlockInProgress = false;
+                root.showFailure = true;
+                GlobalStates.screenUnlockFailed = true;
+            }
+        }
     }
 
     function tryFingerUnlock() {
@@ -81,7 +96,7 @@ Scope {
     Process {
         id: fingerprintCheckProc
         running: true
-        command: ["fish", "-c", "fprintd-list (whoami)"]
+        command: ["/usr/bin/bash", "-c", "command -v fprintd-list >/dev/null && fprintd-list $(whoami) 2>/dev/null || exit 1"]
         stdout: StdioCollector {
             id: fingerprintOutputCollector
             onStreamFinished: {
@@ -108,7 +123,9 @@ Scope {
 
         // pam_unix won't send any important messages so all we need is the completion status.
         onCompleted: result => {
+            pamTimeoutTimer.stop();
             if (result == PamResult.Success) {
+                root.unlockInProgress = false;
                 root.unlocked(root.targetAction);
                 stopFingerPam();
             } else {

@@ -14,7 +14,7 @@ WindowDialog {
     id: root
     property var screen: root.QsWindow.window?.screen
     property var brightnessMonitor: Brightness.getMonitorForScreen(screen)
-    backgroundHeight: 600
+    backgroundHeight: 680
 
     WindowDialogTitle {
         text: Translation.tr("Eye protection")
@@ -60,6 +60,47 @@ WindowDialog {
             checked: Config.options?.light?.night?.automatic ?? false
             onCheckedChanged: {
                 Config.setNestedValue("light.night.automatic", checked);
+            }
+        }
+
+        // Schedule settings (only visible when automatic is enabled)
+        Column {
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            visible: Config.options?.light?.night?.automatic ?? false
+            opacity: visible ? 1 : 0
+            spacing: 4
+
+            Behavior on opacity {
+                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            }
+
+            ConfigTimeInput {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                }
+                icon: "wb_twilight"
+                text: Translation.tr("Turn on at")
+                value: Config.options?.light?.night?.from ?? "19:00"
+                onTimeChanged: (newTime) => {
+                    Config.setNestedValue("light.night.from", newTime);
+                }
+            }
+
+            ConfigTimeInput {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                }
+                icon: "wb_sunny"
+                text: Translation.tr("Turn off at")
+                value: Config.options?.light?.night?.to ?? "06:30"
+                onTimeChanged: (newTime) => {
+                    Config.setNestedValue("light.night.to", newTime);
+                }
             }
         }
 

@@ -1,0 +1,303 @@
+23:32:08.532: Crash or unclean shutdown detected
+23:32:11.780: [Safe Mode] Normal launch selected, loading third-party plugins is enabled
+23:32:11.781: Platform: Wayland
+23:32:11.781: CPU Name: Intel(R) Core(TM) i7-4790 CPU @ 3.60GHz
+23:32:11.781: CPU Speed: 800.000MHz
+23:32:11.781: Physical Cores: 4, Logical Cores: 8
+23:32:11.781: Physical Memory: 15941MB Total, 6574MB Free
+23:32:11.781: Kernel Version: Linux 6.12.63-1-lts
+23:32:11.781: Distribution: "Arch Linux" Unknown
+23:32:11.781: Desktop Environment: niri (niri)
+23:32:11.781: Session Type: wayland
+23:32:11.781: Current Date/Time: 2025-12-31, 23:32:11
+23:32:11.781: Browser Hardware Acceleration: true
+23:32:11.781: Qt Version: 6.10.1 (runtime), 6.10.0 (compiled)
+23:32:11.781: Portable mode: false
+23:32:11.808: OBS 32.0.2 (linux)
+23:32:11.809: ---------------------------------
+23:32:11.810: ---------------------------------
+23:32:11.810: audio settings reset:
+23:32:11.810: 	samples per sec: 48000
+23:32:11.810: 	speakers:        2
+23:32:11.810: 	max buffering:   960 milliseconds
+23:32:11.810: 	buffering type:  dynamically increasing
+23:32:11.811: ---------------------------------
+23:32:11.811: Initializing OpenGL...
+23:32:11.811: Using EGL/Wayland
+23:32:11.854: Initialized EGL 1.5
+23:32:11.871: Loading up OpenGL on adapter AMD AMD Radeon RX 580 Series (radeonsi, polaris10, ACO, DRM 3.61, 6.12.63-1-lts)
+23:32:11.872: OpenGL loaded successfully, version 4.6 (Core Profile) Mesa 25.3.2-arch1.2, shading language 4.60
+23:32:11.908: ---------------------------------
+23:32:11.908: video settings reset:
+23:32:11.908: 	base resolution:   1920x1080
+23:32:11.908: 	output resolution: 1280x720
+23:32:11.908: 	downscale filter:  Bicubic
+23:32:11.908: 	fps:               30/1
+23:32:11.908: 	format:            NV12
+23:32:11.908: 	YUV mode:          Rec. 709/Partial
+23:32:11.908: NV12 texture support enabled
+23:32:11.908: P010 texture support not available
+23:32:11.910: Audio monitoring device:
+23:32:11.910: 	name: Default
+23:32:11.910: 	id: default
+23:32:11.914: ---------------------------------
+23:32:11.916: Failed to load 'en-US' text for module: 'decklink-captions.so'
+23:32:11.917: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+23:32:11.918: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+23:32:11.918: Failed to initialize module 'decklink.so'
+23:32:12.031: [pipewire] Available capture sources:
+23:32:12.031: [pipewire]     - Monitor source
+23:32:12.031: [pipewire]     - Window source
+23:32:12.038: v4l2loopback not installed, virtual camera not registered
+23:32:12.039: [linux-vkcapture] plugin loaded successfully (version 1.5.3)
+23:32:12.057: VAAPI: API version 1.22
+23:32:12.058: FFmpeg VAAPI H264 encoding supported
+23:32:12.062: FFmpeg VAAPI AV1 encoding not supported
+23:32:12.066: FFmpeg VAAPI HEVC encoding supported
+23:32:12.071: os_dlopen(libnvidia-encode.so.1->libnvidia-encode.so.1): libnvidia-encode.so.1: cannot open shared object file: No such file or directory
+23:32:12.071: 
+23:32:12.071: NVENC not supported
+23:32:12.071: Failed to initialize module 'obs-nvenc.so'
+23:32:12.090: [obs-vaapi] version: 0.4.2, gst-runtime: 1.26.10
+23:32:12.169: [obs-vaapi] found vah265enc
+23:32:12.169: [obs-vaapi] found vah264enc
+23:32:12.169: [obs-vaapi] found vaapih265enc
+23:32:12.169: [obs-vaapi] found vaapih264enc
+23:32:12.185: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+23:32:12.185: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.10.0 | Qt version (run-time): 6.10.1
+23:32:12.185: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+23:32:12.190: [obs-websocket] [obs_module_load] Module loaded.
+23:32:12.195: ---------------------------------
+23:32:12.195:   Loaded Modules:
+23:32:12.195:     text-freetype2.so
+23:32:12.195:     rtmp-services.so
+23:32:12.195:     obs-x264.so
+23:32:12.195:     obs-websocket.so
+23:32:12.195:     obs-webrtc.so
+23:32:12.195:     obs-vst.so
+23:32:12.195:     obs-vaapi.so
+23:32:12.195:     obs-transitions.so
+23:32:12.195:     obs-qsv11.so
+23:32:12.195:     obs-outputs.so
+23:32:12.195:     obs-libfdk.so
+23:32:12.195:     obs-filters.so
+23:32:12.195:     obs-ffmpeg.so
+23:32:12.195:     linux-vkcapture.so
+23:32:12.195:     linux-v4l2.so
+23:32:12.195:     linux-pulseaudio.so
+23:32:12.195:     linux-pipewire.so
+23:32:12.195:     linux-jack.so
+23:32:12.195:     linux-capture.so
+23:32:12.195:     linux-alsa.so
+23:32:12.195:     image-source.so
+23:32:12.195:     frontend-tools.so
+23:32:12.195:     decklink-output-ui.so
+23:32:12.195:     decklink-captions.so
+23:32:12.195: ---------------------------------
+23:32:12.195: ---------------------------------
+23:32:12.195: Available Encoders:
+23:32:12.195:   Video Encoders:
+23:32:12.195: 	- ffmpeg_svt_av1 (SVT-AV1)
+23:32:12.195: 	- ffmpeg_aom_av1 (AOM AV1)
+23:32:12.195: 	- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)
+23:32:12.195: 	- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)
+23:32:12.202: 	- obs-va-vah265enc (VAAPI H.265 on Ellesmere [Radeon RX 470/480/570/570X/580/580X/590])
+23:32:12.208: 	- obs-va-vah264enc (VAAPI H.264 on Ellesmere [Radeon RX 470/480/570/570X/580/580X/590])
+23:32:12.209: 	- obs-vaapi-vaapih265enc (VAAPI H.265  (Legacy))
+23:32:12.209: 	- obs-vaapi-vaapih264enc (VAAPI H.264  (Legacy))
+23:32:12.209: 	- obs_x264 (x264)
+23:32:12.209:   Audio Encoders:
+23:32:12.209: 	- ffmpeg_aac (FFmpeg AAC)
+23:32:12.209: 	- ffmpeg_opus (FFmpeg Opus)
+23:32:12.209: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+23:32:12.209: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+23:32:12.209: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+23:32:12.209: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+23:32:12.209: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+23:32:12.209: 	- libfdk_aac (libfdk AAC)
+23:32:12.209: ==== Startup complete ===============================================
+23:32:12.260: All scene data cleared
+23:32:12.260: ------------------------------------------------
+23:32:12.262: Source ID 'text_gdiplus_v3' not found
+23:32:12.262: Failed to create source 'Youtube Username'!
+23:32:12.262: Source ID 'text_gdiplus_v3' not found
+23:32:12.262: Failed to create source 'Instagram Username'!
+23:32:12.362: Source ID 'browser_source' not found
+23:32:12.362: Failed to create source 'AlertBox'!
+23:32:12.421: Source ID 'browser_source' not found
+23:32:12.421: Failed to create source 'Chatbox'!
+23:32:12.485: Source ID 'dshow_input' not found
+23:32:12.485: Failed to create source 'Webcam'!
+23:32:12.485: Source ID 'game_capture' not found
+23:32:12.486: Failed to create source 'Game Capture'!
+23:32:12.536: Source ID 'text_gdiplus_v3' not found
+23:32:12.537: Failed to create source 'Bar Overlay'!
+23:32:12.537: Source ID 'text_gdiplus_v3' not found
+23:32:12.537: Failed to create source 'FaceCam'!
+23:32:12.540: ext_screencopy_manager_v1 not available
+23:32:12.544: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:32:12.544: pulse-input: An error occurred while getting the source info!
+23:32:12.547: Switched to scene 'Starting Screen'
+23:32:12.547: ------------------------------------------------
+23:32:12.547: Loaded scenes:
+23:32:12.547: - scene 'Livescreen':
+23:32:12.547:     - source: 'Game Capture' (game_capture)
+23:32:12.547:     - source: 'Bar Overlay' (text_gdiplus_v3)
+23:32:12.547:     - source: 'FaceCam' (text_gdiplus_v3)
+23:32:12.547:     - source: 'AlertBox' (browser_source)
+23:32:12.547:     - source: 'Game Capture 2' (vkcapture-source)
+23:32:12.547:     - source: 'Video Capture Device (PipeWire) (BETA)' (pipewire-camera-source)
+23:32:12.547: - scene 'Collab Cam Scene':
+23:32:12.547:     - source: 'Game Capture' (game_capture)
+23:32:12.547:     - source: 'Bar Overlay' (text_gdiplus_v3)
+23:32:12.547:     - source: 'FaceCam' (text_gdiplus_v3)
+23:32:12.547:     - source: 'AlertBox' (browser_source)
+23:32:12.547: - scene 'Starting Screen':
+23:32:12.547:     - source: 'Social Media (Change Me)' (scene)
+23:32:12.547:     - source: 'AlertBox' (browser_source)
+23:32:12.547:     - source: 'Starting Sceen' (image_source)
+23:32:12.547:     - source: 'Audio Input Capture (PulseAudio)' (pulse_input_capture)
+23:32:12.547:     - source: 'Video Capture Device (PipeWire) (BETA) 2' (pipewire-camera-source)
+23:32:12.547: - scene 'Intermission Screen':
+23:32:12.547:     - source: 'Game Capture' (game_capture)
+23:32:12.547:     - source: 'Webcam' (dshow_input)
+23:32:12.547:     - source: 'Intermission Sceen' (image_source)
+23:32:12.547:     - source: 'Chatbox' (browser_source)
+23:32:12.547:     - source: 'Social Media (Change Me)' (scene)
+23:32:12.547:     - source: 'AlertBox' (browser_source)
+23:32:12.547: - scene 'Back Soon Screen':
+23:32:12.547:     - source: 'Backsoon sceen' (image_source)
+23:32:12.547:     - source: 'Social Media (Change Me)' (scene)
+23:32:12.547:     - source: 'AlertBox' (browser_source)
+23:32:12.547: - scene 'Ending Screen':
+23:32:12.547:     - source: 'Ending Sceen' (image_source)
+23:32:12.547:     - source: 'Social Media (Change Me)' (scene)
+23:32:12.547:     - source: 'AlertBox' (browser_source)
+23:32:12.547: - scene 'Offline Screen':
+23:32:12.547:     - source: 'Offline Sceen' (image_source)
+23:32:12.547:     - source: 'Social Media (Change Me)' (scene)
+23:32:12.547: - scene 'Social Media (Change Me)':
+23:32:12.547:     - source: 'Youtube group' (group)
+23:32:12.547:         - source: 'youtube' (image_source)
+23:32:12.547:         - source: 'Youtube Username' (text_gdiplus_v3)
+23:32:12.547:     - source: 'Instagramm' (group)
+23:32:12.547:         - source: 'Instagram' (image_source)
+23:32:12.547:         - source: 'Instagram Username' (text_gdiplus_v3)
+23:32:12.547:     - source: 'Twitter group' (group)
+23:32:12.547:         - source: 'Twitter' (image_source)
+23:32:12.547:         - source: 'Twitter Username' (text_ft2_source_v2)
+23:32:12.547: ------------------------------------------------
+23:32:12.577: [Media Source 'fire Stinger (Stinger)']: settings:
+23:32:12.577: 	input:                   /run/media/wehttamsnaps/GAMEDRIVE/linux-20240108T071141Z-001/streamlabs overlays/slobs-client/Overlays/bd4e7d1f-3180-4f7d-b4e9-9bdea85ea8bc/83.webm
+23:32:12.577: 	input_format:            (null)
+23:32:12.577: 	speed:                   100
+23:32:12.577: 	is_looping:              no
+23:32:12.577: 	is_linear_alpha:         no
+23:32:12.577: 	is_hw_decoding:          yes
+23:32:12.577: 	is_clear_on_media_end:   yes
+23:32:12.577: 	restart_on_activate:     yes
+23:32:12.577: 	close_when_inactive:     no
+23:32:12.577: 	full_decode:             no
+23:32:12.577: 	ffmpeg_options:          
+23:32:12.638: [camera-portal] Successfully accessed cameras
+23:32:12.666: [pipewire] Server version: 1.4.9
+23:32:12.666: [pipewire] Library version: 1.4.9
+23:32:12.666: [pipewire] Header version: 1.4.9
+23:32:12.666: [pipewire] Created registry 0x58d0c1a2dd80
+23:32:12.666: [camera-portal] Found device v4l2_input.pci-0000_00_14.0-usb-0_2_1.0
+23:32:12.666: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+23:32:12.666: [pipewire] Created stream 0x73311c002e60
+23:32:12.666: [pipewire] Stream 0x73311c002e60 state: "connecting" (error: none)
+23:32:12.666: [pipewire] Playing stream 0x73311c002e60
+23:32:12.666: [camera-portal] Found device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+23:32:12.666: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+23:32:12.666: [pipewire] Created stream 0x73311c016980
+23:32:12.666: [pipewire] Stream 0x73311c016980 state: "connecting" (error: none)
+23:32:12.666: [pipewire] Playing stream 0x73311c016980
+23:32:12.667: [pipewire] Stream 0x73311c002e60 state: "paused" (error: none)
+23:32:12.667: [pipewire] Stream 0x73311c016980 state: "paused" (error: none)
+23:32:12.767: [pipewire] Negotiated format:
+23:32:12.767: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+23:32:12.767: [pipewire]     Size: 1920x1080
+23:32:12.767: [pipewire]     Framerate: 5/1
+23:32:12.847: [pipewire] Negotiated format:
+23:32:12.847: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+23:32:12.847: [pipewire]     Size: 1920x1080
+23:32:12.847: [pipewire]     Framerate: 5/1
+23:32:12.849: [pipewire] Stream 0x73311c002e60 state: "streaming" (error: none)
+23:32:12.852: [pipewire] Stream 0x73311c016980 state: "streaming" (error: none)
+23:33:12.905: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c194ee00 with focusing surface 0x58d0c1fa3c60
+23:33:24.229: User added scene 'audio ports'
+23:33:24.231: User switched to scene 'audio ports'
+23:33:26.210: [pipewire] Stream 0x73311c002e60 state: "paused" (error: none)
+23:33:41.145: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:33:41.146: pulse-input: Audio format: s16le, 48000 Hz, 2 channels
+23:33:41.146: pulse-input: Started recording from 'alsa_input.usb-UltraSemi_C3A_USB3_Video_35925267-02.analog-stereo' (default)
+23:33:41.148: User added source 'Audio Input Capture (PulseAudio) 2' (pulse_input_capture) to scene 'audio ports'
+23:33:41.178: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c1c9d330 with focusing surface 0x58d0c194ee00
+23:33:41.752: adding 21 milliseconds of audio buffering, total audio buffering is now 21 milliseconds (source: Audio Input Capture (PulseAudio) 2)
+23:33:41.752: 
+23:33:45.533: pulse-input: Stopped recording from 'alsa_input.usb-HP__Inc_HyperX_Cloud_Alpha_Wireless_00000001-00.mono-fallback'
+23:33:45.533: pulse-input: Got 172 packets with 206400 frames
+23:33:45.534: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:33:45.534: pulse-input: Audio format: s16le, 48000 Hz, 1 channels
+23:33:45.534: pulse-input: Started recording from 'alsa_input.usb-HP__Inc_HyperX_Cloud_Alpha_Wireless_00000001-00.mono-fallback'
+23:33:46.146: adding 21 milliseconds of audio buffering, total audio buffering is now 42 milliseconds (source: Audio Input Capture (PulseAudio) 2)
+23:33:46.146: 
+23:33:54.443: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x58d0c2015a10 with focusing surface 0x58d0c194ee00
+23:34:06.061: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:34:06.062: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+23:34:06.062: pulse-input: Started recording from 'alsa_output.pci-0000_00_1b.0.analog-stereo.monitor' (default)
+23:34:06.064: User added source 'Discord' (pulse_output_capture) to scene 'audio ports'
+23:34:06.072: Device for 'Audio Output Capture' source is also used for audio monitoring:
+23:34:06.072: Deduplication logic is being applied to all monitored sources.
+23:34:06.072: 
+23:34:06.098: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c21647b0 with focusing surface 0x58d0c194ee00
+23:40:29.205: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c1c35d50 with focusing surface 0x58d0c194ee00
+23:40:31.954: pulse-input: Stopped recording from 'Discord.monitor'
+23:40:31.954: pulse-input: Got 15434 packets with 18520800 frames
+23:40:31.955: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:40:31.955: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+23:40:31.955: pulse-input: Started recording from 'Discord.monitor'
+23:40:52.347: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x58d0c1ffe4a0 with focusing surface 0x58d0c194ee00
+23:40:57.522: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x58d0c194ee00 with focusing surface 0x58d0c1ffe4a0
+23:40:57.870: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x58d0c1ffe4a0 with focusing surface 0x58d0c194ee00
+23:40:59.013: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:40:59.013: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+23:40:59.013: pulse-input: Started recording from 'alsa_output.pci-0000_00_1b.0.analog-stereo.monitor' (default)
+23:40:59.016: User added source 'Game' (pulse_output_capture) to scene 'audio ports'
+23:40:59.021: Device for 'Audio Output Capture' source is also used for audio monitoring:
+23:40:59.021: Deduplication logic is being applied to all monitored sources.
+23:40:59.021: 
+23:40:59.049: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c2189d40 with focusing surface 0x58d0c194ee00
+23:41:01.509: pulse-input: Stopped recording from 'Game.monitor'
+23:41:01.509: pulse-input: Got 91 packets with 109200 frames
+23:41:01.510: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:41:01.511: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+23:41:01.511: pulse-input: Started recording from 'Game.monitor'
+23:41:09.711: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x58d0c1950580 with focusing surface 0x58d0c194ee00
+23:41:16.282: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:41:16.282: pulse-input: Audio format: s32le, 48000 Hz, 2 channels
+23:41:16.282: pulse-input: Started recording from 'alsa_output.pci-0000_00_1b.0.analog-stereo.monitor' (default)
+23:41:16.285: User added source 'Music' (pulse_output_capture) to scene 'audio ports'
+23:41:16.301: Device for 'Audio Output Capture' source is also used for audio monitoring:
+23:41:16.301: Deduplication logic is being applied to all monitored sources.
+23:41:16.301: 
+23:41:16.324: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c22423e0 with focusing surface 0x58d0c194ee00
+23:41:20.117: pulse-input: Stopped recording from 'Music.monitor'
+23:41:20.117: pulse-input: Got 152 packets with 182400 frames
+23:41:20.117: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+23:41:20.118: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+23:41:20.118: pulse-input: Started recording from 'Music.monitor'
+23:42:22.352: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c1cf4410 with focusing surface 0x58d0c194ee00
+23:42:28.831: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c212f990 with focusing surface 0x58d0c194ee00
+23:42:32.907: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c212f990 with focusing surface 0x58d0c194ee00
+23:42:41.598: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c1f0ca10 with focusing surface 0x58d0c194ee00
+23:42:57.344: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c217bcb0 with focusing surface 0x58d0c194ee00
+23:42:58.755: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x58d0c217bcb0 with focusing surface 0x58d0c194ee00
+23:43:13.296: Source 'Audio Input Capture (PulseAudio) 2' renamed to 'MIC'
+00:05:41.484: pulse-input: Stopped recording from 'easyeffects_source'
+00:05:41.484: pulse-input: Got 76634 packets with 91960800 frames
+00:05:41.484: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+00:05:41.485: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+00:05:41.485: pulse-input: Started recording from 'easyeffects_source'

@@ -17,6 +17,23 @@ Item {
     property bool showOverflowMenu: true
     property var activeMenu: null
 
+    Timer {
+        id: overflowAutoCloseTimer
+        interval: 700
+        repeat: false
+        onTriggered: root.trayOverflowOpen = false
+    }
+
+    function updateOverflowAutoClose(): void {
+        if (!root.trayOverflowOpen) {
+            overflowAutoCloseTimer.stop();
+            return;
+        }
+        const hovering = trayOverflowButton.hovered || overflowPopup.popupHovered
+        if (hovering) overflowAutoCloseTimer.stop();
+        else overflowAutoCloseTimer.restart();
+    }
+
     // Signal to close all tray menus before opening a new one
     signal closeAllTrayMenus()
 
@@ -68,16 +85,10 @@ Item {
         focusGrab.active = false;
     }
 
-    onTrayOverflowOpenChanged: {
-        if (root.trayOverflowOpen) {
-            root.grabFocus();
-        }
-    }
-
     CompositorFocusGrab {
         id: focusGrab
-        active: false
-        windows: [trayOverflowLayout.QsWindow?.window, root.activeMenu]
+        active: (root.trayOverflowOpen && overflowPopup.QsWindow?.window !== null) || root.activeMenu !== null
+        windows: [overflowPopup.QsWindow?.window, root.activeMenu]
         onCleared: {
             root.trayOverflowOpen = false;
             if (root.activeMenu) {
@@ -100,6 +111,8 @@ Item {
             toggled: root.trayOverflowOpen
             property bool containsMouse: hovered
 
+            onHoveredChanged: root.updateOverflowAutoClose()
+
             downAction: () => root.trayOverflowOpen = !root.trayOverflowOpen
 
             Layout.fillHeight: !root.vertical
@@ -107,16 +120,22 @@ Item {
             background.implicitWidth: 24
             background.implicitHeight: 24
             background.anchors.centerIn: this
-            colBackgroundToggled: Appearance.colors.colSecondaryContainer
-            colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-            colRippleToggled: Appearance.colors.colSecondaryContainerActive
+            colBackgroundToggled: Appearance.inirEverywhere ? Appearance.inir.colSelection 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface 
+                : Appearance.colors.colSecondaryContainer
+            colBackgroundToggledHover: Appearance.inirEverywhere ? Appearance.inir.colSelectionHover 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurfaceHover 
+                : Appearance.colors.colSecondaryContainerHover
+            colRippleToggled: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive 
+                : Appearance.colors.colSecondaryContainerActive
 
             contentItem: MaterialSymbol {
                 anchors.centerIn: parent
                 iconSize: Appearance.font.pixelSize.larger
                 text: "expand_more"
                 horizontalAlignment: Text.AlignHCenter
-                color: root.trayOverflowOpen ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer2
+                color: root.trayOverflowOpen ? (Appearance.inirEverywhere ? Appearance.inir.colOnSelection : Appearance.colors.colOnSecondaryContainer) : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2)
                 rotation: (root.trayOverflowOpen ? 180 : 0) - (90 * root.vertical) + (180 * root.invertSide)
                 Behavior on rotation {
                     animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
@@ -126,8 +145,13 @@ Item {
             StyledPopup {
                 id: overflowPopup
                 hoverTarget: trayOverflowButton
+                hoverActivates: false
                 active: root.trayOverflowOpen && root.unpinnedItems.length > 0
-                popupBackgroundMargin: 300 // This should be plenty... makes sure tooltips don't get cutoff (easily)
+                popupBackgroundMargin: 0
+                closeOnOutsideClick: false
+                onRequestClose: root.trayOverflowOpen = false
+                onPopupHoveredChanged: root.updateOverflowAutoClose()
+                onActiveChanged: root.updateOverflowAutoClose()
 
                 GridLayout {
                     id: trayOverflowLayout
@@ -174,7 +198,7 @@ Item {
         StyledText {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             font.pixelSize: Appearance.font.pixelSize.larger
-            color: Appearance.colors.colSubtext
+            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
             text: "•"
             visible: root.showSeparator && SystemTray.items.values.length > 0
         }

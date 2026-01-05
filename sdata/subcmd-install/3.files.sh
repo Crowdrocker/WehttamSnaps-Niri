@@ -1,4 +1,4 @@
-# Config file installation for ii-niri
+# Config file installation for iNiR
 # This script is meant to be sourced.
 
 # shellcheck shell=bash
@@ -104,6 +104,16 @@ case "${SKIP_QUICKSHELL}" in
     
     v mkdir -p "$II_TARGET"
     
+    # Create backup before update (if this is an update)
+    if [[ "${IS_UPDATE}" == "true" ]]; then
+      log_info "Creating backup before update..."
+      create_update_backup "$II_TARGET" >/dev/null
+    fi
+    
+    # Generate manifest BEFORE syncing (to know what should exist)
+    log_info "Generating file manifest..."
+    generate_manifest "$II_SOURCE" "${II_TARGET}/.ii-manifest.new"
+    
     # Copy all .qml files from root (auto-detect, no manual list needed)
     for qml_file in "${II_SOURCE}"/*.qml; do
       if [[ -f "$qml_file" ]]; then
@@ -112,23 +122,46 @@ case "${SKIP_QUICKSHELL}" in
     done
     
     # Copy required directories
-    QML_DIRS=(modules services scripts assets translations)
+    QML_DIRS=(modules services scripts assets translations sdata/uv)
     for dir in "${QML_DIRS[@]}"; do
       if [[ -d "${II_SOURCE}/${dir}" ]]; then
         install_dir__sync "${II_SOURCE}/${dir}" "${II_TARGET}/${dir}"
       fi
     done
     
-    # Copy requirements.txt
-    if [[ -f "${II_SOURCE}/requirements.txt" ]]; then
-      install_file "${II_SOURCE}/requirements.txt" "${II_TARGET}/requirements.txt"
+    # Finalize manifest
+    mv "${II_TARGET}/.ii-manifest.new" "${II_TARGET}/.ii-manifest"
+    
+    # Cleanup orphan files (files that no longer exist in repo)
+    if [[ "${IS_UPDATE}" == "true" ]]; then
+      log_info "Cleaning up orphan files..."
+      cleanup_orphans "$II_TARGET" "${II_TARGET}/.ii-manifest"
     fi
+    
+    # Fix script permissions
+    log_info "Setting script permissions..."
+    find "$II_TARGET/scripts" \( -name "*.sh" -o -name "*.fish" -o -name "*.py" \) -exec chmod +x {} \; 2>/dev/null || true
     
     log_success "Quickshell ii config installed"
     
     # Install Python packages now that requirements.txt is in place
     showfun install-python-packages
     v install-python-packages
+    
+    # Verify installation (only on updates, not fresh install)
+    if [[ "${IS_UPDATE}" == "true" && "${SKIP_VERIFICATION}" != "true" ]]; then
+      log_info "Verifying installation..."
+      if ! verify_qs_loads 8; then
+        log_error "Verification failed!"
+        echo ""
+        echo -e "${STY_YELLOW}The update may have issues. Options:${STY_RST}"
+        echo "  1. Run ${STY_CYAN}./setup doctor${STY_RST} to diagnose"
+        echo "  2. Run ${STY_CYAN}./setup restore${STY_RST} to rollback"
+        echo ""
+      else
+        log_success "Verification passed"
+      fi
+    fi
     ;;
 esac
 
@@ -143,206 +176,16 @@ fi
 case "${SKIP_NIRI}" in
   true) sleep 0;;
   *)
+    NIRI_CONFIG="${XDG_CONFIG_HOME}/niri/config.kdl"
+    
+    # First install: copy our default config
+    # Update: preserve user's config; new options are handled via migrations
     if [[ -f "defaults/niri/config.kdl" ]]; then
       install_file__auto_backup "defaults/niri/config.kdl" "${XDG_CONFIG_HOME}/niri/config.kdl"
       log_success "Niri config installed (defaults)"
     elif [[ -d "dots/.config/niri" ]]; then
       install_file__auto_backup "dots/.config/niri/config.kdl" "${XDG_CONFIG_HOME}/niri/config.kdl"
       log_success "Niri config installed (dots)"
-    fi
-    
-    # Migrate: Add layer-rules for backdrop if missing (required for Niri overview)
-    NIRI_CONFIG="${XDG_CONFIG_HOME}/niri/config.kdl"
-    if [[ -f "$NIRI_CONFIG" ]]; then
-      if ! grep -q "quickshell:iiBackdrop" "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding backdrop layer-rules to Niri config...${STY_RST}"
-        fi
-        cat >> "$NIRI_CONFIG" << 'BACKDROP_RULES'
-
-// ============================================================================
-// Layer rules added by ii setup (required for backdrop in Niri overview)
-// ============================================================================
-layer-rule {
-    match namespace="quickshell:iiBackdrop"
-    place-within-backdrop true
-    opacity 1.0
-}
-
-layer-rule {
-    match namespace="quickshell:wBackdrop"
-    place-within-backdrop true
-    opacity 1.0
-}
-BACKDROP_RULES
-        log_success "Backdrop layer-rules added to Niri config"
-      fi
-      
-      # NOTE: Keybind migration removed - too fragile and causes duplicates
-      # The defaults/niri/config.kdl already has all ii keybinds.
-      # On first install: user gets the full config
-      # On update: user keeps their config, new defaults go to .new
-      # Users can manually merge keybinds from .new if needed
-      
-      # Only show a hint if this is an update and .new was created
-      if [[ "${IS_UPDATE}" == "true" && -f "${NIRI_CONFIG}.new" ]] && ! ${quiet:-false}; then
-        echo -e "${STY_YELLOW}Note: New keybinds may be available in ${NIRI_CONFIG}.new${STY_RST}"
-        echo -e "${STY_YELLOW}Compare with: diff ~/.config/niri/config.kdl ~/.config/niri/config.kdl.new${STY_RST}"
-      fi
-      
-      # Migrate: Add //off to animations block if missing (required for GameMode toggle)
-      if ! grep -qE '^\s*(//)?off' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding //off to animations block for GameMode support...${STY_RST}"
-        fi
-        python3 << 'MIGRATE_ANIMATIONS'
-import re
-import os
-
-config_path = os.path.expanduser("~/.config/niri/config.kdl")
-with open(config_path, 'r') as f:
-    content = f.read()
-
-# Check if //off already exists in animations block
-animations_match = re.search(r'^animations\s*\{([^}]*)\}', content, re.MULTILINE | re.DOTALL)
-if animations_match:
-    block_content = animations_match.group(1)
-    if '//off' not in block_content and 'off' not in block_content:
-        # Insert //off after animations {
-        new_block = 'animations {\n    //off' + block_content + '}'
-        content = content[:animations_match.start()] + new_block + content[animations_match.end():]
-        with open(config_path, 'w') as f:
-            f.write(content)
-# Output suppressed - shell handles logging
-MIGRATE_ANIMATIONS
-        log_success "Added //off to animations block"
-      fi
-      
-      # Migrate: Replace native close-window with closeConfirm script
-      if grep -q 'Mod+Q.*close-window' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Migrating Mod+Q to use closeConfirm...${STY_RST}"
-        fi
-        python3 << 'MIGRATE_CLOSEWINDOW'
-import re
-import os
-
-config_path = os.path.expanduser("~/.config/niri/config.kdl")
-with open(config_path, 'r') as f:
-    content = f.read()
-
-# Replace Mod+Q close-window with our script
-pattern = r'Mod\+Q[^}]*close-window[^}]*\}'
-replacement = 'Mod+Q repeat=false { spawn "bash" "-c" "$HOME/.config/quickshell/ii/scripts/close-window.sh"; }'
-content = re.sub(pattern, replacement, content)
-
-with open(config_path, 'w') as f:
-    f.write(content)
-# Output suppressed in quiet mode (checked by shell)
-MIGRATE_CLOSEWINDOW
-        log_success "Mod+Q migrated to closeConfirm with fallback"
-      fi
-      
-      # Migrate: Qt theming - use kde platform + Breeze style for proper Qt app theming
-      if grep -q 'QT_QPA_PLATFORMTHEME "gtk3"' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Migrating Qt theming from gtk3 to kde...${STY_RST}"
-        fi
-        # Change gtk3 to kde for kdeglobals color support
-        sed -i 's/QT_QPA_PLATFORMTHEME "gtk3"/QT_QPA_PLATFORMTHEME "kde"/' "$NIRI_CONFIG"
-        # Remove QT_QPA_PLATFORMTHEME_QT6 if present (not needed with kde)
-        sed -i '/QT_QPA_PLATFORMTHEME_QT6/d' "$NIRI_CONFIG"
-        log_success "Qt theming migrated to kde"
-      fi
-      
-      # Add QT_QPA_PLATFORMTHEME if missing entirely
-      if ! grep -q 'QT_QPA_PLATFORMTHEME' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding QT_QPA_PLATFORMTHEME for Qt theming...${STY_RST}"
-        fi
-        sed -i '/QT_QPA_PLATFORM "wayland"/a\    QT_QPA_PLATFORMTHEME "kde"' "$NIRI_CONFIG"
-        log_success "QT_QPA_PLATFORMTHEME added"
-      fi
-      
-      # Add QT_STYLE_OVERRIDE if not present
-      if ! grep -q 'QT_STYLE_OVERRIDE' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding QT_STYLE_OVERRIDE for Qt theming...${STY_RST}"
-        fi
-        sed -i '/QT_QPA_PLATFORMTHEME/a\    QT_STYLE_OVERRIDE "Breeze"' "$NIRI_CONFIG"
-        log_success "QT_STYLE_OVERRIDE added"
-      fi
-      
-      # Migrate: Add XDG_MENU_PREFIX for Dolphin file associations
-      # Check specifically for XDG_MENU_PREFIX in environment block (not spawn-at-startup)
-      if ! grep -q 'XDG_MENU_PREFIX "plasma-"' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding XDG_MENU_PREFIX for Dolphin file associations...${STY_RST}"
-        fi
-        # Add after XDG_CURRENT_DESKTOP
-        sed -i '/XDG_CURRENT_DESKTOP "niri"/a\    XDG_MENU_PREFIX "plasma-"  // Required for Dolphin file associations' "$NIRI_CONFIG"
-        log_success "XDG_MENU_PREFIX added for Dolphin"
-      fi
-      
-      # Migrate: Add spawn-at-startup for systemctl import-environment (Dolphin fix)
-      if ! grep -q 'import-environment XDG_MENU_PREFIX' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding systemctl import-environment for Dolphin...${STY_RST}"
-        fi
-        # Add before the first spawn-at-startup
-        sed -i '0,/spawn-at-startup/s//spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFIX \&\& kbuildsycoca6"\n\nspawn-at-startup/' "$NIRI_CONFIG"
-        log_success "systemctl import-environment added for Dolphin"
-      fi
-      
-      # Migrate: Update media/audio keybinds to use ii IPC (shows OSD)
-      if grep -q 'XF86AudioRaiseVolume.*wpctl' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Migrating audio keybinds to use ii IPC (with OSD)...${STY_RST}"
-        fi
-        # Replace old wpctl keybinds with ii IPC
-        sed -i 's|XF86AudioRaiseVolume.*{.*spawn.*wpctl.*}|XF86AudioRaiseVolume allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "volumeUp"; }|' "$NIRI_CONFIG"
-        sed -i 's|XF86AudioLowerVolume.*{.*spawn.*wpctl.*}|XF86AudioLowerVolume allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "volumeDown"; }|' "$NIRI_CONFIG"
-        sed -i 's|XF86AudioMute.*{.*spawn.*wpctl.*}|XF86AudioMute allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "mute"; }|' "$NIRI_CONFIG"
-        log_success "Audio keybinds migrated to ii IPC"
-      fi
-      
-      # Add XF86AudioMicMute if missing
-      if ! grep -q 'XF86AudioMicMute' "$NIRI_CONFIG" 2>/dev/null; then
-        sed -i '/XF86AudioMute.*allow-when-locked/a\    XF86AudioMicMute allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "micMute"; }' "$NIRI_CONFIG"
-        log_success "XF86AudioMicMute keybind added"
-      fi
-      
-      # Add brightness keybinds if missing
-      if ! grep -q 'XF86MonBrightnessUp' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding brightness keybinds...${STY_RST}"
-        fi
-        # Add after XF86AudioMicMute or XF86AudioMute
-        if grep -q 'XF86AudioMicMute' "$NIRI_CONFIG"; then
-          sed -i '/XF86AudioMicMute/a\    \n    // Brightness (hardware keys)\n    XF86MonBrightnessUp { spawn "qs" "-c" "ii" "ipc" "call" "brightness" "increment"; }\n    XF86MonBrightnessDown { spawn "qs" "-c" "ii" "ipc" "call" "brightness" "decrement"; }' "$NIRI_CONFIG"
-        else
-          sed -i '/XF86AudioMute/a\    \n    // Brightness (hardware keys)\n    XF86MonBrightnessUp { spawn "qs" "-c" "ii" "ipc" "call" "brightness" "increment"; }\n    XF86MonBrightnessDown { spawn "qs" "-c" "ii" "ipc" "call" "brightness" "decrement"; }' "$NIRI_CONFIG"
-        fi
-        log_success "Brightness keybinds added"
-      fi
-      
-      # Add media playback keybinds if missing
-      if ! grep -q 'XF86AudioPlay' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding media playback keybinds...${STY_RST}"
-        fi
-        sed -i '/XF86MonBrightnessDown/a\    \n    // Media playback (hardware keys)\n    XF86AudioPlay { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "playPause"; }\n    XF86AudioPause { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "playPause"; }\n    XF86AudioNext { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "next"; }\n    XF86AudioPrev { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "previous"; }' "$NIRI_CONFIG"
-        log_success "Media playback keybinds added"
-      fi
-      
-      # Add keyboard alternatives for media (Mod+Shift+M/P/N/B) if missing
-      if ! grep -q 'Mod+Shift+M.*audio.*mute' "$NIRI_CONFIG" 2>/dev/null; then
-        if ! ${quiet:-false}; then
-          echo -e "${STY_CYAN}Adding keyboard media shortcuts (Mod+Shift+M/P/N/B)...${STY_RST}"
-        fi
-        sed -i '/XF86AudioPrev/a\    \n    // Keyboard alternatives for media (for keyboards without media keys)\n    Mod+Shift+M { spawn "qs" "-c" "ii" "ipc" "call" "audio" "mute"; }\n    Mod+Shift+P { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "playPause"; }\n    Mod+Shift+N { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "next"; }\n    Mod+Shift+B { spawn "qs" "-c" "ii" "ipc" "call" "mpris" "previous"; }' "$NIRI_CONFIG"
-        log_success "Keyboard media shortcuts added"
-      fi
     fi
     ;;
 esac
@@ -367,7 +210,7 @@ for gtkver in gtk-3.0 gtk-4.0; do
 done
 
 # KDE settings (for Dolphin and Qt apps)
-# These are controlled by ii-niri for theming - always overwrite
+# These are controlled by iNiR for theming - always overwrite
 if [[ -f "defaults/kde/kdeglobals" ]]; then
   install_file "defaults/kde/kdeglobals" "${XDG_CONFIG_HOME}/kdeglobals"
 elif [[ -f "dots/.config/kdeglobals" ]]; then
@@ -436,6 +279,7 @@ if [[ -d "dots/.config/vesktop/themes" ]]; then
   # Migrate: Remove old theme files from previous versions
   OLD_VESKTOP_THEMES=(
     "midnight-ii.theme.css"
+    "dms-midnight.theme.css"
     "system24-ii.theme.css"
     "system24-palette.css"
     "ii-palette.css"
@@ -483,6 +327,13 @@ elif [[ -f "dots/.config/illogical-impulse/config.json" ]]; then
 fi
 
 #####################################################################################
+# Apply required migrations automatically
+#####################################################################################
+if [[ "${SKIP_MIGRATIONS}" != "true" ]]; then
+  run_migrations_auto
+fi
+
+#####################################################################################
 # Mark first run complete
 #####################################################################################
 function gen_firstrun(){
@@ -516,9 +367,9 @@ fi
 
 # Clean up legacy shell-specific files from previous versions
 for legacy_file in \
-    "${XDG_CONFIG_HOME}/fish/conf.d/ii-niri-env.fish" \
-    "${XDG_CONFIG_HOME}/ii-niri-env.sh" \
-    "${XDG_CONFIG_HOME}/environment.d/60-ii-niri.conf"
+    "${XDG_CONFIG_HOME}/fish/conf.d/inir-env.fish" \
+    "${XDG_CONFIG_HOME}/inir-env.sh" \
+    "${XDG_CONFIG_HOME}/environment.d/60-inir.conf"
 do
     if [[ -f "$legacy_file" ]]; then
         rm -f "$legacy_file"
@@ -528,14 +379,14 @@ done
 
 # Clean up legacy lines in shell rc files
 if [[ -f "$HOME/.bashrc" ]]; then
-    if grep -q "ii-niri-env.sh" "$HOME/.bashrc"; then
-        sed -i '/ii-niri-env.sh/d' "$HOME/.bashrc"
+    if grep -q "iNiR-env.sh" "$HOME/.bashrc"; then
+        sed -i '/iNiR-env.sh/d' "$HOME/.bashrc"
         log_success "Cleaned up .bashrc"
     fi
 fi
 if [[ -f "$HOME/.zshrc" ]]; then
-    if grep -q "ii-niri-env.sh" "$HOME/.zshrc"; then
-        sed -i '/ii-niri-env.sh/d' "$HOME/.zshrc"
+    if grep -q "iNiR-env.sh" "$HOME/.zshrc"; then
+        sed -i '/iNiR-env.sh/d' "$HOME/.zshrc"
         log_success "Cleaned up .zshrc"
     fi
 fi
@@ -834,9 +685,9 @@ fi
 # In quiet mode, just print a simple status line
 if ${quiet:-false}; then
   if [[ "${IS_UPDATE}" == "true" ]]; then
-    echo "ii-niri: update complete"
+    echo "iNiR: update complete"
   else
-    echo "ii-niri: install complete"
+    echo "iNiR: install complete"
   fi
 else
   echo ""
@@ -891,29 +742,6 @@ fi
 
 # Skip the rest of the summary in quiet mode
 if ! ${quiet:-false}; then
-
-  # Check for .new files that need manual review
-  # Note: kdeglobals.new and dolphinrc.new are no longer created (always overwritten)
-  NEW_FILES=()
-  for f in "${XDG_CONFIG_HOME}/niri/config.kdl.new" \
-           "${XDG_CONFIG_HOME}/illogical-impulse/config.json.new"; do
-    if [[ -f "$f" ]]; then
-      NEW_FILES+=("$f")
-    fi
-  done
-
-  if [[ ${#NEW_FILES[@]} -gt 0 ]]; then
-    echo -e "${STY_YELLOW}${STY_BOLD}┌─ Files to Review${STY_RST}"
-    echo -e "${STY_YELLOW}│${STY_RST}"
-    echo -e "${STY_YELLOW}│${STY_RST}  New defaults saved as .new (your config preserved):"
-    for f in "${NEW_FILES[@]}"; do
-      echo -e "${STY_YELLOW}│${STY_RST}    ${STY_FAINT}${f}${STY_RST}"
-    done
-    echo -e "${STY_YELLOW}│${STY_RST}"
-    echo -e "${STY_YELLOW}│${STY_RST}  Compare with: ${STY_FAINT}diff <file> <file>.new${STY_RST}"
-    echo -e "${STY_YELLOW}└──────────────────────────${STY_RST}"
-    echo ""
-  fi
 
   # Show warnings if any
   if [[ ${#WARNINGS[@]} -gt 0 ]]; then

@@ -74,7 +74,7 @@ WSettingsPage {
                             // Use waffle target if not sharing wallpaper with Material ii
                             const useMain = Config.options?.waffles?.background?.useMainWallpaper ?? true
                             Config.setNestedValue("wallpaperSelector.selectionTarget", useMain ? "main" : "waffle")
-                            Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "wallpaperSelector", "toggle"])
+                            Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "wallpaperSelector", "toggle"])
                         }
                     }
                     
@@ -100,7 +100,7 @@ WSettingsPage {
                         
                         onClicked: {
                             const dark = !Appearance.m3colors.darkmode
-                            Quickshell.execDetached(["fish", "-c", `${Directories.wallpaperSwitchScriptPath} --mode ${dark ? "dark" : "light"} --noswitch`])
+                            ShellExec.execCmd(`${Directories.wallpaperSwitchScriptPath} --mode ${dark ? "dark" : "light"} --noswitch`)
                         }
                         
                         WToolTip {
@@ -130,7 +130,7 @@ WSettingsPage {
             ]
             onSelected: newValue => {
                 Config.setNestedValue("appearance.palette.type", newValue)
-                Quickshell.execDetached(["fish", "-c", `${Directories.wallpaperSwitchScriptPath} --noswitch`])
+                ShellExec.execCmd(`${Directories.wallpaperSwitchScriptPath} --noswitch`)
             }
         }
         
@@ -191,7 +191,7 @@ WSettingsPage {
                 Layout.fillWidth: true
                 text: Translation.tr("Reload shell")
                 icon.name: "arrow-sync"
-                onClicked: Quickshell.execDetached(["fish", "-c", "qs kill -c ii; sleep 0.3; qs -c ii &"])
+                onClicked: Quickshell.execDetached(["/usr/bin/setsid", "/usr/bin/fish", "-c", "qs kill -c ii; sleep 0.3; qs -c ii"])
             }
             
             WButton {
@@ -205,7 +205,7 @@ WSettingsPage {
                 Layout.fillWidth: true
                 text: Translation.tr("Shortcuts")
                 icon.name: "keyboard"
-                onClicked: Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "cheatsheet", "toggle"])
+                onClicked: Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "cheatsheet", "toggle"])
             }
         }
         

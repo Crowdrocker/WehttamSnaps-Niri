@@ -7,8 +7,8 @@
 ## The Easy Way (Arch)
 
 ```bash
-git clone https://github.com/snowarch/quickshell-ii-niri.git
-cd quickshell-ii-niri
+git clone https://github.com/snowarch/inir.git
+cd inir
 ./setup install
 ```
 
@@ -48,12 +48,12 @@ The bare minimum to not crash immediately:
 
 For everything else, check [PACKAGES.md](PACKAGES.md). It's organized by category so you can skip what you don't need.
 
-> **Note on quickshell-git:** The AUR package may not include all optional modules. If you see errors about missing modules (like `Quickshell.Services.Polkit`), ii-niri will still work - those features will just be disabled. For full functionality, you can rebuild quickshell with all service modules enabled.
+> **Note on quickshell-git:** The AUR package may not include all optional modules. If you see errors about missing modules (like `Quickshell.Services.Polkit`), iNiR will still work - those features will just be disabled. For full functionality, you can rebuild quickshell with all service modules enabled.
 
 ### 2. Clone the repo
 
 ```bash
-git clone https://github.com/snowarch/quickshell-ii-niri.git ~/.config/quickshell/ii
+git clone https://github.com/snowarch/inir.git ~/.config/quickshell/ii
 ```
 
 ### 3. Copy the configs

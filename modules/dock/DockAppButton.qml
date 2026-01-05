@@ -1,5 +1,6 @@
 import qs.services
 import qs.modules.common
+import qs.modules.common.widgets
 import qs.modules.common.functions
 import Qt5Compat.GraphicalEffects
 import QtQuick
@@ -12,12 +13,11 @@ DockButton {
     property var appToplevel
     property var appListRoot
     property int lastFocused: -1
-    property real iconSize: Config.options.dock.iconSize ?? 35
+    property real iconSize: Config.options?.dock?.iconSize ?? 35
     property real countDotWidth: 10
     property real countDotHeight: 4
     property bool appIsActive: appToplevel.toplevels.find(t => (t.activated == true)) !== undefined
     property bool hasWindows: appToplevel.toplevels.length > 0
-    property bool buttonHovered: false
     
     // Determine focused window index for smart indicator (Niri only)
     // Returns the index (0-based) of the focused window sorted by column position
@@ -72,36 +72,41 @@ DockButton {
     // Use originalAppId (preserves case) for desktop entry lookup, fallback to appId for backwards compat
     property var desktopEntry: DesktopEntries.heuristicLookup(appToplevel.originalAppId ?? appToplevel.appId)
     enabled: !isSeparator
-    implicitWidth: isSeparator ? 1 : implicitHeight - topInset - bottomInset
+    
+    readonly property real dockHeight: Config.options?.dock?.height ?? 70
+    readonly property real separatorSize: dockHeight - 50
+    
+    implicitWidth: isSeparator ? (vertical ? separatorSize : 8) : (vertical ? 50 : (implicitHeight - topInset - bottomInset))
+    implicitHeight: isSeparator ? (vertical ? 8 : separatorSize) : 50
+    background.visible: !isSeparator
 
-    Loader {
-        active: isSeparator
-        anchors {
-            fill: parent
-            topMargin: dockVisualBackground.margin + dockRow.padding + Appearance.rounding.normal
-            bottomMargin: dockVisualBackground.margin + dockRow.padding + Appearance.rounding.normal
-        }
-        sourceComponent: DockSeparator {}
+    // Hover shadow
+    StyledRectangularShadow {
+        target: root.background
+        opacity: root.buttonHovered && !root.isSeparator ? 0.6 : 0
+        Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     Loader {
-        anchors.fill: parent
-        active: appToplevel.toplevels.length > 0
-        sourceComponent: MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.NoButton
-            onEntered: {
-                root.buttonHovered = true
+        active: isSeparator
+        anchors.centerIn: parent
+        sourceComponent: Rectangle {
+            width: root.vertical ? root.separatorSize : 1
+            height: root.vertical ? 1 : root.separatorSize
+            color: Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle
+                 : Appearance.auroraEverywhere ? ColorUtils.transparentize(Appearance.colors.colOnLayer0, 0.7)
+                 : Appearance.colors.colOutlineVariant
+        }
+    }
+
+    // Use RippleButton's built-in buttonHovered instead of separate MouseArea
+    onButtonHoveredChanged: {
+        if (appToplevel.toplevels.length > 0) {
+            if (buttonHovered) {
                 appListRoot.lastHoveredButton = root
                 appListRoot.buttonHovered = true
-            }
-            onExited: {
-                root.buttonHovered = false
-                if (appListRoot.lastHoveredButton === root) {
-                    appListRoot.buttonHovered = false
-                }
+            } else if (appListRoot.lastHoveredButton === root) {
+                appListRoot.buttonHovered = false
             }
         }
     }
@@ -118,8 +123,8 @@ DockButton {
             id = "spotify-launcher";
         }
         if (id && id !== "" && id !== "SEPARATOR") {
-            const cmd = "gtk-launch \"" + id + "\" || \"" + id + "\" &";
-            Quickshell.execDetached(["bash", "-lc", cmd]);
+            const cmd = "/usr/bin/gtk-launch \"" + id + "\" || \"" + id + "\" &";
+            Quickshell.execDetached(["/usr/bin/bash", "-lc", cmd]);
             return true;
         }
         return false;
@@ -152,6 +157,7 @@ DockButton {
 
     altAction: () => {
         root.appListRoot.closeAllContextMenus()
+        root.appListRoot.contextMenuOpen = true
         contextMenu.active = true
     }
 
@@ -166,6 +172,10 @@ DockButton {
         id: contextMenu
         anchorItem: root
         anchorHovered: root.buttonHovered
+        
+        onActiveChanged: {
+            if (!active && root.appListRoot) root.appListRoot.contextMenuOpen = false
+        }
         
         model: [
             // Desktop actions (if available)
@@ -224,26 +234,36 @@ DockButton {
                 }
                 active: !root.isSeparator
                 sourceComponent: IconImage {
-                    // Use desktop entry icon if available, fallback to guessed icon
-                    source: {
+                    id: dockIcon
+                    property string iconName: {
                         const appId = appToplevel.originalAppId ?? appToplevel.appId;
-                        let iconName;
-
-                        // Caso especial: Spotify → usar icono de tema "spotify"
                         if (appId === "Spotify" || appId === "spotify" || appId === "spotify-launcher") {
-                            iconName = "spotify";
-                        } else {
-                            iconName = root.desktopEntry?.icon || AppSearch.guessIcon(appId);
+                            return "spotify";
                         }
-
-                        return Quickshell.iconPath(iconName, "image-missing");
+                        return root.desktopEntry?.icon || AppSearch.guessIcon(appId);
                     }
+                    property var candidates: IconThemeService.dockIconCandidates(iconName)
+                    property int candidateIndex: 0
+                    
+                    source: candidates.length > 0 ? candidates[0] : Quickshell.iconPath(iconName, "image-missing")
                     implicitSize: root.iconSize
+                    
+                    onStatusChanged: {
+                        if (status === Image.Error && candidates.length > 0) {
+                            candidateIndex++
+                            if (candidateIndex < candidates.length) {
+                                source = candidates[candidateIndex]
+                            } else {
+                                // All candidates failed, use system icon
+                                source = Quickshell.iconPath(iconName, "image-missing")
+                            }
+                        }
+                    }
                 }
             }
 
             Loader {
-                active: Config.options.dock.monochromeIcons
+                active: Config.options?.dock?.monochromeIcons ?? false
                 anchors.fill: iconImageLoader
                 sourceComponent: Item {
                     Desaturate {
@@ -256,7 +276,7 @@ DockButton {
                     ColorOverlay {
                         anchors.fill: desaturatedIcon
                         source: desaturatedIcon
-                        color: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.9)
+                        color: ColorUtils.transparentize(Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary, 0.9)
                     }
                 }
             }
@@ -271,9 +291,9 @@ DockButton {
                 }
                 
                 // Config options
-                property bool smartIndicator: Config.options.dock.smartIndicator !== false
-                property bool showAllDots: Config.options.dock.showAllWindowDots !== false
-                property int maxDots: Config.options.dock.maxIndicatorDots ?? 5
+                property bool smartIndicator: Config.options?.dock?.smartIndicator !== false
+                property bool showAllDots: Config.options?.dock?.showAllWindowDots !== false
+                property int maxDots: Config.options?.dock?.maxIndicatorDots ?? 5
                 
                 sourceComponent: Row {
                     spacing: 3
@@ -281,8 +301,8 @@ DockButton {
                     Repeater {
                         // Show dots for all windows if enabled, otherwise just for active apps
                         model: {
-                            const showAll = Config.options.dock.showAllWindowDots !== false;
-                            const max = Config.options.dock.maxIndicatorDots ?? 5;
+                            const showAll = Config.options?.dock?.showAllWindowDots !== false;
+                            const max = Config.options?.dock?.maxIndicatorDots ?? 5;
                             if (root.appIsActive || showAll) {
                                 return Math.min(appToplevel.toplevels.length, max);
                             }
@@ -292,7 +312,7 @@ DockButton {
                         delegate: Rectangle {
                             required property int index
                             
-                            property bool smartMode: Config.options.dock.smartIndicator !== false
+                            property bool smartMode: Config.options?.dock?.smartIndicator !== false
                             
                             // Determine if this indicator corresponds to the focused window
                             property bool isFocusedWindow: {
@@ -306,8 +326,8 @@ DockButton {
                             implicitWidth: isFocusedWindow ? root.countDotWidth : root.countDotHeight
                             implicitHeight: root.countDotHeight
                             color: isFocusedWindow 
-                                   ? Appearance.colors.colPrimary 
-                                   : ColorUtils.transparentize(Appearance.colors.colOnLayer0, 0.5)
+                                   ? (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
+                                   : ColorUtils.transparentize(Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0, 0.5)
                             
                             Behavior on implicitWidth { 
                                 NumberAnimation { duration: 120; easing.type: Easing.OutQuad } 
@@ -317,11 +337,11 @@ DockButton {
                     
                     // Fallback: single dot when showAllDots is off and app is inactive
                     Rectangle {
-                        visible: !root.appIsActive && root.hasWindows && Config.options.dock.showAllWindowDots === false
+                        visible: !root.appIsActive && root.hasWindows && Config.options?.dock?.showAllWindowDots === false
                         width: 5
                         height: 5
                         radius: 2.5
-                        color: ColorUtils.transparentize(Appearance.colors.colOnLayer0, 0.5)
+                        color: ColorUtils.transparentize(Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0, 0.5)
                     }
                 }
             }

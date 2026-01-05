@@ -17,17 +17,37 @@ Scope {
     property int panelWidth: 380
     property string searchText: ""
     // Animation and visibility control
-    property bool animationsEnabled: Config.options.altSwitcher ? (Config.options.altSwitcher.enableAnimation !== false) : true
+    readonly property var altSwitcherOptions: Config.options?.altSwitcher ?? {}
+    readonly property string altPreset: altSwitcherOptions.preset ?? "default"
+    readonly property bool altMonochromeIcons: altSwitcherOptions.monochromeIcons ?? false
+    readonly property bool altEnableAnimation: altSwitcherOptions.enableAnimation ?? true
+    readonly property int altAnimationDurationMs: altSwitcherOptions.animationDurationMs ?? 200
+    readonly property bool altUseMostRecentFirst: altSwitcherOptions.useMostRecentFirst ?? true
+    readonly property bool altEnableBlurGlass: altSwitcherOptions.enableBlurGlass ?? true
+    readonly property real altBackgroundOpacity: altSwitcherOptions.backgroundOpacity ?? 0.9
+    readonly property real altBlurAmount: altSwitcherOptions.blurAmount ?? 0.4
+    readonly property int altScrimDim: altSwitcherOptions.scrimDim ?? 35
+    readonly property string altPanelAlignment: altSwitcherOptions.panelAlignment ?? "right"
+    readonly property bool altUseM3Layout: altSwitcherOptions.useM3Layout ?? false
+    readonly property bool altCompactStyle: altSwitcherOptions.compactStyle ?? false
+    readonly property bool altShowOverviewWhileSwitching: altSwitcherOptions.showOverviewWhileSwitching ?? false
+    readonly property int altAutoHideDelayMs: altSwitcherOptions.autoHideDelayMs ?? 500
+
+    property bool animationsEnabled: root.altEnableAnimation
     property bool panelVisible: false
     property real panelRightMargin: -panelWidth
     // Snapshot actual de ventanas ordenadas que se usa mientras el panel está abierto
     property var itemSnapshot: []
-    property bool useM3Layout: Config.options.altSwitcher && Config.options.altSwitcher.useM3Layout
-    property bool centerPanel: Config.options.altSwitcher && Config.options.altSwitcher.panelAlignment === "center"
-    property bool compactStyle: Config.options.altSwitcher && Config.options.altSwitcher.compactStyle
-    property bool listStyle: Config.options?.altSwitcher?.preset === "list"
-    property bool showOverviewWhileSwitching: Config.options.altSwitcher && Config.options.altSwitcher.showOverviewWhileSwitching
+    // Cache de iconos resueltos para evitar lookups repetidos
+    property var iconCache: ({})
+    property bool useM3Layout: root.altUseM3Layout
+    property bool centerPanel: root.altPanelAlignment === "center"
+    property bool compactStyle: root.altCompactStyle
+    property bool listStyle: root.altPreset === "list"
+    property bool showOverviewWhileSwitching: root.altShowOverviewWhileSwitching
     property bool overviewOpenedByAltSwitcher: false
+    // Pre-warm flag para evitar lag en primera apertura
+    property bool _warmedUp: false
 
 
 
@@ -53,6 +73,16 @@ Scope {
             parts[i] = p.charAt(0).toUpperCase() + p.slice(1)
         }
         return parts.join(" ")
+    }
+
+    // Resuelve y cachea el icono para un appId
+    function getCachedIcon(appId, appName, title) {
+        const key = appId || appName || title || ""
+        if (iconCache[key] !== undefined)
+            return iconCache[key]
+        const icon = AppSearch.getIconSource(key)
+        iconCache[key] = icon
+        return icon
     }
 
     function buildItemsFrom(windows, workspaces, mruIds) {
@@ -83,7 +113,9 @@ Scope {
                 appName: appName,
                 title: w.title || "",
                 workspaceId: w.workspace_id,
-                workspaceIdx: wsIdx
+                workspaceIdx: wsIdx,
+                // Pre-resolver icono durante build para evitar lag en render
+                icon: root.getCachedIcon(appId, appName, w.title)
             }
             items.push(item)
             itemsById[item.id] = item
@@ -106,8 +138,7 @@ Scope {
             return a.id - b.id
         })
 
-        const cfg = Config.options.altSwitcher
-        const useMostRecentFirst = cfg && cfg.useMostRecentFirst !== false
+        const useMostRecentFirst = root.altUseMostRecentFirst
 
         if (useMostRecentFirst && mruIds && mruIds.length > 0) {
             const ordered = []
@@ -149,8 +180,7 @@ Scope {
     function maybeOpenOverview() {
         if (!CompositorService.isNiri)
             return
-        const cfg = Config.options.altSwitcher
-        if (!cfg || !cfg.showOverviewWhileSwitching)
+        if (!root.altShowOverviewWhileSwitching)
             return
         if (!NiriService.inOverview) {
             overviewOpenedByAltSwitcher = true
@@ -163,8 +193,7 @@ Scope {
     function maybeCloseOverview() {
         if (!CompositorService.isNiri)
             return
-        const cfg = Config.options.altSwitcher
-        if (!cfg || !cfg.showOverviewWhileSwitching)
+        if (!root.altShowOverviewWhileSwitching)
             return
         if (overviewOpenedByAltSwitcher && NiriService.inOverview) {
             NiriService.toggleOverview()
@@ -198,9 +227,7 @@ Scope {
                 anchors.fill: parent
                 z: -1
                 color: {
-                    const cfg = Config.options.altSwitcher
-                    const v = (cfg && cfg.scrimDim !== undefined) ? cfg.scrimDim : 35
-                    const clamped = Math.max(0, Math.min(100, v))
+                    const clamped = Math.max(0, Math.min(100, root.altScrimDim))
                     const a = clamped / 100
                     return Qt.rgba(0, 0, 0, a)
                 }
@@ -243,21 +270,27 @@ Scope {
             }
         }
 
-        Keys.onPressed: function (event) {
-            if (!GlobalStates.altSwitcherOpen)
-                return
-            if (event.key === Qt.Key_Escape) {
-                GlobalStates.altSwitcherOpen = false
-                event.accepted = true
-            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                root.activateCurrent()
-                event.accepted = true
-            } else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) {
-                root.nextItem()
-                event.accepted = true
-            } else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) {
-                root.previousItem()
-                event.accepted = true
+        Item {
+            id: keyHandler
+            anchors.fill: parent
+            focus: GlobalStates.altSwitcherOpen
+
+            Keys.onPressed: function (event) {
+                if (!GlobalStates.altSwitcherOpen)
+                    return
+                if (event.key === Qt.Key_Escape) {
+                    GlobalStates.altSwitcherOpen = false
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                    root.activateCurrent()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) {
+                    root.nextItem()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) {
+                    root.previousItem()
+                    event.accepted = true
+                }
             }
         }
 
@@ -309,39 +342,49 @@ Scope {
                 visible: !root.compactStyle && !root.listStyle
                 z: 0
                 anchors.fill: parent
-                radius: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1
+                radius: Appearance.inirEverywhere ? Appearance.inir.roundingLarge : (Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1)
                 color: {
-                    const cfg = Config.options.altSwitcher
-                    if (cfg && cfg.useM3Layout)
+                    if (Appearance.inirEverywhere)
+                        return Appearance.inir.colLayer0
+                    if (Appearance.auroraEverywhere)
+                        return Appearance.colors.colLayer0Base
+                    if (root.altUseM3Layout)
                         return Appearance.colors.colLayer0
                     const base = ColorUtils.mix(Appearance.colors.colLayer0, Qt.rgba(0, 0, 0, 1), 0.35)
-                    const opacity = cfg && cfg.backgroundOpacity !== undefined ? cfg.backgroundOpacity : 0.9
-                    return ColorUtils.applyAlpha(base, opacity)
+                    return ColorUtils.applyAlpha(base, root.altBackgroundOpacity)
                 }
-                border.width: Config.options.altSwitcher && Config.options.altSwitcher.useM3Layout ? 1 : 0
-                border.color: Appearance.colors.colLayer0Border
+                border.width: Appearance.inirEverywhere || Appearance.auroraEverywhere ? 1 : (root.altUseM3Layout ? 1 : 0)
+                border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+                    : Appearance.auroraEverywhere ? Appearance.colors.colLayer0Border 
+                    : Appearance.colors.colLayer0Border
             }
 
             Rectangle {
                 id: compactBackground
                 visible: root.compactStyle
                 anchors.fill: parent
-                radius: Appearance.rounding.large
-                color: Appearance.m3colors.m3surfaceContainerHigh
-                border.width: 0
+                radius: Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.large
+                color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+                    : Appearance.auroraEverywhere ? Appearance.colors.colLayer1Base 
+                    : Appearance.m3colors.m3surfaceContainerHigh
+                border.width: Appearance.inirEverywhere || Appearance.auroraEverywhere ? 1 : 0
+                border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+                    : Appearance.auroraEverywhere ? Appearance.colors.colLayer0Border 
+                    : "transparent"
             }
 
             StyledRectangularShadow {
                 target: root.compactStyle ? compactBackground : panelBackground
+                visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere
             }
 
             MultiEffect {
                 z: 0.5
                 anchors.fill: panelBackground
                 source: panelBackground
-                visible: !root.compactStyle && Config.options.altSwitcher && !Config.options.altSwitcher.useM3Layout && Appearance.effectsEnabled && Config.options.altSwitcher.blurAmount !== undefined && Config.options.altSwitcher.blurAmount > 0
+                visible: !root.compactStyle && !root.altUseM3Layout && Appearance.effectsEnabled && root.altEnableBlurGlass && root.altBlurAmount > 0
                 blurEnabled: true
-                blur: Config.options.altSwitcher && Config.options.altSwitcher.blurAmount !== undefined ? Config.options.altSwitcher.blurAmount : 0.4
+                blur: root.altBlurAmount
                 blurMax: 64
                 saturation: 1.0
             }
@@ -367,10 +410,16 @@ Scope {
                             anchors.centerIn: parent
                             width: parent.width
                             height: parent.height
-                            radius: Appearance.rounding.normal
+                            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal 
+                                : Appearance.auroraEverywhere ? Appearance.rounding.normal 
+                                : Appearance.rounding.normal
                             color: listView.currentIndex === index 
-                                   ? Appearance.m3colors.m3primaryContainer 
-                                   : Appearance.m3colors.m3surfaceContainerHighest
+                                   ? (Appearance.inirEverywhere ? Appearance.inir.colPrimary 
+                                       : Appearance.auroraEverywhere ? Appearance.colors.colPrimaryContainer 
+                                       : Appearance.m3colors.m3primaryContainer)
+                                   : (Appearance.inirEverywhere ? Appearance.inir.colLayer3 
+                                       : Appearance.auroraEverywhere ? Appearance.colors.colLayer2Base 
+                                       : Appearance.m3colors.m3surfaceContainerHighest)
                             scale: compactMouseArea.pressed ? 0.92 : (compactMouseArea.containsMouse ? 1.05 : 1.0)
                             
                             Behavior on color { 
@@ -391,14 +440,11 @@ Scope {
                                 anchors.centerIn: parent
                                 width: 40
                                 height: 40
-                                source: Quickshell.iconPath(
-                                    AppSearch.guessIcon(modelData.appId || modelData.appName || modelData.title),
-                                    "image-missing"
-                                )
+                                source: modelData.icon || ""
                             }
                             
                             Loader {
-                                active: Config.options.altSwitcher && Config.options.altSwitcher.monochromeIcons
+                                active: root.altMonochromeIcons
                                 anchors.fill: compactIcon
                                 sourceComponent: Item {
                                     Desaturate {
@@ -411,7 +457,7 @@ Scope {
                                     ColorOverlay {
                                         anchors.fill: desaturatedCompactIcon
                                         source: desaturatedCompactIcon
-                                        color: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.9)
+                                        color: ColorUtils.transparentize(Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary, 0.9)
                                     }
                                 }
                             }
@@ -424,7 +470,7 @@ Scope {
                                 width: 24
                                 height: 3
                                 radius: height / 2
-                                color: Appearance.m3colors.m3primary
+                                color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.m3colors.m3primary
                             }
                         }
                         
@@ -451,13 +497,18 @@ Scope {
                 anchors.centerIn: parent
                 width: 400
                 implicitHeight: listHeader.height + listSeparator.height + listColumn.height
-                radius: Appearance.rounding.large
-                color: Appearance.colors.colSurfaceContainer
+                radius: Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.large
+                color: Appearance.inirEverywhere ? Appearance.inir.colLayer1 
+                    : Appearance.auroraEverywhere ? Appearance.colors.colLayer1Base 
+                    : Appearance.colors.colSurfaceContainer
+                border.width: Appearance.auroraEverywhere ? 1 : 0
+                border.color: Appearance.auroraEverywhere ? Appearance.colors.colLayer0Border : "transparent"
 
                 StyledRectangularShadow {
                     target: listContent
                     blur: 0.5 * Appearance.sizes.elevationMargin
                     spread: 0
+                    visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere
                 }
 
                 Column {
@@ -474,13 +525,17 @@ Scope {
                             text: Translation.tr("Switch windows")
                             font.pixelSize: Appearance.font.pixelSize.larger
                             font.weight: Font.DemiBold
-                            color: Appearance.colors.colOnLayer1
+                            color: Appearance.inirEverywhere ? Appearance.inir.colText 
+                                : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer1 
+                                : Appearance.colors.colOnLayer1
                         }
                         Item { Layout.fillWidth: true }
                         StyledText {
                             text: (root.itemSnapshot?.length ?? 0) + " " + Translation.tr("windows")
                             font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colSubtext
+                            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary 
+                                : Appearance.auroraEverywhere ? Appearance.colors.colSubtext 
+                                : Appearance.colors.colSubtext
                         }
                         Item { width: 16 }
                     }
@@ -489,7 +544,9 @@ Scope {
                         id: listSeparator
                         width: parent.width
                         height: 1
-                        color: Appearance.colors.colLayer0Border
+                        color: Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle 
+                            : Appearance.auroraEverywhere ? Appearance.colors.colLayer0Border 
+                            : Appearance.colors.colLayer0Border
                     }
 
                     Column {
@@ -511,15 +568,25 @@ Scope {
 
                                 width: listColumn.width - listColumn.leftPadding - listColumn.rightPadding
                                 implicitHeight: 52
-                                buttonRadius: Appearance.rounding.normal
+                                buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
                                 toggled: listView.currentIndex === index
 
                                 colBackground: "transparent"
-                                colBackgroundHover: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.88)
-                                colBackgroundToggled: Appearance.colors.colPrimaryContainer
-                                colBackgroundToggledHover: ColorUtils.mix(Appearance.colors.colPrimaryContainer, Appearance.colors.colPrimary, 0.9)
-                                colRipple: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.7)
-                                colRippleToggled: ColorUtils.transparentize(Appearance.colors.colOnPrimaryContainer, 0.7)
+                                colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colLayer2Hover 
+                                    : ColorUtils.transparentize(Appearance.colors.colPrimary, 0.88)
+                                colBackgroundToggled: Appearance.inirEverywhere ? Appearance.inir.colPrimary 
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colPrimaryContainer 
+                                    : Appearance.colors.colPrimaryContainer
+                                colBackgroundToggledHover: Appearance.inirEverywhere ? Appearance.inir.colPrimaryHover 
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colPrimaryContainerHover 
+                                    : ColorUtils.mix(Appearance.colors.colPrimaryContainer, Appearance.colors.colPrimary, 0.9)
+                                colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colLayer2Active 
+                                    : ColorUtils.transparentize(Appearance.colors.colPrimary, 0.7)
+                                colRippleToggled: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive 
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colPrimaryContainerActive 
+                                    : ColorUtils.transparentize(Appearance.colors.colOnPrimaryContainer, 0.7)
 
                                 onClicked: {
                                     listView.currentIndex = index
@@ -539,7 +606,9 @@ Scope {
                                         width: 6
                                         height: 6
                                         radius: 3
-                                        color: Appearance.colors.colOnPrimaryContainer
+                                        color: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary 
+                                            : Appearance.auroraEverywhere ? Appearance.colors.colOnPrimaryContainer 
+                                            : Appearance.colors.colOnPrimaryContainer
                                         visible: listTile.toggled
                                     }
 
@@ -547,10 +616,7 @@ Scope {
                                         Layout.alignment: Qt.AlignVCenter
                                         width: 32
                                         height: 32
-                                        source: Quickshell.iconPath(
-                                            AppSearch.guessIcon(listTile.modelData?.appId ?? listTile.modelData?.appName ?? ""),
-                                            "image-missing"
-                                        )
+                                        source: listTile.modelData?.icon ?? ""
                                         implicitSize: 32
                                     }
 
@@ -564,7 +630,13 @@ Scope {
                                             text: listTile.modelData?.appName ?? listTile.modelData?.title ?? "Window"
                                             font.pixelSize: Appearance.font.pixelSize.normal
                                             font.weight: listTile.toggled ? Font.DemiBold : Font.Normal
-                                            color: listTile.toggled ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnLayer1
+                                            color: listTile.toggled 
+                                                ? (Appearance.inirEverywhere ? Appearance.inir.colOnPrimary 
+                                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnPrimaryContainer 
+                                                    : Appearance.colors.colOnPrimaryContainer)
+                                                : (Appearance.inirEverywhere ? Appearance.inir.colText 
+                                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer1 
+                                                    : Appearance.colors.colOnLayer1)
                                             elide: Text.ElideRight
                                         }
 
@@ -584,8 +656,13 @@ Scope {
                                             visible: text !== ""
                                             font.pixelSize: Appearance.font.pixelSize.smaller
                                             color: listTile.toggled 
-                                                ? ColorUtils.transparentize(Appearance.colors.colOnPrimaryContainer, 0.3) 
-                                                : Appearance.colors.colSubtext
+                                                ? ColorUtils.transparentize(
+                                                    Appearance.inirEverywhere ? Appearance.inir.colOnPrimary 
+                                                        : Appearance.auroraEverywhere ? Appearance.colors.colOnPrimaryContainer 
+                                                        : Appearance.colors.colOnPrimaryContainer, 0.3)
+                                                : (Appearance.inirEverywhere ? Appearance.inir.colTextSecondary 
+                                                    : Appearance.auroraEverywhere ? Appearance.colors.colSubtext 
+                                                    : Appearance.colors.colSubtext)
                                             elide: Text.ElideRight
                                         }
                                     }
@@ -595,10 +672,15 @@ Scope {
                                         visible: (listTile.modelData?.workspaceIdx ?? 0) > 0
                                         width: wsText.implicitWidth + 12
                                         height: 22
-                                        radius: Appearance.rounding.small
+                                        radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
                                         color: listTile.toggled 
-                                            ? ColorUtils.transparentize(Appearance.colors.colOnPrimaryContainer, 0.85)
-                                            : Appearance.colors.colLayer2
+                                            ? ColorUtils.transparentize(
+                                                Appearance.inirEverywhere ? Appearance.inir.colOnPrimary 
+                                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnPrimaryContainer 
+                                                    : Appearance.colors.colOnPrimaryContainer, 0.85)
+                                            : (Appearance.inirEverywhere ? Appearance.inir.colLayer3 
+                                                : Appearance.auroraEverywhere ? Appearance.colors.colLayer2 
+                                                : Appearance.colors.colLayer2)
 
                                         StyledText {
                                             id: wsText
@@ -606,7 +688,13 @@ Scope {
                                             text: listTile.modelData?.workspaceIdx ?? ""
                                             font.pixelSize: Appearance.font.pixelSize.smaller
                                             font.weight: Font.DemiBold
-                                            color: listTile.toggled ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
+                                            color: listTile.toggled 
+                                                ? (Appearance.inirEverywhere ? Appearance.inir.colOnPrimary 
+                                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnPrimaryContainer 
+                                                    : Appearance.colors.colOnPrimaryContainer)
+                                                : (Appearance.inirEverywhere ? Appearance.inir.colTextSecondary 
+                                                    : Appearance.auroraEverywhere ? Appearance.colors.colSubtext 
+                                                    : Appearance.colors.colSubtext)
                                         }
                                     }
                                 }
@@ -631,6 +719,7 @@ Scope {
                     Layout.minimumHeight: 0
                     clip: true
                     spacing: Appearance.sizes.spacingSmall
+                    cacheBuffer: 600  // Pre-cargar items fuera de vista
                     property int rowHeight: (count <= 6
                                               ? 60
                                               : (count <= 10 ? 52 : 44))
@@ -659,7 +748,7 @@ Scope {
                             anchors.fill: parent
                             radius: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut
                             visible: selected
-                            color: Config.options.altSwitcher && Config.options.altSwitcher.useM3Layout
+                            color: root.altUseM3Layout
                                    ? Appearance.m3colors.m3primaryContainer
                                    : Appearance.colors.colLayer1
                         }
@@ -705,8 +794,7 @@ Scope {
                                     text: modelData.appName || modelData.title || "Window"
                                     color: {
                                         const selected = row.selected
-                                        const cfg = Config.options.altSwitcher
-                                        const useM3 = cfg && cfg.useM3Layout
+                                        const useM3 = root.altUseM3Layout
                                         if (useM3 && selected)
                                             return Appearance.m3colors.m3onPrimaryContainer
                                         if (useM3)
@@ -735,8 +823,7 @@ Scope {
                                         }
                                         color: {
                                             const selected = row.selected
-                                            const cfg = Config.options.altSwitcher
-                                            const useM3 = cfg && cfg.useM3Layout
+                                            const useM3 = root.altUseM3Layout
                                             if (useM3 && selected)
                                                 return Appearance.m3colors.m3onPrimaryContainer
                                             if (useM3)
@@ -758,16 +845,13 @@ Scope {
                                 IconImage {
                                     id: altSwitcherIcon
                                     anchors.fill: parent
-                                    source: Quickshell.iconPath(
-                                        AppSearch.guessIcon(modelData.appId || modelData.appName || modelData.title),
-                                        "image-missing"
-                                    )
+                                    source: modelData.icon || ""
                                     implicitSize: parent.height
                                 }
 
                                 // Optional monochrome tint, same pattern as dock/workspaces
                                 Loader {
-                                    active: Config.options.altSwitcher && Config.options.altSwitcher.monochromeIcons
+                                    active: root.altMonochromeIcons
                                     anchors.fill: altSwitcherIcon
                                     sourceComponent: Item {
                                         Desaturate {
@@ -807,9 +891,7 @@ Scope {
 
         Timer {
             id: autoHideTimer
-            interval: Config.options.altSwitcher && Config.options.altSwitcher.autoHideDelayMs !== undefined
-                      ? Config.options.altSwitcher.autoHideDelayMs
-                      : 500
+            interval: root.altAutoHideDelayMs
             repeat: false
             onTriggered: GlobalStates.altSwitcherOpen = false
         }
@@ -887,10 +969,7 @@ Scope {
     }
 
     function currentAnimDuration() {
-        const cfg = Config.options.altSwitcher
-        if (cfg && cfg.animationDurationMs !== undefined)
-            return cfg.animationDurationMs
-        return 200
+        return root.altAnimationDurationMs
     }
 
     function showPanel() {
@@ -966,7 +1045,39 @@ Scope {
         }
     }
 
+    // Pre-warm: construir snapshot en background después de que el shell inicie
+    // para evitar lag en la primera apertura
+    Timer {
+        id: warmUpTimer
+        interval: 2000  // 2 segundos después del inicio
+        running: !root._warmedUp && NiriService.windows.length > 0
+        onTriggered: {
+            root.rebuildSnapshot()
+            root._warmedUp = true
+            // Limpiar snapshot después de warm-up (se reconstruye al abrir)
+            Qt.callLater(function() {
+                if (!GlobalStates.altSwitcherOpen)
+                    root.itemSnapshot = []
+            })
+        }
+    }
 
+    // Re-warm cuando cambian las ventanas (solo si no está abierto)
+    Connections {
+        target: NiriService
+        enabled: root._warmedUp && !GlobalStates.altSwitcherOpen
+        function onWindowsChanged() {
+            // Invalidar cache de iconos para nuevas apps
+            const wins = NiriService.windows || []
+            for (let i = 0; i < wins.length; i++) {
+                const w = wins[i]
+                const key = w.app_id || ""
+                if (key && root.iconCache[key] === undefined) {
+                    root.getCachedIcon(w.app_id, "", w.title)
+                }
+            }
+        }
+    }
 
     // Only handle IPC when Material ii family is active
     property bool isActive: Config.options?.panelFamily !== "waffle"

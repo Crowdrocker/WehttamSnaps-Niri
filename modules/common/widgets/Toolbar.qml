@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 
@@ -11,6 +12,7 @@ Item {
     id: root
 
     property bool enableShadow: true
+    property bool transparent: false  // When true, no background (for nested in panels with blur)
     property real padding: 8
     property alias colBackground: background.color
     property alias spacing: toolbarLayout.spacing
@@ -18,9 +20,13 @@ Item {
     implicitWidth: background.implicitWidth
     implicitHeight: background.implicitHeight
     property alias radius: background.radius
+    
+    // Screen position for aurora blur alignment (set by parent if needed)
+    property real screenX: 0
+    property real screenY: 0
 
     Loader {
-        active: root.enableShadow
+        active: root.enableShadow && !root.transparent && !Appearance.inirEverywhere && !Appearance.auroraEverywhere
         anchors.fill: background
         sourceComponent: StyledRectangularShadow {
             target: background
@@ -28,21 +34,31 @@ Item {
         }
     }
 
-    Rectangle {
+    GlassBackground {
         id: background
         anchors.fill: parent
-        color: Appearance.m3colors.m3surfaceContainer
+        visible: !root.transparent
+        fallbackColor: Appearance.m3colors.m3surfaceContainer
+        inirColor: Appearance.inir.colLayer2
+        auroraTransparency: Appearance.aurora.overlayTransparentize
+        screenX: root.screenX
+        screenY: root.screenY
+        screenWidth: Quickshell.screens[0]?.width ?? 1920
+        screenHeight: Quickshell.screens[0]?.height ?? 1080
+        border.width: Appearance.inirEverywhere ? 1 : (Appearance.auroraEverywhere ? 1 : 0)
+        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+            : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : "transparent"
         implicitHeight: 56
         implicitWidth: toolbarLayout.implicitWidth + root.padding * 2
-        radius: height / 2
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : (height / 2)
+    }
 
-        RowLayout {
-            id: toolbarLayout
-            spacing: 4
-            anchors {
-                fill: parent
-                margins: root.padding
-            }
+    RowLayout {
+        id: toolbarLayout
+        spacing: 4
+        anchors {
+            fill: parent
+            margins: root.padding
         }
     }
 }

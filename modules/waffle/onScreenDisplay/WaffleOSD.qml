@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import qs
 import qs.services
 import qs.modules.common
@@ -11,7 +12,9 @@ import qs.modules.waffle.looks
 Scope {
     id: root
 
-    property var focusedScreen: Quickshell.screens.find(s => s.name === NiriService.currentOutput) ?? Quickshell.screens[0]
+    property var focusedScreen: CompositorService.isNiri 
+        ? (Quickshell.screens.find(s => s.name === NiriService.currentOutput) ?? Quickshell.screens[0])
+        : (Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0])
     property string currentIndicator: "volume"
     property var indicators: [
         {
@@ -115,8 +118,8 @@ Scope {
             WlrLayershell.namespace: "quickshell:wOnScreenDisplay"
             WlrLayershell.layer: WlrLayer.Overlay
             anchors {
-                top: !Config.options.waffles.bar.bottom
-                bottom: Config.options.waffles.bar.bottom
+                top: !(Config.options?.waffles?.bar?.bottom ?? false)
+                bottom: Config.options?.waffles?.bar?.bottom ?? false
             }
             mask: Region {
                 item: osdIndicatorLoader

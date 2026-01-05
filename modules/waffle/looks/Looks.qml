@@ -16,7 +16,8 @@ Singleton {
     property QtObject transition
     property string iconsPath: `${Directories.assetsPath}/icons/fluent`
     property bool dark: Appearance.m3colors.darkmode
-    property bool useMaterial: Config.options?.waffles?.theming?.useMaterialColors ?? false
+    property bool auroraEverywhere: (Config.options?.appearance?.globalStyle ?? "material") === "aurora"
+    property bool useMaterial: (Config.options?.waffles?.theming?.useMaterialColors ?? false) || root.auroraEverywhere
     
     // Font family - reactive property at root level for proper binding updates
     readonly property string fontFamily: {
@@ -26,17 +27,18 @@ Singleton {
     // Font scale - reactive property
     readonly property real fontScale: Config.options?.waffles?.theming?.font?.scale ?? 1.0
 
-    property real backgroundTransparency: 0.13
-    property real panelBackgroundTransparency: 0.12
-    property real panelLayerTransparency: root.dark ? 0.6 : 0.5
-    property real contentTransparency: root.dark ? 0.87 : 0.5
+    readonly property bool transparencyEnabled: Config.options?.appearance?.transparency?.enable ?? false
+    property real backgroundTransparency: root.auroraEverywhere ? (Appearance.backgroundTransparency ?? 0) : (transparencyEnabled ? 0.13 : 0)
+    property real panelBackgroundTransparency: root.auroraEverywhere ? (Appearance.backgroundTransparency ?? 0) : (transparencyEnabled ? 0.12 : 0)
+    property real panelLayerTransparency: root.auroraEverywhere ? (Appearance.aurora.popupSurfaceTransparentize ?? 0.5) : (root.dark ? 0.6 : 0.5)
+    property real contentTransparency: root.auroraEverywhere ? (Appearance.contentTransparency ?? 0) : (root.dark ? 0.87 : 0.5)
     function applyBackgroundTransparency(col) {
         return ColorUtils.applyAlpha(col, 1 - root.backgroundTransparency)
     }
     function applyContentTransparency(col) {
         return ColorUtils.applyAlpha(col, 1 - root.contentTransparency)
     }
-    lightColors: QtObject { // TODO: figure out transparency
+    lightColors: QtObject {
         id: lightColors
         property color bgPanelFooter: "#EEEEEE"
         property color bgPanelBody: "#F2F2F2"
@@ -210,6 +212,11 @@ Singleton {
             // Delegates to root.fontFamily for reactive updates
             readonly property string ui: root.fontFamily
         }
+        property QtObject variableAxes: QtObject {
+            property var ui: ({
+                "wdth": 25
+            })
+        }
         property QtObject weight: QtObject {
             property int thin: Font.Normal
             property int regular: Font.Medium
@@ -275,7 +282,7 @@ Singleton {
         
         property Component color: Component {
             ColorAnimation {
-                duration: transition.enabled ? transition.duration.normal : 0
+                duration: transition.enabled ? 70 : 0
                 easing.type: Easing.BezierSpline
                 easing.bezierCurve: transition.easing.bezierCurve.standard
             }

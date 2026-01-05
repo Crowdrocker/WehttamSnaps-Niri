@@ -9,16 +9,18 @@ GroupButton {
     property bool activated: false
     toggled: activated
     baseWidth: height
-    colBackgroundHover: Appearance.colors.colSecondaryContainerHover
-    colBackgroundActive: Appearance.colors.colSecondaryContainerActive
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colSecondaryContainerHover
+    colBackgroundActive: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colSecondaryContainerActive
 
     contentItem: MaterialSymbol {
         horizontalAlignment: Text.AlignHCenter
         iconSize: Appearance.font.pixelSize.larger
         text: buttonIcon
-        color: button.activated ? Appearance.m3colors.m3onPrimary :
-            button.enabled ? Appearance.m3colors.m3onSurface :
-            Appearance.colors.colOnLayer1Inactive
+        color: button.activated ? (Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.m3colors.m3onPrimary) :
+            button.enabled ? (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface) :
+            (Appearance.inirEverywhere ? Appearance.inir.colTextDisabled : Appearance.colors.colOnLayer1Inactive)
 
         Behavior on color {
             animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)

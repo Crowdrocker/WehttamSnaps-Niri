@@ -1,0 +1,8 @@
+[sie][Limiter#0]
+threshold=-3
+
+[soe][Limiter#0]
+gainBoost=false
+inputGain=-2
+release=10
+threshold=-1

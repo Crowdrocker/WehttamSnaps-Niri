@@ -8,170 +8,94 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-Scope { // Scope
+Scope {
     id: root
-    property bool detach: false
-    property Component contentComponent: SidebarLeftContent {}
-    property Item sidebarContent
+    property int sidebarWidth: Appearance.sizes.sidebarWidth
 
-    Component.onCompleted: {
-        root.sidebarContent = contentComponent.createObject(null, {
-            "scopeRoot": root,
-        });
-        sidebarLoader.item.contentParent.children = [root.sidebarContent];
-    }
+    PanelWindow {
+        id: sidebarRoot
+        visible: GlobalStates.sidebarLeftOpen
 
-    onDetachChanged: {
-        if (root.detach) {
-            sidebarContent.parent = null; // Detach content from sidebar
-            sidebarLoader.active = false; // Unload sidebar
-            detachedSidebarLoader.active = true; // Load detached window
-            detachedSidebarLoader.item.contentParent.children = [sidebarContent];
-        } else {
-            sidebarContent.parent = null; // Detach content from window
-            detachedSidebarLoader.active = false; // Unload detached window
-            sidebarLoader.active = true; // Load sidebar
-            sidebarLoader.item.contentParent.children = [sidebarContent];
+        function hide() {
+            GlobalStates.sidebarLeftOpen = false
         }
-    }
 
-    Loader {
-        id: sidebarLoader
-        active: true
-        
-        sourceComponent: PanelWindow { // Window
-            id: sidebarRoot
-            visible: GlobalStates.sidebarLeftOpen
-            
-            property bool extend: false
-            property real sidebarWidth: sidebarRoot.extend ? Appearance.sizes.sidebarWidthExtended : Appearance.sizes.sidebarWidth
-            property var contentParent: sidebarLeftBackground
+        exclusiveZone: 0
+        implicitWidth: screen?.width ?? 1920
+        WlrLayershell.namespace: "quickshell:sidebarLeft"
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+        color: "transparent"
 
-            function hide() {
-                GlobalStates.sidebarLeftOpen = false
+        anchors {
+            top: true
+            left: true
+            bottom: true
+            right: true
+        }
+
+        CompositorFocusGrab {
+            id: grab
+            windows: [ sidebarRoot ]
+            active: CompositorService.isHyprland && sidebarRoot.visible
+            onCleared: () => {
+                if (!active) sidebarRoot.hide()
             }
+        }
 
-            exclusiveZone: 0
-            implicitWidth: Appearance.sizes.sidebarWidthExtended + Appearance.sizes.elevationMargin
-            WlrLayershell.namespace: "quickshell:sidebarLeft"
-            // Ensure the sidebar can receive keyboard focus even on compositors without Hyprland
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-            color: "transparent"
+        MouseArea {
+            id: backdropClickArea
+            anchors.fill: parent
+            onClicked: mouse => {
+                const localPos = mapToItem(sidebarContentLoader, mouse.x, mouse.y)
+                if (localPos.x < 0 || localPos.x > sidebarContentLoader.width
+                        || localPos.y < 0 || localPos.y > sidebarContentLoader.height) {
+                    sidebarRoot.hide()
+                }
+            }
+        }
 
+        Loader {
+            id: sidebarContentLoader
+            active: GlobalStates.sidebarLeftOpen || (Config?.options?.sidebar?.keepLeftSidebarLoaded ?? true)
             anchors {
-                top: true
-                left: true
-                bottom: true
-                right: true
+                top: parent.top
+                left: parent.left
+                bottom: parent.bottom
+                margins: Appearance.sizes.hyprlandGapsOut
+                rightMargin: Appearance.sizes.elevationMargin
             }
+            width: sidebarWidth - Appearance.sizes.hyprlandGapsOut - Appearance.sizes.elevationMargin
+            height: parent.height - Appearance.sizes.hyprlandGapsOut * 2
 
-            CompositorFocusGrab { // Click outside to close (Hyprland only)
-                id: grab
-                windows: [ sidebarRoot ]
-                active: CompositorService.isHyprland && sidebarRoot.visible
-                onActiveChanged: { // Focus the selected tab
-                    if (active) sidebarLeftBackground.children[0].focusActiveItem()
-                }
-                onCleared: () => {
-                    if (!active) sidebarRoot.hide()
-                }
-            }
-
-            MouseArea {
-                id: backdropClickArea
-                anchors.fill: parent
-                onClicked: mouse => {
-                    const localPos = mapToItem(sidebarLeftBackground, mouse.x, mouse.y)
-                    if (localPos.x < 0 || localPos.x > sidebarLeftBackground.width
-                            || localPos.y < 0 || localPos.y > sidebarLeftBackground.height) {
-                        sidebarRoot.hide()
+            // Simple slide animation using transform (GPU-accelerated)
+            property bool animating: false
+            transform: Translate {
+                x: GlobalStates.sidebarLeftOpen ? 0 : -30
+                Behavior on x {
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: 150
+                        easing.type: Easing.OutCubic
+                        onRunningChanged: sidebarContentLoader.animating = running
                     }
                 }
             }
-
-            // Content
-            StyledRectangularShadow {
-                target: sidebarLeftBackground
-                radius: sidebarLeftBackground.radius
+            opacity: GlobalStates.sidebarLeftOpen ? 1 : 0
+            Behavior on opacity {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
             }
-            Rectangle {
-                id: sidebarLeftBackground
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.topMargin: Appearance.sizes.hyprlandGapsOut
-                anchors.leftMargin: Appearance.sizes.hyprlandGapsOut
-                width: sidebarRoot.sidebarWidth - Appearance.sizes.hyprlandGapsOut - Appearance.sizes.elevationMargin
-                height: parent.height - Appearance.sizes.hyprlandGapsOut * 2
-                color: Appearance.colors.colLayer0
-                border.width: 1
-                border.color: Appearance.colors.colLayer0Border
-                radius: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1
 
-                Behavior on width {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
-                }
-
-                // Subtle fade when sidebar becomes visible
-                opacity: GlobalStates.sidebarLeftOpen ? 1 : 0
-                Behavior on opacity {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                }
-
-                Keys.onPressed: (event) => {
-                    if (event.key === Qt.Key_Escape) {
-                        sidebarRoot.hide();
-                    }
-                    if (event.modifiers === Qt.ControlModifier) {
-                        if (event.key === Qt.Key_O) {
-                            sidebarRoot.extend = !sidebarRoot.extend;
-                        }
-                        else if (event.key === Qt.Key_P) {
-                            root.detach = !root.detach;
-                        }
-                        event.accepted = true;
-                    }
+            focus: GlobalStates.sidebarLeftOpen
+            Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Escape) {
+                    sidebarRoot.hide();
                 }
             }
 
-            // Also focus active tab when the sidebar becomes visible (for compositors without CompositorFocusGrab)
-            onVisibleChanged: {
-                if (visible && sidebarLeftBackground.children.length > 0) {
-                    Qt.callLater(() => sidebarLeftBackground.children[0].focusActiveItem());
-                }
-            }
-        }
-    }
-
-    Loader {
-        id: detachedSidebarLoader
-        active: false
-
-        sourceComponent: FloatingWindow {
-            id: detachedSidebarRoot
-            property var contentParent: detachedSidebarBackground
-            color: "transparent"
-
-            visible: GlobalStates.sidebarLeftOpen
-            onVisibleChanged: {
-                if (visible && detachedSidebarBackground.children.length > 0) {
-                    Qt.callLater(() => detachedSidebarBackground.children[0].focusActiveItem());
-                }
-                if (!visible) GlobalStates.sidebarLeftOpen = false;
-            }
-            
-            Rectangle {
-                id: detachedSidebarBackground
-                anchors.fill: parent
-                color: Appearance.colors.colLayer0
-
-                Keys.onPressed: (event) => {
-                    if (event.modifiers === Qt.ControlModifier) {
-                        if (event.key === Qt.Key_P) {
-                            root.detach = !root.detach;
-                        }
-                        event.accepted = true;
-                    }
-                }
+            sourceComponent: SidebarLeftContent {
+                screenWidth: sidebarRoot.screen?.width ?? 1920
+                screenHeight: sidebarRoot.screen?.height ?? 1080
             }
         }
     }
@@ -180,56 +104,36 @@ Scope { // Scope
         target: "sidebarLeft"
 
         function toggle(): void {
-            GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen
+            GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
         }
 
         function close(): void {
-            GlobalStates.sidebarLeftOpen = false
+            GlobalStates.sidebarLeftOpen = false;
         }
 
         function open(): void {
-            GlobalStates.sidebarLeftOpen = true
+            GlobalStates.sidebarLeftOpen = true;
         }
     }
+
     Loader {
         active: CompositorService.isHyprland
         sourceComponent: Item {
             GlobalShortcut {
                 name: "sidebarLeftToggle"
                 description: "Toggles left sidebar on press"
-
-                onPressed: {
-                    GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-                }
+                onPressed: GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen
             }
-
             GlobalShortcut {
                 name: "sidebarLeftOpen"
                 description: "Opens left sidebar on press"
-
-                onPressed: {
-                    GlobalStates.sidebarLeftOpen = true;
-                }
+                onPressed: GlobalStates.sidebarLeftOpen = true
             }
-
             GlobalShortcut {
                 name: "sidebarLeftClose"
                 description: "Closes left sidebar on press"
-
-                onPressed: {
-                    GlobalStates.sidebarLeftOpen = false;
-                }
-            }
-
-            GlobalShortcut {
-                name: "sidebarLeftToggleDetach"
-                description: "Detach left sidebar into a window/Attach it back"
-
-                onPressed: {
-                    root.detach = !root.detach;
-                }
+                onPressed: GlobalStates.sidebarLeftOpen = false
             }
         }
     }
-
 }

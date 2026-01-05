@@ -8,9 +8,10 @@ import Quickshell.Hyprland
 import qs.services
 
 /**
- * Simple hyprsunset service with automatic mode.
- * In theory we don't need this because hyprsunset has a config file, but it somehow doesn't work.
- * It should also be possible to control it via hyprctl, but it doesn't work consistently either so we're just killing and launching.
+ * Night light service with automatic mode.
+ * Uses hyprsunset on Hyprland, wlsunset on Niri.
+ * 
+ * Based on end4's original implementation with Niri support added.
  */
 Singleton {
     id: root
@@ -33,6 +34,19 @@ Singleton {
     property var manualActive
     property int manualActiveHour
     property int manualActiveMinute
+
+    // Debounce timer for wlsunset restarts
+    property bool _pendingRestart: false
+    Timer {
+        id: restartDebounce
+        interval: 300
+        onTriggered: {
+            if (root._pendingRestart && root.active) {
+                root._doEnable()
+            }
+            root._pendingRestart = false
+        }
+    }
 
     onClockMinuteChanged: reEvaluate()
     onAutomaticChanged: {
@@ -68,7 +82,6 @@ Singleton {
 
     onShouldBeOnChanged: ensureState()
     function ensureState() {
-        // console.log("[Hyprsunset] Ensuring state:", root.shouldBeOn, "Automatic mode:", root.automatic);
         if (!root.automatic || root.manualActive !== undefined)
             return;
         if (root.shouldBeOn) {
@@ -80,32 +93,59 @@ Singleton {
 
     function load() { } // Dummy to force init
 
+    function _doEnable() {
+        if (CompositorService.isNiri) {
+            // wlsunset: -T high temp (day), -t low temp (night)
+            // Force "always night" mode: sunset at 00:00, sunrise at 23:59
+            // Must use execDetached so wlsunset keeps running after Process ends
+            Quickshell.execDetached(["/usr/bin/wlsunset", "-T", "6500", "-t", root.colorTemperature.toString(), "-s", "00:00", "-S", "23:59"]);
+        } else {
+            hyprsunsetStartProc.running = true;
+        }
+    }
+
     function enable() {
-        if (!CompositorService.isHyprland)
-            return;
         root.active = true;
-        // console.log("[Hyprsunset] Enabling");
-        Quickshell.execDetached(["bash", "-c", `pidof hyprsunset || hyprsunset --temperature ${root.colorTemperature}`]);
+        if (CompositorService.isNiri) {
+            // Kill first, then start after kill completes
+            wlsunsetKillProc.running = true;
+        } else {
+            root._doEnable();
+        }
     }
 
     function disable() {
-        if (!CompositorService.isHyprland)
-            return;
         root.active = false;
-        // console.log("[Hyprsunset] Disabling");
-        Quickshell.execDetached(["bash", "-c", `pkill hyprsunset`]);
+        if (CompositorService.isNiri) {
+            wlsunsetKillProc.running = true;
+        } else {
+            hyprsunsetKillProc.running = true;
+        }
     }
 
     function fetchState() {
-        if (!CompositorService.isHyprland)
-            return;
-        fetchProc.running = true;
+        if (CompositorService.isNiri) {
+            niriFetchProc.running = true;
+        } else {
+            fetchProc.running = true;
+        }
+    }
+
+    // === Hyprland processes ===
+    Process {
+        id: hyprsunsetStartProc
+        command: ["/usr/bin/bash", "-c", `pidof hyprsunset || /usr/bin/hyprsunset --temperature ${root.colorTemperature}`]
+    }
+
+    Process {
+        id: hyprsunsetKillProc
+        command: ["/usr/bin/pkill", "-x", "hyprsunset"]
     }
 
     Process {
         id: fetchProc
-        running: CompositorService.isHyprland
-        command: ["bash", "-c", "hyprctl hyprsunset temperature"]
+        running: !CompositorService.isNiri
+        command: ["/usr/bin/bash", "-c", "hyprctl hyprsunset temperature"]
         stdout: StdioCollector {
             id: stateCollector
             onStreamFinished: {
@@ -114,14 +154,35 @@ Singleton {
                     root.active = false;
                 else
                     root.active = (output != "6500"); // 6500 is the default when off
-                // console.log("[Hyprsunset] Fetched state:", output, "->", root.active);
             }
         }
     }
 
+    // === Niri processes (wlsunset) ===
+    Process {
+        id: wlsunsetKillProc
+        command: ["/usr/bin/pkill", "-x", "wlsunset"]
+        onExited: {
+            // If we're enabling, start wlsunset after kill completes
+            if (root.active) {
+                root._doEnable();
+            }
+        }
+    }
+
+    // wlsunsetStartProc removed - using Quickshell.execDetached instead
+    // because Process terminates the child when it's destroyed/restarted
+
+    Process {
+        id: niriFetchProc
+        running: CompositorService.isNiri
+        command: ["/usr/bin/pidof", "wlsunset"]
+        onExited: (exitCode, exitStatus) => {
+            root.active = (exitCode === 0);
+        }
+    }
+
     function toggle(active = undefined) {
-        if (!CompositorService.isHyprland)
-            return;
         if (root.manualActive === undefined) {
             root.manualActive = root.active;
             root.manualActiveHour = root.clockHour;
@@ -136,13 +197,38 @@ Singleton {
         }
     }
 
-    // Change temp
+    // React to temperature changes while active
     Connections {
-        target: Config.options.light.night
+        target: Config.options?.light?.night ?? null
+        enabled: !!(Config.options?.light?.night)
+        
         function onColorTemperatureChanged() {
-            if (!CompositorService.isHyprland || !root.active) return;
-            Hyprland.dispatch(`hyprctl hyprsunset temperature ${Config.options.light.night.colorTemperature}`);
-            Quickshell.execDetached(["hyprctl", "hyprsunset", "temperature", `${Config.options.light.night.colorTemperature}`]);
+            if (!root.active) return;
+            const temp = Config.options?.light?.night?.colorTemperature ?? root.colorTemperature;
+            
+            if (CompositorService.isNiri) {
+                // Queue restart with debounce
+                root._pendingRestart = true;
+                restartDebounce.restart();
+            } else {
+                Quickshell.execDetached(["/usr/bin/hyprctl", "hyprsunset", "temperature", `${temp}`]);
+            }
+        }
+    }
+
+    // React to schedule changes while automatic mode is on
+    Connections {
+        target: Config.options?.light?.night ?? null
+        enabled: root.automatic && !!(Config.options?.light?.night)
+        
+        function onFromChanged() {
+            root.firstEvaluation = true;
+            root.reEvaluate();
+        }
+        
+        function onToChanged() {
+            root.firstEvaluation = true;
+            root.reEvaluate();
         }
     }
 }

@@ -13,10 +13,13 @@ RippleButton {
     implicitHeight: 30
     leftPadding: 6
     rightPadding: 10
-    buttonRadius: Appearance.rounding.verysmall
-    colBackground: Appearance.colors.colSurfaceContainerHighest
-    colBackgroundHover: Appearance.colors.colSurfaceContainerHighestHover
-    colRipple: Appearance.colors.colSurfaceContainerHighestActive
+    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall
+    colBackground: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+        : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colSurfaceContainerHighest
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colSurfaceContainerHighestHover
+    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colSurfaceContainerHighestActive
 
     PointingHandInteraction {}
     onClicked: {
@@ -39,13 +42,13 @@ RippleButton {
             MaterialSymbol {
                 text: "search"
                 iconSize: 20
-                color: Appearance.m3colors.m3onSurface
+                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
             }
             StyledText {
                 id: text
                 horizontalAlignment: Text.AlignHCenter
                 text: root.query
-                color: Appearance.m3colors.m3onSurface
+                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
             }
         }
     }

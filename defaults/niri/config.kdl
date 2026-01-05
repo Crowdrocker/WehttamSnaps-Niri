@@ -36,7 +36,10 @@ input {
         repeat-delay 250
         repeat-rate 50
     }
-    
+    touchpad {
+        tap
+        tap-button-map "left-right-middle"
+    }
     mouse {
         accel-profile "flat"
     }
@@ -163,6 +166,7 @@ environment {
     XDG_CURRENT_DESKTOP "niri"
     QT_QPA_PLATFORM "wayland"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
+    QT_LOGGING_RULES "quickshell.dbus.properties=false"
     
     // Qt theming: use kde platform for kdeglobals colors, Darkly for widget style
     QT_QPA_PLATFORMTHEME "kde"
@@ -277,10 +281,17 @@ binds {
     Alt+Print { screenshot-window; }
     
     // Media keys
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-    XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "volumeUp"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "volumeDown"; }
+    XF86AudioMute allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "mute"; }
+    XF86AudioMicMute allow-when-locked=true { spawn "qs" "-c" "ii" "ipc" "call" "audio" "micMute"; }
+
+    // Music control (playerctl)
+    Ctrl+Mod+Space { spawn "playerctl" "play-pause"; }
+    Mod+Alt+N { spawn "playerctl" "next"; }
+    Mod+Alt+P { spawn "playerctl" "previous"; }
 }
+
 
 // Layer rules for ii backdrop visibility during Niri overview
 layer-rule {

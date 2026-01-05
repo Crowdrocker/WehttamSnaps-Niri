@@ -18,8 +18,8 @@ BarIconButton {
     required property SystemTrayItem item
     property var trayParent: null  // Reference to Tray for closing other menus
     property alias menuOpen: menu.visible
-    readonly property bool barAtBottom: Config.options.waffles.bar.bottom
-    readonly property bool tintIcons: Config.options.waffles.bar.tintTrayIcons
+    readonly property bool barAtBottom: Config.options?.waffles?.bar?.bottom ?? false
+    readonly property bool tintIcons: Config.options?.waffles?.bar?.tintTrayIcons ?? false
 
     iconScale: 0
     Component.onCompleted: {
@@ -32,7 +32,9 @@ BarIconButton {
     onClicked: {
         // Use smart activate for problematic apps (Spotify, Discord, etc.)
         // Falls back to normal activate() if not a known problematic app
-        if (!TrayService.smartActivate(item)) {
+        // Use smart toggle for consistent behavior (focus/launch)
+        // Falls back to normal activate() if not handled
+        if (!TrayService.smartToggle(item)) {
             item?.activate();
         }
     }
@@ -61,7 +63,7 @@ BarIconButton {
         anchors.centerIn: parent
         width: 16
         height: 16
-        source: root.item?.icon ?? ""
+        source: TrayService.getSafeIcon(root.item)
     }
 
     // Tinted icon (same style as WAppIcon)
@@ -76,7 +78,7 @@ BarIconButton {
                 id: tintedIcon
                 visible: false
                 anchors.fill: parent
-                source: root.item?.icon ?? ""
+                source: TrayService.getSafeIcon(root.item)
             }
             Desaturate {
                 id: desaturatedIcon

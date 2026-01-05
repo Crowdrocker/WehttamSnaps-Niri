@@ -41,14 +41,20 @@ RippleButton {
 
     implicitHeight: rowLayout.implicitHeight + root.buttonVerticalPadding * 2
     implicitWidth: rowLayout.implicitWidth + root.buttonHorizontalPadding * 2
-    buttonRadius: Appearance.rounding.normal
-    colBackground: (root.down || root.keyboardDown) ? Appearance.colors.colPrimaryContainerActive : 
-        ((root.hovered || root.focus) ? Appearance.colors.colPrimaryContainer : 
-        ColorUtils.transparentize(Appearance.colors.colPrimaryContainer, 1))
-    colBackgroundHover: Appearance.colors.colPrimaryContainer
-    colRipple: Appearance.colors.colPrimaryContainerActive
+    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.normal
+    colBackground: (root.down || root.keyboardDown) 
+        ? (Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryContainerActive)
+        : ((root.hovered || root.focus) 
+            ? (Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+                : Appearance.colors.colPrimaryContainer)
+            : "transparent")
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+        : Appearance.colors.colPrimaryContainer
+    colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryContainerActive
 
-    property string highlightPrefix: `<u><font color="${Appearance.colors.colPrimary}">`
+    property string highlightPrefix: `<u><font color="${Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary}">`
     property string highlightSuffix: `</font></u>`
     function highlightContent(content, query) {
         if (!query || query.length === 0 || content == query || fontType === "monospace")

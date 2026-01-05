@@ -1,4 +1,4 @@
-# Options parser for ii-niri installer
+# Options parser for iNiR installer
 # This script is meant to be sourced.
 
 # shellcheck shell=bash

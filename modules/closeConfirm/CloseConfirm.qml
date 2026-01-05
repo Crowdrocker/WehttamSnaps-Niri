@@ -13,6 +13,16 @@ Scope {
     property var targetWindow: null
     property bool dialogVisible: false
 
+    // Startup grace period - ignore IPC calls for first 2 seconds after QS starts
+    // This prevents accidental window closes when QS restarts after a crash
+    property bool _startupGrace: true
+    Timer {
+        id: startupGraceTimer
+        interval: 2000
+        running: true
+        onTriggered: root._startupGrace = false
+    }
+
     // Debounce to prevent double-trigger
     property bool _busy: false
     Timer {
@@ -52,6 +62,11 @@ Scope {
         target: "closeConfirm"
 
         function trigger(): void {
+            // Ignore during startup grace period (prevents accidental closes after crash/restart)
+            if (root._startupGrace) {
+                console.log("closeConfirm: ignoring trigger during startup grace period")
+                return
+            }
             if (root._busy) return
             root._busy = true
             debounce.restart()

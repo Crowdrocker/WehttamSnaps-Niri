@@ -1,4 +1,4 @@
-# Conflict detection for ii-niri
+# Conflict detection for iNiR
 # Checks for packages that might conflict with Quickshell's functionality
 
 check_conflicts() {

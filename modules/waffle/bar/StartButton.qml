@@ -5,13 +5,14 @@ import Quickshell
 import qs
 import qs.services
 import qs.modules.common
+import qs.modules.common.functions
 import qs.modules.waffle.looks
 
 // TODO: Replace the icon with QMLized svg (with /usr/lib/qt6/bin/svgtoqml) for proper micro-animation
 AppButton {
     id: root
 
-    leftInset: Config.options.waffles.bar.leftAlignApps ? 12 : 0
+    leftInset: (Config.options?.waffles?.bar?.leftAlignApps ?? false) ? 12 : 0
     iconName: down ? "start-here-pressed" : "start-here"
 
     checked: GlobalStates.searchOpen && LauncherSearch.query === ""
@@ -36,19 +37,21 @@ AppButton {
             {
                 text: Translation.tr("Terminal"),
                 action: () => {
-                    Quickshell.execDetached(["bash", "-c", Config.options.apps.terminal]);
+                    const cmd = Config.options?.apps?.terminal ?? "foot"
+                    ShellExec.execCmd(cmd)
                 }
             },
             {
                 text: Translation.tr("Task Manager"),
                 action: () => {
-                    Quickshell.execDetached(["bash", "-c", Config.options.apps.taskManager]);
+                    const cmd = Config.options?.apps?.taskManager ?? "missioncenter"
+                    ShellExec.execCmd(cmd)
                 }
             },
             {
                 text: Translation.tr("Settings"),
                 action: () => {
-                    Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "settings", "open"]);
+                    Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"]);
                 }
             },
             {
@@ -60,7 +63,7 @@ AppButton {
             {
                 text: Translation.tr("Search"),
                 action: () => {
-                    Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "overview", "toggle"]);
+                    Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "overview", "toggle"]);
                 }
             },
         ]

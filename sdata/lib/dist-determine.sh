@@ -1,4 +1,4 @@
-# Determine distribution for ii-niri installer
+# Determine distribution for iNiR installer
 # This is NOT a script for execution, but for loading functions
 
 # shellcheck shell=bash

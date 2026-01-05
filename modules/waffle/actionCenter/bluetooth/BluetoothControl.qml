@@ -85,7 +85,12 @@ Item {
                     spacing: 4
 
                     model: ScriptModel {
-                        values: BluetoothStatus.friendlyDeviceList
+                        values: [...(Bluetooth.defaultAdapter?.devices.values ?? [])].sort((a, b) => {
+                            // Connected -> paired -> others
+                            const conn = (b.connected - a.connected) || (b.paired - a.paired);
+                            if (conn !== 0) return conn;
+                            return a.name.localeCompare(b.name);
+                        })
                     }
                     delegate: BluetoothDeviceItem {
                         required property BluetoothDevice modelData
@@ -106,8 +111,9 @@ Item {
                 }
                 text: Translation.tr("More Bluetooth settings")
                 onClicked: {
-                    Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "sidebarLeft", "toggle"]);
-                    Quickshell.execDetached(["bash", "-c", Config.options.apps.bluetooth]);
+                    GlobalStates.waffleActionCenterOpen = false
+                    const cmd = Config.options?.apps?.bluetooth ?? "blueman-manager"
+                    ShellExec.execCmd(cmd)
                 }
             }
             WBorderlessButton {

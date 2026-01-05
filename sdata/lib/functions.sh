@@ -1,4 +1,4 @@
-# Core functions for ii-niri installer
+# Core functions for iNiR installer
 # This is NOT a script for execution, but for loading functions
 
 # shellcheck shell=bash
@@ -208,9 +208,8 @@ function install_file__auto_backup(){
       v cp_file $s $t
     else
       if ! ${quiet:-false}; then
-        echo -e "${STY_BLUE}[$0]: Not first run - saving as .new${STY_RST}"
+        echo -e "${STY_BLUE}[$0]: Not first run - preserving existing file${STY_RST}"
       fi
-      v cp_file $s $t.new
     fi
   else
     if ! ${quiet:-false}; then

@@ -106,7 +106,7 @@ Button {
         implicitWidth: root.rowHeight * modelData.aspect_ratio
         implicitHeight: root.rowHeight
         radius: imageRadius
-        color: root.showBackground ? Appearance.colors.colLayer2 : "transparent"
+        color: root.showBackground ? (Appearance.inirEverywhere ? Appearance.inir.colLayer2 : (Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2)) : "transparent"
     }
 
     contentItem: Item {
@@ -237,7 +237,8 @@ Button {
                         Quickshell.execDetached(["/usr/bin/bash", "-c", 
                             `mkdir -p '${targetPath}' && curl '${root.imageData.file_url}' -o '${localPath}' && notify-send '${Translation.tr("Download complete")}' '${localPath}' -a 'Shell'`
                         ])
-                        Quickshell.execDetached(["xdg-open", targetPath])
+                        if (Config.options?.sidebar?.openFolderOnDownload ?? false)
+                            Quickshell.execDetached(["xdg-open", targetPath])
                     }
                 },
                 {

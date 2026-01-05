@@ -1,0 +1,22 @@
+[Presets]
+lastLoadedOutputPreset=LoudnessCrystalEqualizer-GTK
+
+[StreamInputs]
+inputDevice=alsa_input.usb-UltraSemi_C3A_USB3_Video_35925267-02.analog-stereo
+plugins=gate#0,rnnoise#0,compressor#0,limiter#0
+visiblePage=pluginsPage
+visiblePlugin=limiter#0
+
+[StreamOutputs]
+mostUsedPresets=GentleDynamics,LoudnessCrystalEqualizer-GTK,LoudnessEqualizer-GTK,Loudness+Autogain,indie-max
+outputDevice=alsa_output.pci-0000_00_1b.0.analog-stereo
+plugins=gate#0,compressor#0,multiband_compressor#0,crystalizer#0,equalizer#0,limiter#0
+usedPresets=rock-min:1,LoudnessEqualizer-GTK:2,Perfect EQ:1,Video:1,Max:1,LoudnessCrystalEqualizer-GTK:2,kpop-min:1,lofi-min:1,lofi-max:1,indie-min:1,Heavy Bass:1,HB-Mid:1,HB-Lite:1,HB-Flat:1,GentleDynamics:2,edm-max:1,GentleDynamics Dialogue Clarity Engine:1,AAAAAAAaaaaa:1,Advanced Auto Gain:1,Bass Boosted:1,Bass Enhancing + Perfect EQ:1,BE+Cr+Max:1,Boosted:1,classical-max:1,edm-min:1,indie-max:1,Loudness+Autogain:1
+visiblePlugin=compressor#0
+
+[Window]
+autostartOnLogin=true
+height=1004
+visiblePage=inputPage
+visiblePipeWirePage=modulesPage
+width=938

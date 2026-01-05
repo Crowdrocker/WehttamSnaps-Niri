@@ -55,9 +55,23 @@ Item {
 
             StyledSlider {
                 id: slider
-                value: root.node.audio.volume
-                onMoved: root.node.audio.volume = value
                 configuration: StyledSlider.Configuration.S
+                property real modelValue: root.node?.audio.volume ?? 0
+                to: (root.node === Audio.sink) ? Audio.uiMaxSinkVolume : 1
+
+                Binding {
+                    target: slider
+                    property: "value"
+                    value: slider.modelValue
+                    when: !slider.pressed && !slider._userInteracting
+                }
+                onMoved: {
+                    if (root.node === Audio.sink) {
+                        Audio.setSinkVolume(value)
+                    } else if (root.node?.audio) {
+                        root.node.audio.volume = value
+                    }
+                }
             }
         }
     }

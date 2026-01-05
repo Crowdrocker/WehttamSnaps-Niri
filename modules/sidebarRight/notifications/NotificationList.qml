@@ -10,6 +10,8 @@ Item {
     id: root
     clip: true
 
+    Component.onCompleted: Notifications.ensureInitialized()
+
     NotificationListView { // Scrollable window
         id: listview
         anchors.left: parent.left
@@ -24,7 +26,7 @@ Item {
             maskSource: Rectangle {
                 width: listview.width
                 height: listview.height
-                radius: Appearance.rounding.normal
+                radius: 0
             }
         }
 

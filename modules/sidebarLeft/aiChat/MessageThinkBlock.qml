@@ -56,7 +56,8 @@ Item {
 
         Rectangle { // Header background
             id: header
-            color: Appearance.colors.colSurfaceContainerHighest
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colSurfaceContainerHighest
             Layout.fillWidth: true
             implicitHeight: thinkBlockTitleBarRowLayout.implicitHeight + thinkBlockHeaderPaddingVertical * 2
 
@@ -99,10 +100,11 @@ Item {
                     visible: root.completed
                     implicitWidth: 22
                     implicitHeight: 22
-                    colBackground: headerMouseArea.containsMouse ? Appearance.colors.colLayer2Hover
-                        : ColorUtils.transparentize(Appearance.colors.colLayer2, 1)
-                    colBackgroundHover: Appearance.colors.colLayer2Hover
-                    colRipple: Appearance.colors.colLayer2Active
+                    colBackground: headerMouseArea.containsMouse 
+                        ? (Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover)
+                        : "transparent"
+                    colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
+                    colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
 
                     onClicked: { root.collapsed = !root.collapsed }
                     
@@ -150,7 +152,7 @@ Item {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 implicitHeight: messageTextBlock.implicitHeight
-                color: Appearance.colors.colLayer2
+                color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
 
                 // Load data for the message at the correct scope
                 property bool editing: root.editing

@@ -12,12 +12,22 @@ RippleButton {
     property real buttonPadding: 5
     implicitWidth: distroIcon.width + buttonPadding * 2
     implicitHeight: distroIcon.height + buttonPadding * 2
-    buttonRadius: Appearance.rounding.full
-    colBackgroundHover: Appearance.colors.colLayer1Hover
-    colRipple: Appearance.colors.colLayer1Active
-    colBackgroundToggled: Appearance.colors.colSecondaryContainer
-    colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-    colRippleToggled: Appearance.colors.colSecondaryContainerActive
+    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+        : Appearance.colors.colLayer1Hover
+    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive 
+        : Appearance.colors.colLayer1Active
+    colBackgroundToggled: Appearance.inirEverywhere ? Appearance.inir.colPrimaryContainer 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface 
+        : Appearance.colors.colSecondaryContainer
+    colBackgroundToggledHover: Appearance.inirEverywhere ? Appearance.inir.colSelectionHover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurfaceHover 
+        : Appearance.colors.colSecondaryContainerHover
+    colRippleToggled: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive 
+        : Appearance.colors.colSecondaryContainerActive
     toggled: GlobalStates.sidebarLeftOpen
 
     onPressed: {

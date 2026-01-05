@@ -1,45 +1,13 @@
 //@ pragma UseQApplication
 //@ pragma Env QS_NO_RELOAD_POPUP=1
+//@ pragma Env QT_LOGGING_RULES=quickshell.dbus.properties=false
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
 //@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
 //@ pragma Env QT_SCALE_FACTOR=1
 
 import qs.modules.common
-import qs.modules.background
-import qs.modules.bar
-import qs.modules.cheatsheet
-import qs.modules.dock
-import qs.modules.lock
-import qs.modules.mediaControls
-import qs.modules.notificationPopup
-import qs.modules.onScreenDisplay
-import qs.modules.onScreenKeyboard
-import qs.modules.overview
-import qs.modules.polkit
-import qs.modules.regionSelector
-import qs.modules.screenCorners
-import qs.modules.sessionScreen
-import qs.modules.sidebarLeft
-import qs.modules.sidebarRight
-import qs.modules.verticalBar
-import qs.modules.wallpaperSelector
 import qs.modules.altSwitcher
-import qs.modules.ii.overlay
 import qs.modules.closeConfirm
-import "modules/clipboard" as ClipboardModule
-
-import qs.modules.waffle.actionCenter
-import qs.modules.waffle.altSwitcher as WaffleAltSwitcherModule
-import qs.modules.waffle.background as WaffleBackgroundModule
-import qs.modules.waffle.bar as WaffleBarModule
-import qs.modules.waffle.clipboard as WaffleClipboardModule
-import qs.modules.waffle.notificationCenter
-import qs.modules.waffle.onScreenDisplay as WaffleOSDModule
-import qs.modules.waffle.startMenu
-import qs.modules.waffle.widgets
-import qs.modules.waffle.backdrop as WaffleBackdropModule
-import qs.modules.waffle.notificationPopup as WaffleNotificationPopupModule
-import qs.modules.waffle.taskview as WaffleTaskViewModule
 
 import QtQuick
 import Quickshell
@@ -49,26 +17,32 @@ import qs.services
 ShellRoot {
     id: root
 
+    function _log(msg: string): void {
+        if (Quickshell.env("QS_DEBUG") === "1") console.log(msg);
+    }
+
     // Force singleton instantiation
     property var _idleService: Idle
     property var _gameModeService: GameMode
     property var _windowPreviewService: WindowPreviewService
+    property var _weatherService: Weather
+    property var _powerProfilePersistence: PowerProfilePersistence
+    property var _voiceSearchService: VoiceSearch
 
     Component.onCompleted: {
-        console.log("[Shell] Initializing singletons");
+        root._log("[Shell] Initializing singletons");
         Hyprsunset.load();
         FirstRunExperience.load();
         ConflictKiller.load();
-        Cliphist.refresh();
-        Wallpapers.load();
     }
 
     Connections {
         target: Config
         function onReadyChanged() {
             if (Config.ready) {
-                console.log("[Shell] Config ready, applying theme");
-                ThemeService.applyCurrentTheme();
+                root._log("[Shell] Config ready, applying theme");
+                Qt.callLater(() => ThemeService.applyCurrentTheme());
+                Qt.callLater(() => IconThemeService.ensureInitialized());
                 // Only reset enabledPanels if it's empty or undefined (first run / corrupted config)
                 if (!Config.options?.enabledPanels || Config.options.enabledPanels.length === 0) {
                     const family = Config.options?.panelFamily ?? "ii"
@@ -97,7 +71,7 @@ ShellRoot {
             const hasWBackdrop = panels.includes("wBackdrop");
             
             if (hasIiBackdrop && !hasWBackdrop) {
-                console.log("[Shell] Migrating enabledPanels: replacing iiBackdrop with wBackdrop for waffle family");
+                root._log("[Shell] Migrating enabledPanels: replacing iiBackdrop with wBackdrop for waffle family");
                 const newPanels = panels.filter(p => p !== "iiBackdrop");
                 newPanels.push("wBackdrop");
                 Config.options.enabledPanels = newPanels;
@@ -105,83 +79,39 @@ ShellRoot {
         }
     }
 
-    // IPC for settings
+    // IPC for settings - open as separate window using execDetached
     IpcHandler {
         target: "settings"
         function open(): void {
             // Use waffle settings if enabled and panel family is waffle
-            if (Config.options?.panelFamily === "waffle" && Config.options?.waffles?.settings?.useMaterialStyle !== true) {
-                waffleSettingsProcess.running = true
-            } else {
-                settingsProcess.running = true
-            }
+            const settingsPath = (Config.options?.panelFamily === "waffle" && Config.options?.waffles?.settings?.useMaterialStyle !== true)
+                ? Quickshell.shellPath("waffleSettings.qml")
+                : Quickshell.shellPath("settings.qml")
+            // -n = no daemon (standalone window), -p = path to QML file
+            Quickshell.execDetached(["/usr/bin/qs", "-n", "-p", settingsPath])
         }
-    }
-    Process {
-        id: settingsProcess
-        command: ["qs", "-n", "-p", Quickshell.shellPath("settings.qml")]
-    }
-    Process {
-        id: waffleSettingsProcess
-        command: ["qs", "-n", "-p", Quickshell.shellPath("waffleSettings.qml")]
     }
 
     // === Panel Loaders ===
-    // ii style (Material)
-    PanelLoader { identifier: "iiBar"; extraCondition: !(Config.options?.bar?.vertical ?? false); component: Bar {} }
-    PanelLoader { identifier: "iiBackground"; component: Background {} }
-    PanelLoader { identifier: "iiBackdrop"; extraCondition: Config.options?.background?.backdrop?.enable ?? false; component: Backdrop {} }
-    PanelLoader { identifier: "iiCheatsheet"; component: Cheatsheet {} }
-    PanelLoader { identifier: "iiDock"; extraCondition: Config.options?.dock?.enable ?? true; component: Dock {} }
-    PanelLoader { identifier: "iiLock"; component: Lock {} }
-    PanelLoader { identifier: "iiMediaControls"; component: MediaControls {} }
-    PanelLoader { identifier: "iiNotificationPopup"; component: NotificationPopup {} }
-    PanelLoader { identifier: "iiOnScreenDisplay"; component: OnScreenDisplay {} }
-    PanelLoader { identifier: "iiOnScreenKeyboard"; component: OnScreenKeyboard {} }
-    PanelLoader { identifier: "iiOverlay"; component: Overlay {} }
-    PanelLoader { identifier: "iiOverview"; component: Overview {} }
-    PanelLoader { identifier: "iiPolkit"; component: Polkit {} }
-    PanelLoader { identifier: "iiRegionSelector"; component: RegionSelector {} }
-    PanelLoader { identifier: "iiScreenCorners"; component: ScreenCorners {} }
-    PanelLoader { identifier: "iiSessionScreen"; component: SessionScreen {} }
-    PanelLoader { identifier: "iiSidebarLeft"; component: SidebarLeft {} }
-    PanelLoader { identifier: "iiSidebarRight"; component: SidebarRight {} }
-    PanelLoader { identifier: "iiVerticalBar"; extraCondition: Config.options?.bar?.vertical ?? false; component: VerticalBar {} }
-    PanelLoader { identifier: "iiWallpaperSelector"; component: WallpaperSelector {} }
-    // Material ii AltSwitcher - handles IPC when panelFamily !== "waffle"
+    // AltSwitcher IPC router (material/waffle)
     LazyLoader { active: Config.ready; component: AltSwitcher {} }
-    PanelLoader { identifier: "iiClipboard"; component: ClipboardModule.ClipboardPanel {} }
 
-    // Waffle style (Windows 11)
-    PanelLoader { identifier: "wBar"; component: WaffleBarModule.WaffleBar {} }
-    PanelLoader { identifier: "wBackground"; component: WaffleBackgroundModule.WaffleBackground {} }
-    PanelLoader { identifier: "wStartMenu"; component: WaffleStartMenu {} }
-    PanelLoader { identifier: "wActionCenter"; component: WaffleActionCenter {} }
-    PanelLoader { identifier: "wNotificationCenter"; component: WaffleNotificationCenter {} }
-    PanelLoader { identifier: "wOnScreenDisplay"; component: WaffleOSDModule.WaffleOSD {} }
-    PanelLoader { identifier: "wWidgets"; extraCondition: Config.options?.waffles?.modules?.widgets ?? true; component: WaffleWidgets {} }
-    PanelLoader { identifier: "wBackdrop"; extraCondition: Config.options?.waffles?.background?.backdrop?.enable ?? true; component: WaffleBackdropModule.WaffleBackdrop {} }
-    PanelLoader { identifier: "wNotificationPopup"; component: WaffleNotificationPopupModule.WaffleNotificationPopup {} }
-    // Waffle Clipboard - handles IPC when panelFamily === "waffle"
-    LazyLoader { active: Config.ready && Config.options?.panelFamily === "waffle"; component: WaffleClipboardModule.WaffleClipboard {} }
-    // Waffle AltSwitcher - handles IPC when panelFamily === "waffle"
-    LazyLoader { active: Config.ready && Config.options?.panelFamily === "waffle"; component: WaffleAltSwitcherModule.WaffleAltSwitcher {} }
-    // Waffle TaskView - experimental, disabled by default
-    PanelLoader { identifier: "wTaskView"; component: WaffleTaskViewModule.WaffleTaskView {} }
+    // Load ONLY the active family panels to reduce startup time.
+    LazyLoader {
+        active: Config.ready && (Config.options?.panelFamily ?? "ii") !== "waffle"
+        component: ShellIiPanels { }
+    }
+
+    LazyLoader {
+        active: Config.ready && (Config.options?.panelFamily ?? "ii") === "waffle"
+        component: ShellWafflePanels { }
+    }
 
     // Close confirmation dialog (always loaded, handles IPC)
     LazyLoader { active: Config.ready; component: CloseConfirm {} }
 
     // Shared (always loaded via ToastManager)
     ToastManager {}
-
-    // === PanelLoader Component ===
-    // Uses LazyLoader - panels load when active and enabled
-    component PanelLoader: LazyLoader {
-        required property string identifier
-        property bool extraCondition: true
-        active: Config.ready && (Config.options?.enabledPanels ?? []).includes(identifier) && extraCondition
-    }
 
     // === Panel Families ===
     // Note: iiAltSwitcher is always loaded (not in families) as it acts as IPC router
@@ -196,7 +126,7 @@ ShellRoot {
             "iiWallpaperSelector", "iiClipboard"
         ],
         "waffle": [
-            "wBar", "wBackground", "wBackdrop", "wStartMenu", "wActionCenter", "wNotificationCenter", "wNotificationPopup", "wOnScreenDisplay", "wWidgets",
+            "wBar", "wBackground", "wBackdrop", "wStartMenu", "wActionCenter", "wNotificationCenter", "wNotificationPopup", "wOnScreenDisplay", "wWidgets", "wLock", "wPolkit", "wSessionScreen",
             // Shared modules that work with waffle
             // Note: wTaskView is experimental and NOT included by default
             // Note: wAltSwitcher is always loaded when waffle is active (not in this list)
@@ -208,6 +138,23 @@ ShellRoot {
     // === Panel Family Transition ===
     property string _pendingFamily: ""
     property bool _transitionInProgress: false
+
+    function _ensureFamilyPanels(family: string): void {
+        const basePanels = root.panelFamilies[family] ?? []
+        const currentPanels = Config.options?.enabledPanels ?? []
+
+        if (basePanels.length === 0) return
+        if (currentPanels.length === 0) {
+            Config.options.enabledPanels = [...basePanels]
+            return
+        }
+
+        const merged = [...currentPanels]
+        for (const panel of basePanels) {
+            if (!merged.includes(panel)) merged.push(panel)
+        }
+        Config.options.enabledPanels = merged
+    }
 
     function cyclePanelFamily() {
         const currentFamily = Config.options?.panelFamily ?? "ii"
@@ -236,7 +183,7 @@ ShellRoot {
         // If animation is disabled, switch instantly
         if (!(Config.options?.familyTransitionAnimation ?? true)) {
             Config.options.panelFamily = targetFamily
-            Config.options.enabledPanels = panelFamilies[targetFamily]
+            root._ensureFamilyPanels(targetFamily)
             return
         }
         
@@ -249,7 +196,7 @@ ShellRoot {
     function applyPendingFamily() {
         if (_pendingFamily && families.includes(_pendingFamily)) {
             Config.options.panelFamily = _pendingFamily
-            Config.options.enabledPanels = panelFamilies[_pendingFamily]
+            root._ensureFamilyPanels(_pendingFamily)
         }
         _pendingFamily = ""
     }

@@ -24,14 +24,14 @@ ApplicationWindow {
     visible: true
     onClosing: {
         Quickshell.execDetached([
-            "notify-send",
+            "/usr/bin/notify-send",
             Translation.tr("Welcome app"),
             Translation.tr("Press Super+/ for all keyboard shortcuts."),
             "-a", "Shell"
         ]);
         Qt.quit();
     }
-    title: Translation.tr("ii on Niri - Welcome")
+    title: Translation.tr("iNiR - Welcome")
 
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme();
@@ -47,7 +47,7 @@ ApplicationWindow {
     Process {
         id: konachanWallProc
         property string status: ""
-        command: [Quickshell.shellPath("scripts/colors/random/random_konachan_wall.sh")]
+        command: ["/usr/bin/bash", Quickshell.shellPath("scripts/colors/random/random_konachan_wall.sh")]
         stdout: SplitParser {
             onRead: data => {
                 konachanWallProc.status = data.trim();
@@ -74,7 +74,7 @@ ApplicationWindow {
                     leftMargin: 12
                 }
                 color: Appearance.colors.colOnLayer0
-                text: Translation.tr("Welcome to ii on Niri")
+                text: Translation.tr("Welcome to iNiR")
                 font {
                     family: Appearance.font.family.title
                     pixelSize: Appearance.font.pixelSize.title
@@ -95,9 +95,9 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignVCenter
                     onCheckedChanged: {
                         if (checked) {
-                            Quickshell.execDetached(["rm", root.firstRunFilePath]);
+                            Quickshell.execDetached(["/usr/bin/rm", root.firstRunFilePath]);
                         } else {
-                            Quickshell.execDetached(["fish", "-c", `echo '${StringUtils.shellSingleQuoteEscape(root.firstRunFileContent)}' > '${StringUtils.shellSingleQuoteEscape(root.firstRunFilePath)}'`]);
+                            ShellExec.writeFileViaShell(root.firstRunFilePath, root.firstRunFileContent)
                         }
                     }
                 }
@@ -331,10 +331,13 @@ ApplicationWindow {
                         spacing: 5
 
                         RippleButtonWithIcon {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 52
+                            buttonRadius: Appearance.rounding.normal
                             materialIcon: "tune"
                             mainText: Translation.tr("Open Settings")
                             onClicked: {
-                                Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "settings", "open"]);
+                                Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"]);
                             }
                         }
                         RippleButtonWithIcon {
@@ -348,7 +351,7 @@ ApplicationWindow {
                             nerdIcon: "󰊤"
                             mainText: "GitHub"
                             onClicked: {
-                                Qt.openUrlExternally("https://github.com/snowarch/quickshell-ii-niri");
+                                Qt.openUrlExternally("https://github.com/snowarch/inir");
                             }
                         }
                     }

@@ -3,6 +3,7 @@ import qs.services
 import qs.services.network
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -22,19 +23,24 @@ WindowDialog {
         Layout.fillWidth: true
         Layout.topMargin: -8
         Layout.bottomMargin: -8
-        Layout.leftMargin: -Appearance.rounding.large
-        Layout.rightMargin: -Appearance.rounding.large
+        Layout.leftMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        Layout.rightMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
     }
-    ListView {
+    StyledListView {
         Layout.fillHeight: true
         Layout.fillWidth: true
         Layout.topMargin: -15
         Layout.bottomMargin: -16
-        Layout.leftMargin: -Appearance.rounding.large
-        Layout.rightMargin: -Appearance.rounding.large
+        Layout.leftMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        Layout.rightMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        leftMargin: 8
+        rightMargin: 8
+        topMargin: 8
+        bottomMargin: 8
 
         clip: true
-        spacing: 0
+        spacing: 4
+        animateAppearance: false
 
         model: ScriptModel {
             values: [...Network.wifiNetworks].sort((a, b) => {
@@ -51,6 +57,8 @@ WindowDialog {
             anchors {
                 left: parent?.left
                 right: parent?.right
+                leftMargin: 8
+                rightMargin: 8
             }
         }
     }
@@ -59,7 +67,8 @@ WindowDialog {
         DialogButton {
             buttonText: Translation.tr("Details")
             onClicked: {
-                Quickshell.execDetached([Network.ethernet ? (Config.options?.apps?.networkEthernet ?? "nm-connection-editor") : (Config.options?.apps?.network ?? "nm-connection-editor")]);
+                const cmd = Network.ethernet ? (Config.options?.apps?.networkEthernet ?? "nm-connection-editor") : (Config.options?.apps?.network ?? "nm-connection-editor")
+                ShellExec.execCmd(cmd);
                 GlobalStates.sidebarRightOpen = false;
             }
         }

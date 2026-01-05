@@ -40,7 +40,7 @@ Variants {
             }
             return false
         }
-        visible: GlobalStates.screenLocked || !hasFullscreenWindow || !Config?.options.background.hideWhenFullscreen
+        visible: GlobalStates.screenLocked || !hasFullscreenWindow || !(Config.options?.background?.hideWhenFullscreen ?? false)
 
         // Workspaces
         property HyprlandMonitor monitor: CompositorService.isHyprland ? Hyprland.monitorFor(modelData) : null
@@ -48,30 +48,44 @@ Variants {
         property int firstWorkspaceId: relevantWindows[0]?.workspace.id || 1
         property int lastWorkspaceId: relevantWindows[relevantWindows.length - 1]?.workspace.id || 10
         readonly property string screenName: screen?.name ?? ""
+        readonly property var backgroundOptions: Config.options?.background ?? {}
+        readonly property var parallaxOptions: backgroundOptions.parallax ?? {}
+        readonly property var effectsOptions: backgroundOptions.effects ?? {}
+        readonly property var workSafetyOptions: Config.options?.workSafety ?? {}
+        readonly property var workSafetyEnableOptions: workSafetyOptions.enable ?? {}
+        readonly property var workSafetyTriggerOptions: workSafetyOptions.triggerCondition ?? {}
+        readonly property var lockBlurOptions: Config.options?.lock?.blur ?? {}
+        readonly property var backgroundWidgetsOptions: backgroundOptions.widgets ?? {}
         
         // Wallpaper
-        property bool wallpaperIsVideo: Config.options.background.wallpaperPath.endsWith(".mp4") || Config.options.background.wallpaperPath.endsWith(".webm") || Config.options.background.wallpaperPath.endsWith(".mkv") || Config.options.background.wallpaperPath.endsWith(".avi") || Config.options.background.wallpaperPath.endsWith(".mov")
-        property string wallpaperPath: wallpaperIsVideo ? Config.options.background.thumbnailPath : Config.options.background.wallpaperPath
+        readonly property string wallpaperPathRaw: bgRoot.backgroundOptions.wallpaperPath ?? ""
+        readonly property string wallpaperThumbnailPath: bgRoot.backgroundOptions.thumbnailPath ?? bgRoot.wallpaperPathRaw
+        property bool wallpaperIsVideo: wallpaperPathRaw.endsWith(".mp4") || wallpaperPathRaw.endsWith(".webm") || wallpaperPathRaw.endsWith(".mkv") || wallpaperPathRaw.endsWith(".avi") || wallpaperPathRaw.endsWith(".mov")
+        property bool wallpaperIsGif: wallpaperPathRaw.toLowerCase().endsWith(".gif")
+        property string wallpaperPath: wallpaperIsVideo ? bgRoot.wallpaperThumbnailPath : bgRoot.wallpaperPathRaw
         property bool wallpaperSafetyTriggered: {
-            const enabled = Config.options.workSafety.enable.wallpaper;
-            const sensitiveWallpaper = (CF.StringUtils.stringListContainsSubstring(wallpaperPath.toLowerCase(), Config.options.workSafety.triggerCondition.fileKeywords));
-            const sensitiveNetwork = (CF.StringUtils.stringListContainsSubstring(Network.networkName.toLowerCase(), Config.options.workSafety.triggerCondition.networkNameKeywords));
+            const enabled = bgRoot.workSafetyEnableOptions.wallpaper ?? false;
+            const fileKeywords = bgRoot.workSafetyTriggerOptions.fileKeywords ?? [];
+            const networkKeywords = bgRoot.workSafetyTriggerOptions.networkNameKeywords ?? [];
+            const sensitiveWallpaper = (CF.StringUtils.stringListContainsSubstring(wallpaperPath.toLowerCase(), fileKeywords));
+            const sensitiveNetwork = (CF.StringUtils.stringListContainsSubstring(Network.networkName.toLowerCase(), networkKeywords));
             return enabled && sensitiveWallpaper && sensitiveNetwork;
         }
+        readonly property string fillMode: bgRoot.backgroundOptions.fillMode ?? "fill"
         property real wallpaperToScreenRatio: Math.min(wallpaperWidth / screen.width, wallpaperHeight / screen.height)
-        property real preferredWallpaperScale: Config.options.background.parallax.workspaceZoom
+        property real preferredWallpaperScale: bgRoot.parallaxOptions.workspaceZoom ?? 1
         property real effectiveWallpaperScale: 1
         property int wallpaperWidth: modelData.width
         property int wallpaperHeight: modelData.height
         property real movableXSpace: ((wallpaperWidth / wallpaperToScreenRatio * effectiveWallpaperScale) - screen.width) / 2
         property real movableYSpace: ((wallpaperHeight / wallpaperToScreenRatio * effectiveWallpaperScale) - screen.height) / 2
-        readonly property bool verticalParallax: (Config.options.background.parallax.autoVertical && wallpaperHeight > wallpaperWidth) || Config.options.background.parallax.vertical
+        readonly property bool verticalParallax: ((bgRoot.parallaxOptions.autoVertical ?? false) && wallpaperHeight > wallpaperWidth) || (bgRoot.parallaxOptions.vertical ?? false)
         
         // Backdrop mode
-        readonly property bool backdropActive: Config.options.background?.backdrop?.hideWallpaper ?? false
+        readonly property bool backdropActive: bgRoot.backgroundOptions.backdrop?.hideWallpaper ?? false
         
         // Colors
-        property bool shouldBlur: (GlobalStates.screenLocked && Config.options.lock.blur.enable)
+        property bool shouldBlur: (GlobalStates.screenLocked && (bgRoot.lockBlurOptions.enable ?? false))
         property color dominantColor: Appearance.colors.colPrimary
         property bool dominantColorIsDark: dominantColor.hslLightness < 0.5
         property color colText: {
@@ -109,7 +123,7 @@ Variants {
         }
 
         property real blurProgress: {
-            const effects = Config.options.background?.effects;
+            const effects = bgRoot.effectsOptions;
             if (!(effects?.enableBlur && (effects?.blurRadius ?? 0) > 0)) return 0;
             const base = Math.max(0, Math.min(100, Number(effects?.blurStatic ?? 0)));
             const total = (base + (100 - base) * focusPresenceProgress) / 100;
@@ -133,13 +147,26 @@ Variants {
         onWallpaperPathChanged: bgRoot.updateZoomScale()
 
         function updateZoomScale() {
-            getWallpaperSizeProc.path = bgRoot.wallpaperPath;
-            getWallpaperSizeProc.running = true;
+            wallpaperSizeDebounce.restart()
         }
+
+        Timer {
+            id: wallpaperSizeDebounce
+            interval: 350
+            repeat: false
+            onTriggered: {
+                if (!bgRoot.wallpaperPath || bgRoot.wallpaperPath.length === 0) return;
+                if (bgRoot.wallpaperIsVideo) return;
+                if (bgRoot.wallpaperSafetyTriggered) return;
+                getWallpaperSizeProc.path = bgRoot.wallpaperPath;
+                getWallpaperSizeProc.running = true;
+            }
+        }
+
         Process {
             id: getWallpaperSizeProc
             property string path: bgRoot.wallpaperPath
-            command: ["magick", "identify", "-format", "%w %h", path]
+            command: ["/usr/bin/magick", "identify", "-format", "%w %h", path]
             stdout: StdioCollector {
                 id: wallpaperSizeOutputCollector
                 onStreamFinished: {
@@ -161,31 +188,27 @@ Variants {
             anchors.fill: parent
             clip: true
 
-            StyledImage {
-                id: wallpaper
-                visible: opacity > 0 && !blurLoader.active && !bgRoot.backdropActive
-                opacity: (status === Image.Ready && !bgRoot.wallpaperIsVideo) ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
-                cache: false
-                smooth: false
+            // Wallpaper container - used as reference for blur and widgets
+            Item {
+                id: wallpaperContainer
                 property int chunkSize: Config?.options.bar.workspaces.shown ?? 10
                 property int lower: Math.floor(bgRoot.firstWorkspaceId / chunkSize) * chunkSize
                 property int upper: Math.ceil(bgRoot.lastWorkspaceId / chunkSize) * chunkSize
                 property int range: upper - lower
                 property real valueX: {
                     let result = 0.5;
-                    if (Config.options.background.parallax.enableWorkspace && !bgRoot.verticalParallax) {
+                    if ((bgRoot.parallaxOptions.enableWorkspace ?? false) && !bgRoot.verticalParallax) {
                         const wsId = CompositorService.isNiri ? (NiriService.focusedWorkspaceIndex ?? 1) : (bgRoot.monitor?.activeWorkspace?.id ?? 1);
                         result = ((wsId - lower) / range);
                     }
-                    if (Config.options.background.parallax.enableSidebar) {
+                    if (bgRoot.parallaxOptions.enableSidebar ?? false) {
                         result += (0.15 * GlobalStates.sidebarRightOpen - 0.15 * GlobalStates.sidebarLeftOpen);
                     }
                     return result;
                 }
                 property real valueY: {
                     let result = 0.5;
-                    if (Config.options.background.parallax.enableWorkspace && bgRoot.verticalParallax) {
+                    if ((bgRoot.parallaxOptions.enableWorkspace ?? false) && bgRoot.verticalParallax) {
                         const wsId = CompositorService.isNiri ? (NiriService.focusedWorkspaceIndex ?? 1) : (bgRoot.monitor?.activeWorkspace?.id ?? 1);
                         result = ((wsId - lower) / range);
                     }
@@ -193,40 +216,74 @@ Variants {
                 }
                 property real effectiveValueX: Math.max(0, Math.min(1, valueX))
                 property real effectiveValueY: Math.max(0, Math.min(1, valueY))
-                x: -(bgRoot.movableXSpace) - (effectiveValueX - 0.5) * 2 * bgRoot.movableXSpace
-                y: -(bgRoot.movableYSpace) - (effectiveValueY - 0.5) * 2 * bgRoot.movableYSpace
-                source: bgRoot.wallpaperSafetyTriggered ? "" : bgRoot.wallpaperPath
-                fillMode: Image.PreserveAspectCrop
-                Behavior on x { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
-                Behavior on y { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
-                sourceSize {
-                    width: bgRoot.screen.width * bgRoot.effectiveWallpaperScale * (bgRoot.monitor?.scale ?? 1)
-                    height: bgRoot.screen.height * bgRoot.effectiveWallpaperScale * (bgRoot.monitor?.scale ?? 1)
+                
+                readonly property bool useParallax: bgRoot.fillMode === "fill" && !bgRoot.wallpaperIsGif
+                x: useParallax ? (-(bgRoot.movableXSpace) - (effectiveValueX - 0.5) * 2 * bgRoot.movableXSpace) : 0
+                y: useParallax ? (-(bgRoot.movableYSpace) - (effectiveValueY - 0.5) * 2 * bgRoot.movableYSpace) : 0
+                Behavior on x { NumberAnimation { duration: useParallax ? 600 : 0; easing.type: Easing.OutCubic } }
+                Behavior on y { NumberAnimation { duration: useParallax ? 600 : 0; easing.type: Easing.OutCubic } }
+                width: useParallax ? (bgRoot.wallpaperWidth / bgRoot.wallpaperToScreenRatio * bgRoot.effectiveWallpaperScale) : bgRoot.screen.width
+                height: useParallax ? (bgRoot.wallpaperHeight / bgRoot.wallpaperToScreenRatio * bgRoot.effectiveWallpaperScale) : bgRoot.screen.height
+
+                // Static wallpaper (non-GIF images)
+                StyledImage {
+                    id: wallpaper
+                    anchors.fill: parent
+                    visible: opacity > 0 && !blurLoader.active && !bgRoot.backdropActive && !bgRoot.wallpaperIsGif
+                    opacity: (status === Image.Ready && !bgRoot.wallpaperIsVideo && !bgRoot.wallpaperIsGif) ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
+                    cache: false
+                    smooth: false
+                    source: bgRoot.wallpaperSafetyTriggered ? "" : bgRoot.wallpaperPath
+                    fillMode: bgRoot.fillMode === "fit" ? Image.PreserveAspectFit
+                            : bgRoot.fillMode === "tile" ? Image.Tile
+                            : bgRoot.fillMode === "center" ? Image.Pad
+                            : Image.PreserveAspectCrop
+                    sourceSize {
+                        width: bgRoot.screen.width * bgRoot.effectiveWallpaperScale * (bgRoot.monitor?.scale ?? 1)
+                        height: bgRoot.screen.height * bgRoot.effectiveWallpaperScale * (bgRoot.monitor?.scale ?? 1)
+                    }
                 }
-                width: bgRoot.wallpaperWidth / bgRoot.wallpaperToScreenRatio * bgRoot.effectiveWallpaperScale
-                height: bgRoot.wallpaperHeight / bgRoot.wallpaperToScreenRatio * bgRoot.effectiveWallpaperScale
+
+                // Animated GIF wallpaper
+                AnimatedImage {
+                    id: gifWallpaper
+                    anchors.fill: parent
+                    visible: opacity > 0 && !blurLoader.active && !bgRoot.backdropActive && bgRoot.wallpaperIsGif
+                    opacity: (status === AnimatedImage.Ready && bgRoot.wallpaperIsGif) ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
+                    cache: true
+                    playing: visible && !GlobalStates.screenLocked
+                    asynchronous: true
+                    source: (bgRoot.wallpaperSafetyTriggered || !bgRoot.wallpaperIsGif) ? "" : bgRoot.wallpaperPath
+                    fillMode: Image.PreserveAspectCrop
+                    // No sourceSize for GIFs - let Qt handle native size for performance
+                }
             }
 
-            // Always-on wallpaper blur
+            // Always-on wallpaper blur (disabled for GIFs - too expensive)
             Loader {
                 id: blurAlwaysLoader
                 z: 1
-                active: Config.options.background?.effects?.enableBlur
+                active: Appearance.effectsEnabled
+                        && (bgRoot.blurProgress > 0)
+                        && (bgRoot.effectsOptions.enableBlur ?? false)
                         && !Config.options?.performance?.lowPower
-                        && (Config.options.background?.effects?.blurRadius ?? 0) > 0
+                        && (bgRoot.effectsOptions.blurRadius ?? 0) > 0
                         && !blurLoader.active
                         && !bgRoot.backdropActive
-                anchors.fill: wallpaper
+                        && !bgRoot.wallpaperIsGif
+                anchors.fill: wallpaperContainer
                 sourceComponent: Item {
                     anchors.fill: parent
                     opacity: bgRoot.wallpaperIsVideo
-                              ? bgRoot.blurProgress * Math.max(0, Math.min(1, Config.options.background?.effects?.videoBlurStrength ?? 50) / 100)
+                              ? bgRoot.blurProgress * Math.max(0, Math.min(1, bgRoot.effectsOptions.videoBlurStrength ?? 50) / 100)
                               : bgRoot.blurProgress
 
                     GaussianBlur {
                         anchors.fill: parent
-                        source: wallpaper
-                        radius: Config.options.background?.effects?.blurRadius ?? 32
+                        source: wallpaperContainer
+                        radius: bgRoot.effectsOptions.blurRadius ?? 32
                         samples: radius * 2 + 1
                     }
                 }
@@ -235,9 +292,9 @@ Variants {
             Loader {
                 id: blurLoader
                 z: 2
-                active: Config.options.lock.blur.enable && (GlobalStates.screenLocked || scaleAnim.running)
-                anchors.fill: wallpaper
-                scale: GlobalStates.screenLocked ? Config.options.lock.blur.extraZoom : 1
+                active: (bgRoot.lockBlurOptions.enable ?? false) && (GlobalStates.screenLocked || scaleAnim.running)
+                anchors.fill: wallpaperContainer
+                scale: GlobalStates.screenLocked ? (bgRoot.lockBlurOptions.extraZoom ?? 1) : 1
                 Behavior on scale {
                     NumberAnimation {
                         id: scaleAnim
@@ -247,8 +304,8 @@ Variants {
                     }
                 }
                 sourceComponent: GaussianBlur {
-                    source: wallpaper
-                    radius: GlobalStates.screenLocked ? Config.options.lock.blur.radius : 0
+                    source: wallpaperContainer
+                    radius: GlobalStates.screenLocked ? (bgRoot.lockBlurOptions.radius ?? 0) : 0
                     samples: radius * 2 + 1
                     Rectangle {
                         opacity: GlobalStates.screenLocked ? 1 : 0
@@ -265,7 +322,7 @@ Variants {
                 visible: !bgRoot.backdropActive
                 z: 10
                 color: {
-                    const effects = Config.options.background?.effects;
+                    const effects = bgRoot.effectsOptions;
                     const baseSafe = Math.max(0, Math.min(100, Number(effects?.dim) || 0));
                     const dynSafe = Number(effects?.dynamicDim) || 0;
                     const extra = (!GlobalStates.screenLocked && bgRoot.focusPresenceProgress > 0) ? dynSafe * bgRoot.focusPresenceProgress : 0;
@@ -278,19 +335,20 @@ Variants {
             WidgetCanvas {
                 id: widgetCanvas
                 z: 20
+                readonly property bool useParallax: wallpaperContainer.useParallax && !bgRoot.backdropActive
                 anchors {
-                    left: bgRoot.backdropActive ? parent.left : wallpaper.left
-                    right: bgRoot.backdropActive ? parent.right : wallpaper.right
-                    top: bgRoot.backdropActive ? parent.top : wallpaper.top
-                    bottom: bgRoot.backdropActive ? parent.bottom : wallpaper.bottom
-                    readonly property real parallaxFactor: Config.options.background.parallax.widgetsFactor
-                    leftMargin: bgRoot.backdropActive ? 0 : bgRoot.movableXSpace - (wallpaper.effectiveValueX * 2 * bgRoot.movableXSpace) * (parallaxFactor - 1)
-                    topMargin: bgRoot.backdropActive ? 0 : bgRoot.movableYSpace - (wallpaper.effectiveValueY * 2 * bgRoot.movableYSpace) * (parallaxFactor - 1)
+                    left: useParallax ? wallpaperContainer.left : parent.left
+                    right: useParallax ? wallpaperContainer.right : parent.right
+                    top: useParallax ? wallpaperContainer.top : parent.top
+                    bottom: useParallax ? wallpaperContainer.bottom : parent.bottom
+                    readonly property real parallaxFactor: bgRoot.parallaxOptions.widgetsFactor ?? 1
+                    leftMargin: useParallax ? (bgRoot.movableXSpace - (wallpaperContainer.effectiveValueX * 2 * bgRoot.movableXSpace) * (parallaxFactor - 1)) : 0
+                    topMargin: useParallax ? (bgRoot.movableYSpace - (wallpaperContainer.effectiveValueY * 2 * bgRoot.movableYSpace) * (parallaxFactor - 1)) : 0
                     Behavior on leftMargin { animation: Appearance.animation.elementMove.numberAnimation.createObject(this) }
                     Behavior on topMargin { animation: Appearance.animation.elementMove.numberAnimation.createObject(this) }
                 }
-                width: bgRoot.backdropActive ? parent.width : wallpaper.width
-                height: bgRoot.backdropActive ? parent.height : wallpaper.height
+                width: useParallax ? wallpaperContainer.width : parent.width
+                height: useParallax ? wallpaperContainer.height : parent.height
                 states: State {
                     name: "centered"
                     when: GlobalStates.screenLocked || bgRoot.wallpaperSafetyTriggered || bgRoot.backdropActive
@@ -303,7 +361,7 @@ Variants {
                 }
 
                 FadeLoader {
-                    shown: Config.options.background.widgets.weather.enable
+                    shown: bgRoot.backgroundWidgetsOptions.weather?.enable ?? true
                     sourceComponent: WeatherWidget {
                         screenWidth: bgRoot.screen.width
                         screenHeight: bgRoot.screen.height
@@ -314,7 +372,7 @@ Variants {
                 }
 
                 FadeLoader {
-                    shown: Config.options.background.widgets.clock.enable
+                    shown: bgRoot.backgroundWidgetsOptions.clock?.enable ?? true
                     sourceComponent: ClockWidget {
                         screenWidth: bgRoot.screen.width
                         screenHeight: bgRoot.screen.height
@@ -326,7 +384,7 @@ Variants {
                 }
 
                 FadeLoader {
-                    shown: Config.options.background.widgets.mediaControls.enable
+                    shown: bgRoot.backgroundWidgetsOptions.mediaControls?.enable ?? true
                     sourceComponent: MediaControlsWidget {
                         screenWidth: bgRoot.screen.width
                         screenHeight: bgRoot.screen.height

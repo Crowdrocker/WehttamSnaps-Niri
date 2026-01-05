@@ -4,11 +4,14 @@ import qs.modules.common
 import qs.modules.common.models
 import qs.modules.common.functions
 import QtQuick
+import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 
 Singleton {
     id: root
+
+    readonly property bool _debugDedupe: Quickshell.env("QS_LAUNCHER_DEDUPE_DEBUG") === "1"
 
     property string query: ""
     property string _debouncedQuery: ""
@@ -76,7 +79,7 @@ Singleton {
             action: "superpaste",
             execute: args => {
                 if (!/^(\d+)/.test(args.trim())) {
-                    Quickshell.execDetached(["notify-send", Translation.tr("Superpaste"), 
+                    Quickshell.execDetached(["/usr/bin/notify-send", Translation.tr("Superpaste"), 
                         Translation.tr("Usage: >superpaste NUM[i]\nExamples: >superpaste 4i (last 4 images), >superpaste 7 (last 7 entries)"), 
                         "-a", "Shell"])
                     return
@@ -106,6 +109,36 @@ Singleton {
             }
         },
     ]
+
+    // Load user action scripts from ~/.config/illogical-impulse/actions/
+    property var userActionScripts: {
+        const actions = [];
+        for (let i = 0; i < userActionsFolder.count; i++) {
+            const fileName = userActionsFolder.get(i, "fileName");
+            const filePath = userActionsFolder.get(i, "filePath");
+            if (fileName && filePath) {
+                const actionName = fileName.replace(/\.[^/.]+$/, ""); // strip extension
+                actions.push({
+                    action: actionName,
+                    execute: ((path) => (args) => {
+                        Quickshell.execDetached([path, ...(args ? args.split(" ") : [])]);
+                    })(FileUtils.trimFileProtocol(filePath.toString()))
+                });
+            }
+        }
+        return actions;
+    }
+
+    FolderListModel {
+        id: userActionsFolder
+        folder: Qt.resolvedUrl(Directories.userActions)
+        showDirs: false
+        showHidden: false
+        sortField: FolderListModel.Name
+    }
+
+    // Combined built-in and user actions
+    property var allActions: searchActions.concat(userActionScripts)
 
     property string mathResult: ""
 
@@ -218,7 +251,7 @@ Singleton {
             execute: () => {
                 let cmd = q.replace("file://", "")
                 cmd = StringUtils.cleanPrefix(cmd, shellPrefix)
-                Quickshell.execDetached(["bash", "-c", cmd])
+                Quickshell.execDetached(["/usr/bin/bash", "-c", cmd])
             }
         })
 
@@ -245,8 +278,26 @@ Singleton {
         }
 
         // Apps
-        const appResults = AppSearch.fuzzyQuery(StringUtils.cleanPrefix(q, appPrefix)).map(entry => {
-            return resultComp.createObject(null, {
+        const appQuery = StringUtils.cleanPrefix(q, appPrefix)
+        const appEntries = AppSearch.fuzzyQuery(appQuery)
+
+        // Dedupe by display name. Some systems have multiple desktop entries for the same app
+        // (e.g. Flatpak + system), which otherwise shows up as duplicated results.
+        const seenAppNames = new Set();
+        const appResults = []
+        for (let i = 0; i < appEntries.length; i++) {
+            const entry = appEntries[i]
+            const nameKey = (entry?.name ?? "").trim().toLowerCase()
+            if (nameKey.length === 0) continue
+            if (seenAppNames.has(nameKey)) {
+                if (root._debugDedupe) {
+                    console.log(`[LauncherSearch] dedupe: skipping duplicate app name='${entry?.name ?? ""}' id='${entry?.id ?? ""}' query='${appQuery}'`)
+                }
+                continue
+            }
+            seenAppNames.add(nameKey)
+
+            appResults.push(resultComp.createObject(null, {
                 type: Translation.tr("App"),
                 id: entry.id ?? entry.name ?? "",
                 name: entry.name,
@@ -261,15 +312,15 @@ Singleton {
                         entry.execute()
                     } else {
                         const terminal = Config.options?.apps?.terminal ?? "foot"
-                        Quickshell.execDetached(["bash", "-c", `${terminal} -e '${entry.command?.join(" ") ?? ""}'`])
+                        Quickshell.execDetached(["/usr/bin/bash", "-c", `${terminal} -e '${entry.command?.join(" ") ?? ""}'`])
                     }
                 }
-            })
-        })
+            }))
+        }
         result = result.concat(appResults)
 
-        // Actions
-        const actionResults = root.searchActions.map(action => {
+        // Actions (built-in + user scripts)
+        const actionResults = root.allActions.map(action => {
             const actionStr = `${actionPrefix}${action.action}`
             if (actionStr.startsWith(q) || q.startsWith(actionStr)) {
                 return resultComp.createObject(null, {

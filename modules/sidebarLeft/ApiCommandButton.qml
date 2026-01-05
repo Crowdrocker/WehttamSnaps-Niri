@@ -12,15 +12,18 @@ GroupButton {
     baseWidth: contentItem.implicitWidth + horizontalPadding * 2
     clickedWidth: baseWidth + 14
     baseHeight: contentItem.implicitHeight + verticalPadding * 2
-    buttonRadius: down ? Appearance.rounding.verysmall : Appearance.rounding.small
+    buttonRadius: down ? (Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall) : (Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.small)
 
-    colBackground: Appearance.colors.colLayer2
-    colBackgroundHover: Appearance.colors.colLayer2Hover
-    colBackgroundActive: Appearance.colors.colLayer2Active
+    colBackground: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+        : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
+    colBackgroundActive: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
 
     contentItem: StyledText {
         horizontalAlignment: Text.AlignHCenter
         text: buttonText
-        color: Appearance.m3colors.m3onSurface
+        color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
     }
 }

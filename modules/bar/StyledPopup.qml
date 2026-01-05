@@ -10,14 +10,46 @@ LazyLoader {
     id: root
 
     property Item hoverTarget
+    property bool hoverActivates: true
+    property bool closeOnOutsideClick: false
+    property bool popupHovered: false
     default property Item contentItem
     property real popupBackgroundMargin: 0
 
-    active: hoverTarget && hoverTarget.containsMouse
+    signal requestClose()
+
+    active: root.hoverActivates && hoverTarget && (hoverTarget.containsMouse ?? hoverTarget.buttonHovered ?? false)
+    onActiveChanged: {
+        if (!root.active)
+            root.popupHovered = false;
+    }
+
+    // Fullscreen transparent backdrop for Niri to detect clicks outside
+    // (same pattern as ContextMenu / SysTrayMenu)
+    PanelWindow {
+        id: clickOutsideBackdrop
+        visible: root.active && root.closeOnOutsideClick
+        color: "#01000000"
+        exclusiveZone: 0
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "quickshell:popup-catcher"
+        WlrLayershell.exclusionMode: ExclusionMode.Ignore
+        anchors { top: true; bottom: true; left: true; right: true }
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onClicked: root.requestClose()
+        }
+    }
 
     component: PanelWindow {
         id: popupWindow
         color: "transparent"
+
+        HoverHandler {
+            id: popupHoverHandler
+            onHoveredChanged: root.popupHovered = hovered
+        }
 
         anchors.left: !Config.options.bar.vertical || (Config.options.bar.vertical && !Config.options.bar.bottom)
         anchors.right: Config.options.bar.vertical && Config.options.bar.bottom
@@ -75,12 +107,16 @@ LazyLoader {
             }
             implicitWidth: root.contentItem.implicitWidth + margin * 2
             implicitHeight: root.contentItem.implicitHeight + margin * 2
-            color: Appearance.m3colors.m3surfaceContainer
-            radius: Appearance.rounding.small
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+                : Appearance.m3colors.m3surfaceContainer
+            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.small
             children: [root.contentItem]
 
             border.width: 1
-            border.color: Appearance.colors.colLayer0Border
+            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+                : Appearance.colors.colLayer0Border
         }
+
+        
     }
 }

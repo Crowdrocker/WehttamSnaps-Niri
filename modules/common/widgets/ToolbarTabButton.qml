@@ -10,20 +10,26 @@ RippleButton {
     id: root
     required property string materialSymbol
     required property bool current
+    property bool showLabel: true
     horizontalPadding: 10
 
-    implicitHeight: 40
-    implicitWidth: implicitContentWidth + horizontalPadding * 2
-    buttonRadius: height / 2
+    implicitHeight: Appearance.inirEverywhere ? 32 : 40
+    readonly property real _iconOnlyImplicitWidth: icon.implicitWidth + horizontalPadding * 2
+    implicitWidth: root.showLabel ? (implicitContentWidth + horizontalPadding * 2) : root._iconOnlyImplicitWidth
+    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : height / 2
 
-    colBackground: ColorUtils.transparentize(Appearance.colors.colSurfaceContainer)
-    colBackgroundHover: ColorUtils.transparentize(Appearance.colors.colOnSurface, current ? 1 : 0.95)
-    colRipple: ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.95)
+    colBackground: "transparent"
+    colBackgroundHover: current ? "transparent" 
+        : Appearance.inirEverywhere ? ColorUtils.transparentize(Appearance.inir.colText, 0.92)
+        : ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.95)
+    colRipple: current ? "transparent" 
+        : Appearance.inirEverywhere ? ColorUtils.transparentize(Appearance.inir.colText, 0.85)
+        : ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.95)
 
     contentItem: Row {
         id: contentRow
         anchors.centerIn: parent
-        spacing: 6
+        spacing: root.showLabel ? 6 : 0
 
         MaterialSymbol {
             id: icon
@@ -31,10 +37,14 @@ RippleButton {
             iconSize: 22
             text: root.materialSymbol
         }
-        StyledText {
-            id: label
+        Loader {
+            id: labelLoader
+            active: root.showLabel
+            visible: root.showLabel
             anchors.verticalCenter: parent.verticalCenter
-            text: root.text
+            sourceComponent: StyledText {
+                text: root.text
+            }
         }
     }
 }

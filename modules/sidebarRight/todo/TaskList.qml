@@ -85,7 +85,8 @@ Item {
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         implicitHeight: todoContentRowLayout.implicitHeight
-                        color: Appearance.colors.colLayer2
+                        color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
                         radius: Appearance.rounding.small
                         ColumnLayout {
                             id: todoContentRowLayout

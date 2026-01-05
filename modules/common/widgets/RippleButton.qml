@@ -10,7 +10,10 @@ import QtQuick.Controls
  */
 Button {
     id: root
+    hoverEnabled: true
+    padding: 0
     property bool toggled
+    property bool buttonHovered: buttonMouseArea.containsMouse
     property string buttonText
     property bool pointingHandCursor: true
     property real buttonRadius: Appearance?.rounding?.small ?? 4
@@ -32,9 +35,9 @@ Button {
 
     opacity: root.enabled ? 1 : 0.4
     property color buttonColor: ColorUtils.transparentize(root.toggled ? 
-        (root.hovered ? colBackgroundToggledHover : 
+        (root.buttonHovered ? colBackgroundToggledHover : 
             colBackgroundToggled) :
-        (root.hovered ? colBackgroundHover : 
+        (root.buttonHovered ? colBackgroundHover : 
             colBackground), root.enabled ? 0 : 1)
     property color rippleColor: root.toggled ? colRippleToggled : colRipple
 
@@ -58,7 +61,9 @@ Button {
     }
 
     MouseArea {
+        id: buttonMouseArea
         anchors.fill: parent
+        hoverEnabled: true
         cursorShape: root.pointingHandCursor ? Qt.PointingHandCursor : Qt.ArrowCursor
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         onPressed: (event) => { 

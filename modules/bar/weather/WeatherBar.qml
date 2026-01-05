@@ -17,7 +17,7 @@ MouseArea {
 
     onPressed: {
         Weather.getData();
-        Quickshell.execDetached(["notify-send", 
+        Quickshell.execDetached(["/usr/bin/notify-send", 
             Translation.tr("Weather"), 
             Translation.tr("Refreshing (manually triggered)")
             , "-a", "Shell"
@@ -30,7 +30,7 @@ MouseArea {
 
         MaterialSymbol {
             fill: 0
-            text: Icons.getWeatherIcon(Weather.data.wCode) ?? "cloud"
+            text: Icons.getWeatherIcon(Weather.data?.wCode, Weather.isNightNow()) ?? "cloud"
             iconSize: Appearance.font.pixelSize.large
             color: Appearance.colors.colOnLayer1
             Layout.alignment: Qt.AlignVCenter

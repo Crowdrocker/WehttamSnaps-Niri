@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 
 StyledFlickable {
     id: root
@@ -50,7 +51,8 @@ StyledFlickable {
             Layout.fillWidth: true
             Layout.preferredHeight: tableColumn.implicitHeight + 32
             radius: Appearance.rounding.normal
-            color: Appearance.colors.colLayer1
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1
 
             Column {
                 id: tableColumn

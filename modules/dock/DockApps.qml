@@ -16,17 +16,21 @@ Item {
     property real maxWindowPreviewWidth: 300
     property real windowControlsHeight: 30
     property real buttonPadding: 5
+    property bool vertical: false
+    property string dockPosition: "bottom"
 
     property Item lastHoveredButton
     property bool buttonHovered: false
-    property bool requestDockShow: previewPopup.show
+    property bool contextMenuOpen: false
+    property bool requestDockShow: previewPopup.show || contextMenuOpen
     
     // Signal to close any open context menu before opening a new one
     signal closeAllContextMenus()
 
-    Layout.fillHeight: true
-    Layout.topMargin: Appearance.sizes.hyprlandGapsOut // why does this work
-    implicitWidth: listView.implicitWidth
+    Layout.fillHeight: !vertical
+    Layout.fillWidth: vertical
+    implicitWidth: listView.contentWidth
+    implicitHeight: listView.contentHeight
     
     property var dockItems: []
     
@@ -182,14 +186,20 @@ Item {
     StyledListView {
         id: listView
         spacing: 2
-        orientation: ListView.Horizontal
+        orientation: root.vertical ? ListView.Vertical : ListView.Horizontal
         anchors {
-            top: parent.top
-            bottom: parent.bottom
+            top: root.vertical ? undefined : parent.top
+            bottom: root.vertical ? undefined : parent.bottom
+            left: root.vertical ? parent.left : undefined
+            right: root.vertical ? parent.right : undefined
         }
         implicitWidth: contentWidth
+        implicitHeight: contentHeight
 
         Behavior on implicitWidth {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        }
+        Behavior on implicitHeight {
             animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
         }
 
@@ -202,9 +212,17 @@ Item {
             required property var modelData
             appToplevel: modelData
             appListRoot: root
+            vertical: root.vertical
+            dockPosition: root.dockPosition
+            
+            anchors.verticalCenter: !root.vertical ? parent?.verticalCenter : undefined
+            anchors.horizontalCenter: root.vertical ? parent?.horizontalCenter : undefined
 
-            topInset: Appearance.sizes.hyprlandGapsOut + root.buttonPadding
-            bottomInset: Appearance.sizes.hyprlandGapsOut + root.buttonPadding
+            // Sin insets - el tamaño viene del DockButton
+            topInset: 0
+            bottomInset: 0
+            leftInset: 0
+            rightInset: 0
         }
     }
 
@@ -291,7 +309,7 @@ Item {
                     animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
                 }
                 clip: true
-                color: Appearance.colors.colSurfaceContainer
+                color: Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface : Appearance.colors.colSurfaceContainer
                 radius: Appearance.rounding.normal
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: Appearance.sizes.elevationMargin
@@ -338,7 +356,7 @@ Item {
                                     contentWidth: parent.width - anchors.margins * 2
                                     WrapperRectangle {
                                         Layout.fillWidth: true
-                                        color: ColorUtils.transparentize(Appearance.colors.colSurfaceContainer)
+                                        color: Appearance.auroraEverywhere ? "transparent" : ColorUtils.transparentize(Appearance.colors.colSurfaceContainer)
                                         radius: Appearance.rounding.small
                                         margin: 5
                                         StyledText {
@@ -351,7 +369,7 @@ Item {
                                     }
                                     GroupButton {
                                         id: closeButton
-                                        colBackground: ColorUtils.transparentize(Appearance.colors.colSurfaceContainer)
+                                        colBackground: Appearance.auroraEverywhere ? "transparent" : ColorUtils.transparentize(Appearance.colors.colSurfaceContainer)
                                         baseWidth: windowControlsHeight
                                         baseHeight: windowControlsHeight
                                         buttonRadius: Appearance.rounding.full

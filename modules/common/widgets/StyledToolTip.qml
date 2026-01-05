@@ -9,7 +9,16 @@ ToolTip {
     property bool extraVisibleCondition: true
     property bool alternativeVisibleCondition: false
 
-    readonly property bool internalVisibleCondition: (extraVisibleCondition && (parent.hovered === undefined || parent?.hovered)) || alternativeVisibleCondition
+    // Visibility logic:
+    // - If parent has buttonHovered (RippleButton), use it
+    // - Else if parent has hovered, use it  
+    // - Else default to true (for components without hover tracking)
+    readonly property bool parentHoverState: {
+        if (parent.buttonHovered !== undefined) return parent.buttonHovered
+        if (parent.hovered !== undefined) return parent.hovered
+        return true  // Default: show tooltip if no hover property exists
+    }
+    readonly property bool internalVisibleCondition: (extraVisibleCondition && parentHoverState) || alternativeVisibleCondition
     verticalPadding: 5
     horizontalPadding: 10
     background: null

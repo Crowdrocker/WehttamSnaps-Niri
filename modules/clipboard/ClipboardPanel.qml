@@ -6,7 +6,7 @@ import qs.modules.common.widgets
 import qs.modules.overview as OverviewModule
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import Qt5Compat.GraphicalEffects as GE
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
@@ -112,7 +112,10 @@ Scope {
     Connections {
         target: Cliphist
         function onEntriesChanged() {
-            root.updateFilteredModel()
+            // Only update model if clipboard panel is open to avoid lag
+            if (GlobalStates.clipboardOpen) {
+                root.updateFilteredModel()
+            }
         }
     }
 
@@ -125,6 +128,7 @@ Scope {
         function onClipboardOpenChanged() {
             if (GlobalStates.clipboardOpen) {
                 root.refresh()
+                root.updateFilteredModel()  // Update immediately with current entries
                 root.searchText = ""
                 root.showClearConfirmation = false
                 Qt.callLater(() => searchField.forceActiveFocus())
@@ -162,59 +166,66 @@ Scope {
             right: true
         }
 
-        Keys.onPressed: function (event) {
-            if (!GlobalStates.clipboardOpen)
-                return
+        Item {
+            id: keyHandler
+            anchors.fill: parent
+            focus: GlobalStates.clipboardOpen
 
-            // Helper to get current entry from filtered model
-            function currentEntry() {
-                const idx = listView.currentIndex
-                if (idx < 0 || idx >= filteredClipboardModel.count)
-                    return null
-                return filteredClipboardModel.get(idx).rawEntry
-            }
+            Keys.onPressed: function (event) {
+                if (!GlobalStates.clipboardOpen)
+                    return
 
-            if (event.key === Qt.Key_Escape) {
-                GlobalStates.clipboardOpen = false
-                event.accepted = true
-            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                // Paste current entry and close
-                listView.activateCurrent()
-                event.accepted = true
-            } else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) {
-                listView.moveNext()
-                event.accepted = true
-            } else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) {
-                listView.movePrevious()
-                event.accepted = true
-            } else if (event.key === Qt.Key_Delete && (event.modifiers & Qt.ShiftModifier)) {
-                // Clear all history (Shift+Del)
-                root.clearAll()
-                event.accepted = true
-            } else if (event.key === Qt.Key_Delete && event.modifiers === Qt.NoModifier) {
-                // Delete current entry
-                const entry = currentEntry()
-                if (entry !== null) {
-                    root.deleteEntry(entry)
+                // Helper to get current entry from filtered model
+                function currentEntry() {
+                    const idx = listView.currentIndex
+                    if (idx < 0 || idx >= filteredClipboardModel.count)
+                        return null
+                    return filteredClipboardModel.get(idx).rawEntry
+                }
+
+                if (event.key === Qt.Key_Escape) {
+                    GlobalStates.clipboardOpen = false
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                    // Paste current entry and close
+                    listView.activateCurrent()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) {
+                    listView.moveNext()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) {
+                    listView.movePrevious()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Delete && (event.modifiers & Qt.ShiftModifier)) {
+                    // Clear all history (Shift+Del)
+                    root.clearAll()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Delete && event.modifiers === Qt.NoModifier) {
+                    // Delete current entry
+                    const entry = currentEntry()
+                    if (entry !== null) {
+                        root.deleteEntry(entry)
+                        event.accepted = true
+                    }
+                } else if (event.key === Qt.Key_C && (event.modifiers & Qt.ControlModifier)) {
+                    // Copy current entry to clipboard
+                    const entry = currentEntry()
+                    if (entry !== null) {
+                        root.copyEntry(entry)
+                        event.accepted = true
+                    }
+                } else if (event.key === Qt.Key_F10) {
+                    // Toggle keyboard hints
+                    root.showKeyboardHints = !root.showKeyboardHints
                     event.accepted = true
                 }
-            } else if (event.key === Qt.Key_C && (event.modifiers & Qt.ControlModifier)) {
-                // Copy current entry to clipboard
-                const entry = currentEntry()
-                if (entry !== null) {
-                    root.copyEntry(entry)
-                    event.accepted = true
-                }
-            } else if (event.key === Qt.Key_F10) {
-                // Toggle keyboard hints
-                root.showKeyboardHints = !root.showKeyboardHints
-                event.accepted = true
             }
         }
 
         StyledRectangularShadow {
             target: panelBackground
             radius: panelBackground.radius
+            visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere
         }
 
         // Click outside the panel to close
@@ -238,10 +249,14 @@ Scope {
             anchors.centerIn: parent
             width: panelWidth
             height: Math.min(contentColumn.implicitHeight, panelMaxHeight)
-            color: Appearance.colors.colLayer1
-            border.width: 1
-            border.color: Appearance.colors.colOutlineVariant
-            radius: Appearance.rounding.screenRounding
+            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                 : Appearance.auroraEverywhere ? Appearance.colors.colLayer2Base
+                 : Appearance.colors.colLayer1
+            border.width: Appearance.auroraEverywhere ? 1 : 1
+            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder 
+                : Appearance.colors.colOutlineVariant
+            radius: Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.screenRounding
             
             // Entry animation
             opacity: GlobalStates.clipboardOpen ? 1 : 0
@@ -272,18 +287,19 @@ Scope {
                     id: headerToolbar
                     Layout.fillWidth: true
                     enableShadow: false
+                    transparent: Appearance.auroraEverywhere
 
                     MaterialSymbol {
                         text: "content_paste"
                         iconSize: Appearance.font.pixelSize.huge
-                        color: Appearance.colors.colPrimary
+                        color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
                     }
 
                     StyledText {
                         Layout.alignment: Qt.AlignVCenter
                         text: Translation.tr("Clipboard history") + ` (${root.totalCount})`
                         font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.m3colors.m3onSurface
+                        color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
                         elide: Text.ElideRight
                     }
 
@@ -342,12 +358,11 @@ Scope {
                         }
                     }
 
-                    // Confirmation state
                     StyledText {
                         visible: root.showClearConfirmation
                         text: Translation.tr("Clear all?")
                         font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colError
+                        color: Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError
                     }
 
                     IconToolbarButton {
@@ -385,10 +400,11 @@ Scope {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // Keep a sensible minimum height so single-result lists don't visually collapse
                     implicitHeight: Math.min(480, Math.max(160, listView.contentHeight + 20))
-                    radius: Appearance.rounding.normal
-                    color: Appearance.colors.colLayer2
+                    radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+                    color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                        : Appearance.auroraEverywhere ? Appearance.colors.colLayer2Base
+                        : Appearance.colors.colLayer2
                     clip: true
 
                     ListView {
@@ -467,7 +483,7 @@ Scope {
                             visible: listView.count === 0
                             anchors.centerIn: parent
                             text: Translation.tr("No clipboard entries")
-                            color: Appearance.colors.colSubtext
+                            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
                             font.pixelSize: Appearance.font.pixelSize.small
                         }
                     }
@@ -488,8 +504,10 @@ Scope {
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         implicitHeight: hintsColumn.implicitHeight + 16
-                        radius: Appearance.rounding.normal
-                        color: Appearance.colors.colPrimaryContainer
+                        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+                        color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+                            : Appearance.auroraEverywhere ? Appearance.colors.colLayer2Base
+                            : Appearance.colors.colPrimaryContainer
                         opacity: root.showKeyboardHints ? 1 : 0
 
                         Behavior on opacity {
@@ -506,7 +524,9 @@ Scope {
                                 Layout.fillWidth: true
                                 text: Translation.tr("↑/↓, J/K: Navigate • Enter: Paste")
                                 font.pixelSize: Appearance.font.pixelSize.smaller
-                                color: Appearance.colors.colOnPrimaryContainer
+                                color: Appearance.inirEverywhere ? Appearance.inir.colText 
+                                    : Appearance.auroraEverywhere ? Appearance.m3colors.m3onSurface 
+                                    : Appearance.colors.colOnPrimaryContainer
                                 elide: Text.ElideRight
                             }
 
@@ -514,7 +534,9 @@ Scope {
                                 Layout.fillWidth: true
                                 text: Translation.tr("Ctrl+C: Copy • Del: Delete • Shift+Del: Clear all • Esc: Close")
                                 font.pixelSize: Appearance.font.pixelSize.smaller
-                                color: Appearance.colors.colOnPrimaryContainer
+                                color: Appearance.inirEverywhere ? Appearance.inir.colText 
+                                    : Appearance.auroraEverywhere ? Appearance.m3colors.m3onSurface 
+                                    : Appearance.colors.colOnPrimaryContainer
                                 elide: Text.ElideRight
                             }
                         }

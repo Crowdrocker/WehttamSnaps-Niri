@@ -40,6 +40,8 @@ MouseArea {
     readonly property real dateFontSize: 20 * Looks.fontScale
     readonly property real blurRadius: Config.options?.lock?.blur?.radius ?? 64
     readonly property bool blurEnabled: Config.options?.lock?.blur?.enable ?? true
+
+    readonly property bool effectsSafe: !CompositorService.isNiri
     
     // Smoke material (Windows 11 - dimming overlay)
     readonly property color smokeColor: ColorUtils.transparentize(Looks.colors.bg0Opaque, 0.5)
@@ -69,7 +71,7 @@ MouseArea {
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         
-        layer.enabled: root.blurEnabled
+        layer.enabled: root.blurEnabled && root.effectsSafe
         layer.effect: FastBlur {
             radius: root.blurRadius
         }
@@ -128,7 +130,7 @@ MouseArea {
                 font.family: Looks.font.family.ui
                 color: root.textColor
                 // Drop shadow for readability on any wallpaper
-                layer.enabled: true
+                layer.enabled: root.effectsSafe
                 layer.effect: DropShadow {
                     horizontalOffset: 0
                     verticalOffset: 2
@@ -154,7 +156,7 @@ MouseArea {
                 font.weight: Looks.font.weight.regular
                 font.family: Looks.font.family.ui
                 color: root.textColor
-                layer.enabled: true
+                layer.enabled: root.effectsSafe
                 layer.effect: DropShadow {
                     horizontalOffset: 0
                     verticalOffset: 1
@@ -192,13 +194,13 @@ MouseArea {
                     MaterialSymbol {
                         anchors.verticalCenter: parent.verticalCenter
                         text: {
-                            const icon = Icons.getWeatherIcon(Weather.data?.wCode ?? "113")
+                            const icon = Icons.getWeatherIcon(Weather.data?.wCode ?? "113", Weather.isNightNow())
                             return icon ? icon : "cloud"
                         }
                         iconSize: 48
                         color: root.textColor
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 2
@@ -218,7 +220,7 @@ MouseArea {
                             font.weight: Looks.font.weight.thin
                             font.family: Looks.font.family.ui
                             color: root.textColor
-                            layer.enabled: true
+                            layer.enabled: root.effectsSafe
                             layer.effect: DropShadow {
                                 horizontalOffset: 0
                                 verticalOffset: 1
@@ -233,7 +235,7 @@ MouseArea {
                             font.pixelSize: Looks.font.pixelSize.small
                             font.family: Looks.font.family.ui
                             color: Looks.colors.subfg
-                            layer.enabled: true
+                            layer.enabled: root.effectsSafe
                             layer.effect: DropShadow {
                                 horizontalOffset: 0
                                 verticalOffset: 1
@@ -264,7 +266,7 @@ MouseArea {
                     
                     readonly property MprisPlayer player: root.activePlayer
                     
-                    layer.enabled: true
+                    layer.enabled: root.effectsSafe
                     layer.effect: DropShadow {
                         horizontalOffset: 0
                         verticalOffset: 4
@@ -288,7 +290,7 @@ MouseArea {
                             color: Looks.colors.bg2Base
                             clip: true
                             
-                            layer.enabled: true
+                            layer.enabled: root.effectsSafe
                             layer.effect: DropShadow {
                                 horizontalOffset: 0
                                 verticalOffset: 2
@@ -384,7 +386,7 @@ MouseArea {
             
             property real hintOpacity: 1
             
-            layer.enabled: true
+            layer.enabled: root.effectsSafe
             layer.effect: DropShadow {
                 horizontalOffset: 0
                 verticalOffset: 2
@@ -464,7 +466,7 @@ MouseArea {
                     height: parent.height + 4
                     radius: width / 2
                     color: ColorUtils.transparentize(Looks.colors.accent, 1)
-                    layer.enabled: Appearance.effectsEnabled
+                    layer.enabled: root.effectsSafe
                     layer.effect: DropShadow {
                         horizontalOffset: 0
                         verticalOffset: 4
@@ -499,7 +501,7 @@ MouseArea {
                         asynchronous: true
                         visible: status === Image.Ready || avatarImageFallback.status === Image.Ready
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: OpacityMask {
                             maskSource: Rectangle {
                                 width: avatarCircle.width
@@ -520,7 +522,7 @@ MouseArea {
                         asynchronous: true
                         visible: status === Image.Ready && avatarImage.status !== Image.Ready
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: OpacityMask {
                             maskSource: Rectangle {
                                 width: avatarCircle.width
@@ -552,7 +554,7 @@ MouseArea {
                 font.weight: Looks.font.weight.regular
                 font.family: Looks.font.family.ui
                 color: root.textColor
-                layer.enabled: true
+                layer.enabled: root.effectsSafe
                 layer.effect: DropShadow {
                     horizontalOffset: 0
                     verticalOffset: 1
@@ -645,7 +647,7 @@ MouseArea {
                             color: GlobalStates.screenUnlockFailed ? Looks.colors.danger : Looks.colors.subfg
                             visible: passwordField.text.length === 0
                             
-                            layer.enabled: true
+                            layer.enabled: root.effectsSafe
                             layer.effect: DropShadow {
                                 horizontalOffset: 0
                                 verticalOffset: 1
@@ -756,7 +758,7 @@ MouseArea {
                     font.family: Looks.font.family.ui
                     color: Looks.colors.subfg
                     
-                    layer.enabled: true
+                    layer.enabled: root.effectsSafe
                     layer.effect: DropShadow {
                         horizontalOffset: 0
                         verticalOffset: 1
@@ -859,7 +861,7 @@ MouseArea {
                             ? Looks.colors.danger 
                             : root.textColor
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -878,7 +880,7 @@ MouseArea {
                             ? Looks.colors.danger 
                             : root.textColor
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -905,7 +907,7 @@ MouseArea {
                         implicitSize: 18
                         color: root.textColor
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -922,7 +924,7 @@ MouseArea {
                         font.family: Looks.font.family.ui
                         color: root.textColor
                         
-                        layer.enabled: true
+                        layer.enabled: root.effectsSafe
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1

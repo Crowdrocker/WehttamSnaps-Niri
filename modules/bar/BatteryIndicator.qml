@@ -22,7 +22,7 @@ MouseArea {
         id: batteryProgress
         anchors.centerIn: parent
         value: percentage
-        highlightColor: (isLow && !isCharging) ? Appearance.m3colors.m3error : Appearance.colors.colOnSecondaryContainer
+        highlightColor: (isLow && !isCharging) ? (Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.m3colors.m3error) : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnSecondaryContainer)
 
         Item {
             anchors.centerIn: parent
@@ -41,7 +41,15 @@ MouseArea {
                     fill: 1
                     text: "bolt"
                     iconSize: Appearance.font.pixelSize.smaller
-                    visible: isCharging && percentage < 1 // TODO: animation
+                    opacity: (isCharging && percentage < 1) ? 1 : 0
+                    visible: opacity > 0
+                    
+                    Behavior on opacity {
+                        NumberAnimation { 
+                            duration: Appearance.animation.elementMoveFast.duration
+                            easing.type: Easing.OutCubic
+                        }
+                    }
                 }
                 StyledText {
                     Layout.alignment: Qt.AlignVCenter

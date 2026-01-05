@@ -4,20 +4,15 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import QtPositioning
 
 import qs.modules.common
 
 Singleton {
     id: root
 
+    readonly property bool enabled: Config.options?.bar?.weather?.enable ?? false
     readonly property int fetchInterval: (Config.options?.bar?.weather?.fetchInterval ?? 10) * 60 * 1000
-    readonly property string city: Config.options?.bar?.weather?.city ?? ""
     readonly property bool useUSCS: Config.options?.bar?.weather?.useUSCS ?? false
-    property bool gpsActive: Config.options?.bar?.weather?.enableGPS ?? false
-
-    onUseUSCSChanged: root.getData()
-    onCityChanged: root._geocodeCity()
 
     property var location: ({ valid: false, lat: 0, lon: 0, name: "" })
 
@@ -27,7 +22,7 @@ Singleton {
         sunrise: "--:--",
         sunset: "--:--",
         windDir: "N",
-        wCode: "0",
+        wCode: "113",
         city: "City",
         wind: "0 km/h",
         precip: "0 mm",
@@ -37,150 +32,111 @@ Singleton {
         tempFeelsLike: "--°C"
     })
 
-    // WMO Weather codes to wttr.in codes (for icon compatibility)
-    function _wmoToWttr(code: int): string {
-        const map = {
-            "0": "113",    // Clear sky
-            "1": "116", "2": "116", "3": "119",  // Partly cloudy, cloudy
-            "45": "143", "48": "143",  // Fog
-            "51": "266", "53": "266", "55": "266",  // Drizzle
-            "56": "281", "57": "281",  // Freezing drizzle
-            "61": "296", "63": "302", "65": "308",  // Rain
-            "66": "311", "67": "314",  // Freezing rain
-            "71": "326", "73": "329", "75": "332",  // Snow
-            "77": "350",  // Snow grains
-            "80": "353", "81": "356", "82": "359",  // Rain showers
-            "85": "368", "86": "371",  // Snow showers
-            "95": "386",  // Thunderstorm
-            "96": "389", "99": "395"   // Thunderstorm with hail
-        };
-        return map[String(code)] ?? "113";
+    function isNightNow(): bool {
+        const h = new Date().getHours();
+        return h < 6 || h >= 18;
     }
 
-    function _degToCompass(deg: real): string {
-        const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-                      "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-        return dirs[Math.round(deg / 22.5) % 16];
-    }
-
-    function _formatTime(isoTime: string): string {
-        if (!isoTime) return "--:--";
-        const date = new Date(isoTime);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-    }
-
-    function _refineData(apiData: var): void {
-        const current = apiData?.current;
-        const daily = apiData?.daily;
-        if (!current) return;
-
+    function refineData(apiData) {
+        if (!apiData?.current) return;
+        
+        const current = apiData.current;
+        const astro = apiData.astronomy;
+        
         let result = {};
-        const wmoCode = current.weather_code ?? 0;
-        result.wCode = root._wmoToWttr(wmoCode);
-        result.city = root.location.name || root.city || "Unknown";
-        result.humidity = (current.relative_humidity_2m ?? 0) + "%";
-        result.windDir = root._degToCompass(current.wind_direction_10m ?? 0);
-        result.press = Math.round(current.surface_pressure ?? 1013) + " hPa";
-        result.uv = daily?.uv_index_max?.[0]?.toFixed(1) ?? "0";
-        result.sunrise = root._formatTime(daily?.sunrise?.[0]);
-        result.sunset = root._formatTime(daily?.sunset?.[0]);
-
-        // Visibility not available in Open-Meteo free tier, use placeholder
-        result.visib = "10 km";
-        // Precipitation - current doesn't have it, would need hourly
-        result.precip = "0 mm";
+        result.uv = current.uvIndex ?? "0";
+        result.humidity = (current.humidity ?? 0) + "%";
+        result.sunrise = astro?.sunrise ?? "--:--";
+        result.sunset = astro?.sunset ?? "--:--";
+        result.windDir = current.winddir16Point ?? "N";
+        result.wCode = current.weatherCode ?? "113";
+        result.city = root.location.name || "Unknown";
 
         if (root.useUSCS) {
-            const tempF = Math.round((current.temperature_2m ?? 0) * 9/5 + 32);
-            const feelsF = Math.round((current.apparent_temperature ?? 0) * 9/5 + 32);
-            const windMph = Math.round((current.wind_speed_10m ?? 0) * 0.621371);
-            result.temp = tempF + "°F";
-            result.tempFeelsLike = feelsF + "°F";
-            result.wind = windMph + " mph";
-            result.press = Math.round((current.surface_pressure ?? 1013) * 0.02953) + " inHg";
+            result.temp = (current.temp_F ?? 0) + "°F";
+            result.tempFeelsLike = (current.FeelsLikeF ?? 0) + "°F";
+            result.wind = (current.windspeedMiles ?? 0) + " mph";
+            result.precip = (current.precipInches ?? 0) + " in";
+            result.visib = (current.visibilityMiles ?? 0) + " mi";
+            result.press = (current.pressureInches ?? 0) + " inHg";
         } else {
-            result.temp = Math.round(current.temperature_2m ?? 0) + "°C";
-            result.tempFeelsLike = Math.round(current.apparent_temperature ?? 0) + "°C";
-            result.wind = Math.round(current.wind_speed_10m ?? 0) + " km/h";
+            result.temp = (current.temp_C ?? 0) + "°C";
+            result.tempFeelsLike = (current.FeelsLikeC ?? 0) + "°C";
+            result.wind = (current.windspeedKmph ?? 0) + " km/h";
+            result.precip = (current.precipMM ?? 0) + " mm";
+            result.visib = (current.visibility ?? 0) + " km";
+            result.press = (current.pressure ?? 0) + " hPa";
         }
 
         root.data = result;
+        console.info("[Weather] Updated:", result.temp, result.city);
     }
 
-    function _geocodeCity(): void {
-        if (!root.city || root.city.length === 0) {
-            root._fetchByIP();
-            return;
-        }
-        const cleanCity = root.city.replace(/[\r\n]+/g, '').trim();
-        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cleanCity)}&count=1&language=en&format=json`;
-        geocoder.command = ["curl", "-s", "--max-time", "10", url];
-        geocoder.running = true;
-    }
-
-    function _fetchByIP(): void {
-        // Use ip-api.com to get location from IP
+    // Step 1: Get location from IP (primary method)
+    function getLocation() {
+        if (ipLocator.running) return;
+        console.info("[Weather] Getting location...");
         ipLocator.running = true;
     }
 
-    function getData(): void {
-        if (!root.location.valid) {
-            root._geocodeCity();
-            return;
-        }
-
-        const lat = root.location.lat;
-        const lon = root.location.lon;
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure&daily=sunrise,sunset,uv_index_max&timezone=auto`;
-
-        fetcher.command = ["curl", "-s", "--max-time", "10", url];
+    // Step 2: Fetch weather using city name (more accurate than coordinates)
+    function fetchWeather() {
+        if (!root.location.valid || fetcher.running) return;
+        
+        const city = encodeURIComponent(root.location.name.split(',')[0].trim());
+        const cmd = `curl -s --max-time 15 'wttr.in/${city}?format=j1' | jq '{current: .current_condition[0], astronomy: .weather[0].astronomy[0]}'`;
+        fetcher.command = ["/usr/bin/bash", "-c", cmd];
         fetcher.running = true;
     }
 
-    Component.onCompleted: {
-        if (root.gpsActive) {
-            console.info("[WeatherService] Starting GPS service.");
-            positionSource.start();
+    function getData() {
+        if (root.location.valid) {
+            fetchWeather();
+        } else {
+            getLocation();
         }
     }
 
-    // Geocoding process
-    Process {
-        id: geocoder
-        command: ["curl", "-s", "--max-time", "10", ""]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (text.length === 0) return;
-                try {
-                    const data = JSON.parse(text);
-                    const result = data?.results?.[0];
-                    if (result) {
-                        root.location = {
-                            valid: true,
-                            lat: result.latitude,
-                            lon: result.longitude,
-                            name: result.name + (result.admin1 ? `, ${result.admin1}` : "")
-                        };
-                        console.info(`[WeatherService] Geocoded: ${root.location.name} (${root.location.lat}, ${root.location.lon})`);
-                        root.getData();
-                    } else {
-                        console.warn("[WeatherService] City not found, falling back to IP location");
-                        root._fetchByIP();
-                    }
-                } catch (e) {
-                    console.error(`[WeatherService] Geocoding error: ${e.message}`);
-                }
+    // Retry timer for when network isn't ready at startup
+    property int _retryCount: 0
+    Timer {
+        id: retryTimer
+        interval: 5000  // 5 seconds between retries
+        repeat: false
+        onTriggered: {
+            if (!root.location.valid && root._retryCount < 3) {
+                root._retryCount++;
+                console.info("[Weather] Retry attempt", root._retryCount);
+                root.getLocation();
             }
         }
     }
 
-    // IP-based location fallback
+    onEnabledChanged: {
+        if (enabled && Config.ready) retryTimer.start();
+    }
+    onUseUSCSChanged: fetchWeather()
+
+    Connections {
+        target: Config
+        function onReadyChanged() {
+            if (Config.ready && root.enabled) {
+                retryTimer.start();
+            }
+        }
+    }
+
+    // IP geolocation (ip-api.com - accurate)
     Process {
         id: ipLocator
-        command: ["curl", "-s", "--max-time", "10", "http://ip-api.com/json/?fields=lat,lon,city,regionName"]
+        command: ["/usr/bin/curl", "-s", "--max-time", "10", "http://ip-api.com/json/?fields=lat,lon,city,regionName"]
         stdout: StdioCollector {
             onStreamFinished: {
-                if (text.length === 0) return;
+                if (text.length === 0) {
+                    console.warn("[Weather] IP location empty, trying fallback");
+                    fallbackLocator.running = true;
+                    return;
+                }
                 try {
                     const data = JSON.parse(text);
                     if (data.lat && data.lon) {
@@ -190,70 +146,96 @@ Singleton {
                             lon: data.lon,
                             name: data.city + (data.regionName ? `, ${data.regionName}` : "")
                         };
-                        console.info(`[WeatherService] IP location: ${root.location.name}`);
-                        root.getData();
+                        console.info("[Weather] Location:", root.location.name);
+                        root.fetchWeather();
+                    } else {
+                        fallbackLocator.running = true;
                     }
                 } catch (e) {
-                    console.error(`[WeatherService] IP location error: ${e.message}`);
+                    console.error("[Weather] IP location error:", e.message);
+                    fallbackLocator.running = true;
                 }
+            }
+        }
+        onExited: (code) => {
+            if (code !== 0) {
+                console.warn("[Weather] IP location failed, trying fallback");
+                fallbackLocator.running = true;
             }
         }
     }
 
-    // Weather data fetcher
+    // Fallback: ipwho.is
     Process {
-        id: fetcher
-        command: ["curl", "-s", "--max-time", "10", ""]
+        id: fallbackLocator
+        command: ["/usr/bin/curl", "-s", "--max-time", "10", "https://ipwho.is/"]
         stdout: StdioCollector {
             onStreamFinished: {
                 if (text.length === 0) return;
                 try {
                     const data = JSON.parse(text);
-                    root._refineData(data);
+                    if (data.latitude && data.longitude) {
+                        root.location = {
+                            valid: true,
+                            lat: data.latitude,
+                            lon: data.longitude,
+                            name: data.city + (data.region ? `, ${data.region}` : "")
+                        };
+                        console.info("[Weather] Location (fallback):", root.location.name);
+                        root.fetchWeather();
+                    } else {
+                        // Both methods failed, schedule retry
+                        retryTimer.start();
+                    }
                 } catch (e) {
-                    console.error(`[WeatherService] Weather fetch error: ${e.message}`);
+                    console.error("[Weather] Fallback location error:", e.message);
+                    retryTimer.start();
                 }
+            }
+        }
+        onExited: (code) => {
+            // If fallback also fails, schedule retry
+            if (code !== 0 && !root.location.valid) {
+                retryTimer.start();
             }
         }
     }
 
-    PositionSource {
-        id: positionSource
-        updateInterval: root.fetchInterval
-
-        onPositionChanged: {
-            if (position.latitudeValid && position.longitudeValid) {
-                root.location = {
-                    valid: true,
-                    lat: position.coordinate.latitude,
-                    lon: position.coordinate.longitude,
-                    name: root.city || "GPS Location"
-                };
-                root.getData();
-            } else {
-                root.gpsActive = root.location.valid;
-                console.error("[WeatherService] Failed to get GPS location.");
+    // Weather fetcher
+    Process {
+        id: fetcher
+        command: ["/usr/bin/bash", "-c", ""]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (text.length === 0) {
+                    console.warn("[Weather] Empty response");
+                    retryTimer.start();
+                    return;
+                }
+                try {
+                    root.refineData(JSON.parse(text));
+                } catch (e) {
+                    console.error("[Weather] Parse error:", e.message);
+                    retryTimer.start();
+                }
             }
         }
-
-        onValidityChanged: {
-            if (!positionSource.valid) {
-                positionSource.stop();
-                root.location.valid = false;
-                root.gpsActive = false;
-                Quickshell.execDetached(["notify-send", Translation.tr("Weather Service"),
-                    Translation.tr("Cannot find a GPS service. Using the fallback method instead."), "-a", "Shell"]);
-                console.error("[WeatherService] Could not acquire a valid backend plugin.");
-                root._geocodeCity();
+        onExited: (code) => {
+            if (code !== 0) {
+                console.error("[Weather] Fetch failed, code:", code);
+                retryTimer.start();
             }
         }
     }
 
     Timer {
-        running: true
+        id: fetchTimer
+        running: root.enabled && Config.ready
         repeat: true
         interval: root.fetchInterval > 0 ? root.fetchInterval : 600000
-        triggeredOnStart: true
         onTriggered: root.getData()
+        onRunningChanged: {
+            if (running) Qt.callLater(() => root.getData())
+        }
     }
 }

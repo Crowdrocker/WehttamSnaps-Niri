@@ -10,7 +10,7 @@ Item {
     required property string iconName
     property bool separateLightDark: false
     property bool tryCustomIcon: true
-    property bool monochrome: Config.options.waffles.bar.monochromeIcons
+    property bool monochrome: Config.options?.waffles?.bar?.monochromeIcons ?? false
     
     property real implicitSize: 26
     implicitWidth: implicitSize
@@ -20,7 +20,7 @@ Item {
         id: iconWidget
         anchors.fill: parent
         animated: true
-        roundToIconSize: false
+        roundToIconSize: true
         fallback: root.iconName
         source: root.tryCustomIcon ? `${Looks.iconsPath}/${root.iconName}${!root.separateLightDark ? "" : Looks.dark ? "-dark" : "-light"}.svg` : fallback
     }

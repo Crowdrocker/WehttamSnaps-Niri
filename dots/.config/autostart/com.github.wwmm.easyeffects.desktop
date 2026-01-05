@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Easy Effects
+Comment=Easy Effects Service
+Exec=easyeffects --hide-window --service-mode
+Icon=com.github.wwmm.easyeffects
+StartupNotify=false
+Terminal=false
+Type=Application
+X-GNOME-Autostart-Phase=Application
+X-KDE-autostart-phase=2

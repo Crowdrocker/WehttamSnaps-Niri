@@ -42,7 +42,7 @@ Rectangle {
                 iconName: "pulse",
                 text: Translation.tr("Task Manager"),
                 action: () => {
-                    Quickshell.execDetached(["missioncenter"])
+                    Quickshell.execDetached(["/usr/bin/missioncenter"])
                 }
             },
             { type: "separator" },
@@ -50,7 +50,7 @@ Rectangle {
                 iconName: "settings",
                 text: Translation.tr("Taskbar settings"),
                 action: () => {
-                    Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "settings", "open"])
+                    Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"])
                 }
             }
         ]
@@ -61,8 +61,8 @@ Rectangle {
         anchors {
             left: parent.left
             right: parent.right
-            top: Config.options.waffles.bar.bottom ? parent.top : undefined
-            bottom: Config.options.waffles.bar.bottom ? undefined : parent.bottom
+            top: (Config.options?.waffles?.bar?.bottom ?? false) ? parent.top : undefined
+            bottom: (Config.options?.waffles?.bar?.bottom ?? false) ? undefined : parent.bottom
         }
         color: Looks.colors.bg0Border
         implicitHeight: 1
@@ -71,7 +71,7 @@ Rectangle {
     BarGroupRow {
         id: bloatRow
         anchors.left: parent.left
-        opacity: Config.options.waffles.bar.leftAlignApps ? 0 : 1
+        opacity: (Config.options?.waffles?.bar?.leftAlignApps ?? false) ? 0 : 1
         visible: opacity > 0
         Behavior on opacity {
             animation: Looks.transition.opacity.createObject(this)
@@ -87,7 +87,7 @@ Rectangle {
 
         states: State {
             name: "left"
-            when: Config.options.waffles.bar.leftAlignApps
+            when: Config.options?.waffles?.bar?.leftAlignApps ?? false
             AnchorChanges {
                 target: appsRow
                 anchors.left: parent.left
@@ -102,6 +102,7 @@ Rectangle {
         StartButton {}
         SearchButton {}
         TaskViewButton {}
+        WTaskbarSeparator { }
         Tasks {}
     }
 
@@ -110,7 +111,7 @@ Rectangle {
         anchors.right: parent.right
         FadeLoader {
             Layout.fillHeight: true
-            shown: Config.options.waffles.bar.leftAlignApps
+            shown: Config.options?.waffles?.bar?.leftAlignApps ?? false
             sourceComponent: WeatherButton {}
         }
         Tray {}

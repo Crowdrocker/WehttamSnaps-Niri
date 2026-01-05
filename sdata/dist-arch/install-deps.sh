@@ -1,4 +1,4 @@
-# Install dependencies for ii-niri on Arch-based systems
+# Install dependencies for iNiR on Arch-based systems
 # This script is meant to be sourced, not run directly.
 
 # shellcheck shell=bash
@@ -9,6 +9,43 @@
 if ! command -v pacman >/dev/null 2>&1; then
   printf "${STY_RED}[$0]: pacman not found. This script is for Arch-based systems only.${STY_RST}\n"
   exit 1
+fi
+
+#####################################################################################
+# Optional: install only a specific list of missing deps
+#####################################################################################
+if [[ -n "${ONLY_MISSING_DEPS:-}" ]]; then
+  echo -e "${STY_CYAN}[$0]: Installing missing dependencies only...${STY_RST}"
+
+  local installflags="--needed"
+  $ask || installflags="$installflags --noconfirm"
+
+  local missing_pkgs=()
+  read -r -a missing_pkgs <<<"$ONLY_MISSING_DEPS"
+
+  if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
+    case $SKIP_SYSUPDATE in
+      true) sleep 0;;
+      *) v sudo pacman -Syu;;
+    esac
+
+    if ! command -v yay >/dev/null 2>&1 && ! command -v paru >/dev/null 2>&1; then
+      echo -e "${STY_YELLOW}[$0]: No AUR helper found.${STY_RST}"
+      showfun install-yay
+      v install-yay
+    fi
+
+    if command -v yay >/dev/null 2>&1; then
+      AUR_HELPER="yay"
+    elif command -v paru >/dev/null 2>&1; then
+      AUR_HELPER="paru"
+    fi
+
+    v $AUR_HELPER -S $installflags "${missing_pkgs[@]}"
+  fi
+
+  unset ONLY_MISSING_DEPS
+  return 0
 fi
 
 #####################################################################################
@@ -74,14 +111,14 @@ install_pkgbuild_deps() {
 }
 
 # Install from each PKGBUILD
-for pkgdir in ./sdata/dist-arch/ii-niri-*/; do
+for pkgdir in ./sdata/dist-arch/inir-*/; do
   # Check group flags
   pkgname=$(basename "$pkgdir")
   case "$pkgname" in
-    ii-niri-audio) $INSTALL_AUDIO || continue ;;
-    ii-niri-toolkit) $INSTALL_TOOLKIT || continue ;;
-    ii-niri-screencapture) $INSTALL_SCREENCAPTURE || continue ;;
-    ii-niri-fonts) $INSTALL_FONTS || continue ;;
+    inir-audio) $INSTALL_AUDIO || continue ;;
+    inir-toolkit) $INSTALL_TOOLKIT || continue ;;
+    inir-screencapture) $INSTALL_SCREENCAPTURE || continue ;;
+    inir-fonts) $INSTALL_FONTS || continue ;;
   esac
   
   v install_pkgbuild_deps "$pkgdir"
@@ -98,8 +135,7 @@ AUR_PACKAGES=(
   google-breakpad
   qt6-avif-image-plugin
   
-  # System & Tools
-  illogical-impulse-python
+  # Note: Python deps are handled via uv + requirements.txt, not AUR packages
 )
 
 # Critical fonts (UI breaks without these)
@@ -157,7 +193,7 @@ if $INSTALL_FONTS; then
 fi
 
 if $INSTALL_AUDIO; then
-  : # cava moved to ii-niri-audio PKGBUILD
+  : # cava moved to inir-audio PKGBUILD
 fi
 
 if $INSTALL_TOOLKIT; then

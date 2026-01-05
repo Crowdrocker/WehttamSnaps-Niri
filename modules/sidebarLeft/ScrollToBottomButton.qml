@@ -27,10 +27,10 @@ RippleButton {
     implicitWidth: contentItem.implicitWidth + 8 * 2
     implicitHeight: contentItem.implicitHeight + 4 * 2
 
-    colBackground: Appearance.colors.colSecondary
-    colBackgroundHover: Appearance.colors.colSecondaryHover
-    colRipple: Appearance.colors.colSecondaryActive
-    buttonRadius: Appearance.rounding.verysmall
+    colBackground: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colSecondary
+    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colPrimaryHover : Appearance.colors.colSecondaryHover
+    colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colSecondaryActive
+    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall
 
     downAction: () => {
         target.positionViewAtEnd()
@@ -43,14 +43,14 @@ RippleButton {
             anchors.verticalCenter: parent.verticalCenter
             text: "arrow_downward"
             font.pixelSize: Appearance.font.pixelSize.larger
-            color: Appearance.colors.colOnSecondary
+            color: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.colors.colOnSecondary
             verticalAlignment: Text.AlignVCenter
         }
         StyledText {
             anchors.verticalCenter: parent.verticalCenter
             text: Translation.tr("Scroll to Bottom")
             font.pixelSize: Appearance.font.pixelSize.smallie
-            color: Appearance.colors.colOnSecondary
+            color: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.colors.colOnSecondary
             verticalAlignment: Text.AlignVCenter
         }
     }

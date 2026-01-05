@@ -25,12 +25,17 @@ ii is built for **Niri**. Some features were inherited from the original Hyprlan
 
 | Feature | Why |
 |---------|-----|
-| Night light (Hyprsunset) | Uses `hyprsunset` which is Hyprland-specific. Niri users: use `gammastep` or `wlsunset` manually. |
-| Anti-flashbang brightness | Relies on Hyprland events for workspace/window changes. |
 | Screen zoom | Uses `hyprctl keyword cursor:zoom_factor`. |
 | GlobalShortcut bindings | Hyprland's global shortcut system. On Niri, use `config.kdl` keybinds instead. |
 | CompositorFocusGrab | Click-outside-to-close for sidebars uses Hyprland's focus grab. On Niri, click the backdrop or press Escape. |
 | Lock screen blur hack | The "push windows off-screen for blur" trick is Hyprland-specific. |
+
+### Works on Both
+
+| Feature | Hyprland | Niri |
+|---------|----------|------|
+| Night light | `hyprsunset` | `wlsunset` (auto-detected) |
+| Anti-flashbang brightness | ✅ | ✅ |
 
 ---
 

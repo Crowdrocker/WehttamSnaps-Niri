@@ -13,14 +13,14 @@ import qs.modules.common.functions
  * 
  * Strategy:
  * - Capture previews ONLY when TaskView opens
- * - Cache in ~/.cache/ii-niri/window-previews/
+ * - Cache in ~/.cache/inir/window-previews/
  * - Only capture windows that don't have a recent preview
  * - Clean up on window close
  */
 Singleton {
     id: root
 
-    readonly property string previewDir: FileUtils.trimFileProtocol(Directories.genericCache) + "/ii-niri/window-previews"
+    readonly property string previewDir: FileUtils.trimFileProtocol(Directories.genericCache) + "/inir/window-previews"
     
     // Map of windowId -> { path, timestamp }
     property var previewCache: ({})
@@ -33,15 +33,9 @@ Singleton {
     
     signal captureComplete()
     signal previewUpdated(int windowId)
-    
+
     Component.onCompleted: {
-        initTimer.start()
-    }
-    
-    Timer {
-        id: initTimer
-        interval: 300
-        onTriggered: root.initialize()
+        // Lazy init: only when TaskView actually requests previews.
     }
     
     function initialize(): void {
@@ -97,9 +91,10 @@ Singleton {
             previewCache = Object.assign({}, previewCache)
             
             // Delete files
-            const cmd = ["/usr/bin/fish", "-c", 
-                "rm -f " + toDelete.map(id => root.previewDir + "/window-" + id + ".png").join(" ")
-            ]
+            const cmd = ["/usr/bin/rm", "-f"]
+            for (const id of toDelete) {
+                cmd.push(root.previewDir + "/window-" + id + ".png")
+            }
             Quickshell.execDetached(cmd)
         }
     }
@@ -110,6 +105,8 @@ Singleton {
     // Called when TaskView opens - capture windows that need it
     function captureForTaskView(): void {
         if (capturing) return
+
+        if (!initialized) initialize()
         
         const windows = NiriService.windows ?? []
         if (windows.length === 0) return
@@ -138,7 +135,9 @@ Singleton {
         initialCapturesDone = true
         
         // Build command with IDs
-        const cmd = ["/usr/bin/fish", Quickshell.workingDirectory + "/scripts/capture-windows.fish"]
+        const cmd = ShellExec.supportsFish()
+            ? ["/usr/bin/fish", Quickshell.shellPath("scripts/capture-windows.fish")]
+            : ["/usr/bin/bash", Quickshell.shellPath("scripts/capture-windows.sh")]
         for (const id of idsToCapture) {
             cmd.push(id.toString())
         }
@@ -151,6 +150,8 @@ Singleton {
     // Capture ALL windows (force refresh)
     function captureAllWindows(): void {
         if (capturing) return
+
+        if (!initialized) initialize()
         
         const windows = NiriService.windows ?? []
         if (windows.length === 0) return
@@ -160,26 +161,34 @@ Singleton {
         
         const ids = windows.map(w => w.id)
         captureProcess.idsToCapture = ids
-        captureProcess.command = [
-            "/usr/bin/fish",
-            Quickshell.workingDirectory + "/scripts/capture-windows.fish",
-            "--all"
-        ]
+        captureProcess.command = ShellExec.supportsFish()
+            ? ["/usr/bin/fish", Quickshell.shellPath("scripts/capture-windows.fish"), "--all"]
+            : ["/usr/bin/bash", Quickshell.shellPath("scripts/capture-windows.sh"), "--all"]
         captureProcess.running = true
     }
     
     Process {
         id: captureProcess
         property var idsToCapture: []
+
+        stdout: SplitParser {
+            onRead: (line) => console.log("[WindowPreviewService:capture]", line)
+        }
+        stderr: SplitParser {
+            onRead: (line) => console.log("[WindowPreviewService:capture][err]", line)
+        }
         
         onExited: (exitCode, exitStatus) => {
             root.capturing = false
-            
-            if (exitCode === 0) {
+
+            if (exitCode !== 0) {
+                console.log("[WindowPreviewService] capture process failed", exitCode, exitStatus)
+            } else {
                 const timestamp = Date.now()
                 for (const id of idsToCapture) {
+                    const path = root.previewDir + "/window-" + id + ".png"
                     root.previewCache[id] = {
-                        path: root.previewDir + "/window-" + id + ".png",
+                        path: path,
                         timestamp: timestamp
                     }
                     root.previewUpdated(id)
@@ -195,9 +204,9 @@ Singleton {
     // Clean up when window closes
     Connections {
         target: NiriService
+        enabled: root.initialized  // Skip event processing until initialized
         
         function onWindowsChanged(): void {
-            if (!root.initialized) return
             cleanupTimer.restart()
         }
     }

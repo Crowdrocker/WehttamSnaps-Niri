@@ -4,11 +4,22 @@ import Quickshell
 
 Singleton {
     // Formats
-    readonly property list<string> validImageTypes: ["jpeg", "png", "webp", "tiff", "svg"]
-    readonly property list<string> validImageExtensions: ["jpg", "jpeg", "png", "webp", "tif", "tiff", "svg"]
+    readonly property list<string> validImageTypes: ["jpeg", "png", "webp", "tiff", "svg", "gif"]
+    readonly property list<string> validImageExtensions: ["jpg", "jpeg", "png", "webp", "tif", "tiff", "svg", "gif"]
+    readonly property list<string> validVideoExtensions: ["mp4", "webm", "mkv", "avi", "mov"]
 
     function isValidImageByName(name: string): bool {
-        return validImageExtensions.some(t => name.endsWith(`.${t}`));
+        const lowerName = name.toLowerCase();
+        return validImageExtensions.some(t => lowerName.endsWith(`.${t}`));
+    }
+
+    function isValidVideoByName(name: string): bool {
+        const lowerName = name.toLowerCase();
+        return validVideoExtensions.some(t => lowerName.endsWith(`.${t}`));
+    }
+
+    function isValidMediaByName(name: string): bool {
+        return isValidImageByName(name) || isValidVideoByName(name);
     }
 
     // Thumbnails

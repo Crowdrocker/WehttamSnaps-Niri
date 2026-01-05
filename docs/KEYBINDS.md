@@ -6,117 +6,101 @@ Change them. Break them. Make them yours. We won't judge.
 
 ---
 
-## Workspace switching
+## ii Controls
+
 | Key | Action |
 |-----|--------|
-| `Mod+1` | focus-workspace 1 + sound-system workspace 1 |
-| `Mod+2` | focus-workspace 2 + sound-system workspace 2 |
-| `Mod+3` | focus-workspace 3 + sound-system workspace 3 |
-| `Mod+4` | focus-workspace 4 + sound-system workspace 4 |
-| `Mod+5` | focus-workspace 5 + sound-system workspace 5 |
-| `Mod+6` | focus-workspace 6 + sound-system workspace 6 |
-| `Mod+7` | focus-workspace 7 + sound-system workspace 7 |
-| `Mod+8` | focus-workspace 8 + sound-system workspace 8 |
-| `Mod+9` | focus-workspace 9 + sound-system workspace 9 |
-| `Mod+0` | focus-workspace 10 + sound-system workspace 10 |
-| `Mod+Shift+1` ... `Mod+Shift+0` | move-column-to-workspace 1..10 (shifted numbers move current column) |
+| `Mod+Tab` | Niri overview (native compositor) |
+| `Mod+Space` | ii overview (daemon) |
+| `Super+G` | ii overlay (search, widgets) |
+| `Alt+Tab` | ii window switcher (next) |
+| `Alt+Shift+Tab` | ii window switcher (previous) |
+| `Super+V` | Clipboard history |
+| `Super+/` | Cheatsheet |
+| `Super+,` | Settings |
+| `Super+Alt+L` | Lock screen |
+| `Ctrl+Alt+T` | Wallpaper selector |
+| `Mod+Shift+W` | Cycle panel family (ii ↔ waffle) |
 
-## System / Overview / Locks
-| Key | Action / Notes |
-|-----|----------------|
-| `Mod+Tab` (repeat=false) | toggle-overview |
-| `Mod+Shift+E` | quit |
-| `Mod+Escape` (allow-inhibiting=false) | toggle-keyboard-shortcuts-inhibit |
-| `Alt+Tab` | ii altSwitcher next (window switcher) |
-| `Alt+Shift+Tab` | ii altSwitcher previous |
-| `Super+G` | ii overlay toggle |
-| `Mod+Space` (repeat=false) | ii overview toggle |
-| `Mod+V` | ii clipboard toggle |
-| `Mod+Alt+L` (allow-when-locked=true) | ii lock activate |
-| `Ctrl+Alt+T` | ii wallpaperSelector toggle |
-| `Mod+Comma` | ii settings open |
-| `Mod+Slash` | ii cheatsheet toggle |
-| `Mod+Shift+W` | ii panelFamily cycle |
+---
 
-## Window management
+## Region Tools
+
 | Key | Action |
 |-----|--------|
-| `Mod+Q` (repeat=false) | run close-window script (~/.config/quickshell/ii/scripts/close-window.sh) |
-| `Mod+D` | maximize-column |
-| `Mod+F` | fullscreen-window |
-| `Mod+A` | toggle-window-floating |
+| `Super+Shift+S` | Region screenshot |
+| `Super+Shift+X` | Region OCR |
+| `Super+Shift+A` | Region image search |
+| `Print` | Full screenshot (native) |
+| `Ctrl+Print` | Screenshot current screen |
+| `Alt+Print` | Screenshot current window |
 
-### Focus navigation
+---
+
+## Window Management
+
 | Key | Action |
 |-----|--------|
-| `Mod+Left` / `Mod+H` | focus-column-left |
-| `Mod+Right` / `Mod+L` | focus-column-right |
-| `Mod+Up` / `Mod+K` | focus-window-up |
-| `Mod+Down` / `Mod+J` | focus-window-down |
+| `Super+Q` | Close window (with optional confirmation) |
+| `Super+D` | Maximize column |
+| `Super+F` | Toggle fullscreen |
+| `Super+A` | Toggle floating |
 
-### Move windows/columns
+### Focus
+
 | Key | Action |
 |-----|--------|
-| `Mod+Shift+Left` / `Mod+Shift+H` | move-column-left |
-| `Mod+Shift+Right` / `Mod+Shift+L` | move-column-right |
-| `Mod+Shift+Up` / `Mod+Shift+K` | move-window-up |
-| `Mod+Shift+Down` / `Mod+Shift+J` | move-window-down |
+| `Super+Left/H` | Focus left |
+| `Super+Right/L` | Focus right |
+| `Super+Up/K` | Focus up |
+| `Super+Down/J` | Focus down |
 
-## Gaming & toggles
+### Move
+
 | Key | Action |
 |-----|--------|
-| `Mod+G` | sound-system gaming-toggle (hotkey-overlay-title="sound-system gaming-toggle") |
-| `Mod+Shift+g` | run jarvis-manager.sh (toggle gaming mode) |
-| `Mod+Alt+r` | run ~/bin/niri-validate.sh |
+| `Super+Shift+Left/H` | Move left |
+| `Super+Shift+Right/L` | Move right |
+| `Super+Shift+Up/K` | Move up |
+| `Super+Shift+Down/J` | Move down |
+
+---
+
+## Workspaces
+
+| Key | Action |
+|-----|--------|
+| `Super+1-9` | Focus workspace 1-9 |
+| `Super+Shift+1-5` | Move window to workspace 1-5 |
+
+---
 
 ## Applications
+
 | Key | Action |
 |-----|--------|
-| `Mod+T` or `Mod+Return` | spawn terminal (`ghostty`) |
-| `Mod+B` | open Vivaldi (`vivaldi-stable`) |
-| `Super+E` | open Thunar |
-| `Mod+Alt+D` | open Rofi (`-show drun`) |
-| `Mod+Shift+B` | open Brave (`brave`) |
-| `Mod+Shift+T` | open Kate |
-| `Mod+O` | open OBS (flatpak run com.obsproject.Studio) |
-| `Mod+P` | open spotify-launcher |
+| `Super+T` / `Super+Return` | Terminal (foot) |
+| `Super+E` | File manager (dolphin) |
 
-## Webapps (custom launcher)
+---
+
+## System
+
 | Key | Action |
 |-----|--------|
-| `Mod+Ctrl+t` | launch Twitch webapp script |
-| `Mod+Ctrl+y` | launch YouTube webapp script |
-| `Mod+Ctrl+s` | launch Spotify webapp script |
-| `Mod+Ctrl+d` | launch Discord webapp script |
+| `Super+Shift+E` | Quit Niri |
+| `Super+Shift+O` | Power off monitors |
+| `Super+Escape` | Toggle keyboard shortcuts inhibit |
 
-## Gaming & launchers (cont.)
+---
+
+## Media Keys
+
 | Key | Action |
 |-----|--------|
-| `Mod+Shift+S` | sound-system steam-launch && steam |
-| `Mod+Alt+P` | open protonup-qt |
-
-## Screenshots
-| Key | Action |
-|-----|--------|
-| `Mod+Print` | grim to ~/Pictures/Screenshots/<timestamp>.png && sound-system screenshot (hotkey-overlay-title="Take screenshot") |
-| `Ctrl+Print` | screenshot-screen |
-| `Alt+Print` | screenshot-window |
-
-## Media controls
-| Key | Action (allow-when-locked=true) |
-|-----|---------------------------------|
-| `XF86AudioPlay` | playerctl play-pause |
-| `XF86AudioNext` | playerctl next |
-| `XF86AudioPrev` | playerctl previous |
-| `XF86AudioStop` | playerctl stop |
-
-## Audio controls (adaptive / sound-system)
-| Key | Action (allow-when-locked=true) |
-|-----|---------------------------------|
-| `XF86AudioMute` | sound-system mute |
-| `XF86AudioRaiseVolume` | sound-system volume-up |
-| `XF86AudioLowerVolume` | sound-system volume-down |
-| `XF86AudioMicMute` | sound-system mic-mute |
+| `XF86AudioRaiseVolume` | Volume up |
+| `XF86AudioLowerVolume` | Volume down |
+| `XF86AudioMute` | Toggle mute |
 
 ---
 

@@ -77,8 +77,11 @@ Flow {
         for (var i = 0; i < root.options.length; ++i) {
             var opt = root.options[i];
             if (opt && opt.displayName)
-                optionNames.push(String(opt.displayName));
+                optionNames.push(String(opt.displayName).toLowerCase());
         }
+        
+        // Include option names in description for better search
+        var optionsList = optionNames.join(", ");
 
         settingsSearchOptionId = SettingsSearchRegistry.registerOption({
             control: root,
@@ -86,7 +89,7 @@ Flow {
             pageName: page && page.settingsPageName ? page.settingsPageName : "",
             section: sectionTitle,
             label: label,
-            description: "",
+            description: optionsList,
             keywords: optionNames
         });
     }

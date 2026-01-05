@@ -40,6 +40,10 @@ Item {
     readonly property real hintsHeight: 18
     readonly property real totalHeight: thumbnailHeight + labelHeight + labelSpacing + hintsSpacing + hintsHeight + dotsHeight
     
+    // View mode: "carousel" or "centered"
+    readonly property string viewMode: Config.options?.waffles?.taskView?.mode ?? "centered"
+    readonly property bool isCenteredMode: viewMode === "centered"
+    
     // Search filter
     property string searchQuery: ""
     readonly property var filteredWindowItems: {
@@ -117,7 +121,7 @@ Item {
     }
 
     function moveWindowToWorkspace(windowId: int, targetIdx: int): void {
-        Quickshell.execDetached(["niri", "msg", "action", "move-window-to-workspace",
+        Quickshell.execDetached(["/usr/bin/niri", "msg", "action", "move-window-to-workspace",
             "--window-id", windowId.toString(),
             "--focus", "false",
             targetIdx.toString()])
@@ -127,7 +131,7 @@ Item {
         // Move window to a new workspace at the end
         const lastWs = cachedWorkspaces[cachedWorkspaces.length - 1]
         const newWsIdx = lastWs ? lastWs.idx + 1 : 1
-        Quickshell.execDetached(["niri", "msg", "action", "move-window-to-workspace",
+        Quickshell.execDetached(["/usr/bin/niri", "msg", "action", "move-window-to-workspace",
             "--window-id", windowId.toString(),
             "--focus", "false",
             newWsIdx.toString()])
@@ -159,9 +163,9 @@ Item {
     }
     
     function executeNiriAction(action: string, windowId: int): void {
-        Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", windowId.toString()])
+        Quickshell.execDetached(["/usr/bin/niri", "msg", "action", "focus-window", "--id", windowId.toString()])
         Qt.callLater(() => {
-            Quickshell.execDetached(["niri", "msg", "action", action])
+            Quickshell.execDetached(["/usr/bin/niri", "msg", "action", action])
             refreshTimer.start()
         })
     }
@@ -242,6 +246,20 @@ Item {
         function onWaffleTaskViewOpenChanged(): void {
             if (GlobalStates.waffleTaskViewOpen) {
                 root.refreshCache()
+            }
+        }
+    }
+    
+    Connections {
+        target: NiriService
+        function onWindowsChanged(): void {
+            // Only refresh if window count changed (window closed/opened), not on focus change
+            if (GlobalStates.waffleTaskViewOpen) {
+                const currentCount = (NiriService.windows ?? []).length
+                const cachedCount = root.cachedWindowItems.length
+                if (currentCount !== cachedCount) {
+                    root.refreshCache()
+                }
             }
         }
     }
@@ -455,11 +473,14 @@ Item {
                             return !root.cachedWindowItems.some(w => w.workspaceSlot === index)
                         }
                         isEmpty: !root.cachedWindowItems.some(w => w.workspaceSlot === index)
+                        
+                        // Centered mode properties
+                        viewMode: root.viewMode
+                        distanceFromSelected: Math.abs(index - root.selectedSlot)
+                        relativePosition: index - root.selectedSlot
 
                         onClicked: {
-                            if (index === root.selectedSlot) {
-                                root.switchToWorkspace(modelData.idx)
-                            } else {
+                            if (index !== root.selectedSlot) {
                                 root.selectedSlot = index
                             }
                         }
@@ -688,7 +709,7 @@ Item {
                 WText {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: root.searchQuery.length === 0
-                    text: Translation.tr("Search windows...")
+                    text: Translation.tr("Type to search")
                     font.pixelSize: Looks.font.pixelSize.normal
                     color: Looks.colors.subfg
                 }
@@ -702,25 +723,15 @@ Item {
                 }
             }
             
-            // Results badge
-            Rectangle {
+            // Results count
+            WText {
+                id: resultsText
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.searchQuery.length > 0
-                width: resultsText.width + 14
-                height: 22
-                radius: 11
-                color: root.filteredWindowItems.length > 0 ? 
-                    ColorUtils.transparentize(Looks.colors.accent, 0.85) : 
-                    ColorUtils.transparentize(Looks.colors.danger, 0.85)
-                
-                WText {
-                    id: resultsText
-                    anchors.centerIn: parent
-                    text: root.filteredWindowItems.length.toString()
-                    font.pixelSize: Looks.font.pixelSize.small
-                    font.weight: Font.Medium
-                    color: root.filteredWindowItems.length > 0 ? Looks.colors.accent : Looks.colors.danger
-                }
+                text: root.filteredWindowItems.length.toString()
+                font.pixelSize: Looks.font.pixelSize.small
+                font.weight: Font.Medium
+                color: Looks.colors.subfg
             }
         }
     }

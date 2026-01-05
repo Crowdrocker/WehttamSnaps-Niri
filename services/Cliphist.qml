@@ -22,6 +22,11 @@ Singleton {
         name: Fuzzy.prepare(`${a.replace(/^\s*\S+\s+/, "")}`),
         entry: a
     }))
+
+    function _log(...args): void {
+        if (Quickshell.env("QS_DEBUG") === "1") console.log(...args);
+    }
+
     function fuzzyQuery(search: string): var {
         if (search.trim() === "") {
             return entries.slice(0, root.maxEntries);
@@ -54,21 +59,21 @@ Singleton {
     }
 
     function copy(entry) {
-        console.log("[Cliphist] copy()", String(entry).slice(0, 120))
+        root._log("[Cliphist] copy()", String(entry).slice(0, 120))
         if (root.cliphistBinary.includes("cliphist")) // Classic cliphist
-            Quickshell.execDetached(["bash", "-c", `printf '${StringUtils.shellSingleQuoteEscape(entry)}' | ${root.cliphistBinary} decode | wl-copy`]);
+            Quickshell.execDetached(["/usr/bin/bash", "-c", `printf '${StringUtils.shellSingleQuoteEscape(entry)}' | ${root.cliphistBinary} decode | /usr/bin/wl-copy`]);
         else { // Stash
             const entryNumber = entry.split("\t")[0];
-            Quickshell.execDetached(["bash", "-c", `${root.cliphistBinary} decode ${entryNumber} | wl-copy`]);
+            Quickshell.execDetached(["/usr/bin/bash", "-c", `${root.cliphistBinary} decode ${entryNumber} | /usr/bin/wl-copy`]);
         }
     }
 
     function paste(entry) {
         if (root.cliphistBinary.includes("cliphist")) // Classic cliphist
-            Quickshell.execDetached(["bash", "-c", `printf '${StringUtils.shellSingleQuoteEscape(entry)}' | ${root.cliphistBinary} decode | wl-copy && wl-paste`]);
+            Quickshell.execDetached(["/usr/bin/bash", "-c", `printf '${StringUtils.shellSingleQuoteEscape(entry)}' | ${root.cliphistBinary} decode | /usr/bin/wl-copy\n/usr/bin/wl-paste`]);
         else { // Stash
             const entryNumber = entry.split("\t")[0];
-            Quickshell.execDetached(["bash", "-c", `${root.cliphistBinary} decode ${entryNumber} | wl-copy; ${root.pressPasteCommand}`]);
+            Quickshell.execDetached(["/usr/bin/bash", "-c", `${root.cliphistBinary} decode ${entryNumber} | /usr/bin/wl-copy\n${root.pressPasteCommand}`]);
         }
     }
 
@@ -78,21 +83,33 @@ Singleton {
             if (!isImage) return true;
             return entryIsImage(entry);
         }).slice(0, count)
-        const pasteCommands = [...targetEntries].reverse().map(entry => `printf '${StringUtils.shellSingleQuoteEscape(entry)}' | ${root.cliphistBinary} decode | wl-copy && sleep ${root.pasteDelay} && ${root.pressPasteCommand}`)
+        const pasteCommands = [...targetEntries].reverse().map(entry => `printf '${StringUtils.shellSingleQuoteEscape(entry)}' | ${root.cliphistBinary} decode | /usr/bin/wl-copy\n/usr/bin/sleep ${root.pasteDelay}\n${root.pressPasteCommand}`)
         // Act
-        Quickshell.execDetached(["bash", "-c", pasteCommands.join(` && sleep ${root.pasteDelay} && `)]);
+        Quickshell.execDetached(["/usr/bin/bash", "-c", pasteCommands.join(`\n/usr/bin/sleep ${root.pasteDelay}\n`)]);
     }
 
     Process {
         id: deleteProc
         property string entry: ""
-        command: ["bash", "-c", `echo '${StringUtils.shellSingleQuoteEscape(deleteProc.entry)}' | ${root.cliphistBinary} delete`]
+        command: [root.cliphistBinary, "delete"]
+        stdinEnabled: true
         function deleteEntry(entry) {
             deleteProc.entry = entry;
+            deleteProc.stdinEnabled = true
             deleteProc.running = true;
-            deleteProc.entry = "";
+        }
+        onRunningChanged: {
+            if (deleteProc.running) {
+                const toWrite = deleteProc.entry
+                deleteProc.write(toWrite)
+                deleteProc.write("\n")
+                deleteProc.stdinEnabled = false
+            } else {
+                deleteProc.stdinEnabled = true
+            }
         }
         onExited: (exitCode, exitStatus) => {
+            deleteProc.entry = "";
             root.refresh();
         }
     }
@@ -122,7 +139,7 @@ Singleton {
 
     Timer {
         id: delayedUpdateTimer
-        interval: Config.options.hacks.arbitraryRaceConditionDelay
+        interval: 500 // Increased from 100 to reduce rapid updates
         repeat: false
         onTriggered: {
             root.refresh()

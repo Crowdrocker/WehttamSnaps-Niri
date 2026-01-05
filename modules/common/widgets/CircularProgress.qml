@@ -11,8 +11,10 @@ Item {
     property int implicitSize: 30
     property int lineWidth: 2
     property real value: 0
-    property color colPrimary: Appearance.m3colors.m3onSecondaryContainer
-    property color colSecondary: Appearance.colors.colSecondaryContainer
+    property color colPrimary: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSecondaryContainer
+    property color colSecondary: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface 
+        : Appearance.colors.colSecondaryContainer
     property real gapAngle: 360 / 18
     property bool fill: false
     property int fillOverflow: 2

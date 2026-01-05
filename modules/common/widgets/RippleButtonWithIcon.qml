@@ -5,7 +5,7 @@ import qs.modules.common.widgets
 
 RippleButton {
     id: buttonWithIconRoot
-    property string nerdIcon
+    property string nerdIcon  // Manual override (empty = auto from MaterialSymbol)
     property string materialIcon
     property bool materialIconFill: true
     property string mainText: "Button text"
@@ -23,31 +23,12 @@ RippleButton {
     colBackground: Appearance.colors.colLayer2
 
     contentItem: RowLayout {
-        Item {
-            Layout.fillWidth: false
-            implicitWidth: Math.max(materialIconLoader.implicitWidth, nerdIconLoader.implicitWidth)
-            Loader {
-                id: materialIconLoader
-                anchors.centerIn: parent
-                active: !nerdIcon
-                sourceComponent: MaterialSymbol {
-                    text: buttonWithIconRoot.materialIcon
-                    iconSize: Appearance.font.pixelSize.larger
-                    color: Appearance.colors.colOnSecondaryContainer
-                    fill: buttonWithIconRoot.materialIconFill ? 1 : 0
-                }
-            }
-            Loader {
-                id: nerdIconLoader
-                anchors.centerIn: parent
-                active: nerdIcon
-                sourceComponent: StyledText {
-                    text: buttonWithIconRoot.nerdIcon
-                    font.pixelSize: Appearance.font.pixelSize.larger
-                    font.family: Appearance.font.family.iconNerd
-                    color: Appearance.colors.colOnSecondaryContainer
-                }
-            }
+        MaterialSymbol {
+            text: buttonWithIconRoot.nerdIcon || buttonWithIconRoot.materialIcon
+            iconSize: Appearance.font.pixelSize.larger
+            color: Appearance.colors.colOnSecondaryContainer
+            fill: buttonWithIconRoot.materialIconFill ? 1 : 0
+            forceNerd: buttonWithIconRoot.nerdIcon !== ""
         }
         Loader {
             Layout.fillWidth: true

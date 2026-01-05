@@ -1,0 +1,56 @@
+pkgname=inir-core
+pkgver=1.0
+pkgrel=1
+pkgdesc='illogical-impulse on Niri - Core Dependencies'
+arch=(any)
+license=(MIT)
+depends=(
+  # Niri compositor
+  niri
+  
+  # Basic utilities
+  bc
+  coreutils
+  cliphist
+  curl
+  wget
+  ripgrep
+  jq
+  xdg-user-dirs
+  rsync
+  git
+  wl-clipboard
+  libnotify
+  pacman-contrib  # checkupdates for update notifications
+  wlsunset
+  dunst
+  
+  # XDG Portals for Niri
+  xdg-desktop-portal
+  xdg-desktop-portal-gtk
+  xdg-desktop-portal-gnome
+  
+  # Polkit - any agent works (mate-polkit, gnome-polkit, lxpolkit, etc)
+  polkit
+  
+  # Network
+  networkmanager
+  gnome-keyring
+  
+  # File manager
+  dolphin
+  
+  # Terminal - foot is default, change in niri config if you prefer another
+  foot
+  
+  # Shell - fish is required for scripts
+  fish
+  
+  # TUI for setup script
+  gum
+  # X11 compatibility
+  xwayland-satellite
+  
+  # System monitor
+  mission-center
+)

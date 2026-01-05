@@ -4,16 +4,18 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.modules.common
 
 Singleton {
     id: root
 
     property bool isRecording: false
 
+    // Poll slightly less frequently - recording status doesn't need sub-second updates
     Timer {
         id: pollTimer
-        interval: 1000
-        running: true
+        interval: 3000
+        running: Config.ready
         repeat: true
         onTriggered: {
             if (!checkProcess.running) {
@@ -24,7 +26,7 @@ Singleton {
 
     Process {
         id: checkProcess
-        command: ["pgrep", "-x", "wf-recorder"]
+        command: ["/usr/bin/pgrep", "-x", "wf-recorder"]
         onExited: (exitCode, exitStatus) => {
             // pgrep returns 0 if process found, 1 if not found
             root.isRecording = (exitCode === 0)

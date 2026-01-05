@@ -17,7 +17,7 @@ WBarAttachedPanelContent {
     revealFromSides: true
     revealFromLeft: false
 
-    readonly property bool barAtBottom: Config.options.waffles.bar.bottom
+    readonly property bool barAtBottom: Config.options?.waffles?.bar?.bottom ?? false
     
     contentItem: ColumnLayout {
         // This somewhat sophisticated anchoring is needed to make opening anim not jump abruptly when stuff appear

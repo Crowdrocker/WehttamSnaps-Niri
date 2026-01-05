@@ -172,4 +172,20 @@ Singleton {
         var c = Qt.color(color);
         return c.hslLightness < 0.5;
     }
+
+    function clamp01(x) {
+        return Math.min(1, Math.max(0, x));
+    }
+
+    /**
+     * Solves for the solid overlay color that, when composited over a base color
+     * with a given opacity, yields the target color.
+     */
+    function solveOverlayColor(baseColor, targetColor, overlayOpacity) {
+        let invA = 1.0 - overlayOpacity;
+        let r = (targetColor.r - baseColor.r * invA) / overlayOpacity;
+        let g = (targetColor.g - baseColor.g * invA) / overlayOpacity;
+        let b = (targetColor.b - baseColor.b * invA) / overlayOpacity;
+        return Qt.rgba(clamp01(r), clamp01(g), clamp01(b), overlayOpacity);
+    }
 }

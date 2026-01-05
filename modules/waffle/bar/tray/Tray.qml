@@ -24,12 +24,12 @@ RowLayout {
     BarIconButton {
         id: overflowButton
 
-        visible: (TrayService.unpinnedItems.length > 0 || root.dragging)
+        visible: (TrayService.unpinnedItems.length > 0 || root.dragging) && !GameMode.active
         checked: root.overflowOpen
 
         iconName: "chevron-down"
         iconMonochrome: true
-        iconRotation: (Config.options.waffles.bar.bottom ? 180 : 0) + (root.overflowOpen ? 180 : 0)
+        iconRotation: ((Config.options?.waffles?.bar?.bottom ?? false) ? 180 : 0) + (root.overflowOpen ? 180 : 0)
         Behavior on iconRotation {
             animation: Looks.transition.rotate.createObject(this)
         }
@@ -60,10 +60,13 @@ RowLayout {
         }
     }
 
+    ScriptModel {
+        id: trayModel
+        values: TrayService.pinnedItems
+    }
+
     Repeater {
-        model: ScriptModel {
-            values: TrayService.pinnedItems
-        }
+        model: GameMode.active ? null : trayModel
         delegate: TrayButton {
             id: trayButton
             required property var modelData

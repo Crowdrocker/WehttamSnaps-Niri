@@ -22,10 +22,14 @@ Item {
             bottom: root.bottom
             horizontalCenter: root.horizontalCenter
         }
-        color: Appearance.colors.colLayer3
-        radius: Appearance.rounding.verysmall
+        color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+             : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipSurface
+             : Appearance.colors.colLayer3
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.verysmall
         border.width: 1
-        border.color: Appearance.colors.colLayer3Hover
+        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder
+                    : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder
+                    : Appearance.colors.colLayer3Hover
         opacity: shown ? 1 : 0
         implicitWidth: shown ? (tooltipTextObject.implicitWidth + 2 * root.horizontalPadding) : 0
         implicitHeight: shown ? (tooltipTextObject.implicitHeight + 2 * root.verticalPadding) : 0
@@ -47,7 +51,7 @@ Item {
             text: root.text
             font.pixelSize: Appearance.font.pixelSize.smaller
             font.hintingPreference: Font.PreferNoHinting // Prevent shaky text
-            color: Appearance.colors.colOnLayer3
+            color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer3
             wrapMode: Text.Wrap
         }
     }   

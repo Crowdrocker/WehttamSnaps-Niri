@@ -1,4 +1,5 @@
 import qs.modules.common.widgets
+import qs.modules.common.functions
 import qs
 import qs.services
 import QtQuick
@@ -20,7 +21,10 @@ QuickToggleButton {
     }
 
     altAction: () => {
-        Quickshell.execDetached(["fish", "-c", "flatpak run com.github.wwmm.easyeffects; or easyeffects"])
+        ShellExec.execFishOrBashOneLiner(
+            "flatpak run com.github.wwmm.easyeffects; or easyeffects",
+            "/usr/bin/flatpak run com.github.wwmm.easyeffects || /usr/bin/easyeffects"
+        )
         GlobalStates.sidebarRightOpen = false
     }
 

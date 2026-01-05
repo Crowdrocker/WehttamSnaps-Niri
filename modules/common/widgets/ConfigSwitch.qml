@@ -93,7 +93,7 @@ RippleButton {
             Layout.fillWidth: true
             text: root.text
             font: root.font
-            color: Appearance.colors.colOnSecondaryContainer
+            color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnSecondaryContainer
             opacity: root.enabled ? 1 : 0.4
         }
         StyledSwitch {

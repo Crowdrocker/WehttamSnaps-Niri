@@ -29,7 +29,7 @@ Item {
         closeAnim.start();
     }
 
-    readonly property bool barAtBottom: Config.options.waffles.bar.bottom
+    readonly property bool barAtBottom: Config.options?.waffles?.bar?.bottom ?? false
 
     implicitHeight: contentItem.implicitHeight + visualMargin * 2
     implicitWidth: contentItem.implicitWidth + visualMargin * 2

@@ -49,12 +49,15 @@ Item {
                     animation: Looks.transition.enter.createObject(this)
                 }
 
-                WAppIcon {
+                // Use Image directly with pre-cached icon for performance
+                Image {
                     anchors.centerIn: parent
-                    implicitSize: 36
-                    iconName: AppSearch.guessIcon(root.item?.appId ?? root.item?.appName ?? "")
-                    tryCustomIcon: false
-                    monochrome: false
+                    width: 36
+                    height: 36
+                    source: root.item?.icon ?? ""
+                    sourceSize: Qt.size(36, 36)
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
                 }
 
                 // Selection indicator pill
@@ -123,13 +126,15 @@ Item {
                         visible: root.selected
                     }
 
-                    // App icon
-                    WAppIcon {
+                    // App icon - use Image directly with pre-cached icon
+                    Image {
                         Layout.alignment: Qt.AlignVCenter
-                        implicitSize: 32
-                        iconName: AppSearch.guessIcon(root.item?.appId ?? root.item?.appName ?? "")
-                        tryCustomIcon: false
-                        monochrome: false
+                        width: 32
+                        height: 32
+                        source: root.item?.icon ?? ""
+                        sourceSize: Qt.size(32, 32)
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
                     }
 
                     // Text content

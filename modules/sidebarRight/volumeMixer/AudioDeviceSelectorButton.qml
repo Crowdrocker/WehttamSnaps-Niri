@@ -10,9 +10,9 @@ RippleButton {
     required property bool input
 
     buttonRadius: Appearance.rounding.small
-    colBackground: Appearance.colors.colLayer2
-    colBackgroundHover: Appearance.colors.colLayer2Hover
-    colRipple: Appearance.colors.colLayer2Active
+    colBackground: Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
+    colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
+    colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
 
     implicitHeight: contentItem.implicitHeight + 6 * 2
     implicitWidth: contentItem.implicitWidth + 6 * 2

@@ -20,7 +20,7 @@ Item {
     property int currentPage: 0
     readonly property int itemsPerPage: columns * rows
     readonly property int pages: Math.ceil(toggles.length / itemsPerPage)
-    property list<string> toggles: Config.options.waffles.actionCenter.toggles
+    property list<string> toggles: Config.options?.waffles?.actionCenter?.toggles ?? []
 
     property real padding: 22
     property real reducedBottomPadding: 12

@@ -13,8 +13,7 @@ StyledPopup {
         id: columnLayout
         anchors.centerIn: parent
         implicitWidth: Math.max(header.implicitWidth, gridLayout.implicitWidth)
-        implicitHeight: gridLayout.implicitHeight
-        spacing: 5
+        spacing: 8
 
         // Header
         ColumnLayout {

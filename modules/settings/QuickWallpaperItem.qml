@@ -10,7 +10,7 @@ MouseArea {
     id: root
     required property var fileModelData
     property bool isDirectory: fileModelData.fileIsDir
-    property bool useThumbnail: Images.isValidImageByName(fileModelData.fileName)
+    property bool useThumbnail: Images.isValidMediaByName(fileModelData.fileName)
     property bool isSelected: false
     property bool isHovered: false
 
@@ -64,7 +64,7 @@ MouseArea {
                 active: root.useThumbnail
                 sourceComponent: ThumbnailImage {
                     id: thumbnailImage
-                    generateThumbnail: true
+                    generateThumbnail: false
                     sourcePath: fileModelData.filePath
                     cache: true
                     asynchronous: true
@@ -76,13 +76,11 @@ MouseArea {
                     Connections {
                         target: Wallpapers
                         function onThumbnailGenerated(directory) {
-                            if (thumbnailImage.status !== Image.Error) return;
                             if (FileUtils.parentDirectory(thumbnailImage.sourcePath) !== directory) return;
                             thumbnailImage.source = "";
                             thumbnailImage.source = thumbnailImage.thumbnailPath;
                         }
                         function onThumbnailGeneratedFile(filePath) {
-                            if (thumbnailImage.status !== Image.Error) return;
                             if (Qt.resolvedUrl(thumbnailImage.sourcePath) !== Qt.resolvedUrl(filePath)) return;
                             thumbnailImage.source = "";
                             thumbnailImage.source = thumbnailImage.thumbnailPath;

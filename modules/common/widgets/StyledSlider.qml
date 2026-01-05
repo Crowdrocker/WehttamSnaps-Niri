@@ -30,11 +30,13 @@ Slider {
 
     property real handleDefaultWidth: 3
     property real handlePressedWidth: 1.5
-    property color highlightColor: Appearance.colors.colPrimary
-    property color trackColor: Appearance.colors.colSecondaryContainer
-    property color handleColor: Appearance.colors.colPrimary
-    property color dotColor: Appearance.m3colors.m3onSecondaryContainer
-    property color dotColorHighlighted: Appearance.m3colors.m3onPrimary
+    property color highlightColor: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+    property color trackColor: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+        : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface 
+        : Appearance.colors.colSecondaryContainer
+    property color handleColor: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+    property color dotColor: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.m3colors.m3onSecondaryContainer
+    property color dotColorHighlighted: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.m3colors.m3onPrimary
     property real unsharpenRadius: Appearance.rounding.unsharpen
     property real trackWidth: configuration
     property real trackRadius: trackWidth >= StyledSlider.Configuration.XL ? 21
@@ -47,6 +49,8 @@ Slider {
     property real handleMargins: 4
     property real trackDotSize: 3
     property string tooltipContent: `${Math.round(value * 100)}%`
+    property bool scrollable: false
+    property bool _userInteracting: false
     property bool wavy: configuration === StyledSlider.Configuration.Wavy // If true, the progress bar will have a wavy fill effect
     property bool animateWave: true
     property real waveAmplitudeMultiplier: wavy ? 0.5 : 0
@@ -61,9 +65,22 @@ Slider {
     from: 0
     to: 1
 
-    Behavior on value { // This makes the adjusted value (like volume) shift smoothly
-        SmoothedAnimation {
-            velocity: Appearance.animation.elementMoveFast.velocity
+    Timer {
+        id: _userInteractingReset
+        interval: 250
+        repeat: false
+        onTriggered: root._userInteracting = false
+    }
+
+    // No animation on value - instant response to user input
+    // External changes (volume changed by other app) also instant, which is fine
+
+    onPressedChanged: {
+        if (pressed) {
+            root._userInteracting = true
+        } else {
+            _userInteractingReset.restart()
+            root.moved()
         }
     }
 
@@ -90,6 +107,25 @@ Slider {
         anchors.fill: parent
         onPressed: (mouse) => mouse.accepted = false
         cursorShape: root.pressed ? Qt.ClosedHandCursor : Qt.PointingHandCursor 
+
+        onWheel: (event) => {
+            if (!root.scrollable) {
+                event.accepted = false
+                return
+            }
+
+            root._userInteracting = true
+            _userInteractingReset.restart()
+
+            const step = root.stepSize > 0 ? root.stepSize : 0.02
+            if (event.angleDelta.y > 0) {
+                root.value = Math.min(root.value + step, root.to)
+                root.moved()
+            } else {
+                root.value = Math.max(root.value - step, root.from)
+                root.moved()
+            }
+        }
     }
 
     background: Item {

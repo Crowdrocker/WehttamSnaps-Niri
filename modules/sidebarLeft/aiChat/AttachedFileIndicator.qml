@@ -57,7 +57,7 @@ Rectangle {
     property real horizontalPadding: 10
     property real verticalPadding: 10
     radius: Appearance.rounding.small - anchors.margins
-    color: Appearance.colors.colLayer2
+    color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
     implicitHeight: visible ? (contentItem.implicitHeight + verticalPadding * 2) : 0
 
     ColumnLayout {
@@ -102,7 +102,8 @@ Rectangle {
                 visible: root.canRemove
                 Layout.alignment: Qt.AlignTop
                 buttonRadius: Appearance.rounding.full
-                colBackground: Appearance.colors.colLayer2
+                colBackground: Appearance.inirEverywhere ? Appearance.inir.colLayer1 
+                    : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
                 implicitHeight: 28
                 implicitWidth: 28
                 contentItem: MaterialSymbol {
@@ -110,7 +111,7 @@ Rectangle {
                     text: "close"
                     horizontalAlignment: Text.AlignHCenter
                     iconSize: Appearance.font.pixelSize.larger
-                    color: Appearance.colors.colOnSurfaceVariant
+                    color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colOnSurfaceVariant
                 }
 
                 onClicked: root.remove()
@@ -148,7 +149,7 @@ Rectangle {
                         anchors.fill: parent
                         color: "transparent"
                         border.width: 1
-                        border.color: Appearance.colors.colOutlineVariant
+                        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colOutlineVariant
                         radius: Appearance.rounding.normal
                     }
                 }

@@ -11,6 +11,13 @@ import Quickshell.Io
  */
 Singleton {
     id: root
+
+    property bool _runningRequested: false
+    property bool _initRequested: false
+
+    // Auto-stop polling when nothing requested it recently.
+    // This prevents the service from running forever after briefly opening a panel.
+    readonly property int _autoStopDelayMs: Config.options?.resources?.autoStopDelay ?? 15000
 	property real memoryTotal: 1
 	property real memoryFree: 0
 	property real memoryUsed: memoryTotal - memoryFree
@@ -29,11 +36,16 @@ Singleton {
     property real tempPercentage: Math.min(maxTemp / 100, 1.0)  // Normalized to 100°C max
     property int tempWarningThreshold: 80  // Warning at 80°C
 
+    // Disk usage (root partition)
+    property real diskTotal: 1
+    property real diskUsed: 0
+    property real diskUsedPercentage: diskTotal > 0 ? diskUsed / diskTotal : 0
+
     property string maxAvailableMemoryString: kbToGbString(ResourceUsage.memoryTotal)
     property string maxAvailableSwapString: kbToGbString(ResourceUsage.swapTotal)
     property string maxAvailableCpuString: "--"
 
-    readonly property int historyLength: Config?.options.resources.historyLength ?? 60
+    readonly property int historyLength: Config.options?.resources?.historyLength ?? 60
     property list<real> cpuUsageHistory: []
     property list<real> memoryUsageHistory: []
     property list<real> swapUsageHistory: []
@@ -67,11 +79,39 @@ Singleton {
     }
 
 
+	function ensureRunning(): void {
+		root._runningRequested = true
+		if (!root._initRequested) {
+			root._initRequested = true
+			detectTempSensors.running = true
+			findCpuMaxFreqProc.running = true
+		}
+		autoStopTimer.restart()
+		pollTimer.restart()
+	}
+
+	function stop(): void {
+		root._runningRequested = false
+		pollTimer.stop()
+		autoStopTimer.stop()
+	}
+
 	Timer {
+		id: autoStopTimer
+		interval: root._autoStopDelayMs
+		repeat: false
+		onTriggered: {
+			root.stop()
+		}
+	}
+
+	Timer {
+		id: pollTimer
 		interval: Config.options?.resources?.updateInterval ?? 3000
-	    running: true 
+	    running: root._runningRequested
 	    repeat: true
 		onTriggered: {
+	        autoStopTimer.restart()
 	        // Reload files
 	        fileMeminfo.reload()
 	        fileStat.reload()
@@ -110,6 +150,9 @@ Singleton {
 	        gpuTemp = Math.round(gpuTempRaw / 1000)
 
             root.updateHistories()
+            
+            // Update disk usage
+            diskProc.running = true
 	    }
 	}
 
@@ -125,14 +168,14 @@ Singleton {
     property string _gpuTempPath: ""
 
     Component.onCompleted: {
-        detectTempSensors.running = true
+        // Lazy: only start monitoring when a panel/widget requests it.
     }
 
     Process {
         id: detectTempSensors
         // Detect CPU: k10temp (AMD), coretemp (Intel), cpu_thermal (ARM)
         // Detect GPU: amdgpu (AMD), nvidia (NVIDIA), nouveau (NVIDIA open)
-        command: ["bash", "-c", `
+        command: ["/usr/bin/bash", "-c", `
             for hwmon in /sys/class/hwmon/hwmon*; do
                 name=$(cat $hwmon/name 2>/dev/null)
                 case "$name" in
@@ -169,8 +212,12 @@ Singleton {
 
     Process {
         id: findCpuMaxFreqProc
-        command: ["bash", "-c", "lscpu | grep 'CPU max MHz' | awk '{print $4}'"]
-        running: true
+        environment: ({
+            LANG: "C",
+            LC_ALL: "C"
+        })
+        command: ["/usr/bin/bash", "-c", "/usr/bin/lscpu | /usr/bin/grep 'CPU max MHz' | /usr/bin/awk '{print $4}'"]
+        running: false
         stdout: StdioCollector {
             id: outputCollector
             onStreamFinished: {
@@ -179,6 +226,25 @@ Singleton {
                     root.maxAvailableCpuString = "--"
                 } else {
                     root.maxAvailableCpuString = (mhz / 1000).toFixed(0) + " GHz"
+                }
+            }
+        }
+    }
+
+    Process {
+        id: diskProc
+        command: ["/usr/bin/df", "-B1", "/"]
+        running: false
+        stdout: StdioCollector {
+            id: diskCollector
+            onStreamFinished: {
+                const lines = diskCollector.text.trim().split("\n")
+                if (lines.length >= 2) {
+                    const parts = lines[1].split(/\s+/)
+                    if (parts.length >= 4) {
+                        root.diskTotal = parseInt(parts[1]) || 1
+                        root.diskUsed = parseInt(parts[2]) || 0
+                    }
                 }
             }
         }

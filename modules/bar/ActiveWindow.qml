@@ -87,7 +87,7 @@ Item {
         StyledText {
             Layout.fillWidth: true
             font.pixelSize: Appearance.font.pixelSize.smaller
-            color: Appearance.colors.colSubtext
+            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
             elide: Text.ElideRight
             text: root.displayAppName
 
@@ -96,7 +96,7 @@ Item {
         StyledText {
             Layout.fillWidth: true
             font.pixelSize: Appearance.font.pixelSize.small
-            color: Appearance.colors.colOnLayer0
+            color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0
             elide: Text.ElideRight
             text: root.displayTitle
         }

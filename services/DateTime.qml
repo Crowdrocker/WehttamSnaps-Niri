@@ -13,7 +13,7 @@ Singleton {
     property var clock: SystemClock {
         id: clock
         precision: {
-            if (Config.options.time.secondPrecision || GlobalStates.screenLocked)
+            if ((Config.options?.time?.secondPrecision ?? false) || GlobalStates.screenLocked)
                 return SystemClock.Seconds;
             return SystemClock.Minutes;
         }
@@ -25,7 +25,9 @@ Singleton {
     property string uptime: "0h, 0m"
 
     Timer {
-        interval: 10
+        triggeredOnStart: true
+        // Uptime doesn't change fast - 60s updates are sufficient and reduce I/O
+        interval: 60000
         running: true
         repeat: true
         onTriggered: {
@@ -47,7 +49,6 @@ Singleton {
             if (minutes > 0 || !formatted)
                 formatted += `${formatted ? ", " : ""}${minutes}m`;
             uptime = formatted;
-            interval = Config.options?.resources?.updateInterval ?? 3000;
         }
     }
 

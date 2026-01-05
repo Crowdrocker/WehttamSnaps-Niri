@@ -18,7 +18,7 @@ Item {
     property bool borderless: Config.options?.bar?.borderless ?? false
     readonly property HyprlandMonitor monitor: CompositorService.isHyprland ? Hyprland.monitorFor(root.QsWindow.window?.screen) : null
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
-    readonly property var wsConfig: Config.options?.bar.workspaces ?? {}
+    readonly property var wsConfig: Config.options?.bar?.workspaces ?? {}
     
     // Scroll behavior: "workspace" = switch workspaces, "column" = cycle windows left/right in same workspace
     readonly property string scrollBehavior: wsConfig.scrollBehavior ?? "workspace"
@@ -89,7 +89,7 @@ Item {
 
     Timer {
         id: updateWorkspaceOccupiedTimer
-        interval: 16
+        interval: 50
         repeat: false
         onTriggered: doUpdateWorkspaceOccupied()
     }
@@ -103,13 +103,19 @@ Item {
             const wsList = NiriService.currentOutputWorkspaces || []
             const windows = NiriService.windows || []
             const base = workspaceGroup * root.workspacesShown
+
+            // Build set of workspace IDs that currently contain windows (O(n))
+            const occupiedWorkspaceIds = new Set()
+            for (let i = 0; i < windows.length; i++) {
+                const wsId = windows[i]?.workspace_id
+                if (wsId !== undefined && wsId !== null) occupiedWorkspaceIds.add(wsId)
+            }
+
             workspaceOccupied = Array.from({ length: root.workspacesShown }, (_, i) => {
                 const targetNumber = base + i + 1
-                // Find workspace with this idx
                 const ws = wsList.find(w => w.idx === targetNumber)
                 if (!ws) return false
-                // Check if any windows are on this workspace
-                return windows.some(win => win.workspace_id === ws.id)
+                return occupiedWorkspaceIds.has(ws.id)
             })
         } else {
             workspaceOccupied = Array.from({ length: root.workspacesShown }, (_, i) => {
@@ -258,7 +264,9 @@ Item {
                 topRightRadius: root.vertical ? radiusPrev : radiusNext
                 bottomRightRadius: radiusNext
                 
-                color: ColorUtils.transparentize(Appearance.m3colors.m3secondaryContainer, 0.4)
+                color: Appearance.auroraEverywhere 
+                    ? Appearance.aurora.colSubSurface 
+                    : ColorUtils.transparentize(Appearance.m3colors.m3secondaryContainer, 0.4)
                 opacity: (workspaceOccupied[index] && !(!activeWindow?.activated && currentWorkspaceNumber === index+1)) ? 1 : 0
 
                 Behavior on opacity {
@@ -358,7 +366,7 @@ Item {
                         const appClass = CompositorService.isNiri 
                             ? (biggestWindow?.app_id || biggestWindow?.appId) 
                             : biggestWindow?.class
-                        return Quickshell.iconPath(AppSearch.guessIcon(appClass), "image-missing")
+                        return AppSearch.getIconSource(appClass)
                     }
 
                     StyledText { // Workspace number text
@@ -497,7 +505,9 @@ Item {
                 topRightRadius: root.vertical ? radiusPrev : radiusNext
                 bottomRightRadius: radiusNext
                 
-                color: ColorUtils.transparentize(Appearance.m3colors.m3secondaryContainer, 0.4)
+                color: Appearance.auroraEverywhere 
+                    ? Appearance.aurora.colSubSurface 
+                    : ColorUtils.transparentize(Appearance.m3colors.m3secondaryContainer, 0.4)
 
                 Behavior on radiusPrev {
                     animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
@@ -569,7 +579,7 @@ Item {
                     implicitWidth: workspaceButtonWidth
                     implicitHeight: workspaceButtonWidth
                     
-                    property string appIconSource: Quickshell.iconPath(AppSearch.guessIcon(columnButton.modelData?.app_id), "image-missing")
+                    property string appIconSource: AppSearch.getIconSource(columnButton.modelData?.app_id ?? "")
                     property bool isActive: columnButton.index === root.currentWindowIndex
                     property color dotColor: isActive ? Appearance.m3colors.m3onPrimary : Appearance.m3colors.m3onSecondaryContainer
 

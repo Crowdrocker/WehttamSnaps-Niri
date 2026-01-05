@@ -4,7 +4,7 @@ import qs.modules.common.models
 import qs.modules.common.widgets
 import qs.services
 import qs.modules.common.functions
-import Qt5Compat.GraphicalEffects
+import Qt5Compat.GraphicalEffects as GE
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
@@ -21,6 +21,8 @@ Item { // Player instance
     property string artFilePath: `${artDownloadLocation}/${artFileName}`
     property color artDominantColor: ColorUtils.mix((colorQuantizer?.colors[0] ?? Appearance.colors.colPrimary), Appearance.colors.colPrimaryContainer, 0.8) || Appearance.m3colors.m3secondaryContainer
     property bool downloaded: false
+    property int _downloadRetryCount: 0
+    readonly property int _maxRetries: 3
     property list<real> visualizerPoints: []
     property real maxVisualizerValue: 1000 // Max value in the data points
     property int visualizerSmoothing: 2 // Number of points to average for smoothing
@@ -28,20 +30,57 @@ Item { // Player instance
 
     property string displayedArtFilePath: root.downloaded ? Qt.resolvedUrl(artFilePath) : ""
 
+    // Inir colors
+    readonly property color jiraColText: Appearance.inir.colText
+    readonly property color jiraColTextSecondary: Appearance.inir.colTextSecondary
+    readonly property color jiraColPrimary: Appearance.inir.colPrimary
+    readonly property color jiraColLayer1: Appearance.inir.colLayer1
+    readonly property color jiraColLayer2: Appearance.inir.colLayer2
+
+    function checkAndDownloadArt() {
+        if (!artUrl || artUrl.length === 0) {
+            downloaded = false
+            _downloadRetryCount = 0
+            return
+        }
+        artExistsChecker.running = true
+    }
+
+    function retryDownload() {
+        if (_downloadRetryCount < _maxRetries && artUrl) {
+            _downloadRetryCount++
+            retryTimer.start()
+        }
+    }
+
+    Timer {
+        id: retryTimer
+        interval: 1000 * root._downloadRetryCount
+        repeat: false
+        onTriggered: {
+            if (root.artUrl && !root.downloaded) {
+                coverArtDownloader.targetFile = root.artUrl
+                coverArtDownloader.artFilePath = root.artFilePath
+                coverArtDownloader.running = true
+            }
+        }
+    }
+
     component TrackChangeButton: RippleButton {
         implicitWidth: 24
         implicitHeight: 24
 
         property var iconName
-        colBackground: ColorUtils.transparentize(blendedColors.colSecondaryContainer, 1)
-        colBackgroundHover: blendedColors.colSecondaryContainerHover
-        colRipple: blendedColors.colSecondaryContainerActive
+        colBackground: "transparent"
+        colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover : blendedColors.colSecondaryContainerHover
+        colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active : blendedColors.colSecondaryContainerActive
+        buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
 
         contentItem: MaterialSymbol {
             iconSize: Appearance.font.pixelSize.huge
             fill: 1
             horizontalAlignment: Text.AlignHCenter
-            color: blendedColors.colOnSecondaryContainer
+            color: Appearance.inirEverywhere ? root.jiraColText : blendedColors.colOnSecondaryContainer
             text: iconName
 
             Behavior on color {
@@ -52,7 +91,7 @@ Item { // Player instance
 
     Timer { // Force update for revision
         running: root.player?.playbackState == MprisPlaybackState.Playing
-        interval: Config.options.resources.updateInterval
+        interval: Config.options?.resources?.updateInterval ?? 3000
         repeat: true
         onTriggered: {
             root.player?.positionChanged()
@@ -60,26 +99,54 @@ Item { // Player instance
     }
 
     onArtFilePathChanged: {
-        if (root.artUrl.length == 0) {
-            root.artDominantColor = Appearance.m3colors.m3secondaryContainer
-            return;
-        }
+        _downloadRetryCount = 0
+        checkAndDownloadArt()
+    }
 
-        // Binding does not work in Process
-        coverArtDownloader.targetFile = root.artUrl 
-        coverArtDownloader.artFilePath = root.artFilePath
-        // Download
-        root.downloaded = false
-        coverArtDownloader.running = true
+    // Re-check cover art when becoming visible
+    onVisibleChanged: {
+        if (visible && artFilePath) {
+            checkAndDownloadArt()
+        }
+    }
+
+    Process { // Check if cover art exists
+        id: artExistsChecker
+        command: ["/usr/bin/test", "-f", root.artFilePath]
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0) {
+                root.downloaded = true
+                root._downloadRetryCount = 0
+            } else {
+                root.downloaded = false
+                coverArtDownloader.targetFile = root.artUrl
+                coverArtDownloader.artFilePath = root.artFilePath
+                coverArtDownloader.running = true
+            }
+        }
     }
 
     Process { // Cover art downloader
         id: coverArtDownloader
         property string targetFile: root.artUrl
         property string artFilePath: root.artFilePath
-        command: [ "bash", "-c", `[ -f ${artFilePath} ] || curl -sSL '${targetFile}' -o '${artFilePath}'` ]
+        command: ["/usr/bin/bash", "-c", `
+            if [ -f '${artFilePath}' ]; then
+                exit 0
+            fi
+            mkdir -p '${root.artDownloadLocation}'
+            tmp='${artFilePath}.tmp'
+            /usr/bin/curl -sSL --connect-timeout 10 --max-time 30 '${targetFile}' -o "$tmp" && \
+            [ -s "$tmp" ] && /usr/bin/mv -f "$tmp" '${artFilePath}' || { rm -f "$tmp"; exit 1; }
+        `]
         onExited: (exitCode, exitStatus) => {
-            root.downloaded = true
+            if (exitCode === 0) {
+                root.downloaded = true
+                root._downloadRetryCount = 0
+            } else {
+                root.downloaded = false
+                root.retryDownload()
+            }
         }
     }
 
@@ -96,16 +163,19 @@ Item { // Player instance
 
     StyledRectangularShadow {
         target: background
+        visible: !Appearance.inirEverywhere
     }
     Rectangle { // Background
         id: background
         anchors.fill: parent
         anchors.margins: Appearance.sizes.elevationMargin
-        color: ColorUtils.applyAlpha(blendedColors.colLayer0, 1)
-        radius: root.radius
+        color: Appearance.inirEverywhere ? root.jiraColLayer1 : ColorUtils.applyAlpha(blendedColors.colLayer0, 1)
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : root.radius
+        border.width: Appearance.inirEverywhere ? 1 : 0
+        border.color: Appearance.inir.colBorder
 
         layer.enabled: true
-        layer.effect: OpacityMask {
+        layer.effect: GE.OpacityMask {
             maskSource: Rectangle {
                 width: background.width
                 height: background.height
@@ -123,6 +193,7 @@ Item { // Player instance
             cache: false
             antialiasing: true
             asynchronous: true
+            opacity: Appearance.inirEverywhere ? 0.15 : 1
 
             layer.enabled: Appearance.effectsEnabled
             layer.effect: StyledBlurEffect {
@@ -131,6 +202,7 @@ Item { // Player instance
 
             Rectangle {
                 anchors.fill: parent
+                visible: !Appearance.inirEverywhere
                 color: ColorUtils.transparentize(blendedColors.colLayer0, 0.3)
                 radius: root.radius
             }
@@ -143,7 +215,7 @@ Item { // Player instance
             points: root.visualizerPoints
             maxVisualizerValue: root.maxVisualizerValue
             smoothing: root.visualizerSmoothing
-            color: blendedColors.colPrimary
+            color: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
         }
 
         RowLayout {
@@ -155,11 +227,11 @@ Item { // Player instance
                 id: artBackground
                 Layout.fillHeight: true
                 implicitWidth: height
-                radius: Appearance.rounding.verysmall
-                color: ColorUtils.transparentize(blendedColors.colLayer1, 0.5)
+                radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall
+                color: Appearance.inirEverywhere ? root.jiraColLayer2 : ColorUtils.transparentize(blendedColors.colLayer1, 0.5)
 
                 layer.enabled: true
-                layer.effect: OpacityMask {
+                layer.effect: GE.OpacityMask {
                     maskSource: Rectangle {
                         width: artBackground.width
                         height: artBackground.height
@@ -172,7 +244,6 @@ Item { // Player instance
                     property int size: parent.height
                     anchors.fill: parent
 
-                    source: root.displayedArtFilePath
                     fillMode: Image.PreserveAspectCrop
                     cache: false
                     antialiasing: true
@@ -181,6 +252,49 @@ Item { // Player instance
                     height: size
                     sourceSize.width: size
                     sourceSize.height: size
+                    
+                    layer.enabled: Appearance.effectsEnabled
+                    layer.effect: MultiEffect {
+                        blurEnabled: true
+                        blur: artBackground.transitioning ? 1 : 0
+                        blurMax: 32
+                        Behavior on blur {
+                            enabled: Appearance.animationsEnabled
+                            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
+                        }
+                    }
+                }
+                
+                property bool transitioning: false
+                property string pendingSource: ""
+                
+                Timer {
+                    id: artBlurInTimer
+                    interval: 150
+                    onTriggered: {
+                        mediaArt.source = artBackground.pendingSource
+                        artBlurOutTimer.start()
+                    }
+                }
+                
+                Timer {
+                    id: artBlurOutTimer
+                    interval: 50
+                    onTriggered: artBackground.transitioning = false
+                }
+                
+                Connections {
+                    target: root
+                    function onDisplayedArtFilePathChanged() {
+                        if (!root.displayedArtFilePath) return
+                        if (!mediaArt.source.toString()) {
+                            mediaArt.source = root.displayedArtFilePath
+                            return
+                        }
+                        artBackground.pendingSource = root.displayedArtFilePath
+                        artBackground.transitioning = true
+                        artBlurInTimer.start()
+                    }
                 }
             }
 
@@ -193,7 +307,7 @@ Item { // Player instance
                     Layout.fillWidth: true
                     Layout.rightMargin: playPauseButton.size + 8
                     font.pixelSize: Appearance.font.pixelSize.large
-                    color: blendedColors.colOnLayer0
+                    color: Appearance.inirEverywhere ? root.jiraColText : blendedColors.colOnLayer0
                     elide: Text.ElideRight
                     text: StringUtils.cleanMusicTitle(root.player?.trackTitle) || "Untitled"
                     animateChange: true
@@ -205,7 +319,7 @@ Item { // Player instance
                     Layout.fillWidth: true
                     Layout.rightMargin: playPauseButton.size + 8
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: blendedColors.colSubtext
+                    color: Appearance.inirEverywhere ? root.jiraColTextSecondary : blendedColors.colSubtext
                     elide: Text.ElideRight
                     text: root.player?.trackArtist
                     animateChange: true
@@ -225,7 +339,7 @@ Item { // Player instance
                         anchors.right: parent.right
                         anchors.rightMargin: playPauseButton.size + 8
                         font.pixelSize: Appearance.font.pixelSize.small
-                        color: blendedColors.colSubtext
+                        color: Appearance.inirEverywhere ? root.jiraColTextSecondary : blendedColors.colSubtext
                         elide: Text.ElideRight
                         text: `${StringUtils.friendlyTimeForSeconds(root.player?.position)} / ${StringUtils.friendlyTimeForSeconds(root.player?.length)}`
                     }
@@ -251,9 +365,9 @@ Item { // Player instance
                                 active: root.player?.canSeek ?? false
                                 sourceComponent: StyledSlider { 
                                     configuration: StyledSlider.Configuration.Wavy
-                                    highlightColor: blendedColors.colPrimary
-                                    trackColor: blendedColors.colSecondaryContainer
-                                    handleColor: blendedColors.colPrimary
+                                    highlightColor: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
+                                    trackColor: Appearance.inirEverywhere ? root.jiraColLayer2 : blendedColors.colSecondaryContainer
+                                    handleColor: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
                                     value: root.player?.position / root.player?.length
                                     onMoved: {
                                         root.player.position = value * root.player.length;
@@ -271,8 +385,8 @@ Item { // Player instance
                                 active: !(root.player?.canSeek ?? false)
                                 sourceComponent: StyledProgressBar { 
                                     wavy: root.player?.isPlaying
-                                    highlightColor: blendedColors.colPrimary
-                                    trackColor: blendedColors.colSecondaryContainer
+                                    highlightColor: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
+                                    trackColor: Appearance.inirEverywhere ? root.jiraColLayer2 : blendedColors.colSecondaryContainer
                                     value: root.player?.position / root.player?.length
                                 }
                             }
@@ -295,16 +409,26 @@ Item { // Player instance
                         implicitHeight: size
                         downAction: () => root.player?.togglePlaying();
 
-                        buttonRadius: root.player?.isPlaying ? Appearance?.rounding.normal : size / 2
-                        colBackground: root.player?.isPlaying ? blendedColors.colPrimary : blendedColors.colSecondaryContainer
-                        colBackgroundHover: root.player?.isPlaying ? blendedColors.colPrimaryHover : blendedColors.colSecondaryContainerHover
-                        colRipple: root.player?.isPlaying ? blendedColors.colPrimaryActive : blendedColors.colSecondaryContainerActive
+                        buttonRadius: Appearance.inirEverywhere 
+                            ? Appearance.inir.roundingSmall 
+                            : (root.player?.isPlaying ? Appearance?.rounding.normal : size / 2)
+                        colBackground: Appearance.inirEverywhere 
+                            ? "transparent" 
+                            : (root.player?.isPlaying ? blendedColors.colPrimary : blendedColors.colSecondaryContainer)
+                        colBackgroundHover: Appearance.inirEverywhere 
+                            ? Appearance.inir.colLayer2Hover 
+                            : (root.player?.isPlaying ? blendedColors.colPrimaryHover : blendedColors.colSecondaryContainerHover)
+                        colRipple: Appearance.inirEverywhere 
+                            ? Appearance.inir.colLayer2Active 
+                            : (root.player?.isPlaying ? blendedColors.colPrimaryActive : blendedColors.colSecondaryContainerActive)
 
                         contentItem: MaterialSymbol {
                             iconSize: Appearance.font.pixelSize.huge
                             fill: 1
                             horizontalAlignment: Text.AlignHCenter
-                            color: root.player?.isPlaying ? blendedColors.colOnPrimary : blendedColors.colOnSecondaryContainer
+                            color: Appearance.inirEverywhere 
+                                ? root.jiraColPrimary 
+                                : (root.player?.isPlaying ? blendedColors.colOnPrimary : blendedColors.colOnSecondaryContainer)
                             text: root.player?.isPlaying ? "pause" : "play_arrow"
 
                             Behavior on color {

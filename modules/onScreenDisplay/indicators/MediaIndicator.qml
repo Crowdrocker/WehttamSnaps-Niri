@@ -3,7 +3,7 @@ import qs.modules.common.widgets
 import qs.services
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import Qt5Compat.GraphicalEffects as GE
 
 Item {
     id: root
@@ -26,7 +26,12 @@ Item {
             margins: Appearance.sizes.elevationMargin
         }
         radius: Appearance.rounding.normal
-        color: Appearance.colors.colLayer0
+        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+             : Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface
+             : Appearance.colors.colLayer0
+        border.width: Appearance.auroraEverywhere || Appearance.inirEverywhere ? 1 : 0
+        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+            : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : "transparent"
         implicitHeight: contentRow.implicitHeight + 24
 
         RowLayout {
@@ -41,8 +46,12 @@ Item {
             Rectangle {
                 Layout.preferredWidth: 56
                 Layout.preferredHeight: 56
-                radius: Appearance.rounding.small
-                color: Appearance.colors.colLayer1
+                radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+                color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                     : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+                     : Appearance.colors.colLayer1
+                border.width: Appearance.inirEverywhere ? 1 : 0
+                border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
                 clip: true
 
                 Image {
@@ -54,7 +63,7 @@ Item {
                     visible: status === Image.Ready
 
                     layer.enabled: true
-                    layer.effect: OpacityMask {
+                    layer.effect: GE.OpacityMask {
                         maskSource: Rectangle {
                             width: albumArt.width
                             height: albumArt.height
@@ -114,8 +123,8 @@ Item {
                         buttonRadius: Appearance.rounding.full
                         enabled: MprisController.canGoPrevious
                         colBackground: "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer1Hover
-                        colRipple: Appearance.colors.colLayer1Active
+                        colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1Hover
+                        colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer1Active
                         onClicked: MprisController.previous()
 
                         contentItem: MaterialSymbol {
@@ -132,8 +141,8 @@ Item {
                         buttonRadius: Appearance.rounding.full
                         enabled: MprisController.canTogglePlaying
                         colBackground: "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer1Hover
-                        colRipple: Appearance.colors.colLayer1Active
+                        colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1Hover
+                        colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer1Active
                         onClicked: MprisController.togglePlaying()
 
                         contentItem: MaterialSymbol {
@@ -150,8 +159,8 @@ Item {
                         buttonRadius: Appearance.rounding.full
                         enabled: MprisController.canGoNext
                         colBackground: "transparent"
-                        colBackgroundHover: Appearance.colors.colLayer1Hover
-                        colRipple: Appearance.colors.colLayer1Active
+                        colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1Hover
+                        colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer1Active
                         onClicked: MprisController.next()
 
                         contentItem: MaterialSymbol {

@@ -27,7 +27,8 @@ FooterRectangle {
         SmallBorderedIconButton {
             visible: !TimerService.pomodoroRunning
             icon.name: "subtract"
-            onClicked: Config.options.time.pomodoro.focus -= 300 // 5 mins
+            enabled: TimerService.focusTime > 300 // Minimum 5 minutes
+            onClicked: Config.setNestedValue("time.pomodoro.focus", TimerService.focusTime - 300)
         }
 
         WTextWithFixedWidth {
@@ -41,7 +42,8 @@ FooterRectangle {
         SmallBorderedIconButton {
             visible: !TimerService.pomodoroRunning
             icon.name: "add"
-            onClicked: Config.options.time.pomodoro.focus += 300 // 5 mins
+            enabled: TimerService.focusTime < 7200 // Maximum 2 hours
+            onClicked: Config.setNestedValue("time.pomodoro.focus", TimerService.focusTime + 300)
         }
 
         WText {
@@ -64,7 +66,8 @@ FooterRectangle {
                     TimerService.resetPomodoro();
                 } else {
                     TimerService.togglePomodoro();
-                    Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "sidebarRight", "toggle"]);
+                    // Close notification center instead of toggling sidebar
+                    GlobalStates.waffleNotificationCenterOpen = false;
                 }
             }
         }

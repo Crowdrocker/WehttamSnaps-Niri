@@ -20,23 +20,65 @@ import qs.services
 Singleton {
     id: root
 
+    function _log(...args): void {
+        if (Quickshell.env("QS_DEBUG") === "1") console.log(...args);
+    }
+
     // Public API
     property bool active: _manualActive || _autoActive
-    property bool autoDetect: Config.options?.gameMode?.autoDetect ?? true
+    readonly property bool autoDetect: Config.options?.gameMode?.autoDetect ?? true
     property bool manuallyActivated: _manualActive
+    
+    // When autoDetect is disabled, immediately clear auto state
+    onAutoDetectChanged: {
+        if (!autoDetect) {
+            _autoActive = false
+            _fullscreenCount = 0
+            root._log("[GameMode] autoDetect disabled, clearing auto state")
+        } else {
+            // Re-check when enabled
+            checkFullscreen()
+        }
+    }
+    
+    // True if ANY window in ANY workspace is fullscreen (for toast suppression)
+    property bool hasAnyFullscreenWindow: false
+    
+    // Suppress niri reload toast briefly after GameMode changes
+    property bool suppressNiriToast: false
 
     // Internal state
     property bool _manualActive: false
     property bool _autoActive: false
     property bool _initialized: false
 
-    // Config-driven behavior
+    // Config-driven behavior (reactive bindings - re-evaluated when Config changes)
     readonly property bool disableAnimations: Config.options?.gameMode?.disableAnimations ?? true
     readonly property bool disableEffects: Config.options?.gameMode?.disableEffects ?? true
-    readonly property int checkInterval: Config.options?.gameMode?.checkInterval ?? 2000
+    readonly property bool disableReloadToasts: Config.options?.gameMode?.disableReloadToasts ?? true
+    readonly property bool minimalMode: Config.options?.gameMode?.minimalMode ?? true
+    readonly property int checkInterval: Config.options?.gameMode?.checkInterval ?? 5000
+    readonly property bool controlNiriAnimations: Config.options?.gameMode?.disableNiriAnimations ?? true
+    
+    // React to controlNiriAnimations changes while active
+    onControlNiriAnimationsChanged: {
+        if (active && CompositorService.isNiri) {
+            // When setting enabled AND gamemode active -> disable niri animations
+            // When setting disabled -> re-enable niri animations
+            setNiriAnimations(!active || !controlNiriAnimations)
+        }
+    }
+
+    // External process control (optional)
+    readonly property bool disableDiscoverOverlay: Config.options?.gameMode?.disableDiscoverOverlay ?? true
+    readonly property string _discoverOverlayServiceName: "discover-overlay.service"
 
     // Fullscreen detection threshold (allow small margin for bar/gaps)
     readonly property int _marginThreshold: 60
+    
+    // Hysteresis: require multiple consecutive checks to change auto state
+    property int _fullscreenCount: 0
+    readonly property int _hysteresisThreshold: 2
 
     // State file path
     readonly property string _stateFile: Quickshell.env("HOME") + "/.local/state/quickshell/user/gamemode_active"
@@ -48,26 +90,26 @@ Singleton {
         function activate(): void { root.activate() }
         function deactivate(): void { root.deactivate() }
         function status(): void { 
-            console.log("[GameMode] Status - active:", root.active, "manual:", root._manualActive, "auto:", root._autoActive)
+            root._log("[GameMode] Status - active:", root.active, "manual:", root._manualActive, "auto:", root._autoActive)
         }
     }
 
     function toggle() {
         _manualActive = !_manualActive
         _saveState()
-        console.log("[GameMode] Toggled manually:", _manualActive)
+        root._log("[GameMode] Toggled manually:", _manualActive)
     }
 
     function activate() {
         _manualActive = true
         _saveState()
-        console.log("[GameMode] Activated manually")
+        root._log("[GameMode] Activated manually")
     }
 
     function deactivate() {
         _manualActive = false
         _saveState()
-        console.log("[GameMode] Deactivated manually")
+        root._log("[GameMode] Deactivated manually")
     }
 
     function _saveState() {
@@ -80,11 +122,18 @@ Singleton {
 
     // Check if a window is fullscreen by comparing to output size
     function isWindowFullscreen(window) {
-        if (!window || !window.layout) return false
+        if (!window) return false
         if (!CompositorService.isNiri) return false
 
-        const windowSize = window.layout.window_size
+        // Get window size from layout
+        const layout = window.layout
+        if (!layout) return false
+        
+        const windowSize = layout.window_size
         if (!windowSize || windowSize.length < 2) return false
+        
+        const windowWidth = windowSize[0]
+        const windowHeight = windowSize[1]
 
         // Get output for this window's workspace
         const workspaceId = window.workspace_id
@@ -92,22 +141,44 @@ Singleton {
         if (!workspace || !workspace.output) return false
 
         const output = NiriService.outputs[workspace.output]
-        if (!output || !output.logical) return false
-
-        const outputWidth = output.logical.width
-        const outputHeight = output.logical.height
+        if (!output) return false
+        
+        // Try logical first, then mode
+        let outputWidth, outputHeight
+        if (output.logical) {
+            outputWidth = output.logical.width
+            outputHeight = output.logical.height
+        } else if (output.current_mode !== undefined && output.modes) {
+            const mode = output.modes[output.current_mode]
+            outputWidth = mode?.width
+            outputHeight = mode?.height
+        }
+        
+        if (!outputWidth || !outputHeight) return false
 
         // Window is fullscreen if it covers most of the output
-        const widthMatch = windowSize[0] >= (outputWidth - _marginThreshold)
-        const heightMatch = windowSize[1] >= (outputHeight - _marginThreshold)
+        const widthMatch = windowWidth >= (outputWidth - _marginThreshold)
+        const heightMatch = windowHeight >= (outputHeight - _marginThreshold)
 
         return widthMatch && heightMatch
+    }
+    
+    // Check if ANY window across all workspaces is fullscreen
+    function checkAnyFullscreenWindow(): bool {
+        if (!CompositorService.isNiri) return false
+        const windows = NiriService.windows
+        if (!windows || !Array.isArray(windows)) return false
+        
+        for (let i = 0; i < windows.length; i++) {
+            if (isWindowFullscreen(windows[i])) return true
+        }
+        return false
     }
 
     // Debounce timer for fullscreen checks
     Timer {
         id: checkDebounce
-        interval: 300
+        interval: 300  // Faster response
         onTriggered: root._doCheckFullscreen()
     }
 
@@ -117,17 +188,38 @@ Singleton {
     }
 
     function _doCheckFullscreen() {
-        if (!autoDetect || !CompositorService.isNiri) {
+        if (!CompositorService.isNiri) {
             _autoActive = false
+            _fullscreenCount = 0
+            hasAnyFullscreenWindow = false
+            return
+        }
+        
+        // Always update hasAnyFullscreenWindow (for toast suppression)
+        hasAnyFullscreenWindow = checkAnyFullscreenWindow()
+
+        if (!autoDetect) {
+            _autoActive = false
+            _fullscreenCount = 0
             return
         }
 
         const focusedWindow = NiriService.activeWindow
-        const wasActive = _autoActive
-        _autoActive = isWindowFullscreen(focusedWindow)
+        const isFullscreen = isWindowFullscreen(focusedWindow)
         
-        if (_autoActive !== wasActive) {
-            console.log("[GameMode] Auto-detect:", _autoActive ? "fullscreen detected" : "no fullscreen")
+        // Hysteresis: require consistent state before changing
+        if (isFullscreen) {
+            _fullscreenCount = Math.min(_fullscreenCount + 1, _hysteresisThreshold + 1)
+        } else {
+            _fullscreenCount = Math.max(_fullscreenCount - 1, 0)
+        }
+        
+        const wasActive = _autoActive
+        const shouldBeActive = _fullscreenCount >= _hysteresisThreshold
+        
+        if (shouldBeActive !== wasActive) {
+            _autoActive = shouldBeActive
+            root._log("[GameMode] Auto-detect:", _autoActive ? "fullscreen detected" : "no fullscreen")
         }
     }
 
@@ -138,61 +230,66 @@ Singleton {
 
         onLoaded: {
             const content = stateReader.text()
-            if (content.trim() === "1") {
-                root._manualActive = true
-                console.log("[GameMode] Restored manual state: active")
-            } else {
-                root._manualActive = false
-            }
+            root._manualActive = (content.trim() === "1")
             root._initialized = true
-            console.log("[GameMode] Initialized, manual:", root._manualActive)
+            root._log("[GameMode] Initialized, manual:", root._manualActive)
         }
 
         onLoadFailed: (error) => {
             // File doesn't exist yet, that's fine
             root._manualActive = false
             root._initialized = true
-            console.log("[GameMode] Initialized (no saved state)")
+            root._log("[GameMode] Initialized (no saved state)")
         }
     }
 
     // State persistence - write via process
     Process {
         id: saveProcess
-        command: ["bash", "-c", "mkdir -p ~/.local/state/quickshell/user && echo " + (root._manualActive ? "1" : "0") + " > " + root._stateFile]
-        onExited: console.log("[GameMode] State saved:", root._manualActive)
+        command: [
+            "/usr/bin/bash",
+            "-c",
+            "mkdir -p ~/.local/state/quickshell/user\n" +
+            "echo " + (root._manualActive ? "1" : "0") + " > " + root._stateFile
+        ]
+        onExited: root._log("[GameMode] State saved:", root._manualActive)
     }
 
     // React to window changes
     Connections {
         target: NiriService
-        enabled: root.autoDetect && CompositorService.isNiri && root._initialized
+        enabled: CompositorService.isNiri && root._initialized
 
         function onActiveWindowChanged() {
             root.checkFullscreen()
         }
 
         function onWindowsChanged() {
-            root.checkFullscreen()
+            // Only update hasAnyFullscreenWindow if not already checking
+            if (!checkDebounce.running) {
+                root.hasAnyFullscreenWindow = root.checkAnyFullscreenWindow()
+            }
         }
     }
 
-    // Periodic check as fallback
+    // Periodic check as fallback - uses config interval
     Timer {
+        id: fallbackTimer
         interval: root.checkInterval
         running: root.autoDetect && CompositorService.isNiri && root._initialized
         repeat: true
-        onTriggered: root.checkFullscreen()
+        onTriggered: {
+            if (!checkDebounce.running) {
+                root.checkFullscreen()
+            }
+        }
     }
 
     // Initial setup
     Component.onCompleted: {
-        console.log("[GameMode] Service starting...")
-        // Ensure state directory exists and load state
-        Quickshell.execDetached(["mkdir", "-p", Quickshell.env("HOME") + "/.local/state/quickshell/user"])
-        
-        // Load saved state after short delay
-        initTimer.start()
+        root._log("[GameMode] Service starting...")
+        Quickshell.execDetached(["/usr/bin/mkdir", "-p", Quickshell.env("HOME") + "/.local/state/quickshell/user"])
+        initTimer.restart()
     }
 
     Timer {
@@ -207,19 +304,20 @@ Singleton {
     }
 
     // Niri animations control
-    readonly property bool controlNiriAnimations: Config.options?.gameMode?.disableNiriAnimations ?? true
     readonly property string niriConfigPath: Quickshell.env("HOME") + "/.config/niri/config.kdl"
 
     function setNiriAnimations(enabled) {
         if (!controlNiriAnimations) return
-        // Use sed to toggle "off" line in animations block
-        // If enabling (gamemode off): comment out "off" -> "//off"  
-        // If disabling (gamemode on): uncomment "off" -> "off"
-        // The pattern matches indented off///off after "animations {"
-        
-        niriAnimProcess.command = enabled
-            ? ["bash", "-c", "sed -i '/^animations {/,/^}/ s/^\\([ \\t]*\\)off$/\\1\\/\\/off/' " + niriConfigPath + " && niri msg action reload-config"]
-            : ["bash", "-c", "sed -i '/^animations {/,/^}/ s/^\\([ \\t]*\\)\\/\\/off$/\\1off/' " + niriConfigPath + " && niri msg action reload-config"]
+
+        const sedExpr = enabled
+            ? "sed -i '/^animations {/,/^}/ s/^\\([ \\t]*\\)off$/\\1\\/\\/off/' \"" + niriConfigPath + "\"\n"
+            : "sed -i '/^animations {/,/^}/ s/^\\([ \\t]*\\)\\/\\/off$/\\1off/' \"" + niriConfigPath + "\"\n"
+
+        niriAnimProcess.command = [
+            "/usr/bin/bash",
+            "-c",
+            sedExpr + "/usr/bin/niri msg action reload-config"
+        ]
         niriAnimProcess.running = true
     }
 
@@ -227,14 +325,24 @@ Singleton {
         id: niriAnimProcess
         onExited: (code, status) => {
             if (code === 0) {
-                console.log("[GameMode] Niri animations updated")
+                root._log("[GameMode] Niri animations updated")
             }
+            suppressClearTimer.restart()
+        }
+    }
+
+    Timer {
+        id: suppressClearTimer
+        interval: 2000
+        onTriggered: {
+            root._log("[GameMode] Clearing suppressNiriToast")
+            root.suppressNiriToast = false
         }
     }
 
     // Track last niri animation state to avoid redundant updates
     property bool _lastNiriAnimState: true
-    
+
     // Debounce timer for niri animation changes
     Timer {
         id: niriAnimDebounce
@@ -250,10 +358,81 @@ Singleton {
 
     // React to active changes for Niri animations
     onActiveChanged: {
-        console.log("[GameMode] Active:", active, "(manual:", _manualActive, "auto:", _autoActive, ")")
+        root._log("[GameMode] Active:", active, "(manual:", _manualActive, "auto:", _autoActive, ")")
         if (CompositorService.isNiri && controlNiriAnimations) {
+            root.suppressNiriToast = true
             niriAnimDebounce.restart()
         }
-        // Note: Appearance.animationsEnabled reacts to GameMode.active automatically via binding
+
+        // External processes control
+        if (root.disableDiscoverOverlay) {
+            discoverOverlayDebounce.restart()
+        }
+    }
+
+    // Track last applied state for discover-overlay control
+    property bool _lastDiscoverOverlayGameState: false
+
+    Timer {
+        id: discoverOverlayDebounce
+        interval: 800
+        repeat: false
+        onTriggered: {
+            if (!root.disableDiscoverOverlay)
+                return
+
+            const shouldStop = root.active
+            if (shouldStop === root._lastDiscoverOverlayGameState)
+                return
+            root._lastDiscoverOverlayGameState = shouldStop
+
+            if (shouldStop) {
+                root._log("[GameMode] Stopping", root._discoverOverlayServiceName)
+                discoverOverlayStopProc.running = true
+            } else {
+                root._log("[GameMode] Starting", root._discoverOverlayServiceName)
+                discoverOverlayStartProc.running = true
+            }
+        }
+    }
+
+    Process {
+        id: discoverOverlayStopProc
+        command: [
+            "/usr/bin/systemctl",
+            "--user",
+            "stop",
+            root._discoverOverlayServiceName
+        ]
+        onExited: (code, status) => {
+            root._log("[GameMode] systemctl stop exited:", code)
+            // Ensure stray processes are gone even if service was not the parent.
+            discoverOverlayKillProc.running = true
+        }
+    }
+
+    Process {
+        id: discoverOverlayKillProc
+        command: [
+            "/usr/bin/pkill",
+            "-f",
+            "/usr/bin/discover-overlay"
+        ]
+        onExited: (code, status) => {
+            root._log("[GameMode] pkill discover-overlay exited:", code)
+        }
+    }
+
+    Process {
+        id: discoverOverlayStartProc
+        command: [
+            "/usr/bin/systemctl",
+            "--user",
+            "start",
+            root._discoverOverlayServiceName
+        ]
+        onExited: (code, status) => {
+            root._log("[GameMode] systemctl start exited:", code)
+        }
     }
 }

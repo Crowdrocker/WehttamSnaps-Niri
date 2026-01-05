@@ -2,8 +2,9 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import Qt5Compat.GraphicalEffects
+import Qt5Compat.GraphicalEffects as GE
 import qs.modules.common
+import qs.modules.common.functions
 
 Item {
     id: root
@@ -24,14 +25,19 @@ Item {
     implicitWidth: card.width
     implicitHeight: card.height
     
-    Rectangle {
+    GlassBackground {
         id: card
         width: contentLayout.implicitWidth + 32
         height: contentLayout.implicitHeight + 20
-        radius: Appearance.rounding.normal
-        color: Appearance.colors.colLayer1
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+        fallbackColor: Appearance.colors.colLayer1
+        inirColor: Appearance.inir.colLayer2
+        auroraTransparency: Appearance.aurora.popupTransparentize
         border.width: 1
-        border.color: root.isError ? Appearance.colors.colError : Appearance.colors.colOutlineVariant
+        border.color: root.isError 
+            ? (Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+            : (Appearance.inirEverywhere ? Appearance.inir.colBorder 
+                : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : Appearance.colors.colOutlineVariant)
         
         MouseArea {
             id: mouseArea
@@ -50,7 +56,9 @@ Item {
             MaterialSymbol {
                 text: root.icon
                 iconSize: 20
-                color: root.isError ? Appearance.colors.colError : Appearance.colors.colOnLayer1
+                color: root.isError 
+                    ? (Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                    : (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colOnLayer1)
             }
             
             // Content
@@ -83,7 +91,8 @@ Item {
                 implicitHeight: 28
                 buttonRadius: Appearance.rounding.small
                 colBackground: "transparent"
-                colBackgroundHover: Qt.rgba(0, 0, 0, 0.1)
+                colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Qt.rgba(0, 0, 0, 0.1)
+                colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Qt.rgba(0, 0, 0, 0.15)
                 onClicked: {
                     console.log("[Toast] Copying to clipboard:", root.message.substring(0, 50))
                     copyProcess.running = true
@@ -114,7 +123,8 @@ Item {
                 implicitHeight: 28
                 buttonRadius: Appearance.rounding.small
                 colBackground: "transparent"
-                colBackgroundHover: Qt.rgba(0, 0, 0, 0.1)
+                colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Qt.rgba(0, 0, 0, 0.1)
+                colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Qt.rgba(0, 0, 0, 0.15)
                 onClicked: root.dismissed()
                 
                 contentItem: MaterialSymbol {
@@ -169,7 +179,7 @@ Item {
     }
     
     layer.enabled: Appearance.effectsEnabled
-    layer.effect: DropShadow {
+    layer.effect: GE.DropShadow {
         horizontalOffset: 0
         verticalOffset: 4
         radius: Appearance.rounding.small

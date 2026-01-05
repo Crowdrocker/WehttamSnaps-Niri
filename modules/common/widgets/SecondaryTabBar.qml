@@ -26,7 +26,7 @@ TabBar {
             topRightRadius: height
             bottomLeftRadius: 0
             bottomRightRadius: 0
-            color: Appearance.colors.colPrimary
+            color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
             // Animation
             property real baseWidth: root.width / root.count
             AnimatedTabIndexPair {
@@ -47,7 +47,7 @@ TabBar {
                 left: parent.left
                 right: parent.right
             }
-            color: Appearance.colors.colOutlineVariant
+            color: Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle : Appearance.colors.colOutlineVariant
         }
     }
 }

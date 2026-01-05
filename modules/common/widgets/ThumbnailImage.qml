@@ -15,8 +15,9 @@ StyledImage {
     property bool generateThumbnail: true
     required property string sourcePath
     property string thumbnailSizeName: Images.thumbnailSizeNameForDimensions(sourceSize.width, sourceSize.height)
+    property bool isVideo: Images.isValidVideoByName(sourcePath)
     property string thumbnailPath: {
-        if (sourcePath.length == 0) return;
+        if (sourcePath.length == 0) return "";
         const resolvedUrlWithoutFileProtocol = FileUtils.trimFileProtocol(`${Qt.resolvedUrl(sourcePath)}`);
         const encodedUrlWithoutFileProtocol = resolvedUrlWithoutFileProtocol.split("/").map(part => encodeURIComponent(part)).join("/");
         const md5Hash = Qt.md5(`file://${encodedUrlWithoutFileProtocol}`);
@@ -33,12 +34,6 @@ StyledImage {
         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
     }
 
-    onStatusChanged: {
-        if (status === Image.Error) {
-            root.source = Qt.resolvedUrl(root.sourcePath);
-        }
-    }
-
     onSourceSizeChanged: {
         if (!root.generateThumbnail) return;
         thumbnailGeneration.running = false;
@@ -48,8 +43,15 @@ StyledImage {
         id: thumbnailGeneration
         command: {
             const maxSize = Images.thumbnailSizes[root.thumbnailSizeName];
+            const thumbPath = FileUtils.trimFileProtocol(root.thumbnailPath);
+            if (root.isVideo) {
+                // Extract first frame from video with ffmpeg
+                return ["bash", "-c", 
+                    `[ -f '${thumbPath}' ] && exit 0 || { ffmpeg -y -i '${root.sourcePath}' -vframes 1 -vf "scale='min(${maxSize},iw)':'min(${maxSize},ih)':force_original_aspect_ratio=decrease" '${thumbPath}' 2>/dev/null && exit 1; }`
+                ]
+            }
             return ["bash", "-c", 
-                `[ -f '${FileUtils.trimFileProtocol(root.thumbnailPath)}' ] && exit 0 || { magick '${root.sourcePath}' -resize ${maxSize}x${maxSize} '${FileUtils.trimFileProtocol(root.thumbnailPath)}' && exit 1; }`
+                `[ -f '${thumbPath}' ] && exit 0 || { magick '${root.sourcePath}[0]' -resize ${maxSize}x${maxSize} '${thumbPath}' && exit 1; }`
             ]
         }
         onExited: (exitCode, exitStatus) => {

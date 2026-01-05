@@ -314,7 +314,8 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 implicitWidth: statusRowLayout.implicitWidth + 10 * 2
                 implicitHeight: Math.max(statusRowLayout.implicitHeight, 38)
                 radius: Appearance.rounding.normal - root.padding
-                color: Appearance.colors.colLayer2
+                color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                    : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
                 RowLayout {
                     id: statusRowLayout
                     anchors.centerIn: parent
@@ -405,9 +406,28 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             }
         }
 
-        DescriptionBox {
-            text: root.suggestionList[suggestions.selectedIndex]?.description ?? ""
-            showArrows: root.suggestionList.length > 1
+        // Compact hint row (replaces DescriptionBox for model suggestions)
+        RowLayout {
+            visible: root.suggestionList.length > 0 && messageInputField.text.length > 0
+            Layout.fillWidth: true
+            spacing: 4
+            
+            StyledText {
+                Layout.fillWidth: true
+                text: root.suggestionList.length > 1 
+                    ? Translation.tr("Select model") 
+                    : ""
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                color: Appearance.colors.colSubtext
+                elide: Text.ElideRight
+            }
+            KeyboardKey {
+                visible: root.suggestionList.length > 1
+                key: "↑↓"
+            }
+            KeyboardKey {
+                key: "Tab"
+            }
         }
 
         FlowButtonGroup { // Suggestions
@@ -415,7 +435,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             visible: root.suggestionList.length > 0 && messageInputField.text.length > 0
             property int selectedIndex: 0
             Layout.fillWidth: true
-            spacing: 5
+            spacing: 4
 
             Repeater {
                 id: suggestionRepeater
@@ -425,10 +445,12 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 }
                 delegate: ApiCommandButton {
                     id: commandButton
-                    colBackground: suggestions.selectedIndex === index ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer
+                    colBackground: Appearance.auroraEverywhere 
+                        ? (suggestions.selectedIndex === index ? Appearance.aurora.colSubSurface : "transparent")
+                        : (suggestions.selectedIndex === index ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
                     bounce: false
                     contentItem: StyledText {
-                        font.pixelSize: Appearance.font.pixelSize.small
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.m3colors.m3onSurface
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData.displayName ?? modelData.name
@@ -441,6 +463,12 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     }
                     onClicked: {
                         suggestions.acceptSuggestion(modelData.name);
+                    }
+                    
+                    StyledToolTip {
+                        visible: commandButton.hovered && modelData.description
+                        text: modelData.description ?? ""
+                        delay: 300
                     }
                 }
             }
@@ -471,7 +499,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             property real spacing: 5
             Layout.fillWidth: true
             radius: Appearance.rounding.normal - root.padding
-            color: Appearance.colors.colLayer2
+            color: Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
             implicitHeight: Math.max(inputFieldRowLayout.implicitHeight + inputFieldRowLayout.anchors.topMargin + commandButtonsRow.implicitHeight + commandButtonsRow.anchors.bottomMargin + spacing, 45) + (attachedFileIndicator.implicitHeight + spacing + attachedFileIndicator.anchors.topMargin)
             clip: true
 

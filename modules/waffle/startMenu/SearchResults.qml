@@ -14,6 +14,7 @@ RowLayout {
     id: root
 
     property int maxResultsPerCategory: 4
+    property int resultLimit: 20
     property StartMenuContext context
     property int currentIndex: context.currentIndex
     
@@ -38,7 +39,7 @@ RowLayout {
         Layout.preferredWidth: 260
         Layout.leftMargin: 1
         Layout.rightMargin: 1
-        entry: resultList.model[resultList.currentIndex] ?? searchResultComp.createObject()
+        entry: resultList.model[resultList.currentIndex] ?? null
     }
 
     component ResultList: WListView {
@@ -88,6 +89,8 @@ RowLayout {
             const categorizedResults = [];
             
             for (let i = 0; i < allResults.length; i++) {
+                if (categorizedResults.length >= root.resultLimit) break;
+                
                 const entry = allResults[i];
                 const type = entry.type;
                 const count = categoryCount.get(type) ?? 0;
@@ -117,7 +120,7 @@ RowLayout {
     component ResultPreview: Rectangle {
         id: resultPreview
 
-        property LauncherSearchResult entry
+        property var entry
 
         Layout.fillHeight: true
         color: Looks.colors.bg1

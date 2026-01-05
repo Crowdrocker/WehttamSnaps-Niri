@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=WehttamSnaps Keybinds
+Comment=J.A.R.V.I.S. keyboard shortcuts reference
+Exec=/scripts/keyhints-wehttamsnaps.sh
+Icon=keyboard
+Terminal=false
+Type=Application
+Categories=System;
+Keywords=wehttamsnaps;jarvis;keybinds;shortcuts;

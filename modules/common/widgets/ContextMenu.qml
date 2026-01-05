@@ -24,6 +24,7 @@ Loader {
 
     property real visualMargin: 8
     property bool popupAbove: true  // true = popup appears above anchor, false = below
+    property int popupSide: 0  // For horizontal popup: Edges.Left or Edges.Right, 0 = vertical
     property real ambientShadowWidth: 1
     readonly property bool hasIcons: model.some(item => item.iconName !== undefined && item.iconName !== "")
 
@@ -54,6 +55,7 @@ Loader {
 
         Component.onCompleted: {
             openAnim.start();
+            Qt.callLater(() => keyHandler.forceActiveFocus());
             if (CompositorService.isNiri && root.closeOnFocusLost) {
                 clickOutsideBackdrop.visible = true;
             }
@@ -62,11 +64,29 @@ Loader {
             clickOutsideBackdrop.visible = false;
         }
 
+        Item {
+            id: keyHandler
+            anchors.fill: parent
+            focus: true
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Escape) {
+                    root.close();
+                    event.accepted = true;
+                }
+            }
+        }
+
         anchor {
-            adjustment: PopupAdjustment.ResizeY | PopupAdjustment.SlideX
+            adjustment: (root.popupSide !== 0) 
+                ? (PopupAdjustment.ResizeX | PopupAdjustment.SlideY)
+                : (PopupAdjustment.ResizeY | PopupAdjustment.SlideX)
             item: root.anchorItem
-            gravity: root.popupAbove ? Edges.Top : Edges.Bottom
-            edges: root.popupAbove ? Edges.Top : Edges.Bottom
+            gravity: root.popupSide !== 0 
+                ? root.popupSide 
+                : (root.popupAbove ? Edges.Top : Edges.Bottom)
+            edges: root.popupSide !== 0 
+                ? root.popupSide 
+                : (root.popupAbove ? Edges.Top : Edges.Bottom)
         }
 
         CompositorFocusGrab {
@@ -74,13 +94,6 @@ Loader {
             active: root.closeOnFocusLost && CompositorService.isHyprland
             windows: [popupWindow]
             onCleared: root.focusCleared();
-        }
-
-        Keys.onPressed: event => {
-            if (event.key === Qt.Key_Escape) {
-                root.close();
-                event.accepted = true;
-            }
         }
 
         Timer {
@@ -104,6 +117,9 @@ Loader {
         implicitHeight: realContent.implicitHeight + (root.ambientShadowWidth * 2) + (root.visualMargin * 2)
 
         property real sourceEdgeMargin: -implicitHeight
+        readonly property bool isHorizontalPopup: root.popupSide !== 0
+        readonly property bool isLeftSide: root.popupSide === Edges.Left
+        
         PropertyAnimation {
             id: openAnim
             target: popupWindow
@@ -117,7 +133,7 @@ Loader {
             PropertyAnimation {
                 target: popupWindow
                 property: "sourceEdgeMargin"
-                to: -implicitHeight
+                to: popupWindow.isHorizontalPopup ? -popupWindow.implicitWidth : -popupWindow.implicitHeight
                 duration: 150
                 easing.type: Easing.InCubic
             }
@@ -132,22 +148,31 @@ Loader {
             target: realContent
         }
 
-        Rectangle {
+        GlassBackground {
             id: realContent
             z: 1
             anchors {
-                left: parent.left
-                right: parent.right
-                top: root.popupAbove ? undefined : parent.top
-                bottom: root.popupAbove ? parent.bottom : undefined
+                // Vertical popup (above/below)
+                left: !popupWindow.isHorizontalPopup ? parent.left : (popupWindow.isLeftSide ? undefined : parent.left)
+                right: !popupWindow.isHorizontalPopup ? parent.right : (popupWindow.isLeftSide ? parent.right : undefined)
+                top: !popupWindow.isHorizontalPopup ? (root.popupAbove ? undefined : parent.top) : parent.top
+                bottom: !popupWindow.isHorizontalPopup ? (root.popupAbove ? parent.bottom : undefined) : parent.bottom
+                
                 margins: root.ambientShadowWidth + root.visualMargin
-                bottomMargin: root.popupAbove ? popupWindow.sourceEdgeMargin : (root.ambientShadowWidth + root.visualMargin)
-                topMargin: root.popupAbove ? (root.ambientShadowWidth + root.visualMargin) : popupWindow.sourceEdgeMargin
+                bottomMargin: !popupWindow.isHorizontalPopup && root.popupAbove ? popupWindow.sourceEdgeMargin : (root.ambientShadowWidth + root.visualMargin)
+                topMargin: !popupWindow.isHorizontalPopup && !root.popupAbove ? popupWindow.sourceEdgeMargin : (root.ambientShadowWidth + root.visualMargin)
+                leftMargin: popupWindow.isHorizontalPopup && !popupWindow.isLeftSide ? popupWindow.sourceEdgeMargin : (root.ambientShadowWidth + root.visualMargin)
+                rightMargin: popupWindow.isHorizontalPopup && popupWindow.isLeftSide ? popupWindow.sourceEdgeMargin : (root.ambientShadowWidth + root.visualMargin)
             }
-            color: Appearance.colors.colSurfaceContainer
-            radius: Appearance.rounding.normal
+            fallbackColor: Appearance.colors.colSurfaceContainer
+            inirColor: Appearance.inir.colLayer2
+            auroraTransparency: Appearance.aurora.popupTransparentize
+            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
             border.width: 1
-            border.color: Appearance.colors.colSurfaceContainerHighest
+            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder
+                        : Appearance.auroraEverywhere 
+                            ? Appearance.aurora.colTooltipBorder
+                            : Appearance.colors.colSurfaceContainerHighest
 
             implicitWidth: menuColumn.implicitWidth + (root.padding * 2)
             implicitHeight: menuColumn.implicitHeight + (root.padding * 2)
@@ -168,7 +193,7 @@ Loader {
                                 Layout.bottomMargin: 2
                                 Layout.fillWidth: true
                                 implicitHeight: 1
-                                color: Appearance.colors.colOutlineVariant
+                                color: Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle : Appearance.colors.colOutlineVariant
                             }
                         }
                         DelegateChoice {
@@ -181,10 +206,14 @@ Loader {
 
                                 implicitWidth: Math.max(140, menuRow.implicitWidth + 20)
                                 implicitHeight: 32
-                                buttonRadius: Appearance.rounding.small
+                                buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
                                 colBackground: "transparent"
-                                colBackgroundHover: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.85)
-                                colRipple: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.7)
+                                colBackgroundHover: Appearance.inirEverywhere 
+                                    ? Appearance.inir.colLayer2Hover
+                                    : ColorUtils.transparentize(Appearance.colors.colPrimary, 0.85)
+                                colRipple: Appearance.inirEverywhere
+                                    ? Appearance.inir.colLayer2Active
+                                    : ColorUtils.transparentize(Appearance.colors.colPrimary, 0.7)
 
                                 onClicked: {
                                     if (modelData.action) modelData.action();
@@ -210,7 +239,7 @@ Loader {
                                             MaterialSymbol {
                                                 text: menuBtn.modelData.iconName ?? ""
                                                 iconSize: Appearance.font.pixelSize.normal
-                                                color: Appearance.m3colors.m3onSurface
+                                                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
                                             }
                                         }
 
@@ -225,7 +254,7 @@ Loader {
 
                                     StyledText {
                                         text: menuBtn.modelData.text ?? ""
-                                        color: Appearance.m3colors.m3onSurface
+                                        color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.m3colors.m3onSurface
                                         font.pixelSize: Appearance.font.pixelSize.small
                                         Layout.fillWidth: true
                                         Layout.alignment: Qt.AlignVCenter

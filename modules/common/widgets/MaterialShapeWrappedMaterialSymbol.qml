@@ -10,8 +10,12 @@ MaterialShape {
     property alias colSymbol: symbol.color
     property real padding: 6
 
-    color: Appearance.colors.colSecondaryContainer
-    colSymbol: Appearance.colors.colOnSecondaryContainer
+    color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+        : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface
+        : Appearance.colors.colSecondaryContainer
+    colSymbol: Appearance.inirEverywhere ? Appearance.inir.colText
+        : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer1
+        : Appearance.colors.colOnSecondaryContainer
     shape: MaterialShape.Shape.Clover4Leaf
     implicitSize: Math.max(symbol.implicitWidth, symbol.implicitHeight) + padding * 2
 

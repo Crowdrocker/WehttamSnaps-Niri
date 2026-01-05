@@ -160,7 +160,7 @@ WPanelPageColumn {
             spacing: 4
             Image {
                 Layout.alignment: Qt.AlignHCenter
-                source: Quickshell.iconPath(AppSearch.guessIcon(appBtn.appId), "application-x-executable")
+                source: AppSearch.getIconSource(appBtn.appId, "application-x-executable")
                 sourceSize: Qt.size(32, 32)
             }
             WText {
@@ -210,7 +210,7 @@ WPanelPageColumn {
         contentItem: RowLayout {
             spacing: 10
             Image {
-                source: Quickshell.iconPath(AppSearch.guessIcon(recBtn.appId), "application-x-executable")
+                source: AppSearch.getIconSource(recBtn.appId, "application-x-executable")
                 sourceSize: Qt.size(28, 28)
             }
             WText {
@@ -347,7 +347,8 @@ WPanelPageColumn {
                                         anchors.fill: parent
                                         cursorShape: Qt.PointingHandCursor
                                         onClicked: {
-                                            Quickshell.execDetached(["bash", "-c", Config.options.apps?.manageUser ?? "kcmshell6 kcm_users"])
+                                            const cmd = Config.options?.apps?.manageUser ?? "kcmshell6 kcm_users"
+                                            ShellExec.execCmd(cmd)
                                             GlobalStates.searchOpen = false
                                             userMenu.close()
                                         }

@@ -1,0 +1,11 @@
+[soe][Expander#0]
+attack=45
+hpfFrequency=120
+hpfMode=1
+lpfMode=1
+mode=0
+ratio=1.7999999523162842
+release=250
+sidechainLookahead=3
+sidechainReactivity=120
+threshold=-50

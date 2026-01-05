@@ -267,12 +267,14 @@ Item {
                                         ? ColorUtils.transparentize(Looks.colors.accentFg, 0.9)
                                         : Looks.colors.bg1Base
 
-                                    WAppIcon {
+                                    Image {
                                         anchors.centerIn: parent
-                                        implicitSize: 72
-                                        iconName: AppSearch.guessIcon(modelData?.appId ?? modelData?.appName ?? "")
-                                        tryCustomIcon: false
-                                        monochrome: false
+                                        width: 72
+                                        height: 72
+                                        source: modelData?.icon ?? ""
+                                        sourceSize: Qt.size(72, 72)
+                                        fillMode: Image.PreserveAspectFit
+                                        smooth: true
                                     }
                                 }
 
@@ -355,11 +357,12 @@ Item {
                     anchors.centerIn: parent
                     spacing: 10
 
-                    WAppIcon {
-                        implicitSize: 24
-                        iconName: AppSearch.guessIcon(root.itemSnapshot?.[root.selectedIndex]?.appId ?? "")
-                        tryCustomIcon: false
-                        monochrome: false
+                    Image {
+                        width: 24
+                        height: 24
+                        source: root.itemSnapshot?.[root.selectedIndex]?.icon ?? ""
+                        sourceSize: Qt.size(24, 24)
+                        fillMode: Image.PreserveAspectFit
                     }
 
                     WText {

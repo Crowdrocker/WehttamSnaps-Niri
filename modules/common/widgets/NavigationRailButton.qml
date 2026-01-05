@@ -76,12 +76,24 @@ TabButton {
             anchors.bottom: itemIconBackground.bottom
             // When collapsed, only show icon area; when expanded, show full width with text
             implicitWidth: root.expanded ? root.visualWidth : root.baseSize
-            radius: Appearance.rounding.full
-            color: toggled ? 
-                root.showToggledHighlight ?
-                    (root.down ? Appearance.colors.colSecondaryContainerActive : root.hovered ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
-                    : ColorUtils.transparentize(Appearance.colors.colSecondaryContainer) :
-                (root.down ? Appearance.colors.colLayer1Active : root.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1))
+            radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+            color: Appearance.inirEverywhere 
+                ? (toggled 
+                    ? (root.showToggledHighlight 
+                        ? (root.down ? Appearance.inir.colLayer2Active : root.hovered ? Appearance.inir.colLayer2Hover : Appearance.inir.colLayer2)
+                        : "transparent")
+                    : (root.down ? Appearance.inir.colLayer2Active : root.hovered ? Appearance.inir.colLayer2Hover : "transparent"))
+                : Appearance.auroraEverywhere
+                    ? (toggled ? 
+                        root.showToggledHighlight ?
+                            (root.down ? Appearance.aurora.colSubSurfaceActive : root.hovered ? Appearance.aurora.colSubSurface : Appearance.aurora.colElevatedSurface)
+                            : "transparent" :
+                        (root.down ? Appearance.aurora.colSubSurfaceActive : root.hovered ? Appearance.aurora.colSubSurface : "transparent"))
+                    : (toggled ? 
+                        root.showToggledHighlight ?
+                            (root.down ? Appearance.colors.colSecondaryContainerActive : root.hovered ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
+                            : ColorUtils.transparentize(Appearance.colors.colSecondaryContainer) :
+                        (root.down ? Appearance.colors.colLayer1Active : root.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)))
 
             states: State {
                 name: "expanded"

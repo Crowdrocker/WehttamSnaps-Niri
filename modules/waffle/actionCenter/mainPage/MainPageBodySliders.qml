@@ -31,12 +31,19 @@ ColumnLayout {
         }
         
         WSlider {
+            id: brightnessSlider
             Layout.fillWidth: true
-            value: root.brightnessMonitor?.brightness ?? 0
-            scrollable: true
-            onMoved: {
-                root.brightnessMonitor?.setBrightness(value)
+            property real modelValue: root.brightnessMonitor?.brightness ?? 0
+
+            Binding {
+                target: brightnessSlider
+                property: "value"
+                value: brightnessSlider.modelValue
+                when: !brightnessSlider.pressed && !brightnessSlider._userInteracting
             }
+            scrollable: true
+            tooltipContent: `${Math.round(value * 100)}%`
+            onMoved: root.brightnessMonitor?.setBrightness(value)
         }
 
         WPanelIconButton {
@@ -53,12 +60,19 @@ ColumnLayout {
         }
         
         WSlider {
+            id: volumeSlider
             Layout.fillWidth: true
-            value: Audio.sink?.audio?.volume ?? 0
-            scrollable: true
-            onMoved: {
-                if (Audio.sink?.audio) Audio.sink.audio.volume = value;
+            property real modelValue: Audio.sink?.audio?.volume ?? 0
+            to: Audio.uiMaxSinkVolume
+
+            Binding {
+                target: volumeSlider
+                property: "value"
+                value: volumeSlider.modelValue
+                when: !volumeSlider.pressed && !volumeSlider._userInteracting
             }
+            scrollable: true
+            onMoved: Audio.setSinkVolume(value)
         }
 
         WPanelIconButton {

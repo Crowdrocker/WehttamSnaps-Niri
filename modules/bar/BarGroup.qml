@@ -1,4 +1,5 @@
 import qs.modules.common
+import qs.modules.common.functions
 import QtQuick
 import QtQuick.Layouts
 
@@ -6,6 +7,7 @@ Item {
     id: root
     property bool vertical: false
     property real padding: 5
+    readonly property bool cardStyleEverywhere: (Config.options?.dock?.cardStyle ?? false) && (Config.options?.sidebar?.cardStyle ?? false) && (Config.options?.bar?.cornerStyle === 3)
     implicitWidth: vertical ? Appearance.sizes.baseVerticalBarWidth : (gridLayout.implicitWidth + padding * 2)
     implicitHeight: vertical ? (gridLayout.implicitHeight + padding * 2) : Appearance.sizes.baseBarHeight
     default property alias items: gridLayout.children
@@ -19,8 +21,14 @@ Item {
             leftMargin: root.vertical ? 4 : 0
             rightMargin: root.vertical ? 4 : 0
         }
-        color: Config.options?.bar.borderless ? "transparent" : Appearance.colors.colLayer1
-        radius: Appearance.rounding.small
+        color: (Config.options?.bar?.borderless ?? false) ? "transparent"
+            : (Appearance.inirEverywhere ? Appearance.inir.colLayer1
+              : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+              : Appearance.colors.colLayer1)
+        border.width: Appearance.inirEverywhere ? 1 : (root.cardStyleEverywhere ? 1 : 0)
+        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer0Border
+        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal 
+              : (root.cardStyleEverywhere ? Appearance.rounding.normal : Appearance.rounding.small)
     }
 
     GridLayout {

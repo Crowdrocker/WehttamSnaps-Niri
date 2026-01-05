@@ -18,7 +18,21 @@ WBarAttachedPanelContent {
     revealFromSides: true
     revealFromLeft: true
 
-    readonly property bool barAtBottom: Config.options.waffles.bar.bottom
+    Component.onCompleted: {
+        if (GlobalStates.waffleWidgetsOpen)
+            ResourceUsage.ensureRunning()
+    }
+
+    Connections {
+        target: GlobalStates
+        function onWaffleWidgetsOpenChanged() {
+            if (GlobalStates.waffleWidgetsOpen) {
+                ResourceUsage.ensureRunning()
+            }
+        }
+    }
+
+    readonly property bool barAtBottom: Config.options?.waffles?.bar?.bottom ?? false
 
     contentItem: ColumnLayout {
         anchors {
@@ -75,7 +89,7 @@ WBarAttachedPanelContent {
                             implicitSize: 16
                         }
                         onClicked: {
-                            Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "settings", "open"])
+                            Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"])
                             GlobalStates.waffleWidgetsOpen = false
                         }
                     }
@@ -567,7 +581,7 @@ WBarAttachedPanelContent {
                             iconName: "folder"
                             label: Translation.tr("Files")
                             onClicked: {
-                                Quickshell.execDetached(["nautilus"])
+                                Quickshell.execDetached(["/usr/bin/nautilus"])
                                 GlobalStates.waffleWidgetsOpen = false
                             }
                         }
@@ -576,7 +590,8 @@ WBarAttachedPanelContent {
                             iconName: "terminal"
                             label: Translation.tr("Terminal")
                             onClicked: {
-                                Quickshell.execDetached([Config.options.apps?.terminal ?? "foot"])
+                                const cmd = Config.options?.apps?.terminal ?? "foot"
+                                ShellExec.execCmd(cmd)
                                 GlobalStates.waffleWidgetsOpen = false
                             }
                         }
@@ -585,7 +600,7 @@ WBarAttachedPanelContent {
                             iconName: "settings"
                             label: Translation.tr("Settings")
                             onClicked: {
-                                Quickshell.execDetached(["qs", "-c", "ii", "ipc", "call", "settings", "open"])
+                                Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"])
                                 GlobalStates.waffleWidgetsOpen = false
                             }
                         }
