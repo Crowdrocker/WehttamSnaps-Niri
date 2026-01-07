@@ -1,0 +1,28 @@
+// WehttamSnaps Niri Configuration
+// Author: Matthew (Crowdrocker)
+// Hardware: Dell XPS 8700 - i7-4790 @ 4.0GHz, RX 580, 16GB RAM
+// Display: DP-3 1920x1080@60Hz
+
+// ╭─────────────────────────────── AUTOSTART ────────────────────────────────────────╮
+spawn-at-startup "qs" "-c" "noctalia-shell"  // Noctalia shell
+spawn-at-startup "xwayland-satellite"
+spawn-sh-at-startup "swww-daemon" // Wallpaper daemon
+// J.A.R.V.I.S. startup with notification
+spawn-at-startup "sh" "-c" "sound-system startup && notify-send 'J.A.R.V.I.S.' 'Systems online. Welcome back, Matthew.' -i audio-speakers"
+// Config watcher for real-time validation
+spawn-at-startup "bash" "-c" "~/.config/wehttamsnaps/scripts/config-watcher.sh start &"
+// save list of currently installed programs
+// Optional: Welcome screen on first boot
+spawn-at-startup "python3" "~/.config/wehttamsnaps/scripts/welcome.py"
+spawn-at-startup "~/.config/wehttamsnaps/scripts/save-program-list.sh"
+spawn-at-startup "bash" "-c" "~/.config/wehttamsnaps/scripts/RainbowBorders.sh"
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"  // Polkit
+spawn-at-startup "dunst"  // Notification daemon
+// Auto-setup audio routing on login
+spawn-at-startup "bash" "-c" "sleep 5 && ~/.config/wehttamsnaps/scripts/audio-routing.sh gaming"
+spawn-sh-at-startup "niriswitcher"
+spawn-at-startup "udiskie" "--tray"  // Auto-mount USB devices
+spawn-at-startup "blueman-applet"  // Bluetooth tray
+spawn-at-startup "nm-applet"  // Network manager tray
+spawn-at-startup "sh" "-c" "swayidle -w timeout 600 'swaylock' timeout 900 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock'"
+// ╰──────────────────────────────────────────────────────────────────────────────────╯

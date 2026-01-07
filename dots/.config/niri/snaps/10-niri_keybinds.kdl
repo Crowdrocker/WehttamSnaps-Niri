@@ -1,0 +1,190 @@
+// WehttamSnaps Niri Configuration
+// Author: Matthew (Crowdrocker)
+// Hardware: Dell XPS 8700 - i7-4790 @ 4.0GHz, RX 580, 16GB RAM
+// Display: DP-3 1920x1080@60Hz
+
+
+// ╭─────────────────────────────── KEYBINDINGS ──────────────────────────────────────╮
+binds {
+
+    // === WORKSPACE SWITCHING WITH SOUNDS ===
+    Mod+1 { spawn "sh" "-c" "niri msg action focus-workspace 1 && sound-system workspace 1"; }
+    Mod+2 { spawn "sh" "-c" "niri msg action focus-workspace 2 && sound-system workspace 2"; }
+    Mod+3 { spawn "sh" "-c" "niri msg action focus-workspace 3 && sound-system workspace 3"; }
+    Mod+4 { spawn "sh" "-c" "niri msg action focus-workspace 4 && sound-system workspace 4"; }
+    Mod+5 { spawn "sh" "-c" "niri msg action focus-workspace 5 && sound-system workspace 5"; }
+    Mod+6 { spawn "sh" "-c" "niri msg action focus-workspace 6 && sound-system workspace 6"; }
+    Mod+7 { spawn "sh" "-c" "niri msg action focus-workspace 7 && sound-system workspace 7"; }
+    Mod+8 { spawn "sh" "-c" "niri msg action focus-workspace 8 && sound-system workspace 8"; }
+    Mod+9 { spawn "sh" "-c" "niri msg action focus-workspace 9 && sound-system workspace 9"; }
+    Mod+0 { spawn "sh" "-c" "niri msg action focus-workspace 10 && sound-system workspace 10"; }
+
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+    Mod+Shift+0 { move-column-to-workspace 10; }
+
+    // ── WINDOW MANAGEMENT ──
+    // === WINDOW CLOSE WITH SOUND ===
+    Mod+Q { spawn "sh" "-c" "niri msg action close-window && sound-system window-close"; }
+    //Mod+Q   { close-window; }
+    Mod+Left { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Up { focus-window-up; }
+    Mod+Down { focus-window-down; }
+
+    Mod+Control+Left { consume-window-into-column; }
+    Mod+Control+Right { expel-window-from-column; }
+
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+Shift+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+Alt+C { center-column; }
+    Mod+Ctrl+C { center-visible-columns; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+    Mod+Ctrl+V { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+    Mod+W { toggle-column-tabbed-display; }
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Ctrl+Alt+Delete { quit; }
+    Mod+Shift+P { power-off-monitors; }
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    Mod+Alt+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+Semicolon { focus-column-right; }
+
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+Semicolon { move-column-right; }
+
+    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+
+    // Usually scrolling up and down with Shift in applications results in
+    // horizontal scrolling; these binds replicate that.
+    Mod+Shift+WheelScrollDown      { focus-column-right; }
+    Mod+Shift+WheelScrollUp        { focus-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+    Mod+Ctrl+U         { move-column-to-workspace-down; }
+    Mod+Ctrl+I         { move-column-to-workspace-up; }
+
+    Mod+Shift+Page_Down { move-workspace-down; }
+    Mod+Shift+Page_Up   { move-workspace-up; }
+    Mod+Shift+U         { move-workspace-down; }
+    Mod+Shift+I         { move-workspace-up; }
+    // === GAMING MODE TOGGLE ===
+    Mod+G    hotkey-overlay-title="sound-system gaming-toggle" { spawn "sound-system" "gaming-toggle"; }
+
+    // Gaming and media
+    Mod+Shift+g    hotkey-overlay-title="toggle-gaming-mode" { spawn "~/.config/wehttamsnaps/scripts/jarvis-manager.sh"; }
+    Mod+Alt+r    hotkey-overlay-title="niri-validate" { spawn "~/bin/niri-validate.sh"; }
+
+    // Wallpaper management
+    Mod+Shift+w    hotkey-overlay-title="noctalia-shell wallpaper" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "wallpaper" "toggle"; }
+
+    // ── CORE NOCTALIA SHELL ──
+    Mod+Space    hotkey-overlay-title="noctalia-shell launcher" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    Mod+S    hotkey-overlay-title="noctalia-shell controlCenter" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "controlCenter" "toggle"; }
+    Mod+Comma    hotkey-overlay-title="noctalia-shell Settings" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "settings" "toggle"; }
+    Mod+V    hotkey-overlay-title="noctalia-shell clipboard" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "clipboard"; }
+    Mod+C    hotkey-overlay-title="noctalia-shell calculator" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "calculator"; }
+    Mod+L    hotkey-overlay-title="noctalia-shell lockScreen" { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "lock"; }
+
+    // ── APPLICATIONS ──
+    Mod+Return    hotkey-overlay-title="Open ghostty" { spawn "ghostty"; }
+    Mod+B    hotkey-overlay-title="Open firefox" { spawn "firefox"; }
+    Mod+E    hotkey-overlay-title="Open Thunar" { spawn "thunar"; }
+    Mod+D    hotkey-overlay-title="Open Rofi" { spawn "rofi" "-show" "drun" "-modi" "run,drun,jarvis:jarvis-rofi-mode"; }
+    Mod+Alt+J { spawn "konsole" "-e" "jarvis" "interactive"; }
+    Mod+Shift+B   hotkey-overlay-title="Open Brave" { spawn "brave"; }
+    Mod+H   hotkey-overlay-title="Show Keyhints" { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/KeyHints.sh"; }
+    Mod+Shift+N   hotkey-overlay-title="Show Quick Settings" { spawn "sh" "-c" "~/.config/niri/scripts/niri_quick_settings.sh"; }
+    Mod+Shift+T   hotkey-overlay-title="Open Kate" { spawn "kate"; }
+    // OBS Studio
+    Mod+O   hotkey-overlay-title="Open OBS" { spawn "flatpak" "run" "com.obsproject.Studio"; }
+
+    Mod+P   hotkey-overlay-title="Open spotify-launcher" { spawn "spotify-launcher"; }
+
+    // ── WEBAPPS ──
+    Mod+Ctrl+t   hotkey-overlay-title="twitch"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh twitch"; }
+    Mod+Ctrl+y   hotkey-overlay-title="youtube"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh youtube"; }
+    Mod+Ctrl+s   hotkey-overlay-title="spotify"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh spotify"; }
+    Mod+Ctrl+d   hotkey-overlay-title="discord"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh discord"; }
+
+    // ── GAMING & GAME LAUNCHERS ──
+    // === STEAM WITH IDROID LAUNCH ===
+    Mod+Shift+S  hotkey-overlay-title="Open steam" { spawn "sh" "-c" "sound-system steam-launch && steam"; }
+    //Mod+Shift+S { spawn "steam"; }
+    //Mod+Alt+L { spawn "lutris"; }
+    Mod+Alt+P  hotkey-overlay-title="Open protonup-qt" { spawn "protonup-qt"; }
+
+    // Audio routing
+    Mod+A   hotkey-overlay-title="audio-routing" { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/audio-routing.sh gaming"; }
+    Mod+Shift+A    hotkey-overlay-title="qpwgraph" { spawn "qpwgraph"; }
+    //Mod+Shift+V     hotkey-overlay-title="jarvis" { spawn "~/.config/wehttamsnaps/scripts/jarvis.sh"; }
+    // === SCREENSHOT WITH SOUND ===
+    Mod+Print hotkey-overlay-title="Take screenshot" { spawn "sh" "-c" "grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png && sound-system screenshot"; }
+    Ctrl+Print  hotkey-overlay-title="screenshot screen" { screenshot-screen; }
+    Alt+Print  hotkey-overlay-title="screenshot window" { screenshot-window; }
+    // === PHOTOGRAPHY EXPORT ===
+    Mod+Shift+E { spawn "sh" "-c" "sound-system photo-export"; }
+
+    // Audio controls
+    //XF86AudioRaiseVolume { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "increase"; }
+    //XF86AudioLowerVolume { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "decrease"; }
+    //XF86AudioMute { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "muteOutput"; }
+
+    // ── MEDIA CONTROLS ──
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+    XF86AudioStop allow-when-locked=true { spawn "playerctl" "stop"; }
+
+
+    // === AUDIO CONTROLS WITH ADAPTIVE SOUNDS ===
+    XF86AudioMute allow-when-locked=true { spawn "sound-system" "mute"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "sound-system" "volume-up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "sound-system" "volume-down"; }
+    XF86AudioMicMute allow-when-locked=true { spawn "sound-system" "mic-mute"; }
+
+    // ── BRIGHTNESS (Noctalia IPC) ──
+    XF86MonBrightnessUp allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "brightness" "increase"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "brightness" "decrease"; }
+
+    // ── POWER MANAGEMENT ──
+    // Mod+Shift+Ctrl+R { spawn "niri" "msg" "action" "reload-config"; }
+
+    // This bind will always work, even when using a virtual machine.
+    Mod+Alt+L allow-inhibiting=false  hotkey-overlay-title="swaylock" { spawn "~/.config/wehttamsnaps/scripts/swaylock.sh"; }
+}
+// ╰──────────────────────────────────────────────────────────────────────────────────╯

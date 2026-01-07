@@ -52,7 +52,7 @@ binds {
     Mod+Alt+L allow-when-locked=true    hotkey-overlay-title="lock"{ spawn "qs" "-c" "ii" "ipc" "call" "lock" "activate"; }
 
     // ii Region tools
-    Mod+Shift+S { spawn "qs" "-c" "ii" "ipc" "call" "region" "screenshot"; }
+    //Mod+Shift+S { spawn "qs" "-c" "ii" "ipc" "call" "region" "screenshot"; }
     Mod+Shift+X    hotkey-overlay-title="region-ocr"{ spawn "qs" "-c" "ii" "ipc" "call" "region" "ocr"; }
     Mod+Shift+A    hotkey-overlay-title="region-search"{ spawn "qs" "-c" "ii" "ipc" "call" "region" "search"; }
 
@@ -145,7 +145,7 @@ binds {
 
     // ── GAMING & GAME LAUNCHERS ──
     // === STEAM WITH IDROID LAUNCH ===
-    // Mod+Shift+S  hotkey-overlay-title="Open steam" { spawn "sh" "-c" "sound-system steam-launch && steam"; }
+    Mod+Shift+S  hotkey-overlay-title="Open steam" { spawn "sh" "-c" "sound-system steam-launch && steam"; }
     Mod+Alt+P  hotkey-overlay-title="Open protonup-qt" { spawn "protonup-qt"; }
 
     // Audio routing

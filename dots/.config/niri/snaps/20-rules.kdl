@@ -1,0 +1,517 @@
+// ╭───────────────────── WINDOW RULES ─────────────────────╮
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
+// === WEHTTAMSNAPS - MODDING WINDOW RULES ===
+// Optimized layout for SteamTinkerLaunch, Vortex, MO2, Wabbajack
+
+// === STEAMTINKERLAUNCH (STL) ===
+window-rule {
+    match app-id="^steamtinkerlaunch$"
+    match title="^SteamTinkerLaunch"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+    border {
+        width 2
+        active-gradient from="#f38ba8" to="#89b4fa" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=90 relative-to="workspace-view"
+    }
+
+    focus-ring {
+        width 3
+        active-gradient from="#f9e2af" to="#a6e3a1" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=90 relative-to="workspace-view"
+    }
+}
+
+// STL Terminal Windows
+window-rule {
+    match app-id="^steamtinkerlaunch$"
+    match title="^SteamTinkerLaunch.*Terminal"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+// STL Configuration Windows
+window-rule {
+    match app-id="^steamtinkerlaunch$"
+    match title="^SteamTinkerLaunch.*Config"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
+}
+
+// STL Game Launch Windows
+window-rule {
+    match app-id="^steamtinkerlaunch$"
+    match title="^SteamTinkerLaunch.*Launch"
+    open-floating false
+    default-column-width { proportion 0.8; }
+}
+
+// === VORTEX MOD MANAGER ===
+window-rule {
+    match app-id="^vortex$"
+    match title="^Vortex"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1600; }
+    default-window-height { fixed 1000; }
+    border {
+        width 2
+        active-gradient from="#f38ba8" to="#89b4fa" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=90 relative-to="workspace-view"
+    }
+
+    focus-ring {
+        width 3
+        active-gradient from="#f9e2af" to="#a6e3a1" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=90 relative-to="workspace-view"
+    }
+}
+
+// Vortex Game Selection Dialog
+window-rule {
+    match app-id="^vortex$"
+    match title="^Vortex.*Select.*Game"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+// Vortex Plugin/Mod Management
+window-rule {
+    match app-id="^vortex$"
+    match title="^Vortex.*Plugin$|^Vortex.*Mod"
+    open-floating true
+    default-column-width { fixed 1200; }
+    default-window-height { fixed 800; }
+
+}
+
+// Vortex Deployment Log
+window-rule {
+    match app-id="^vortex$"
+    match title="^Vortex.*Deployment$|^Vortex.*Log"
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
+}
+
+// === MOD ORGANIZER 2 ===
+window-rule {
+    match app-id="^modorganizer2$|^mo2$"
+    match title="^Mod Organizer"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1500; }
+    default-window-height { fixed 950; }
+    border {
+        width 2
+        active-gradient from="#f38ba8" to="#89b4fa" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=90 relative-to="workspace-view"
+    }
+
+    focus-ring {
+        width 3
+        active-gradient from="#f9e2af" to="#a6e3a1" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=90 relative-to="workspace-view"
+    }
+}
+
+// MO2 Mod List
+window-rule {
+    match app-id="^modorganizer2$|^mo2$"
+    match title="^Mod Organizer.*Mod List"
+    open-floating true
+    default-column-width { fixed 1200; }
+    default-window-height { fixed 800; }
+}
+
+// MO2 Plugin Tab
+window-rule {
+    match app-id="^modorganizer2$|^mo2$"
+    match title="^Mod Organizer.*Plugin"
+    open-floating true
+    default-column-width { fixed 1100; }
+    default-window-height { fixed 750; }
+}
+
+// MO2 Archive Management
+window-rule {
+    match app-id="^modorganizer2$|^mo2$"
+    match title="^Mod Organizer.*Archive"
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
+}
+
+// MO2 Executable Launch
+window-rule {
+    match app-id="^modorganizer2$|^mo2$"
+    match title="^Mod Organizer.*Executables"
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 650; }
+}
+
+// === WABBAJACK ===
+window-rule {
+    match app-id="^wabbajack$"
+    match title="^Wabbajack"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+    border {
+        width 2
+        active-gradient from="#f38ba8" to="#89b4fa" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=90 relative-to="workspace-view"
+    }
+
+    focus-ring {
+        width 3
+        active-gradient from="#f9e2af" to="#a6e3a1" angle=90 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=90 relative-to="workspace-view"
+    }
+}
+
+// Wabbajack Download Progress
+window-rule {
+    match app-id="^wabbajack$"
+    match title="^Wabbajack.*Download$|^Wabbajack.*Progress"
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 600; }
+}
+
+// Wabbajack Mod Selection
+window-rule {
+    match app-id="^wabbajack$"
+    match title="^Wabbajack.*Select$|^Wabbajack.*Choose"
+    open-floating true
+    default-column-width { fixed 1200; }
+    default-window-height { fixed 800; }
+}
+
+// Wabbajack Installation Log
+window-rule {
+    match app-id="^wabbajack$"
+    match title="^Wabbajack.*Log$|^Wabbajack.*Console"
+    open-floating true
+    default-column-width { fixed 1100; }
+    default-window-height { fixed 750; }
+}
+
+// === GENERAL MODDING TOOLS ===
+
+// Nexus Mod Manager (if used alongside Vortex/MO2)
+window-rule {
+    match app-id="^nexusmodmanager$|^nmm$"
+    match title="^Nexus Mod Manager"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1200; }
+    default-window-height { fixed 800; }
+}
+
+// LOOT (Load Order Optimization Tool)
+window-rule {
+    match app-id="^loot$"
+    match title="^LOOT"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1300; }
+    default-window-height { fixed 850; }
+}
+
+// xEdit (TESEdit/FOEdit/SSEEdit)
+window-rule {
+    match app-id="^xedit$|^tesedit$|^foedit$|^sseedit$"
+    match title="^xEdit$|^TESVEdit$|^FO4Edit$|^SSEEdit$"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+}
+
+// Creation Kit / Creation Engine
+window-rule {
+    match app-id="^creationkit$|^ck64$"
+    match title="^Creation Kit"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1600; }
+    default-window-height { fixed 1000; }
+}
+
+// Bodyslide Studio
+window-rule {
+    match app-id="^bodyslide$|^outfitstudio$"
+    match title="^BodySlide$|^Outfit Studio"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+}
+
+// FNIS / Nemesis Animation Tools
+window-rule {
+    match app-id="^fnis$|^nemesis$"
+    match title="^FNIS$|^GenerateFNISForMod$|^Nemesis"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 650; }
+}
+
+// === MODDING FILE MANAGERS ===
+
+// Winetricks (for Wine modding setup)
+window-rule {
+    match app-id="^winetricks$"
+    match title="^winetricks"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+// Winecfg (Wine configuration)
+window-rule {
+    match app-id="^winecfg$"
+    match title="^Wine configuration"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 700; }
+    default-window-height { fixed 550; }
+}
+
+// Archive Viewer (7-zip, etc. for mod archives)
+window-rule {
+    match app-id="^p7zip$|^ark$|^file-roller$"
+    match title="^Archive|^7-Zip|^ark"
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 650; }
+}
+
+// === MODDING WEB TOOLS ===
+
+// Modding websites as webapps
+window-rule {
+    match app-id="^nexusmods-webapp$"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+}
+
+window-rule {
+    match app-id="^loot-webapp$"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1300; }
+    default-window-height { fixed 850; }
+
+}
+
+// === MODDING TERMINALS ===
+
+// Modding terminal windows (for CLI tools)
+window-rule {
+    match app-id="^ghostty$|^kitty$|^alacritty$"
+    match title="^modding$|^stl$|^vortex$|^mo2"
+    geometry-corner-radius 8
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 700; }
+
+}
+
+
+
+// === SPECIAL MODDING FEATURES ===
+
+// Always keep modding tools on top when active
+window-rule {
+    match app-id="^steamtinkerlaunch$|^vortex$|^modorganizer2$"
+    match is-focused=true
+}
+
+
+// Force focus on modding dialogs
+window-rule {
+    match app-id="^steamtinkerlaunch$|^vortex$|^modorganizer2$"
+    match title="^Progress$|^Downloading$|^Installing$|^Deploying$"
+    match is-focused=true
+}
+
+
+
+//  Picture-in-Picture always floats
+window-rule {
+    match app-id="firefox$" title="^Picture-in-Picture$"
+    match app-id="brave-browser$" title="^Picture-in-Picture$"
+    match app-id="Vivaldi-stable$" title="^Picture-in-Picture$"
+    match title="Picture-in-Picture"
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+
+
+// ──────────────────────── UTILITY WINDOWS ─────────────────────────────────────
+
+// System utilities should float
+window-rule {
+    match app-id=r#"^gnome-calculator$"#
+    match app-id=r#"^galculator$"#
+    match app-id=r#"^blueman-manager$"#
+    match app-id=r#"^pavucontrol$"#
+    match app-id=r#"^nm-connection-editor$"#
+    match app-id="^helvum$"
+    match title="^KeyHints$"
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+// Settings windows
+window-rule {
+    match app-id=r#"^gnome-control-center$"#
+    match app-id="^nwg-look$"
+    match app-id="^nwg-displays$"
+    match app-id="^nwg-drawer$"
+    match app-id="^lxappearance$"
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+// Quickshell / Noctalia windows
+window-rule {
+    match app-id="^qs$"
+    match app-id="^quickshell$"
+    open-floating true
+}
+
+// ╰──────────────────────────────────────────────────────────────╯
+
+// ╭───────────────────── LAYER RULES ─────────────────────╮
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layer-Rules
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+// Layer rules for ii backdrop visibility during Niri overview
+layer-rule {
+    match namespace="quickshell:iiBackdrop"
+    place-within-backdrop true
+    opacity 1.0
+}
+
+layer-rule {
+    match namespace="quickshell:wBackdrop"
+    place-within-backdrop true
+    opacity 1.0
+}
+// Default rounded corners for all windows
+window-rule {
+    geometry-corner-radius 20
+    clip-to-geometry true
+}
+
+// Inactive window opacity
+window-rule {
+    match is-active=false
+    opacity 0.9
+}
+
+// Gnome apps with special styling
+window-rule {
+    match app-id=r#"^org\.gnome\."#
+    draw-border-with-background false
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+// Zoom floating windows
+window-rule {
+    match app-id="zoom"
+    open-floating true
+}
+layer-rule {
+    match namespace="^swww-daemon$"
+    place-within-backdrop true
+}
+layer-rule {
+    match namespace="^quickshell-wallpaper$"
+}
+layer-rule {
+    match namespace="^quickshell-overview$"
+    place-within-backdrop true
+}
+
+// ╰────────────────────────────────────────────────────────╯
+
+// ╭─────────────────────────────── screencasts SETTINGS ───────────────────────────────────╮
+// Block out password managers from screencasts.
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+
+    block-out-from "screencast"
+}
+// Block out mako notifications from screencasts.
+layer-rule {
+    match namespace="^notifications$"
+
+    block-out-from "screencast"
+}
+// Indicate screencasted windows with red colors.
+window-rule {
+    match is-window-cast-target=true
+
+    focus-ring {
+        active-color "#f38ba8"
+        inactive-color "#7d0d2d"
+    }
+
+    border {
+        inactive-color "#7d0d2d"
+    }
+
+    shadow {
+        color "#7d0d2d70"
+    }
+
+    tab-indicator {
+        active-color "#f38ba8"
+        inactive-color "#7d0d2d"
+    }
+}
+// ╰──────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+// Generic webapp rule (catches all webapps)
+window-rule {
+    match app-id=r#"^.*-webapp$"#
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1300; }
+    default-window-height { fixed 850; }
+
+    focus-ring {
+        width 3
+        active-gradient from="#89b4fa" to="#b4c8fa" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=45 relative-to="workspace-view"
+    }
+}
+// ╰──────────────────────────────────────────────────────────────────────────────────╯

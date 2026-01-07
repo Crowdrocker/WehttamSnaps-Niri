@@ -1,0 +1,305 @@
+// ╭─────────────────────────────── WORKSPACES ───────────────────────────────────────╮
+workspace "1" { open-on-output "DP-2"; }  // Browser
+workspace "2" { open-on-output "DP-2"; }  // Terminal / Development
+workspace "3" { open-on-output "DP-2"; }  // Gaming
+workspace "4" { open-on-output "DP-2"; }  // Streaming / OBS
+workspace "5" { open-on-output "DP-2"; }  // Photography / GIMP / Darktable
+workspace "6" { open-on-output "DP-2"; }  // Media / Video Editing
+workspace "7" { open-on-output "DP-2"; }  // Communication / Discord
+workspace "8" { open-on-output "DP-2"; }  // Music / Audio Production
+workspace "9" { open-on-output "DP-2"; }  // File Management
+workspace "10" { open-on-output "DP-2"; } // Misc / Overflow
+// ╰──────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+// === WORKSPACE ORGANIZATION ===
+
+// Assign modding tools to specific workspaces
+window-rule {
+    match app-id="^steamtinkerlaunch$|^wabbajack$"
+    open-on-workspace "3"
+}
+
+// Modding file managers on workspace 4
+window-rule {
+    match title="^mods$|^download$|^tools"
+    open-on-workspace "4"
+}
+
+// Modding browsers on workspace 5
+window-rule {
+    match title="^nexusmods$|^loot$|^modding"
+    open-on-workspace "5"
+}
+
+// === GAMING - Fullscreen & Performance ===
+window-rule {
+    match app-id="^steam$"
+    match title="Tom Clancy's The Division"
+    match title="Tom Clancy's The Division 2"
+    match title="Cyberpunk 2077"
+    match title="Fallout 4"
+    match title="FarCry 5"
+    match title="Ghost Recon Breakpoint"
+    match title="Marvel's Avengers"
+    match title="Need for Speed Payback"
+    match title="Rise of the Tomb Raider"
+    match title="Shadow of the Tomb Raider"
+    match title="The First Descendant"
+    match title="Warframe"
+    match title="Watch Dogs"
+    match title="Watch Dogs 2"
+    match title="Watch Dogs: Legion"
+    match title="Call of Duty"
+    open-maximized true
+    open-on-workspace "3"
+    draw-border-with-background false
+}
+
+window-rule {
+    match app-id="^net.lutris.Lutris$"
+    match app-id="^heroic$"
+    match app-id="bottles"
+    open-maximized true
+    open-on-workspace "3"
+}
+
+// ─────────────────── MODDING TOOLS - Floating Windows ───────────────────────
+
+window-rule {
+    match title="Vortex"
+    match title="Mod Organizer"
+    match title="Mod Organizer 2"
+    match title="Wabbajack"
+    match app-id="^com.nexusmods"
+    match title="Special Offers"
+    match title="Friends List"
+    match title="Steam Settings"
+    open-floating true
+    open-on-workspace "3"
+}
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+}
+// ────────────────────────── BROWSERS - Workspace 1 ─────────────────────────────
+
+window-rule {
+    match app-id="^brave-browser$"
+    match app-id="^firefox$"
+    match app-id="^Vivaldi-stable$"
+    match app-id="^chromium$"
+    match app-id="^zen-alpha$"
+    match app-id="^google-chrome$"
+    open-maximized true
+    open-on-workspace "1"
+}
+
+
+// ──────────────────── TERMINAL / DEVELOPMENT - Workspace 2 ────────────────────
+
+window-rule {
+    match app-id="^com.mitchellh.ghostty$"
+    match app-id="^kitty$"
+    match app-id="^Alacritty$"
+    match app-id="^foot$"
+    draw-border-with-background false
+    open-on-workspace "2"
+}
+
+window-rule {
+    match app-id="^org.kde.kate$"
+    match app-id="^code$"
+    match app-id="^neovide$"
+    open-maximized true
+    open-on-workspace "2"
+}
+
+// ─────────────────────── PHOTOGRAPHY - Workspace 5 ───────────────────────────
+
+window-rule {
+    match app-id="^gimp"
+    match app-id="^org.gimp.GIMP$"
+    match app-id="^darktable$"
+    match app-id="^rawtherapee$"
+    match app-id="^digikam$"
+    match app-id="^org.inkscape.Inkscape$"
+    match app-id="^krita$"
+    open-maximized true
+    open-on-workspace "5"
+}
+
+// ────────────────────── STREAMING / OBS - Workspace 4 ───────────────────────
+
+window-rule {
+    match app-id="^com.obsproject.Studio$"
+    open-maximized true
+    open-on-workspace "4"
+}
+
+// ───────────────────── MEDIA / EDITING - Workspace 6 ──────────────────────────
+
+window-rule {
+    match app-id="^kdenlive$"
+    match app-id="^org.openshot"
+    match app-id="^blender$"
+    match app-id="^com.obsproject.Studio$"
+    open-maximized true
+    open-on-workspace "6"
+}
+
+window-rule {
+    match app-id="^mpv$"
+    match app-id="^vlc$"
+    match app-id="^celluloid$"
+    open-on-workspace "6"
+}
+
+// ──────────────────── COMMUNICATION - Workspace 7 ─────────────────────────────
+
+window-rule {
+    match app-id="^discord$"
+    match app-id="^vesktop$"
+    match app-id="^Signal$"
+    match app-id="^telegram"
+    match app-id="^Slack$"
+    match app-id="^teams"
+    open-on-workspace "7"
+}
+
+window-rule {
+    match at-startup=true app-id="discord"
+    match app-id="^qpwgraph$"
+    open-on-workspace "7"
+    open-maximized true
+}
+
+// ─────────────────────── MUSIC - Workspace 8 ───────────────────────────────────
+
+window-rule {
+    match app-id="^spotify$"
+    match app-id="^com.spotify.Client$"
+    match title="Spotify"
+    open-maximized true
+    open-on-workspace "8"
+}
+
+window-rule {
+    match app-id="^cava$"
+    match app-id="^ardour"
+    match app-id="^lmms$"
+    open-on-workspace "8"
+}
+
+// ────────────────── FILE MANAGEMENT - Workspace 9 ────────────────────────────
+
+window-rule {
+    match app-id="^thunar$"
+    match app-id=r#"^org\.gnome\.Nautilus$"#
+    match app-id="^dolphin$"
+    match app-id="^nemo$"
+    open-on-workspace "9"
+}
+
+
+// ╭─────────────────────────────── WEBAPP WINDOW RULES ───────────────────────────────────╮
+// === WEBAPP WINDOW RULES ===
+// Add these to your rules.kdl file
+
+// YouTube Webapp
+window-rule {
+    match app-id="^youtube-webapp$"
+    match title="YouTube"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+    open-on-workspace "7"
+
+    border {
+        width 2
+        active-gradient from="#ff0000" to="#cc0000" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
+    }
+}
+
+// Twitch Webapp
+window-rule {
+    match app-id="^twitch-webapp$"
+    match title="Twitch"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+    open-on-workspace "7"
+
+    border {
+        width 2
+        active-gradient from="#9146ff" to="#772ce8" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
+    }
+}
+
+// Spotify Webapp
+window-rule {
+    match app-id="^spotify-webapp$"
+    match title="Spotify"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1200; }
+    default-window-height { fixed 800; }
+    open-on-workspace "8"
+
+    border {
+        width 2
+        active-gradient from="#1db954" to="#1ed760" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
+    }
+}
+
+// Discord Webapp
+window-rule {
+    match app-id="^discord-webapp$"
+    match title="Discord"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1300; }
+    default-window-height { fixed 900; }
+    open-on-workspace "7"
+
+    border {
+        width 2
+        active-gradient from="#5865f2" to="#7289da" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
+    }
+}
+
+// Gmail Webapp
+window-rule {
+    match app-id="^gmail-webapp$"
+    match title="Gmail"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+    open-on-workspace "7"
+}
+
+// GitHub Webapp
+window-rule {
+    match app-id="^github-webapp$"
+    match title="GitHub"
+    geometry-corner-radius 12
+    open-floating true
+    default-column-width { fixed 1400; }
+    default-window-height { fixed 900; }
+    open-on-workspace "2"
+}
+
+
+
+
+
+
