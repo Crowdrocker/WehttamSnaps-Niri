@@ -23,3 +23,6 @@ __pycache__/
 # Debug
 debug_log.txt
 dots/.local/state/Top-5-Bootloader-Themes/
+dots/.config/quickshell/ii/
+dots/.local/share/mybash/
+dots/.local/share/Top-5-Bootloader-Themes/
