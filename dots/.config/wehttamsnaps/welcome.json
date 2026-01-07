@@ -1,0 +1,5 @@
+{
+  "dismissed": false,
+  "first_run": true,
+  "timestamp": $(date +%s)
+}

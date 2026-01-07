@@ -1,0 +1,2694 @@
+{
+  "authentication": {
+    "error": "Authenticatiefout",
+    "failed": "Authenticatie mislukt"
+  },
+  "bar": {
+    "widget-settings": {
+      "active-window": {
+        "colorize-icons": {
+          "description": "Pas themakleuren toe op het pictogram van het actieve venster.",
+          "label": "Pictogrammen inkleuren"
+        },
+        "hide-mode": {
+          "description": "Bepaalt hoe de widget zich gedraagt wanneer er geen actief venster is.",
+          "label": "Verbergmodus"
+        },
+        "max-width": {
+          "description": "Stelt de maximale horizontale grootte van de widget in. De widget krimpt mee met kortere inhoud.",
+          "label": "Maximale breedte"
+        },
+        "scrolling-mode": {
+          "description": "Bepaalt wanneer tekstscrollen wordt ingeschakeld voor lange venstertitels.",
+          "label": "Scrollmodus"
+        },
+        "show-app-icon": {
+          "description": "Toon het applicatiepictogram naast de venstertitel.",
+          "label": "App-pictogram tonen"
+        },
+        "use-fixed-width": {
+          "description": "Indien ingeschakeld gebruikt de widget altijd de maximale breedte in plaats van zich aan te passen aan de inhoud.",
+          "label": "Vaste breedte gebruiken"
+        }
+      },
+      "audio-visualizer": {
+        "color-name": {
+          "description": "Selecteer de kleur voor de visualizer.",
+          "label": "Vulkleur"
+        },
+        "hide-when-idle": {
+          "description": "Indien ingeschakeld wordt de visualizer verborgen, tenzij een speler actief afspeelt.",
+          "label": "Verbergen wanneer geen media speelt"
+        },
+        "width": {
+          "description": "Aangepaste componentbreedte.",
+          "label": "Breedte"
+        }
+      },
+      "battery": {
+        "device": {
+          "default": "Standaard (weergaveapparaat)",
+          "description": "Selecteer welk batterijapparaat u wilt weergeven.",
+          "label": "Batterijapparaat"
+        },
+        "display-mode": {
+          "description": "Kies hoe je wilt dat deze waarde wordt weergegeven.",
+          "label": "Weergavemodus"
+        },
+        "low-battery-threshold": {
+          "description": "Toon een waarschuwing wanneer de batterij onder dit percentage komt.",
+          "label": "Waarschuwingsdrempel voor lage batterij"
+        },
+        "show-noctalia-performance": {
+          "description": "Toon de Noctalia-prestatiemodus-schakelaar in het batterijpaneel.",
+          "label": "Noctalia-Performance-schakelaar tonen"
+        },
+        "show-power-profile": {
+          "description": "Toon de keuze van het stroomprofiel in het batterijpaneel.",
+          "label": "Stroomprofielbediening tonen"
+        }
+      },
+      "brightness": {
+        "display-mode": {
+          "description": "Kies hoe je wilt dat deze waarde wordt weergegeven.",
+          "label": "Weergavemodus"
+        }
+      },
+      "clock": {
+        "clock-display": {
+          "description": "Pas de weergave van je klok aan door tokens uit onderstaande lijst toe te voegen. Om de 12-uursnotatie te gebruiken, moet je de 'AP'-token opnemen.",
+          "label": "Klokweergave"
+        },
+        "custom-font": {
+          "description": "Selecteer een aangepast lettertype voor de klokweergave.",
+          "label": "Aangepast lettertype",
+          "placeholder": "Selecteer aangepast lettertype...",
+          "search-placeholder": "Lettertypen zoeken..."
+        },
+        "horizontal-bar": {
+          "description": "Tip: gebruik \\n om een regeleinde te maken.",
+          "label": "Horizontale balk"
+        },
+        "preview": "Voorbeeld",
+        "use-custom-font": {
+          "description": "Overschrijf het standaardlettertype met een aangepast lettertype voor de klok.",
+          "label": "Aangepast lettertype gebruiken"
+        },
+        "use-monospaced-font": {
+          "description": "Indien ingeschakeld gebruikt de klok het monospace-lettertype.",
+          "label": "Monospace-lettertype gebruiken"
+        },
+        "use-primary-color": {
+          "description": "Indien ingeschakeld wordt de primaire kleur gebruikt voor nadruk.",
+          "label": "Primaire kleur gebruiken"
+        },
+        "vertical-bar": {
+          "description": "Gebruik een spatie om elk deel op een nieuwe regel te plaatsen.",
+          "label": "Verticale balk"
+        }
+      },
+      "control-center": {
+        "browse-file": "Bestand kiezen",
+        "browse-library": "Bibliotheek doorbladeren",
+        "color-selection": {
+          "description": "Themakleuren toepassen op pictogrammen.",
+          "label": "Kleur selecteren"
+        },
+        "enable-colorization": {
+          "description": "Schakel kleuring in voor het pictogram van het controlecentrum, waarbij themakleuren worden toegepast.",
+          "label": "Kleuren inschakelen"
+        },
+        "icon": {
+          "description": "Selecteer een pictogram uit de bibliotheek of een aangepast bestand.",
+          "label": "Pictogram"
+        },
+        "select-custom-icon": "Aangepast pictogram selecteren",
+        "use-distro-logo": {
+          "description": "Gebruik het logo van je distributie in plaats van een aangepast pictogram.",
+          "label": "Distributielogo gebruiken in plaats van pictogram"
+        }
+      },
+      "custom-button": {
+        "browse": "Bladeren",
+        "collapse-condition": {
+          "description": "Als de uitvoer overeenkomt met deze waarde, wordt de knop samengevouwen.",
+          "label": "Inklapvoorwaarde"
+        },
+        "display-command-output": {
+          "description": "Voer een commando in dat regelmatig wordt uitgevoerd. De eerste regel van de uitvoer wordt als tekst weergegeven.",
+          "label": "Commando-uitvoer weergeven",
+          "stream-description": "Voer een commando in dat continu wordt uitgevoerd."
+        },
+        "dynamic-text": "Dynamische tekst",
+        "hide-mode": {
+          "alwaysExpanded": "Altijd uitgeklapt",
+          "description": "Bepaalt de zichtbaarheid van de widget wanneer het commando geen uitvoer heeft.",
+          "expandWithOutput": "Uitklappen wanneer er uitvoer is",
+          "label": "Verbergmodus",
+          "maxTransparent": "Maximaal uitgeklapt maar transparant"
+        },
+        "icon": {
+          "description": "Selecteer een pictogram uit de bibliotheek.",
+          "label": "Pictogram"
+        },
+        "left-click": {
+          "description": "Commando dat wordt uitgevoerd wanneer met de linkermuisknop op de knop wordt geklikt.",
+          "label": "Linkermuisklik",
+          "update-text": "Tekst bijwerken bij linksklik"
+        },
+        "max-text-length-horizontal": {
+          "description": "Maximaal aantal tekens dat moet worden weergegeven in horizontale balk (0 om tekst te verbergen)",
+          "label": "Max. tekstlengte (horizontaal)"
+        },
+        "max-text-length-vertical": {
+          "description": "Maximaal aantal tekens dat moet worden weergegeven in verticale balk (0 om tekst te verbergen)",
+          "label": "Max. tekstlengte (verticaal)"
+        },
+        "middle-click": {
+          "description": "Commando dat wordt uitgevoerd wanneer met de middelste muisknop op de knop wordt geklikt.",
+          "label": "Middelste muisklik",
+          "update-text": "Tekst bijwerken bij middelste muisklik"
+        },
+        "parse-json": {
+          "description": "Interpreteer de commando-uitvoer als JSON-object om tekst en pictogram dynamisch in te stellen.",
+          "label": "Uitvoer als JSON parseren"
+        },
+        "refresh-interval": {
+          "description": "Interval in milliseconden.",
+          "label": "Verversingsinterval"
+        },
+        "right-click": {
+          "description": "Commando dat wordt uitgevoerd wanneer met de rechtermuisknop op de knop wordt geklikt.",
+          "label": "Rechtermuisklik",
+          "update-text": "Tekst bijwerken die wordt weergegeven bij rechtsklikken"
+        },
+        "show-icon": {
+          "description": "Schakelt de zichtbaarheid van het widgetpictogram.",
+          "label": "Pictogram weergeven"
+        },
+        "text-stream": {
+          "description": "Gestreamde regels uit het commando worden als tekst op de knop weergegeven.",
+          "label": "Stream"
+        },
+        "wheel": {
+          "description": "Commando om uit te voeren wanneer het scrollwiel wordt gebruikt.\nGebruik $delta voor de scrollwiel-delta in het commando",
+          "label": "Scrollwiel",
+          "update-text": "Weergegeven tekst bij scrollen bijwerken"
+        },
+        "wheel-down": {
+          "description": "Commando om uit te voeren wanneer het scrollwiel omlaag wordt bewogen.",
+          "label": "Scrollwiel omlaag commando"
+        },
+        "wheel-mode-separate": {
+          "description": "Afzonderlijke commando's inschakelen voor scrollwiel omhoog en omlaag",
+          "label": "Afzonderlijke scrollwielcommando's"
+        },
+        "wheel-up": {
+          "description": "Commando om uit te voeren wanneer het scrollwiel omhoog wordt bewogen.",
+          "label": "Scrollwiel omhoog commando"
+        }
+      },
+      "dialog": {
+        "apply": "Toepassen",
+        "cancel": "Annuleren"
+      },
+      "keyboard-layout": {
+        "display-mode": {
+          "description": "Kies hoe je wilt dat deze waarde wordt weergegeven.",
+          "label": "Weergavemodus"
+        }
+      },
+      "lock-keys": {
+        "browse": "Bladeren",
+        "show-caps-lock": {
+          "description": "Toon de status van caps lock.",
+          "label": "Caps Lock"
+        },
+        "show-num-lock": {
+          "description": "Toon de status van num lock.",
+          "label": "Num Lock"
+        },
+        "show-scroll-lock": {
+          "description": "Toon de status van scroll lock.",
+          "label": "Scroll Lock"
+        }
+      },
+      "media-mini": {
+        "hide-mode": {
+          "description": "Bepaalt hoe de widget zich gedraagt wanneer er geen media wordt afgespeeld.",
+          "label": "Verbergmodus"
+        },
+        "max-width": {
+          "description": "Stelt de maximale horizontale grootte van de widget in. De widget krimpt mee met kortere inhoud.",
+          "label": "Maximale breedte"
+        },
+        "no-active-player": "Geen actieve speler",
+        "scrolling-mode": {
+          "description": "Bepaalt wanneer tekstscrollen wordt ingeschakeld voor lange tracktitels.",
+          "label": "Scrollmodus"
+        },
+        "show-album-art": {
+          "description": "Toon de albumhoes van het huidige nummer.",
+          "label": "Albumhoes tonen"
+        },
+        "show-artist-first": {
+          "description": "Toon artiest - titel in plaats van titel - artiest.",
+          "label": "Toon eerst de artiest"
+        },
+        "show-progress-ring": {
+          "description": "Toon een circulaire voortgangsindicator die het bestandsspoor voortgang toont.",
+          "label": "Voortgangscirkel tonen"
+        },
+        "show-visualizer": {
+          "description": "Toon een audiovisualizer wanneer muziek wordt afgespeeld.",
+          "label": "Visualizer tonen"
+        },
+        "use-fixed-width": {
+          "description": "Indien ingeschakeld gebruikt de widget altijd de maximale breedte in plaats van zich aan te passen aan de inhoud.",
+          "label": "Vaste breedte gebruiken"
+        },
+        "visualizer-type": {
+          "description": "Kies de stijl van de audiovisualizer.",
+          "label": "Type visualizer"
+        }
+      },
+      "microphone": {
+        "display-mode": {
+          "description": "Kies hoe je wilt dat deze waarde wordt weergegeven.",
+          "label": "Weergavemodus"
+        }
+      },
+      "notification-history": {
+        "hide-badge-when-zero": {
+          "description": "Verberg de meldingsbadge wanneer er geen ongelezen meldingen zijn.",
+          "label": "Badge verbergen bij nul"
+        },
+        "show-unread-badge": {
+          "description": "Toon een badge met het aantal ongelezen meldingen.",
+          "label": "Ongelezen-badge tonen"
+        }
+      },
+      "section-editor": {
+        "placeholder": "Selecteer een widget om toe te voegen...",
+        "search-placeholder": "Widget zoeken..."
+      },
+      "spacer": {
+        "width": {
+          "description": "Breedte van de ruimte in pixels.",
+          "label": "Breedte"
+        }
+      },
+      "system-monitor": {
+        "cpu-temperature": {
+          "description": "Toon CPU-temperatuur indien beschikbaar.",
+          "label": "CPU-temperatuur"
+        },
+        "cpu-usage": {
+          "description": "Toon het huidige CPU-gebruik in procent.",
+          "label": "CPU-gebruik"
+        },
+        "disk-path": {
+          "description": "Selecteer welk schijfkoppelpunt u wilt monitoren.",
+          "label": "Schijfpad"
+        },
+        "memory-percentage": {
+          "description": "Toon geheugengebruik als percentage in plaats van absolute waarden.",
+          "label": "Geheugen als percentage"
+        },
+        "memory-usage": {
+          "description": "Toon informatie over huidig RAM-gebruik.",
+          "label": "Geheugengebruik"
+        },
+        "network-traffic": {
+          "description": "Toon uploadsnelheid en downloadsnelheid van het netwerk.",
+          "label": "Netwerkverkeer"
+        },
+        "storage-usage": {
+          "description": "Toon informatie over schijfruimtegebruik.",
+          "label": "Opslaggebruik"
+        }
+      },
+      "taskbar": {
+        "colorize-icons": {
+          "description": "Pas themakleuren toe op taakbalkpictogrammen.",
+          "label": "Pictogrammen inkleuren"
+        },
+        "hide-mode": {
+          "description": "Bepaalt hoe de widget zich gedraagt wanneer er geen overeenkomende vensters zijn.",
+          "label": "Verbergmodus"
+        },
+        "max-width": {
+          "description": "Maximale breedte van de taakbalk als percentage van de schermbreedte.",
+          "label": "Maximale breedte"
+        },
+        "only-active-workspaces": {
+          "description": "Toon alleen apps van actieve werkruimten.",
+          "label": "Alleen van actieve werkruimten"
+        },
+        "only-same-output": {
+          "description": "Toon alleen apps van de output waarop de balk zich bevindt.",
+          "label": "Alleen van dezelfde output"
+        },
+        "show-pinned-apps": {
+          "description": "Toon vastgemaakte apps van het dock in de taakbalk.",
+          "label": "Toon vastgemaakte apps"
+        },
+        "show-title": {
+          "description": "Venster titels weergeven in de taakbalk.",
+          "description-disabled": "Verticale taakbalk ondersteunt geen titelopties.",
+          "label": "Titel weergeven"
+        },
+        "smart-width": {
+          "description": "Pas automatisch de breedte van items aan op basis van het aantal items.",
+          "label": "Slimme breedte"
+        },
+        "title-width": {
+          "description": "Stel de breedte van venstertitels in de taakbalk in (in pixels).",
+          "label": "Titelbreedte",
+          "reset-tooltip": "Titelbreedte resetten"
+        }
+      },
+      "taskbar-grouped": {
+        "show-labels-only-when-occupied": {
+          "description": "Toon alleen de werkomgevinglabels voor werkomgevingen met open vensters.",
+          "label": "Label alleen tonen wanneer bezet"
+        }
+      },
+      "tray": {
+        "colorize-icons": {
+          "description": "Pas themakleuren toe op systeemvakpictogrammen.",
+          "label": "Pictogrammen inkleuren"
+        },
+        "drawer-enabled": {
+          "description": "Indien ingeschakeld worden niet-vastgemaakte systeemvakitems in een lade weergegeven. Indien uitgeschakeld worden alle items inline getoond.",
+          "label": "Lade inschakelen"
+        },
+        "hide-passive": {
+          "description": "Indien ingeschakeld, worden tray-items met de status Passief verborgen.",
+          "label": "Verberg passieve items"
+        }
+      },
+      "volume": {
+        "display-mode": {
+          "description": "Kies hoe je wilt dat deze waarde wordt weergegeven.",
+          "label": "Weergavemodus"
+        }
+      },
+      "workspace": {
+        "character-count": {
+          "description": "Aantal tekens dat wordt weergegeven van werkruimtenamen (1-10).",
+          "label": "Aantal tekens"
+        },
+        "follow-focused-screen": {
+          "description": "Werkruimten weergeven van het momenteel gefocuste scherm, in plaats van het scherm waar de balk zich bevindt.",
+          "label": "Gefocust Scherm Volgen"
+        },
+        "hide-unoccupied": {
+          "description": "Werkruimten zonder vensters niet weergeven.",
+          "label": "Ongebruikte verbergen"
+        },
+        "label-mode": {
+          "description": "Kies hoe labels van werkruimten worden weergegeven.",
+          "label": "Labelmodus"
+        }
+      }
+    }
+  },
+  "battery": {
+    "battery-level": "Batterijniveau",
+    "brightness": "Helderheid",
+    "charging": "Opladen",
+    "charging-rate": "Laadsnelheid: {rate} W",
+    "discharging": "Ontladen",
+    "discharging-rate": "Ontlaadsnelheid: {rate} W",
+    "health": "Gezondheid: {percent}%",
+    "idle": "In rust",
+    "inhibit-idle-description": "Houdt het systeem wakker.",
+    "inhibit-idle-label": "Wakker houden",
+    "no-battery-detected": "Geen batterij gedetecteerd",
+    "panel-title": "Batterij",
+    "plugged-in": "Op netstroom",
+    "power-profile": "Energieprofiel",
+    "time-left": "Resterende tijd: {time}",
+    "time-until-full": "Tijd tot vol: {time}"
+  },
+  "bluetooth": {
+    "panel": {
+      "available-devices": "Beschikbare apparaten",
+      "blocked": "Geblokkeerd",
+      "connect": "Verbinden",
+      "connected-devices": "Verbonden apparaten",
+      "connecting": "Verbinden...",
+      "disabled": "Bluetooth is uitgeschakeld",
+      "disconnect": "Verbreken",
+      "enable-message": "Schakel Bluetooth in om beschikbare apparaten te zien.",
+      "known-devices": "Bekende apparaten",
+      "pairing": "Koppelen...",
+      "pairing-mode": "Zorg ervoor dat je apparaat in koppelmodus staat.",
+      "scanning": "Zoeken naar apparaten...",
+      "title": "Bluetooth"
+    }
+  },
+  "calendar": {
+    "panel": {
+      "week": "Week"
+    },
+    "timer": {
+      "countdown": "Aftellen",
+      "duration": "Duur",
+      "hours": "h",
+      "minutes": "m",
+      "pause": "Pauze",
+      "reset": "Resetten",
+      "seconds": "s",
+      "start": "Begin",
+      "stopwatch": "Stopwatch",
+      "timer": "Timer",
+      "title": "Timer"
+    },
+    "weather": {
+      "loading": "Weer laden…"
+    }
+  },
+  "changelog": {
+    "error": {
+      "fetch-failed": "Kan changeloggegevens niet laden. Probeer het later opnieuw.",
+      "rate-limit": "GitHub-limiet bereikt. Probeer het over enkele minuten opnieuw."
+    },
+    "panel": {
+      "buttons": {
+        "discord": "Word lid van onze Discord",
+        "dismiss": "Ok"
+      },
+      "empty": "Er zijn nog geen release-opmerkingen beschikbaar.",
+      "highlight-title": "Hoogtepunten",
+      "section": {
+        "released": "Uitgebracht op {date}",
+        "version": "Versie {version}"
+      },
+      "subtitle": {
+        "fresh": "Bedankt voor het installeren van Noctalia! Dit zit er in deze build.",
+        "updated": "Bijgewerkt vanaf {previousVersion}"
+      },
+      "title": "Wat is er nieuw in {version}",
+      "version": {
+        "new-user": "Nieuwe installatie"
+      }
+    }
+  },
+  "clock": {
+    "tooltip": "Klok"
+  },
+  "common": {
+    "add": "Toevoegen",
+    "apply": "Toepassen",
+    "cancel": "Annuleren",
+    "check-settings": "Controleer Instellingen voor details.",
+    "close": "Sluiten",
+    "save": "Opslaan"
+  },
+  "context-menu": {
+    "activate-app": "Activeer {app}",
+    "clear-history": "Geschiedenis wissen",
+    "close-app": "Sluit {app}",
+    "connect-vpn": "Verbinding maken met {name}",
+    "cycle-visualizer": "Cyclusvisualisatie",
+    "disable-bluetooth": "Bluetooth uitschakelen",
+    "disable-dnd": "Niet Storen uitschakelen",
+    "disable-wifi": "Wi-Fi uitschakelen",
+    "disconnect-vpn": "Verbinding met {name} verbreken",
+    "enable-bluetooth": "Bluetooth inschakelen",
+    "enable-dnd": "Niet Storen inschakelen",
+    "enable-wifi": "Wi-Fi inschakelen",
+    "next": "Volgende",
+    "open-calendar": "Open agenda",
+    "open-display-settings": "Beeldscherminstellingen",
+    "open-launcher": "Launcher openen",
+    "open-mixer": "Audiomixer",
+    "open-settings": "Instellingen openen",
+    "pause": "Pauze",
+    "play": "Spelen",
+    "previous": "Vorige",
+    "random-wallpaper": "Willekeurige achtergrond",
+    "toggle-mute": "Dempen aan/uit",
+    "widget-settings": "Widgetinstellingen"
+  },
+  "dock": {
+    "menu": {
+      "close": "Sluiten",
+      "focus": "Focus",
+      "pin": "Vastmaken",
+      "unpin": "Losmaken"
+    }
+  },
+  "general": {
+    "no-results": "Geen resultaten",
+    "no-summary": "Geen samenvatting",
+    "unknown": "Onbekend"
+  },
+  "launcher": {
+    "categories": {
+      "all": "Alle",
+      "audiovideo": "Audio & Video",
+      "chat": "Chat",
+      "development": "Ontwikkeling",
+      "education": "Onderwijs",
+      "game": "Spellen",
+      "graphics": "Grafische weergave",
+      "misc": "Diversen",
+      "network": "Netwerk",
+      "office": "Kantoor",
+      "pinned": "Vastgemaakt",
+      "system": "Systeem",
+      "webbrowser": "Webbrowser"
+    },
+    "delete": "Verwijderen",
+    "pin": "Vastmaken",
+    "unpin": "Losmaken"
+  },
+  "lock-screen": {
+    "authenticating": "Bezig met verifiëren...",
+    "authentication-failed": "Authenticatie mislukt",
+    "password": "Voer je wachtwoord in...",
+    "restart": "Opnieuw opstarten",
+    "shut-down": "Uitschakelen",
+    "suspend": "Onderbreken",
+    "welcome-back": "Welkom terug,"
+  },
+  "notifications": {
+    "panel": {
+      "click-to-expand": "Klik om uit te vouwen",
+      "description": "Je meldingen verschijnen hier zodra ze binnenkomen.",
+      "no-notifications": "Geen meldingen",
+      "title": "Meldingen"
+    },
+    "range": {
+      "all": "Alle",
+      "earlier": "Eerder",
+      "today": "Vandaag",
+      "yesterday": "Gisteren"
+    },
+    "time": {
+      "diffD": "1 dag geleden",
+      "diffDD": "{diff} dagen geleden",
+      "diffH": "1 uur geleden",
+      "diffHH": "{diff} uur geleden",
+      "diffM": "1 minuut geleden",
+      "diffMM": "{diff} minuten geleden",
+      "now": "nu"
+    }
+  },
+  "options": {
+    "bar": {
+      "density": {
+        "comfortable": "Comfortabel",
+        "compact": "Compact",
+        "default": "Standaard",
+        "mini": "Mini"
+      },
+      "position": {
+        "bottom": "Onder",
+        "left": "Links",
+        "right": "Rechts",
+        "top": "Boven"
+      }
+    },
+    "colors": {
+      "error": "Fout",
+      "none": "Geen",
+      "onSurface": "Op oppervlak",
+      "primary": "Primair",
+      "secondary": "Secundair",
+      "tertiary": "Tertiair"
+    },
+    "control-center": {
+      "position": {
+        "bottom_center": "Middenonder",
+        "bottom_left": "Linksonder",
+        "bottom_right": "Rechtsonder",
+        "center": "Midden",
+        "close_to_bar_button": "Dicht bij balkknop",
+        "top_center": "Middenboven",
+        "top_left": "Linksboven",
+        "top_right": "Rechtsboven"
+      },
+      "quickSettingsStyle": {
+        "classic": "Klassiek",
+        "compact": "Compact",
+        "modern": "Modern"
+      }
+    },
+    "display-mode": {
+      "always-hide": "Altijd verbergen",
+      "always-show": "Altijd tonen",
+      "force-open": "Geforceerd openen",
+      "on-hover": "Bij hover"
+    },
+    "frame-rates": {
+      "fps": "{fps} FPS"
+    },
+    "hide-modes": {
+      "hidden": "Verbergen wanneer leeg",
+      "idle": "Verbergen bij inactiviteit",
+      "transparent": "Transparant wanneer leeg",
+      "visible": "Altijd zichtbaar"
+    },
+    "launcher": {
+      "position": {
+        "bottom_center": "Middenonder",
+        "bottom_left": "Linksonder",
+        "bottom_right": "Rechtsonder",
+        "center": "Midden",
+        "center_left": "Midden links",
+        "center_right": "Midden rechts",
+        "follow_bar": "Balk volgen (standaard)",
+        "top_center": "Middenboven",
+        "top_left": "Linksboven",
+        "top_right": "Rechtsboven"
+      }
+    },
+    "osd": {
+      "position": {
+        "bottom_center": "Middenonder",
+        "bottom_left": "Linksonder",
+        "bottom_right": "Rechtsonder",
+        "center_left": "Midden links",
+        "center_right": "Midden rechts",
+        "top_center": "Middenboven",
+        "top_left": "Linksboven",
+        "top_right": "Rechtsboven"
+      }
+    },
+    "screen-recording": {
+      "audio-sources": {
+        "both": "Systeemuitvoer + microfooninvoer",
+        "microphone-input": "Microfooninvoer",
+        "system-output": "Systeemuitvoer"
+      },
+      "color-range": {
+        "full": "Volledig",
+        "limited": "Beperkt"
+      },
+      "quality": {
+        "high": "Hoog",
+        "medium": "Gemiddeld",
+        "ultra": "Ultra",
+        "very-high": "Zeer hoog"
+      },
+      "sources": {
+        "portal": "Portal",
+        "screen": "Scherm"
+      }
+    },
+    "scrolling-modes": {
+      "always": "Altijd scrollen",
+      "hover": "Scrollen bij hover",
+      "never": "Nooit scrollen"
+    },
+    "shadow-direction": {
+      "bottom": "Onder",
+      "bottom_left": "Linksonder",
+      "bottom_right": "Rechtsonder",
+      "center": "Recht van boven",
+      "left": "Links",
+      "right": "Rechts",
+      "top": "Boven",
+      "top_left": "Linksboven",
+      "top_right": "Rechtsboven"
+    },
+    "visualizer-quality": {
+      "high": "Hoog",
+      "low": "Laag"
+    },
+    "visualizer-types": {
+      "linear": "Lineair",
+      "mirrored": "Gespiegeld",
+      "none": "Geen",
+      "wave": "Golf"
+    },
+    "workspace-labels": {
+      "index": "Index",
+      "index+name": "Index en Naam",
+      "name": "Naam",
+      "none": "Geen"
+    }
+  },
+  "placeholders": {
+    "cancel": "Annuleren",
+    "command-example": "echo \"Hello World\"",
+    "enter-command": "Voer het uit te voeren commando in (app of aangepast script)",
+    "enter-text-to-collapse": "bijv. 'er wordt niets afgespeeld'. Gebruik /regex/ voor patronen.",
+    "enter-tooltip": "Voer tooltip in",
+    "enter-width-pixels": "Voer breedte in pixels in",
+    "profile-picture-path": "/home/user/.face",
+    "search": "Zoeken...",
+    "search-icons": "bijv. noctalia, niri, battery, cloud",
+    "search-launcher": "Items zoeken... of gebruik > voor commando's",
+    "search-wallhaven": "Zoek in Wallhaven...",
+    "search-wallpapers": "Typ om achtergronden te filteren...",
+    "select": "Selecteren",
+    "test": "Test"
+  },
+  "plugins": {
+    "applications": "Applicaties",
+    "calculator": "Rekenmachine",
+    "calculator-description": "Rekenmachine - bereken wiskundige expressies",
+    "calculator-enter-expression": "Voer een wiskundige expressie in",
+    "calculator-error": "Fout",
+    "calculator-name": "Rekenmachine",
+    "clipboard": "Klembordgeschiedenis",
+    "clipboard-clear-description": "Klembordgeschiedenis wissen",
+    "clipboard-clear-description-full": "Alle items uit de klembordgeschiedenis verwijderen",
+    "clipboard-clear-history": "Klembordgeschiedenis wissen",
+    "clipboard-delete": "Klemborditem verwijderen",
+    "clipboard-history-disabled": "Klembordgeschiedenis uitgeschakeld",
+    "clipboard-history-disabled-description": "Schakel klembordgeschiedenis in de instellingen in of installeer cliphist",
+    "clipboard-loading": "Klembordgeschiedenis laden...",
+    "clipboard-loading-description": "Even geduld",
+    "clipboard-search-description": "Zoek in klembordgeschiedenis",
+    "command": "Commando",
+    "command-description": "Shell-opdrachten uitvoeren",
+    "command-name": "Commando",
+    "emoji": "Emoji-kiezer",
+    "emoji-loading": "Emoji's laden...",
+    "emoji-loading-description": "Even geduld",
+    "emoji-search-description": "Zoek en kopieer emoji's"
+  },
+  "quickSettings": {
+    "bluetooth": {
+      "label": {
+        "disabled": "Bluetooth",
+        "enabled": "Bluetooth"
+      },
+      "tooltip": {
+        "action": "Bluetooth"
+      }
+    },
+    "keepAwake": {
+      "label": {
+        "disabled": "Wakker houden",
+        "enabled": "Wakker houden"
+      },
+      "tooltip": {
+        "action": "Wakker houden"
+      }
+    },
+    "nightLight": {
+      "label": {
+        "disabled": "Nachtlicht",
+        "enabled": "Nachtlicht",
+        "forced": "Nachtlicht"
+      },
+      "tooltip": {
+        "action": "Nachtlicht"
+      }
+    },
+    "notifications": {
+      "label": {
+        "disabled": "Niet storen",
+        "enabled": "Meldingen"
+      },
+      "tooltip": {
+        "action": "Meldingen"
+      }
+    },
+    "powerProfile": {
+      "label": {
+        "unavailable": "Energieprofiel"
+      },
+      "tooltip": {
+        "action": "Energieprofiel",
+        "disabled": "Installeer power-profiles-daemon om energieprofielen te gebruiken"
+      }
+    },
+    "screenRecorder": {
+      "label": {
+        "recording": "Stoppen",
+        "stopped": "Opnemen"
+      },
+      "tooltip": {
+        "action": "Schermrecorder"
+      }
+    },
+    "wallpaperSelector": {
+      "label": "Achtergrond",
+      "tooltip": {
+        "action": "Achtergrondkiezer"
+      }
+    },
+    "wifi": {
+      "label": {
+        "disconnected": "Wi-Fi niet verbonden",
+        "ethernet": "Ethernet",
+        "wifi": "Wi-Fi"
+      },
+      "tooltip": {
+        "action": "Wi-Fi"
+      }
+    }
+  },
+  "session-menu": {
+    "action-in-seconds": "{action} over {seconds} seconden...",
+    "hibernate": "Slaperstand",
+    "lock": "Vergrendelen",
+    "lock-and-suspend": "Vergrendelen en onderbreken",
+    "logout": "Afmelden",
+    "reboot": "Opnieuw opstarten",
+    "shutdown": "Uitschakelen",
+    "suspend": "Onderbreken",
+    "title": "Sessie-menu"
+  },
+  "settings": {
+    "about": {
+      "contributors": {
+        "section": {
+          "description": "Een shout-out naar onze {count} <b>geweldige</b> bijdrager!",
+          "description_plural": "Een shout-out naar onze {count} <b>geweldige</b> bijdragers!",
+          "label": "Bijdragers"
+        }
+      },
+      "noctalia": {
+        "download-latest": "Nieuwste release downloaden",
+        "git-commit": "Git commit:",
+        "git-commit-loading": "Laden...",
+        "installed-version": "Geïnstalleerde versie:",
+        "latest-version": "Nieuwste versie:",
+        "section": {
+          "description": "Een strakke en minimale desktopshell, met zorg gemaakt voor Wayland en gebouwd met Quickshell.",
+          "label": "Noctalia-shell"
+        }
+      },
+      "support": "Steun ons",
+      "title": "Over"
+    },
+    "audio": {
+      "devices": {
+        "input-device": {
+          "description": "Selecteer het gewenste audio-invoerapparaat.",
+          "label": "Invoerapparaat"
+        },
+        "output-device": {
+          "description": "Selecteer het gewenste audio-uitvoerapparaat.",
+          "label": "Uitvoerapparaat"
+        },
+        "section": {
+          "description": "Configureer beschikbare audio-invoer- en -uitvoerapparaten.",
+          "label": "Audio-apparaten"
+        }
+      },
+      "external-mixer": {
+        "description": "Voer het commando of het applicatiepad in om te starten bij het activeren van de externe audiomixerfunctie.",
+        "label": "Extern audio mixer commando",
+        "placeholder": "pwvucontrol || pavucontrol"
+      },
+      "media": {
+        "excluded-player": {
+          "description": "Voeg trefwoorden toe voor spelers die het systeem moet negeren. Elk trefwoord moet op een nieuwe regel staan.",
+          "label": "Uitgesloten spelers",
+          "placeholder": "typ een substring en druk op +"
+        },
+        "frame-rate": {
+          "description": "Hogere waarden zijn vloeiender maar gebruiken meer resources.",
+          "label": "Framesnelheid"
+        },
+        "primary-player": {
+          "description": "Voer een trefwoord in om je hoofdspeler te herkennen.",
+          "label": "Primaire speler",
+          "placeholder": "bijv. spotify, vlc, mpv"
+        },
+        "scrolling-speed": {
+          "description": "Tijd in seconden waarin de titel van begin tot eind scrolt.",
+          "label": "Scrollsnelheid"
+        },
+        "scrolling-title": {
+          "description": "Schakel continu scrollen in voor lange mediatitels.",
+          "label": "Scrollende titel"
+        },
+        "section": {
+          "description": "Stel je favoriete en genegeerde media-applicaties in.",
+          "label": "Mediaspelers"
+        },
+        "visualizer-quality": {
+          "description": "Een hogere kwaliteit gebruikt meer GPU-resources.",
+          "label": "Visualisatiekwaliteit"
+        },
+        "visualizer-type": {
+          "description": "Kies een visualisatietype voor mediaweergave.",
+          "label": "Type visualisatie"
+        }
+      },
+      "title": "Audio",
+      "volumes": {
+        "input-volume": {
+          "description": "Volumeniveau van microfooninvoer.",
+          "label": "Invoervolume"
+        },
+        "mute-input": {
+          "description": "Dempt de standaard audio-invoer (microfoon).",
+          "label": "Audio-invoer dempen"
+        },
+        "mute-output": {
+          "description": "Dempt de hoofd audio-uitvoer van het systeem.",
+          "label": "Audio-uitvoer dempen"
+        },
+        "output-volume": {
+          "description": "Systeembreed volumeniveau.",
+          "label": "Uitvoervolume"
+        },
+        "section": {
+          "description": "Pas volumeregelaars en audioniveaus aan.",
+          "label": "Volumeniveaus"
+        },
+        "step-size": {
+          "description": "Pas de stapgrootte voor volumewijzigingen aan (scrollwiel, sneltoetsen).",
+          "label": "Volumestapgrootte"
+        },
+        "volume-overdrive": {
+          "description": "Sta toe dat het volume boven 100% wordt verhoogd. Mogelijk niet door alle hardware ondersteund.",
+          "label": "Volume-overdrive toestaan"
+        }
+      }
+    },
+    "bar": {
+      "appearance": {
+        "background-opacity": {
+          "description": "Pas de achtergronddekking van de balk aan.",
+          "label": "Achtergronddekking"
+        },
+        "capsule-opacity": {
+          "description": "Stel het doorzichtigheidsniveau in voor widget-achtergronden wanneer capsule wordt getoond.",
+          "label": "Capsule-doorzichtigheid"
+        },
+        "density": {
+          "description": "Pas de opvulling van de balk aan voor een compacte of ruime uitstraling.",
+          "label": "Balkdichtheid"
+        },
+        "floating": {
+          "description": "Toon de balk weer als een zwevende 'pil'.",
+          "label": "Zwevende balk"
+        },
+        "margins": {
+          "description": "Pas de marges rond de zwevende balk aan.",
+          "horizontal": "Horizontaal",
+          "label": "Marges",
+          "vertical": "Verticaal"
+        },
+        "outer-corners": {
+          "description": "Toon naar buiten afgeronde hoeken op de balk weer.",
+          "label": "Buitenhoeken"
+        },
+        "position": {
+          "description": "Kies waar je de balk op het scherm wilt plaatsen.",
+          "label": "Positie van de balk"
+        },
+        "section": {
+          "description": "Pas de uitstraling en positie van de balk aan.",
+          "label": "Uiterlijk"
+        },
+        "show-capsule": {
+          "description": "Widget-achtergronden tonen.",
+          "label": "Capsules tonen"
+        }
+      },
+      "monitors": {
+        "section": {
+          "description": "Balk op specifieke monitoren weergeven. Standaard op alle als er geen zijn gekozen.",
+          "label": "Monitorweergave"
+        }
+      },
+      "title": "Balk",
+      "tray": {
+        "back": "Terug",
+        "blacklist": {
+          "description": "Voeg uitsluitingsregels voor het systeemvak toe, jokertekens (*) worden ondersteund.",
+          "label": "Zwarte lijst",
+          "placeholder": "bijv. nm-applet, Fcitx*"
+        },
+        "pin-application": "Toepassing vastmaken",
+        "unpin-application": "Toepassing losmaken"
+      },
+      "widgets": {
+        "section": {
+          "description": "Sleep widgets om hun volgorde te wijzigen. Gebruik het rechtermuisknopmenu om widgets tussen secties te verplaatsen of te verwijderen.",
+          "label": "Widgetpositionering"
+        }
+      }
+    },
+    "color-scheme": {
+      "color-source": {
+        "matugen-scheme-type": {
+          "description": {
+            "scheme-content": "Leidt kleuren af die nauw aansluiten bij de onderliggende afbeelding.",
+            "scheme-expressive": "Levendig palet met speelse verzadiging.",
+            "scheme-fidelity": "Palet met hoge getrouwheid dat brontinten behoudt.",
+            "scheme-fruit-salad": "Kleurrijke mix van heldere contrasterende accenten.",
+            "scheme-monochrome": "Minimaal palet rond één enkele tint.",
+            "scheme-neutral": "Gedempt palet met rustige, verzachte tonen.",
+            "scheme-rainbow": "Gevarieerd palet dat het volledige spectrum bestrijkt.",
+            "scheme-tonal-spot": "Gebalanceerd palet met gefocuste accenten."
+          },
+          "label": "Matugen-schema type"
+        },
+        "section": {
+          "description": "Hoofdinstellingen voor Noctalia's kleuren.",
+          "label": "Kleurbron"
+        },
+        "use-wallpaper-colors": {
+          "description": "Genereer kleurenschema's uit je achtergrond met Matugen. Kleuren worden automatisch geëxtraheerd om een samenhangend thema te maken.",
+          "label": "Achtergrondkleuren gebruiken"
+        }
+      },
+      "dark-mode": {
+        "mode": {
+          "description": "Schakelt automatisch tussen lichte en donkere modus.",
+          "label": "Schema voor donkere modus",
+          "location": "Locatie",
+          "manual": "Handmatig",
+          "off": "Uit"
+        },
+        "switch": {
+          "description": "Schakelt over naar een donkerder thema voor comfortabeler kijken 's nachts.",
+          "label": "Donkere modus"
+        }
+      },
+      "delete": {
+        "error": {
+          "description": "Verwijderen van {scheme} mislukt",
+          "title": "Verwijderen mislukt"
+        },
+        "success": {
+          "description": "{scheme} succesvol verwijderd",
+          "title": "Kleurenschema verwijderd"
+        }
+      },
+      "download": {
+        "button": "Meer downloaden",
+        "delete": "Verwijderen",
+        "download": "Downloaden",
+        "downloading": "Downloaden...",
+        "empty": "Geen kleurenschema's beschikbaar",
+        "error": {
+          "api-error": "API-fout: {status}",
+          "description": "Download van {scheme} mislukt",
+          "download-failed": "Download mislukt met afsluitcode: {code}",
+          "invalid-response": "Ongeldig API-antwoordformaat",
+          "no-files": "Geen bestanden gevonden voor schema",
+          "parse-failed": "Fout bij parseren van API-antwoord: {error}",
+          "rate-limit": "GitHub API-snelheidslimiet overschreden",
+          "title": "Download mislukt"
+        },
+        "fetching": "Beschikbare kleurenschema's ophalen...",
+        "installed": "Geïnstalleerd",
+        "refresh": "Vernieuwen",
+        "success": {
+          "description": "{scheme} succesvol gedownload",
+          "title": "Kleurenschema gedownload"
+        },
+        "title": "Kleurenschema's downloaden"
+      },
+      "predefined": {
+        "generate-templates": {
+          "description": "Genereer Matugen-sjablonen (GTK, terminalthema's, enz.) bij gebruik van vooraf gedefinieerde kleurenschema's.",
+          "label": "Sjablonen genereren voor vooraf gedefinieerde schema's"
+        },
+        "section": {
+          "description": "Kies uit een verzameling vooraf gedefinieerde kleurenschema's.",
+          "label": "Vooraf gedefinieerde kleurenschema's"
+        }
+      },
+      "templates": {
+        "compositors": {
+          "description": "Theming van compositor.",
+          "label": "Compositors",
+          "niri": {
+            "description": "Schrijf {filepath}. Vereist niri v25.11+",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          }
+        },
+        "misc": {
+          "description": "Maak uw eigen sjablonen",
+          "label": "Geavanceerd",
+          "user-templates": {
+            "description": "Alleen inschakelen als u weet wat u doet, raadpleeg onze online documentatie",
+            "label": "Gebruikerssjablonen inschakelen"
+          }
+        },
+        "programs": {
+          "cava": {
+            "description": "Schrijf {filepath}.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "code": {
+            "description": "Schrijf {filepath}. Het Hyprluna-thema moet handmatig worden geïnstalleerd en geactiveerd.",
+            "description-missing": "Geen Code-client gedetecteerd. Installeer VSCode of VSCodium."
+          },
+          "description": "Toepassingsspecifieke theming.",
+          "discord": {
+            "description": "Schrijf {filepath} voor {client}. Het Hyprluna-thema moet handmatig worden geactiveerd.",
+            "description-missing": "Geen Discord-client gedetecteerd. Installeer vencord, vesktop, webcord, armcord, equibop, lightcord of dorion."
+          },
+          "fuzzel": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "label": "Programma's",
+          "pywalfox": {
+            "description": "Schrijf {filepath} en voer pywalfox update uit.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "spicetify": {
+            "description": "Schrijf {filepath}. Het Comfy-thema moet handmatig worden geïnstalleerd en geactiveerd.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "telegram": {
+            "description": "Schrijf {filepath}.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "vicinae": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "walker": {
+            "description": "Schrijf {filepath} en stel het thema in op noctalia.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          }
+        },
+        "section": {
+          "description": "Pas kleuren toe op externe applicaties.",
+          "label": "Sjablonen"
+        },
+        "terminal": {
+          "alacritty": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "description": "Thema's voor terminal-emulators.",
+          "foot": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "ghostty": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "kitty": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          },
+          "label": "Terminal",
+          "wezterm": {
+            "description": "Schrijf {filepath} en herlaad.",
+            "description-missing": "Vereist dat {app} is geïnstalleerd."
+          }
+        },
+        "ui": {
+          "description": "Thema's voor desktopomgeving en UI-toolkit.",
+          "gtk": {
+            "description": "Schrijf {filepath}"
+          },
+          "kcolorscheme": {
+            "description": "Schrijf {filepath}"
+          },
+          "label": "UI",
+          "qt": {
+            "description": "Schrijf {filepath}"
+          }
+        }
+      },
+      "title": "Kleurschema"
+    },
+    "control-center": {
+      "cards": {
+        "section": {
+          "description": "Pas aan welke bedieningselementen in het Bedieningscentrum verschijnen en in welke volgorde.",
+          "label": "Kaarten"
+        }
+      },
+      "position": {
+        "description": "Kies waar het Bedieningscentrum-paneel verschijnt wanneer het wordt geopend.",
+        "label": "Positie"
+      },
+      "section": {
+        "description": "Configureer de positie en het gedrag van het Bedieningscentrum-paneel.",
+        "label": "Uiterlijk"
+      },
+      "shortcuts": {
+        "custom-button": {
+          "browse": "Bladeren",
+          "command": {
+            "description": "Het commando dat wordt uitgevoerd wanneer op de knop wordt geklikt.",
+            "label": "Commando"
+          },
+          "enable-on-state-logic": {
+            "description": "Schakel een tweede pictogram en aan-status in op basis van een controlecommando.",
+            "label": "Logica voor aan-status inschakelen"
+          },
+          "general-tooltip-text": {
+            "description": "Algemene beschrijving voor de tooltip van de knop.",
+            "label": "Algemene tooltiptekst"
+          },
+          "icon": {
+            "description": "Selecteer een pictogram uit de bibliotheek.",
+            "label": "Pictogram"
+          },
+          "on-clicked": {
+            "description": "Commando dat wordt uitgevoerd wanneer met de linkermuisknop op de knop wordt geklikt.",
+            "label": "Commando bij linkermuisklik"
+          },
+          "on-middle-clicked": {
+            "description": "Commando dat wordt uitgevoerd wanneer met de middelste muisknop op de knop wordt geklikt.",
+            "label": "Commando bij middelste muisklik"
+          },
+          "on-right-clicked": {
+            "description": "Commando dat wordt uitgevoerd wanneer met de rechtermuisknop op de knop wordt geklikt.",
+            "label": "Commando bij rechtermuisklik"
+          },
+          "on-state-command": {
+            "description": "Commando dat wordt uitgevoerd om te controleren of de knop in de aan-status moet staan. Geeft 0 terug voor aan, een andere waarde voor uit.",
+            "label": "Controlecommando voor aan-status"
+          },
+          "on-state-icon": {
+            "description": "Het pictogram voor de knop wanneer deze in de aan-status staat.",
+            "label": "Pictogram voor aan-status"
+          },
+          "state-checks": {
+            "add": "Statuscontrole toevoegen",
+            "browse-icon": "Bladeren",
+            "command": "Commando dat wordt uitgevoerd voor deze statuscontrole",
+            "label": "Statuscontroles",
+            "remove": "Verwijderen"
+          },
+          "tooltip": {
+            "description": "De tooltip die wordt getoond wanneer je over de knop zweeft.",
+            "label": "Tooltip"
+          }
+        },
+        "dialog": {
+          "apply": "Toepassen",
+          "cancel": "Annuleren"
+        },
+        "section": {
+          "description": "Sleep widgets om hun volgorde te wijzigen. Gebruik het rechtermuisknopmenu om widgets tussen secties te verplaatsen of te verwijderen.",
+          "label": "Snelkoppeling-widgets"
+        },
+        "sectionLeft": "Links",
+        "sectionRight": "Rechts"
+      },
+      "title": "Bedieningscentrum"
+    },
+    "display": {
+      "monitors": {
+        "brightness": "Helderheid",
+        "brightness-step": {
+          "description": "Pas de stapgrootte voor helderheidswijzigingen aan (scrollwiel en sneltoetsen).",
+          "label": "Stapgrootte helderheid"
+        },
+        "brightness-unavailable": {
+          "ddc-disabled": "Helderheidsregeling niet beschikbaar. Schakel \"Ondersteuning voor externe helderheid\" in om de helderheid van dit scherm te regelen.",
+          "generic": "Helderheidsregeling is niet beschikbaar voor dit scherm."
+        },
+        "enforce-minimum": {
+          "description": "Lost het probleem op dat de achtergrondverlichting op sommige schermen volledig uitgaat bij 0% helderheid.",
+          "label": "Minimale helderheid afdwingen (1%)"
+        },
+        "external-brightness": {
+          "description": "Schakel DDCUtil-ondersteuning in om de helderheid op externe schermen te regelen via het DDC/CI-protocol.",
+          "label": "Ondersteuning voor externe helderheid"
+        },
+        "section": {
+          "description": "Pas helderheidsinstellingen per scherm aan.",
+          "label": "Instellingen per monitor"
+        }
+      },
+      "night-light": {
+        "auto-schedule": {
+          "description": "Gebaseerd op de zonsopgang- en zonsondergangtijd in <i>{location}</i> - aanbevolen.",
+          "label": "Automatische planning"
+        },
+        "enable": {
+          "description": "Past een warme kleurfilter toe om de afgifte van blauw licht te verminderen.",
+          "label": "Nachtlicht inschakelen"
+        },
+        "force-activation": {
+          "description": "Negeert het schema en past het nachtfilter direct toe.",
+          "label": "Geforceerde activatie"
+        },
+        "manual-schedule": {
+          "description": "Stel aangepaste tijden voor zonsopgang en zonsondergang in.",
+          "label": "Handmatige planning",
+          "select-start": "Starttijd selecteren",
+          "select-stop": "Stoptijd selecteren",
+          "sunrise": "Tijd van zonsopgang",
+          "sunset": "Tijd van zonsondergang"
+        },
+        "section": {
+          "description": "Verminder blauw licht om beter te slapen en vermoeidheid van de ogen te beperken.",
+          "label": "Nachtlicht"
+        },
+        "temperature": {
+          "day": "Dag",
+          "day-description": "Regelt de kleurtemperatuur overdag.",
+          "description": "Stel de kleurwarmte voor nacht en dag in.",
+          "label": "Kleurtemperatuur",
+          "night": "Nacht",
+          "night-description": "Regelt de kleurtemperatuur 's nachts."
+        }
+      },
+      "title": "Beeldscherm"
+    },
+    "dock": {
+      "appearance": {
+        "background-opacity": {
+          "description": "Pas de achtergronddekking van de dock aan.",
+          "label": "Achtergronddekking"
+        },
+        "border-radius": {
+          "description": "Pas de randradius van het dock aan.",
+          "label": "Randradius"
+        },
+        "colorize-icons": {
+          "description": "Pas themakleuren toe op dock-pictogrammen (alleen niet-focuste apps).",
+          "label": "Pictogrammen inkleuren"
+        },
+        "dead-opacity": {
+          "description": "Pas de transparantie aan van app-iconen die niet actief zijn.",
+          "label": "Dode opaciteit"
+        },
+        "display": {
+          "always-visible": "Altijd zichtbaar",
+          "auto-hide": "Automatisch verbergen",
+          "description": "Kies hoe de dock zich gedraagt.",
+          "exclusive": "Exclusief",
+          "label": "Weergave"
+        },
+        "floating-distance": {
+          "description": "Stel de afstand in tussen de dock en de rand van het scherm.",
+          "label": "Afstand zwevende dock"
+        },
+        "icon-size": {
+          "description": "Pas de algehele grootte van de dock aan.",
+          "label": "Grootte van de dock"
+        },
+        "inactive-indicators": {
+          "description": "Toon indicatorpillen voor alle apps, niet alleen de actieve.",
+          "label": "Lopende indicatoren"
+        },
+        "pinned-static": {
+          "description": "Zet vastgemaakte app-pictogrammen altijd in statische volgorde aan de linkerkant.",
+          "label": "Statische vastgezette apps"
+        },
+        "section": {
+          "description": "Pas het gedrag en uiterlijk van de dock aan.",
+          "label": "Uiterlijk"
+        }
+      },
+      "enabled": {
+        "description": "Dock geheel tonen of verbergen.",
+        "label": "Dock inschakelen"
+      },
+      "monitors": {
+        "only-same-output": {
+          "description": "Toon alleen apps van het uitvoerscherm waar de dock zich bevindt.",
+          "label": "Alleen apps van dezelfde output"
+        },
+        "section": {
+          "description": "Dock op specifieke monitoren weergeven. Standaard op alle als er geen zijn gekozen.",
+          "label": "Monitorweergave"
+        }
+      },
+      "title": "Dock"
+    },
+    "general": {
+      "fonts": {
+        "default": {
+          "description": "Hoofdlettertype dat in de hele interface wordt gebruikt.",
+          "label": "Standaardlettertype",
+          "placeholder": "Selecteer standaardlettertype...",
+          "scale": {
+            "description": "Vergroot of verklein de grootte van standaardtekst.",
+            "label": "Grootte standaardlettertype"
+          },
+          "search-placeholder": "Lettertype zoeken..."
+        },
+        "monospace": {
+          "description": "Monospace-lettertype dat wordt gebruikt voor cijfers en statische weergaven.",
+          "label": "Monospace-lettertype",
+          "placeholder": "Selecteer monospace-lettertype...",
+          "scale": {
+            "description": "Vergroot of verklein de grootte van monospace-tekst.",
+            "label": "Grootte monospace-lettertype"
+          },
+          "search-placeholder": "Monospace-lettertype zoeken..."
+        },
+        "reset-scaling": "Schaling resetten",
+        "section": {
+          "description": "Kies de lettertypes die in de interface worden gebruikt.",
+          "label": "Lettertypes"
+        }
+      },
+      "language": {
+        "section": {
+          "description": "Kies je voorkeurstaal voor de applicatie.",
+          "label": "Taal"
+        },
+        "select": {
+          "auto-detect": "Automatisch",
+          "description": "Selecteer de taal die in de interface van de applicatie wordt gebruikt.",
+          "label": "Applicatietaal"
+        }
+      },
+      "launch-setup-wizard": "Het configuratieprogramma starten",
+      "profile": {
+        "picture": {
+          "description": "Je profielfoto die overal in de interface verschijnt.",
+          "label": "Profielfoto van {user}"
+        },
+        "section": {
+          "description": "Bewerk je gebruikersgegevens en avatar.",
+          "label": "Profiel"
+        },
+        "select-avatar": "Avatarafbeelding selecteren",
+        "tooltip": "Profielfoto"
+      },
+      "screen-corners": {
+        "radius": {
+          "description": "Pas de afronding van de schermhoeken aan.",
+          "label": "Straal schermhoeken",
+          "reset": "Straal schermhoeken resetten"
+        },
+        "section": {
+          "description": "Pas afronding en visuele effecten van schermhoeken aan.",
+          "label": "Schermhoeken"
+        },
+        "show-corners": {
+          "description": "Toon afgeronde hoeken aan de rand van het scherm.",
+          "label": "Schermhoeken tonen"
+        },
+        "solid-black": {
+          "description": "Gebruik effen zwart in plaats van de achtergrondkleur van de balk.",
+          "label": "Effen zwarte hoeken"
+        }
+      },
+      "title": "Algemeen"
+    },
+    "hooks": {
+      "info": {
+        "command-info": {
+          "description": "• Commando's worden uitgevoerd via shell (sh -c)\n• Commando's draaien op de achtergrond (losgekoppeld)\n• Testknoppen worden uitgevoerd met de huidige waarden",
+          "label": "Informatie over hook-commando's"
+        },
+        "parameters": {
+          "description": "• Wallpaper-hook: $1 = pad naar achtergrond, $2 = schermnaam\n• Theme Toggle-hook: $1 = true/false (status donkere modus)",
+          "label": "Beschikbare parameters"
+        }
+      },
+      "system-hooks": {
+        "enable": {
+          "description": "Schakel alle hook-commando's in of uit.",
+          "label": "Hooks inschakelen"
+        },
+        "section": {
+          "description": "Configureer commando's die worden uitgevoerd wanneer systeemgebeurtenissen plaatsvinden.",
+          "label": "Systeemhooks"
+        }
+      },
+      "theme-changed": {
+        "description": "Commando dat wordt uitgevoerd wanneer het thema tussen donkere en lichte modus schakelt.",
+        "label": "Thema gewijzigd",
+        "placeholder": "bijv. notify-send \"Thema\" \"Gewisseld\""
+      },
+      "title": "Hooks",
+      "wallpaper-changed": {
+        "description": "Commando dat wordt uitgevoerd wanneer de achtergrond verandert.",
+        "label": "Achtergrond gewijzigd",
+        "placeholder": "bijv. notify-send \"Achtergrond\" \"Gewijzigd\""
+      }
+    },
+    "launcher": {
+      "settings": {
+        "background-opacity": {
+          "description": "Pas de achtergronddekking van de launcher aan.",
+          "label": "Achtergronddekking"
+        },
+        "clip-preview": {
+          "description": "Toon een voorbeeld van de inhoud van het klembord bij gebruik van het >clip-commando.",
+          "label": "Klembordvoorbeeld inschakelen"
+        },
+        "clipboard-history": {
+          "description": "Toegang tot eerder gekopieerde items vanuit de launcher.",
+          "label": "Klembordgeschiedenis inschakelen"
+        },
+        "custom-launch-prefix": {
+          "description": "Voorzie commando's van een aangepaste launcher-prefix (bijv. 'runapp' voor systemd-integratie).",
+          "label": "Aangepaste startprefix"
+        },
+        "custom-launch-prefix-enabled": {
+          "description": "Gebruik een aangepaste prefix om applicaties te starten in plaats van de standaardmethode.",
+          "label": "Aangepaste startprefix inschakelen"
+        },
+        "grid-view": {
+          "description": "Items in een raster weergeven in plaats van een lijst.",
+          "label": "Rasterweergave"
+        },
+        "position": {
+          "description": "Kies waar het launcher-paneel verschijnt.",
+          "label": "Positie"
+        },
+        "section": {
+          "description": "Pas het gedrag en uiterlijk van de launcher aan.",
+          "label": "Uiterlijk"
+        },
+        "show-categories": {
+          "description": "Categorieën-tabbladen weergeven voor het filteren van applicaties.",
+          "label": "Categorieën weergeven"
+        },
+        "sort-by-usage": {
+          "description": "Indien ingeschakeld, verschijnen vaak gestarte apps bovenaan in de lijst.",
+          "label": "Sorteren op meest gebruikt"
+        },
+        "terminal-command": {
+          "description": "Commando om een terminal te starten. Bijv. 'kitty -e' of 'gnome-terminal --'.",
+          "label": "Terminalcommando"
+        },
+        "use-app2unit": {
+          "description": "Gebruikt een alternatieve startmethode om app-processen beter te beheren en problemen te voorkomen.",
+          "label": "App2Unit gebruiken om applicaties te starten"
+        }
+      },
+      "title": "Launcher"
+    },
+    "location": {
+      "calendar": {
+        "cards": {
+          "section": {
+            "description": "Kaarten organiseren en in-/uitschakelen in het kalenderpaneel.",
+            "label": "Kalenderkaarten"
+          }
+        },
+        "header": {
+          "label": "Kalenderkop"
+        },
+        "month": {
+          "label": "Kalendermaand"
+        }
+      },
+      "date-time": {
+        "12hour-format": {
+          "description": "Toon tijd in 12-uurs formaat op het vergrendelscherm en in de kalender. De klok op de balk heeft zijn eigen instellingen.",
+          "label": "12-uurs tijdnotatie gebruiken"
+        },
+        "first-day-of-week": {
+          "automatic": "Automatisch (systeemlocale gebruiken)",
+          "description": "Kies welke dag de week in de kalender start.",
+          "label": "Eerste dag van de week"
+        },
+        "section": {
+          "description": "Pas aan hoe datum en tijd worden weergegeven.",
+          "label": "Datum & tijd"
+        },
+        "show-events": {
+          "description": "Toon gebeurtenissen in het kalenderpaneel.",
+          "label": "Kalendergebeurtenissen tonen"
+        },
+        "use-analog": {
+          "description": "Toon een analoge klok in het kalendervenster en op het vergrendelscherm.",
+          "label": "Analoge klok gebruiken"
+        },
+        "week-numbers": {
+          "description": "Toon het weeknummer van het jaar (bijv. week 38) in de kalender.",
+          "label": "Weeknummers tonen"
+        }
+      },
+      "location": {
+        "search": {
+          "description": "bijv. Toronto, ON",
+          "label": "Zoek een locatie",
+          "placeholder": "Voer de locatienaam in"
+        },
+        "section": {
+          "description": "Krijg nauwkeurige weersinformatie en nachtlichtplanning door je locatie in te stellen.",
+          "label": "Je locatie"
+        }
+      },
+      "title": "Locatie",
+      "weather": {
+        "enabled": {
+          "description": "Toon weerinformatie in de interface en haal weergegevens op. Wanneer uitgeschakeld, worden alle weerelementen verborgen en worden er geen netwerkverzoeken gedaan.",
+          "label": "Weer inschakelen"
+        },
+        "fahrenheit": {
+          "description": "Temperatuur in Fahrenheit weergeven in plaats van Celsius.",
+          "label": "Temperatuur in Fahrenheit (°F) weergeven"
+        },
+        "section": {
+          "description": "Kies je voorkeurseenheid voor temperatuur.",
+          "label": "Weer"
+        },
+        "show-effects": {
+          "description": "Toon extra visuele effecten (zoals regen, sneeuw of bliksem) op de weerkaart.",
+          "label": "Weerseffecten weergeven"
+        },
+        "show-in-calendar": {
+          "description": "Toon de dagelijkse weersverwachting direct in je kalenderview.",
+          "label": "Weer in kalender weergeven"
+        }
+      }
+    },
+    "lock-screen": {
+      "compact-lockscreen": {
+        "description": "Toon alleen de logininvoer en systeemknoppen, verberg weer- en mediawidgets.",
+        "label": "Compact vergrendelscherm"
+      },
+      "lock-on-suspend": {
+        "description": "Vergrendel het scherm automatisch wanneer het systeem wordt onderbroken.",
+        "label": "Vergrendelen bij onderbreken"
+      },
+      "show-hibernate": {
+        "description": "De optie 'sluimerstand' tonen in de energieacties.",
+        "label": "Sluimerstand tonen"
+      },
+      "show-session-buttons": {
+        "description": "Toegang tot energie-instellingen toestaan vanaf het vergrendelscherm.",
+        "label": "Stroombediening"
+      },
+      "title": "Vergrendelscherm"
+    },
+    "network": {
+      "bluetooth": {
+        "label": "Bluetooth inschakelen"
+      },
+      "section": {
+        "description": "Beheer Wi-Fi- en Bluetooth-verbindingen."
+      },
+      "title": "Netwerk",
+      "wifi": {
+        "label": "Wi-Fi inschakelen"
+      }
+    },
+    "notifications": {
+      "duration": {
+        "critical-urgency": {
+          "description": "Hoe lang meldingen met kritieke prioriteit zichtbaar blijven.",
+          "label": "Kritieke urgentie"
+        },
+        "low-urgency": {
+          "description": "Hoe lang meldingen met lage prioriteit zichtbaar blijven.",
+          "label": "Lage urgentie"
+        },
+        "normal-urgency": {
+          "description": "Hoe lang meldingen met normale prioriteit zichtbaar blijven.",
+          "label": "Normale urgentie"
+        },
+        "reset": "Timeoutduur resetten",
+        "respect-expire": {
+          "description": "Gebruik de vervaltijd die in de melding is ingesteld.",
+          "label": "Vervaltijd respecteren"
+        },
+        "section": {
+          "description": "Configureer hoe lang meldingen zichtbaar blijven op basis van hun urgentieniveau.",
+          "label": "Duur van meldingen"
+        }
+      },
+      "monitors": {
+        "section": {
+          "description": "Meldingen op specifieke monitoren tonen. Standaard op alle als er geen zijn gekozen.",
+          "label": "Monitorweergave"
+        }
+      },
+      "settings": {
+        "always-on-top": {
+          "description": "Toon meldingen boven fullscreen-vensters en andere lagen.",
+          "label": "Altijd bovenop"
+        },
+        "background-opacity": {
+          "description": "Pas de dekking van meldingsachtergronden aan.",
+          "label": "Achtergronddekking"
+        },
+        "do-not-disturb": {
+          "description": "Schakel alle meldingspop-ups uit wanneer ingeschakeld.",
+          "label": "Niet storen"
+        },
+        "enable-osd": {
+          "description": "Toon volumeveranderingen en helderheid in realtime.",
+          "label": "On-screenweergave inschakelen"
+        },
+        "enabled": {
+          "description": "Schakel de meldingsdaemon in of uit, vereist een herstart van noctalia-shell.",
+          "label": "Meldingen inschakelen"
+        },
+        "location": {
+          "description": "Waar meldingen op het scherm verschijnen.",
+          "label": "Locatie"
+        },
+        "section": {
+          "description": "Configureer uiterlijk en gedrag van meldingen.",
+          "label": "Uiterlijk"
+        }
+      },
+      "sounds": {
+        "enabled": {
+          "description": "Schakel geluidseffecten in voor inkomende meldingen.",
+          "label": "Meldingsgeluiden inschakelen"
+        },
+        "excluded-apps": {
+          "description": "Sla het afspelen van het geconfigureerde notificatiegeluid over voor specifieke applicaties die hun eigen ingebouwde geluiden hebben.",
+          "label": "Uitgesloten applicaties",
+          "placeholder": "discord,firefox,chrome,chromium,edge"
+        },
+        "files": {
+          "critical": {
+            "description": "Pad naar het geluidsbestand dat wordt afgespeeld voor meldingen met kritieke prioriteit.",
+            "label": "Kritieke urgentie geluid",
+            "select-title": "Selecteer Kritieke Urgentie Geluidsbestand"
+          },
+          "low": {
+            "description": "Pad naar het geluidsbestand dat wordt afgespeeld voor meldingen met lage prioriteit.",
+            "label": "Lage urgentie geluid",
+            "select-title": "Selecteer Lage Urgentie Geluidsbestand"
+          },
+          "normal": {
+            "description": "Pad naar het geluidsbestand dat wordt afgespeeld voor meldingen met normale prioriteit.",
+            "label": "Normale urgentie geluid",
+            "select-title": "Selecteer Normale Urgentie Geluidsbestand"
+          },
+          "placeholder": "Voer pad naar geluidsbestand in",
+          "section": {
+            "description": "Configureer aangepaste geluidsbestanden voor verschillende meldingsurgentieniveaus.",
+            "label": "Geluidsbestanden"
+          },
+          "select-file": "Selecteer Geluidsbestand",
+          "unified": {
+            "description": "Pad naar het geluidsbestand dat wordt afgespeeld voor meldingen.",
+            "label": "Meldingsgeluid",
+            "select-title": "Selecteer Meldingsgeluidsbestand"
+          }
+        },
+        "section": {
+          "description": "Configureer meldingsgeluidseffecten en volume.",
+          "label": "Geluidsinstellingen"
+        },
+        "separate": {
+          "description": "Gebruik verschillende geluidsbestanden voor lage, normale en kritieke prioriteitsmeldingen.",
+          "label": "Gebruik verschillende geluiden per prioriteit"
+        },
+        "unavailable": {
+          "description": "Installeer Qt6 Multimedia om meldingsgeluiden in te schakelen.",
+          "label": "Meldingsgeluiden niet beschikbaar"
+        },
+        "volume": {
+          "description": "Pas het volumeniveau aan voor meldingsgeluiden.",
+          "label": "Geluidsvolume"
+        }
+      },
+      "title": "Meldingen",
+      "toast": {
+        "keyboard": {
+          "description": "Toon een toastmelding wanneer de toetsenbordindeling verandert.",
+          "label": "Toetsenbordindeling"
+        },
+        "section": {
+          "description": "Configureer het uiterlijk en gedrag van toasts.",
+          "label": "Toast"
+        }
+      }
+    },
+    "osd": {
+      "always-on-top": {
+        "description": "Toon OSD boven fullscreen-vensters en andere lagen.",
+        "label": "Altijd bovenop"
+      },
+      "background-opacity": {
+        "description": "Regelt de transparantie van de OSD-achtergrond.",
+        "label": "Achtergrond dekkendheid"
+      },
+      "description": "Configureer on-screenindicatoren zoals overlays voor volume en helderheid.",
+      "duration": {
+        "auto-hide": {
+          "description": "Stel de tijd in voordat OSD verdwijnt.",
+          "label": "Automatisch verbergen na"
+        },
+        "section": {
+          "description": "Hoe lang OSD zichtbaar blijft voordat het automatisch verdwijnt.",
+          "label": "Timeout automatisch verbergen"
+        }
+      },
+      "enabled": {
+        "description": "Toon volumeveranderingen en helderheid in realtime.",
+        "label": "On-screenweergave inschakelen"
+      },
+      "location": {
+        "description": "Waar on-screenweergaven verschijnen.",
+        "label": "Locatie"
+      },
+      "monitors": {
+        "section": {
+          "description": "Toon OSD op specifieke monitoren. Standaard op alle als er geen zijn gekozen.",
+          "label": "Monitorweergave"
+        }
+      },
+      "section": {
+        "general": {
+          "description": "Configureer zichtbaarheid en gedrag van OSD.",
+          "label": "Algemeen"
+        }
+      },
+      "title": "On-screenweergave",
+      "types": {
+        "brightness": {
+          "description": "Toon het OSD wanneer de schermhelderheid verandert.",
+          "label": "Helderheid"
+        },
+        "input-volume": {
+          "description": "Toon het OSD wanneer het microfoonvolume verandert.",
+          "label": "Invoervolume"
+        },
+        "lockkey": {
+          "description": "Toon het OSD wanneer Caps Lock, Num Lock of Scroll Lock wordt omgeschakeld.",
+          "label": "Vergrendeltoetsen"
+        },
+        "section": {
+          "description": "Selecteer de gebeurtenissen die de OSD activeren.",
+          "label": "OSD triggergebeurtenissen"
+        },
+        "volume": {
+          "description": "Toon het OSD wanneer het uitvoervolume verandert.",
+          "label": "Uitvoervolume"
+        }
+      }
+    },
+    "plugins": {
+      "available": {
+        "description": "Blader door en installeer plugins vanuit geconfigureerde bronnen.",
+        "label": "Beschikbare plug-ins",
+        "no-plugins-description": "Controleer je plugin-bronnen of vernieuw de lijst.",
+        "no-plugins-label": "Geen plug-ins beschikbaar"
+      },
+      "filter": {
+        "all": "Alles",
+        "downloaded": "Gedownload",
+        "not-downloaded": "Niet gedownload"
+      },
+      "install": "Installeren",
+      "install-error": "Installatie mislukt: {error}",
+      "install-success": "{plugin} succesvol geïnstalleerd",
+      "installed": {
+        "description": "Beheer en configureer alle lokaal geïnstalleerde plugins.",
+        "label": "Geïnstalleerde plug-ins",
+        "no-plugins-description": "Installeer plugins uit de sectie Beschikbare plugins hieronder.",
+        "no-plugins-label": "Geen plugins geïnstalleerd"
+      },
+      "installing": "{plugin} installeren...",
+      "plugin-settings-title": "{plugin} Instellingen",
+      "refresh": {
+        "refreshing": "Pluginlijst vernieuwen...",
+        "tooltip": "Beschikbare plugins vernieuwen"
+      },
+      "settings": {
+        "tooltip": "Plugin instellingen"
+      },
+      "settings-error-not-loaded": "Plugin niet geladen",
+      "settings-saved": "Plugininstellingen opgeslagen",
+      "sources": {
+        "add-custom": "Aangepaste repository toevoegen",
+        "add-dialog": {
+          "description": "Voeg een GitHub repository toe als een pluginbron.",
+          "error": "Pluginbron toevoegen mislukt",
+          "name": "Repositorynaam",
+          "name-placeholder": "Mijn Aangepaste Plugins",
+          "success": "Pluginbron succesvol toegevoegd",
+          "title": "Pluginbron toevoegen",
+          "url": "Repository URL"
+        },
+        "description": "Beheer plugin-repositories vanwaar plugins worden gedownload.",
+        "label": "Pluginbronnen",
+        "placeholder": "Mijn coole repository",
+        "remove": {
+          "tooltip": "Pluginbron verwijderen"
+        }
+      },
+      "title": "Plugins",
+      "uninstall": "Verwijderen",
+      "uninstall-dialog": {
+        "description": "Weet je zeker dat je {plugin} wilt verwijderen? Hiermee worden alle plugin-gegevens verwijderd.",
+        "title": "Plugin verwijderen"
+      },
+      "uninstall-error": "Verwijderen mislukt: {error}",
+      "uninstall-success": "{plugin} is succesvol verwijderd.",
+      "uninstalling": "{plugin} verwijderen...",
+      "update": "Update",
+      "update-all": "Alles bijwerken ({count})",
+      "update-all-success": "Alle plugins succesvol bijgewerkt",
+      "update-available": "{count} plugin(s) update(s) beschikbaar",
+      "update-error": "Plugin bijwerken mislukt: {plugin}: {error}",
+      "update-incompatible": "Vereist Noctalia v{version} of hoger",
+      "update-success": "{plugin} is bijgewerkt naar v{version}",
+      "update-version": "v{huidig} → v{nieuw}",
+      "updating": "{plugin} bijwerken..."
+    },
+    "screen-recorder": {
+      "audio": {
+        "audio-codec": {
+          "description": "Opus wordt aanbevolen voor de beste prestaties en de kleinste audiogrootte.",
+          "label": "Audiocodec"
+        },
+        "audio-source": {
+          "description": "Audiobron om tijdens de opname vast te leggen.",
+          "label": "Audiobron"
+        },
+        "section": {
+          "description": "Configureer opties voor audio-opname.",
+          "label": "Audio-instellingen"
+        }
+      },
+      "general": {
+        "output-folder": {
+          "description": "Map waarin schermopnamen worden opgeslagen.",
+          "label": "Uitvoermap",
+          "tooltip": "Uitvoermap"
+        },
+        "section": {
+          "description": "Beheer schermopname-uitvoer en inhoud.",
+          "label": "Algemene instellingen"
+        },
+        "select-output-folder": "Uitvoermap selecteren",
+        "show-cursor": {
+          "description": "Neem de muiscursor op in de video.",
+          "label": "Cursor tonen"
+        }
+      },
+      "title": "Schermrecorder",
+      "video": {
+        "color-range": {
+          "description": "Beperkt wordt aanbevolen voor betere compatibiliteit.",
+          "label": "Kleurbereik"
+        },
+        "frame-rate": {
+          "description": "Doelframesnelheid voor schermopnamen.",
+          "label": "Framesnelheid"
+        },
+        "section": {
+          "description": "Configureer opties voor video-opname.",
+          "label": "Video-instellingen"
+        },
+        "video-codec": {
+          "description": "h264 is de meest gebruikte codec.",
+          "label": "Videocodec"
+        },
+        "video-quality": {
+          "description": "Hogere kwaliteit resulteert in grotere bestanden.",
+          "label": "Videokwaliteit"
+        },
+        "video-source": {
+          "description": "Portal wordt aanbevolen; als je artefacten krijgt, probeer dan Screen.",
+          "label": "Videobron"
+        }
+      }
+    },
+    "session-menu": {
+      "countdown-duration": {
+        "description": "Stel in hoe lang de afteltimer duurt voordat energieacties worden uitgevoerd.",
+        "label": "Afteltimer duur"
+      },
+      "enable-countdown": {
+        "description": "Toon een afteltimer voordat energieacties worden uitgevoerd.",
+        "label": "Afteltimer inschakelen"
+      },
+      "entries": {
+        "section": {
+          "description": "Aanpassen welke energieacties in het Sessiemenu verschijnen en in welke volgorde.",
+          "label": "Energieacties"
+        }
+      },
+      "entry-settings": {
+        "command": {
+          "description": "Aangepast commando om uit te voeren voor deze actie. Laat leeg om het standaard systeemcommando te gebruiken.",
+          "label": "Commando",
+          "placeholder": "systemctl poweroff"
+        },
+        "default-command": {
+          "lock": "Intern vergrendelscherm (geen commando)",
+          "logout": "Interne afmelding (geen commando)"
+        },
+        "default-info": {
+          "description": "Als er geen aangepast commando is opgegeven, wordt het standaard systeemcommando gebruikt.",
+          "label": "Standaardopdracht"
+        },
+        "title": "Configureer {entry}",
+        "tooltip": "Configureer opdracht"
+      },
+      "general": {
+        "section": {
+          "description": "Configureer het gedrag en uiterlijk van het sessiemenu-paneel.",
+          "label": "Algemeen"
+        }
+      },
+      "position": {
+        "description": "Kies waar het Sessiemenu-paneel verschijnt wanneer het wordt geopend.",
+        "label": "Positie"
+      },
+      "show-header": {
+        "description": "Toon de titel en sluitknop bovenaan het Sessiemenu.",
+        "label": "Koptekst tonen"
+      },
+      "title": "Sessiemenu"
+    },
+    "system-monitor": {
+      "cpu-critical-threshold": {
+        "label": "Kritieke drempel"
+      },
+      "cpu-section": {
+        "label": "CPU-gebruik"
+      },
+      "cpu-warning-threshold": {
+        "label": "Waarschuwingsdrempel"
+      },
+      "critical-color": {
+        "label": "Kritische kleur"
+      },
+      "custom-highlight-colors-title": {
+        "label": "Aangepaste markeerkleuren"
+      },
+      "disk-critical-threshold": {
+        "label": "Kritieke drempel"
+      },
+      "disk-section": {
+        "label": "Schijfgebruik"
+      },
+      "disk-warning-threshold": {
+        "label": "Waarschuwingsdrempel"
+      },
+      "general": {
+        "section": {
+          "description": "Configureer het gedrag en de weergave van de Systeemmonitor.",
+          "label": "Algemeen"
+        }
+      },
+      "highlight-colors-section": {
+        "label": "Markeerkleuren"
+      },
+      "mem-critical-threshold": {
+        "label": "Kritieke drempel"
+      },
+      "mem-warning-threshold": {
+        "label": "Waarschuwingsdrempel"
+      },
+      "memory-section": {
+        "label": "Geheugengebruik"
+      },
+      "network-section": {
+        "label": "Netwerk"
+      },
+      "polling-interval": {
+        "label": "Peilingsinterval"
+      },
+      "temp-critical-threshold": {
+        "label": "Kritieke drempel"
+      },
+      "temp-warning-threshold": {
+        "label": "Waarschuwingsdrempel"
+      },
+      "temperature-section": {
+        "label": "CPU-temperatuur"
+      },
+      "thresholds-section": {
+        "description": "Pas de waarschuwing/kritieke drempels en de pollingsintervallen voor elke systeemmetriek aan.",
+        "label": "Drempels"
+      },
+      "title": "Systeemmonitor",
+      "use-custom-highlight-colors": {
+        "description": "Indien uitgeschakeld, worden de standaard markeerkleuren van het thema gebruikt.",
+        "label": "Gebruik aangepaste markeerkleuren."
+      },
+      "warning-color": {
+        "label": "Waarschuwingskleur"
+      }
+    },
+    "user-interface": {
+      "allow-panels-without-bar": {
+        "description": "Indien ingeschakeld, kunnen panelen op elk scherm worden geopend. Indien uitgeschakeld, worden panelen alleen geopend op schermen met een balk, wat het geheugengebruik kan verminderen.",
+        "label": "Sta panelen toe op schermen zonder balk."
+      },
+      "animation-disable": {
+        "description": "Schakel alle animaties uit voor een snellere, responsievere ervaring.",
+        "label": "UI-animaties uitschakelen"
+      },
+      "animation-speed": {
+        "description": "Pas de globale animatiesnelheid aan.",
+        "label": "Animatiesnelheid",
+        "reset": "Animatiesnelheid resetten"
+      },
+      "box-border-radius": {
+        "description": "Past de hoekronding aan van belangrijke lay-outsecties, zoals zijbalken, kaarten en inhoudspanelen.",
+        "label": "Container Radius",
+        "reset": "Containerstraal resetten"
+      },
+      "control-border-radius": {
+        "description": "Regelt de kromming van interactieve elementen, waaronder knoppen, schakelaars en tekstvelden.",
+        "label": "Voer straal in",
+        "reset": "Reset invoerradius"
+      },
+      "dim-desktop": {
+        "description": "Dim de desktop wanneer panelen of menu's geopend zijn.",
+        "label": "Desktop dimmen"
+      },
+      "dimmer-opacity": {
+        "description": "Stel het opaciteitsniveau in voor het dimmen van het bureaublad.",
+        "label": "Doorzichtigheid van gedimde desktop",
+        "reset": "Doorzichtigheid van gedimde desktop resetten"
+      },
+      "panel-background-opacity": {
+        "description": "Stel de achtergronddoorzichtigheid in voor alle panelen (Launcher, Control Center, Instellingen, enz.).",
+        "label": "Paneel achtergronddoorzichtigheid"
+      },
+      "panels-attached-to-bar": {
+        "description": "Panelen vergrendelen aan de balk en schermranden, voor een naadloze look met stijlvolle omgekeerde hoeken.",
+        "label": "Panelen aan randen vastklikken"
+      },
+      "panels-overlay": {
+        "description": "Zorgt ervoor dat panelen en de balk zichtbaar blijven, zelfs boven fullscreen-applicaties.",
+        "label": "Panelen & balk bovenop houden"
+      },
+      "scaling": {
+        "description": "Wijzigt de grootte van de algemene gebruikersinterface, exclusief de balk.",
+        "label": "Interfaceschaling",
+        "reset-scaling": "Interfaceschaling resetten"
+      },
+      "section": {
+        "description": "Pas de look, feel en het gedrag van de interface aan.",
+        "label": "Uiterlijk"
+      },
+      "settings-panel-attached-to-bar": {
+        "description": "Houd het instellingenvenster uitgelijnd met de balk voor een uniforme uitstraling.",
+        "label": "Instellingenvenster aan balk vastklikken"
+      },
+      "shadows": {
+        "description": "Schakelt slagschaduwen onder balken en panelen in.",
+        "direction": {
+          "description": "Kies vanaf waar de schaduw wordt geworpen.",
+          "label": "Richting van schaduw"
+        },
+        "label": "Slagschaduwen"
+      },
+      "title": "Gebruikersinterface",
+      "tooltips": {
+        "description": "Schakel tooltips in of uit in de hele interface.",
+        "label": "Tooltips tonen"
+      }
+    },
+    "wallpaper": {
+      "automation": {
+        "custom-interval": {
+          "description": "Voer tijd in als UU:MM (bijv. 01:30).",
+          "label": "Aangepast interval"
+        },
+        "interval": {
+          "description": "Hoe vaak achtergronden automatisch worden gewisseld.",
+          "label": "Achtergrondinterval"
+        },
+        "random-wallpaper": {
+          "description": "Plan willekeurige achtergrondwissels op vaste intervallen.",
+          "label": "Willekeurige achtergrond"
+        },
+        "section": {
+          "label": "Automatisering"
+        }
+      },
+      "look-feel": {
+        "edge-smoothness": {
+          "description": "Past een zacht, vervaagd effect toe op de rand van overgangen.",
+          "label": "Overgangsranden verzachten"
+        },
+        "fill-color": {
+          "description": "Kies een vulkleur die achter de achtergrond kan verschijnen.",
+          "label": "Vulkleur"
+        },
+        "fill-mode": {
+          "description": "Selecteer hoe de afbeelding moet schalen om overeen te komen met de resolutie van je monitor.",
+          "label": "Vulmodus"
+        },
+        "section": {
+          "label": "Uiterlijk & gevoel"
+        },
+        "transition-duration": {
+          "description": "Duur van overgangsanimaties in seconden.",
+          "label": "Overgangsduur"
+        },
+        "transition-type": {
+          "description": "Animatietype bij het wisselen tussen achtergronden.",
+          "label": "Overgangstype"
+        }
+      },
+      "settings": {
+        "enable-management": {
+          "description": "Beheer achtergronden met Noctalia. Schakel uit als je liever een andere applicatie gebruikt.",
+          "label": "Achtergrondbeheer inschakelen"
+        },
+        "enable-overview": {
+          "description": "Past een vervaagde en gedimde achtergrond toe op het overzichtsscherm.",
+          "label": "Achtergrond voor overzicht inschakelen"
+        },
+        "folder": {
+          "description": "Pad naar je hoofdachtergrondmap.",
+          "label": "Achtergrondmap",
+          "tooltip": "Achtergrondmap"
+        },
+        "hide-wallpaper-filenames": {
+          "description": "Verberg de bestandsnamen van de achtergrond in de selector.",
+          "label": "Bestandsnamen verbergen"
+        },
+        "monitor-specific": {
+          "description": "Stel een andere achtergrondmap in voor elke monitor.",
+          "label": "Monitor-specifieke mappen",
+          "tooltip": "Monitor-achtergrondmap"
+        },
+        "recursive-search": {
+          "description": "Zoek ook naar achtergronden in submappen van de achtergrondmap.",
+          "label": "Submappen doorzoeken"
+        },
+        "section": {
+          "description": "Bepaal hoe achtergronden worden beheerd en weergegeven.",
+          "label": "Achtergrondinstellingen"
+        },
+        "select-folder": "Achtergrondmap selecteren",
+        "select-monitor-folder": "Achtergrondmap voor monitor selecteren",
+        "selector": {
+          "description": "Kies je achtergrond.",
+          "label": "Achtergrondkiezer",
+          "tooltip": "Achtergrondkiezer"
+        },
+        "selector-position": {
+          "description": "Kies waar het achtergrondselectiepaneel verschijnt.",
+          "label": "Positie"
+        }
+      },
+      "title": "Achtergrond"
+    }
+  },
+  "setup": {
+    "appearance": {
+      "header": "Uiterlijk",
+      "subheader": "Kies donkere modus en kleurbronnen (Matugen of vooraf gedefinieerd)."
+    },
+    "customize": {
+      "header": "Pas je ervaring aan",
+      "subheader": "Pas balkpositie, dichtheid, schaal en meer aan."
+    },
+    "wallpaper": {
+      "choose-dir": "Kies een map met je achtergrondafbeeldingen",
+      "dir": {
+        "browse": "Bladeren naar achtergrondmap",
+        "description": "Kies de map met je achtergronden",
+        "label": "Achtergrondmap",
+        "select-title": "Achtergrondmap selecteren"
+      },
+      "header": "Kies je achtergrond",
+      "no-dir": "Geen achtergrondmap geselecteerd",
+      "no-valid": "Geen geldige afbeeldingsbestanden gevonden in: {dir}",
+      "none-in-dir": "Geen achtergronden gevonden in map",
+      "preview-error": "Afbeelding laden mislukt",
+      "select-prompt": "Selecteer hieronder een achtergrond",
+      "subheader": "Zet de toon met een mooie achtergrond."
+    },
+    "welcome": {
+      "note": "Een paar basisinstellingen om je op weg te helpen – alle opties vind je in Instellingen."
+    }
+  },
+  "system": {
+    "cpu-temperature": "{temp}°C",
+    "disk-usage": "{percent}%",
+    "location-display": "{name} ({coordinates})",
+    "monitor-description": "{model} ({width}x{height} @ {scale}x)",
+    "no-media-player-detected": "Geen mediaspeler gedetecteerd",
+    "scaling-percentage": "{percentage}%",
+    "signal-strength": "{signal}%",
+    "unknown": "Onbekend",
+    "unknown-app": "Onbekende app",
+    "unknown-layout": "Onbekende indeling",
+    "unknown-version": "Onbekende versie",
+    "uptime": "Actieve tijd: {uptime}",
+    "user-requested": "Door gebruiker aangevraagd",
+    "welcome-back": "Welkom terug,",
+    "widget-settings-title": "Instellingen voor {widget}"
+  },
+  "toast": {
+    "airplane-mode": {
+      "disabled": "Uitgeschakeld",
+      "enabled": "Ingeschakeld",
+      "title": "Vliegtuigmodus"
+    },
+    "battery": {
+      "low": "Batterij bijna leeg",
+      "low-desc": "De batterij is op {percent}%. Sluit de oplader aan."
+    },
+    "bluetooth": {
+      "disabled": "Uitgeschakeld",
+      "enabled": "Ingeschakeld"
+    },
+    "clipboard": {
+      "unavailable": "Klembordgeschiedenis niet beschikbaar",
+      "unavailable-desc": "De toepassing 'cliphist' is niet geïnstalleerd. Installeer deze om functies voor klembordgeschiedenis te gebruiken."
+    },
+    "dark-mode": {
+      "dark-mode": "Donkere modus",
+      "enabled": "Ingeschakeld",
+      "light-mode": "Lichte modus"
+    },
+    "do-not-disturb": {
+      "disabled": "\"Niet storen\" uitgeschakeld",
+      "disabled-desc": "Alle meldingen worden weergegeven.",
+      "enabled": "\"Niet storen\" ingeschakeld",
+      "enabled-desc": "Je vindt deze meldingen terug in je geschiedenis."
+    },
+    "internet": {
+      "limited": "Verbonden zonder internet"
+    },
+    "ipc": {
+      "powerpanel-deprecated": "PowerPanel is hernoemd naar SessionMenu, deze IPC-aanroep wordt binnenkort verouderd. Gebruik in plaats daarvan \"ipc call sessionMenu toggle\".",
+      "sidepanel-deprecated": "SidePanel is hernoemd naar ControlCenter, deze IPC-aanroep wordt binnenkort verouderd. Gebruik in plaats daarvan \"ipc call controlCenter toggle\"."
+    },
+    "keep-awake": {
+      "disabled": "\"Wakker houden\" uitgeschakeld",
+      "enabled": "\"Wakker houden\" ingeschakeld"
+    },
+    "keyboard-layout": {
+      "changed": "Toetsenbordindeling gewijzigd naar {layout}"
+    },
+    "kofi": {
+      "opened": "Ko-fi-pagina geopend in je browser"
+    },
+    "missing-control-center": {
+      "description": "De Bedieningscentrum-widget is uit de balk verwijderd. Om er vanuit de balk weer toegang toe te krijgen, moet je de widget opnieuw toevoegen. Je kunt het ook openen door met de rechtermuisknop op de balk te klikken.",
+      "label": "Laatste Bedieningscentrum-widget verwijderd"
+    },
+    "night-light": {
+      "disabled": "Nachtlicht uitgeschakeld",
+      "enabled": "Nachtlicht ingeschakeld",
+      "forced": "Geforceerde activatie",
+      "normal": "Normale modus",
+      "not-installed": "wlsunset niet geïnstalleerd"
+    },
+    "noctalia-performance": {
+      "disabled": "Prestatiemodus uitgeschakeld",
+      "enabled": "Prestatiemodus ingeschakeld",
+      "label": "Noctalia Performance"
+    },
+    "power-profile": {
+      "changed": "Energieprofiel gewijzigd",
+      "profile-name": "\"{profile}\""
+    },
+    "recording": {
+      "failed-general": "De recorder is met een fout afgesloten.",
+      "failed-gpu": "gpu-screen-recorder is onverwacht afgesloten.",
+      "failed-start": "Starten van opname mislukt",
+      "no-portals": "Desktop-portals worden niet uitgevoerd",
+      "no-portals-desc": "Start xdg-desktop-portal en een compositor-portal (wlr/hyprland/gnome/kde).",
+      "not-installed": "gpu-screen-recorder niet geïnstalleerd",
+      "not-installed-desc": "Installeer gpu-screen-recorder om schermopnamefuncties te gebruiken.",
+      "saved": "Opname opgeslagen",
+      "started": "Opname gestart",
+      "stopping": "Opname wordt gestopt…"
+    },
+    "theming-processor-failed": {
+      "desc-generic": "Er is een fout opgetreden tijdens het verwerken van sjablonen",
+      "title-matugen": "Matugen-sjabloonverwerking mislukt",
+      "title-predefined": "Verwerken van vooraf gedefinieerd kleurenschema mislukt"
+    },
+    "vpn": {
+      "connected": "Verbonden met '{name}'",
+      "disconnected": "Verbinding met '{name}' verbroken"
+    },
+    "wallpaper-colors": {
+      "disabled": "Achtergrondkleuren uitgeschakeld",
+      "enabled": "Achtergrondkleuren ingeschakeld",
+      "label": "Achtergrondkleuren genereren",
+      "not-installed": "Matugen niet geïnstalleerd - vereist voor het extraheren van achtergrondkleuren"
+    },
+    "wifi": {
+      "connected": "Verbonden met '{ssid}'",
+      "disabled": "Wi-Fi uitgeschakeld",
+      "disconnected": "Verbinding met '{ssid}' verbroken",
+      "enabled": "Wi-Fi ingeschakeld"
+    }
+  },
+  "tooltips": {
+    "add-widget": "Widget toevoegen",
+    "bluetooth-devices": "Bluetooth-apparaten",
+    "brightness-at": "Helderheid: {brightness}%",
+    "cancel-timer": "Timer",
+    "clear-history": "Geschiedenis wissen",
+    "click-to-start-recording": "Schermrecorder (opname starten)",
+    "click-to-stop-recording": "Schermrecorder (opname stoppen)",
+    "close": "Sluiten",
+    "connect-disconnect-devices": "Bluetooth-apparaat",
+    "delete-notification": "Melding verwijderen",
+    "disable-keep-awake": "Wakker houden",
+    "do-not-disturb-disabled": "Niet storen",
+    "do-not-disturb-enabled": "Niet storen",
+    "enable-keep-awake": "Wakker houden",
+    "forget-network": "Netwerk vergeten",
+    "grid-view": "Rasterweergave",
+    "hidden-files-hide": "Verborgen bestanden",
+    "hidden-files-show": "Verborgen bestanden",
+    "home": "Home-map",
+    "input-muted": "Microfoon",
+    "keep-awake": "Wakker houden",
+    "keyboard-layout": "{layout}-toetsenbordindeling",
+    "list-view": "Lijstweergave",
+    "manage-vpn": "VPN-verbindingen",
+    "manage-wifi": "Wi-Fi",
+    "microphone-volume-at": "Microfoonvolume: {volume}%",
+    "move-to-center-section": "Middelste sectie",
+    "move-to-left-section": "Linker sectie",
+    "move-to-right-section": "Rechter sectie",
+    "next-media": "Volgende track",
+    "next-month": "Volgende maand",
+    "night-light-disabled": "Nachtlicht",
+    "night-light-enabled": "Nachtlicht",
+    "night-light-forced": "Nachtlicht",
+    "night-light-not-installed": "Nachtlicht (niet beschikbaar)",
+    "noctalia-performance-disabled": "Noctalia-prestatiemodus",
+    "noctalia-performance-enabled": "Noctalia-prestatiemodus",
+    "open-control-center": "Bedieningscentrum",
+    "open-notification-history-disable-dnd": "Meldingsgeschiedenis",
+    "open-notification-history-enable-dnd": "Meldingsgeschiedenis",
+    "open-settings": "Instellingen",
+    "open-tray-dropdown": "Systeemvak",
+    "open-wallpaper-selector": "Achtergrondkiezer",
+    "output-muted": "Audio-uitvoer",
+    "pause": "Pauzeren",
+    "play": "Afspelen",
+    "power-profile": "{profile} energieprofiel",
+    "previous-media": "Vorige track",
+    "previous-month": "Vorige maand",
+    "refresh": "Verversen",
+    "refresh-devices": "Apparaten verversen",
+    "refresh-wallhaven": "Wallhaven-resultaten verversen",
+    "refresh-wallpaper-list": "Achtergrondlijst verversen",
+    "remove-widget": "Widget verwijderen",
+    "screen-recorder-not-installed": "Schermrecorder (niet geïnstalleerd)",
+    "search": "Zoeken",
+    "search-close": "Zoeken sluiten",
+    "session-menu": "Sessiemenu",
+    "set-power-profile": "{profile} energieprofiel",
+    "start-screen-recording": "Schermrecorder",
+    "stop-screen-recording": "Schermrecorder",
+    "switch-to-dark-mode": "Donkere modus",
+    "switch-to-light-mode": "Lichte modus",
+    "up": "Bovenliggende map",
+    "volume-at": "Uitvoervolume: {volume}%",
+    "wallpaper-selector": "Achtergrondkiezer",
+    "widget-settings": "Widget-instellingen"
+  },
+  "wallpaper": {
+    "configure-directory": "Configureer je achtergrondmap met afbeeldingen.",
+    "fill-modes": {
+      "center": "Centreren",
+      "crop": "Bijsnijden (vullend)",
+      "fit": "Passend (volledig zichtbaar)",
+      "stretch": "Uitrekken"
+    },
+    "no-match": "Geen resultaten gevonden.",
+    "no-wallpaper": "Geen achtergrond gevonden.",
+    "panel": {
+      "apply-all-monitors": {
+        "description": "Pas de geselecteerde achtergrond in één keer op alle monitoren toe.",
+        "label": "Toepassen op alle monitoren"
+      },
+      "categories": {
+        "anime": "Anime",
+        "general": "Algemeen",
+        "label": "Categorieën",
+        "people": "Mensen"
+      },
+      "order": {
+        "asc": "Oplopend",
+        "desc": "Aflopend",
+        "label": "Volgorde"
+      },
+      "purity": {
+        "all": "Alles",
+        "label": "Inhoudsfilter",
+        "sfw": "SFW",
+        "sketchy": "Sketchy"
+      },
+      "resolution": {
+        "atleast": "Ten minste",
+        "exact": "Exact",
+        "label": "Resolutie",
+        "mode": {
+          "label": "Modus"
+        }
+      },
+      "search": "Zoeken:",
+      "sorting": {
+        "date_added": "Datum toegevoegd",
+        "favorites": "Favorieten",
+        "label": "Sorteren op",
+        "random": "Willekeurig",
+        "relevance": "Relevantie",
+        "toplist": "Toplijst",
+        "views": "Weergaven"
+      },
+      "source": {
+        "label": "Bron",
+        "local": "Lokaal",
+        "wallhaven": "Wallhaven"
+      },
+      "title": "Achtergrondkiezer",
+      "wallhaven-settings": {
+        "apply": "Toepassen",
+        "title": "Wallhaven-instellingen"
+      }
+    },
+    "transitions": {
+      "disc": "Schijf",
+      "fade": "Vervagen",
+      "none": "Geen",
+      "random": "Willekeurig",
+      "stripes": "Strepen",
+      "wipe": "Vegen"
+    },
+    "try-different-search": "Probeer een andere zoekopdracht.",
+    "unknown": "Onbekend",
+    "wallhaven": {
+      "loading": "Achtergronden laden...",
+      "no-results": "Geen achtergronden gevonden. Probeer een andere zoekopdracht.",
+      "page": "{current} van {total}"
+    }
+  },
+  "weather": {
+    "clear-sky": "Onbewolkt",
+    "drizzle": "Motregen",
+    "fog": "Mist",
+    "mainly-clear": "Overwegend helder",
+    "overcast": "Zwaar bewolkt",
+    "partly-cloudy": "Gedeeltelijk bewolkt",
+    "rain-showers": "Regenbuien",
+    "snow": "Sneeuw",
+    "thunderstorm": "Onweer",
+    "unknown": "Onbekend"
+  },
+  "widgets": {
+    "color-picker": {
+      "apply": "Toepassen",
+      "cancel": "Annuleren",
+      "palette": {
+        "description": "Kies uit een breed scala aan vooraf gedefinieerde kleuren.",
+        "label": "Palet",
+        "theme-colors": "Snelle toegang tot het kleurenpalet van je thema."
+      },
+      "title": "Kleurkiezer"
+    },
+    "datetime-tokens": {
+      "ampm": {
+        "lowercase": "am/pm in kleine letters",
+        "uppercase": "AM/PM in hoofdletters"
+      },
+      "common": {
+        "12hour-time-minutes": "12-uurs tijdnotatie met minuten",
+        "24hour-time-minutes": "24-uurs tijdnotatie met minuten",
+        "24hour-time-seconds": "24-uurs tijdnotatie met seconden",
+        "european-date": "Europese datumnotatie",
+        "iso-date": "ISO-datumnotatie",
+        "us-date": "Amerikaanse datumnotatie",
+        "weekday-date": "Weekdag met datum",
+        "weekday-month-day": "Weekdag, maand en dag"
+      },
+      "day": {
+        "abbreviated": "Afgekorte naam van de dag",
+        "full": "Volledige naam van de dag",
+        "leading-zero": "Dag met voorloopnul (01-31)",
+        "no-leading-zero": "Dag zonder voorloopnul (1-31)"
+      },
+      "hour": {
+        "leading-zero": "Uur met voorloopnul (00-23) - 24-uurs formaat",
+        "no-leading-zero": "Uur zonder voorloopnul (0-23) - 24-uurs formaat"
+      },
+      "minute": {
+        "leading-zero": "Minuut met voorloopnul (00-59)",
+        "no-leading-zero": "Minuut zonder voorloopnul (0-59)"
+      },
+      "month": {
+        "abbreviated": "Afgekorte maandnaam",
+        "full": "Volledige maandnaam",
+        "number-leading-zero": "Maand als getal met voorloopnul (01-12)",
+        "number-no-zero": "Maand als getal zonder voorloopnul (1-12)"
+      },
+      "second": {
+        "leading-zero": "Seconde met voorloopnul (00-59)",
+        "no-leading-zero": "Seconde zonder voorloopnul (0-59)"
+      },
+      "timezone": {
+        "abbreviation": "Afkorting van de tijdzone"
+      },
+      "year": {
+        "four-digit": "Jaar als viercijferig getal",
+        "two-digit": "Jaar als tweecijferig getal (00-99)"
+      }
+    },
+    "file-picker": {
+      "cancel": "Annuleren",
+      "search-placeholder": "Zoek bestanden en mappen...",
+      "select-current": "Huidige selecteren",
+      "select-file": "Bestand selecteren",
+      "select-folder": "Map selecteren",
+      "title": "Bestandskiezer"
+    },
+    "icon-picker": {
+      "apply": "Toepassen",
+      "cancel": "Annuleren",
+      "search": {
+        "label": "Zoeken"
+      },
+      "title": "Pictogramkiezer"
+    },
+    "text-input": {
+      "clear": "Wissen"
+    },
+    "tooltip": {
+      "placeholder": "Plaatshouder"
+    }
+  },
+  "wifi": {
+    "panel": {
+      "available-networks": "Beschikbare netwerken",
+      "connect": "Verbinden",
+      "connected": "Verbonden",
+      "disabled": "Wi-Fi is uitgeschakeld",
+      "disconnect": "Verbreken",
+      "disconnecting": "Verbreken...",
+      "enable-message": "Schakel Wi-Fi in om beschikbare netwerken te zien.",
+      "enter-password": "Voer wachtwoord in...",
+      "forget": "Vergeten",
+      "forget-network": "Dit netwerk vergeten?",
+      "forgetting": "Vergeten...",
+      "known-networks": "Bekende netwerken",
+      "no-networks": "Geen netwerken gevonden",
+      "password": "Wachtwoord",
+      "saved": "Opgeslagen",
+      "scan-again": "Opnieuw scannen",
+      "searching": "Zoeken naar netwerken in de buurt...",
+      "title": "Wi-Fi"
+    }
+  }
+}

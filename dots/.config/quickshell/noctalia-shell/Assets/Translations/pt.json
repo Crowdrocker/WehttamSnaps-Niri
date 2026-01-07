@@ -1,0 +1,2694 @@
+{
+  "authentication": {
+    "error": "Erro de autenticação",
+    "failed": "Falha na autenticação"
+  },
+  "bar": {
+    "widget-settings": {
+      "active-window": {
+        "colorize-icons": {
+          "description": "Aplicar cores do tema ao ícone da janela ativa.",
+          "label": "Colorir ícones"
+        },
+        "hide-mode": {
+          "description": "Controla o comportamento do widget quando nenhuma janela está ativa.",
+          "label": "Modo de ocultação"
+        },
+        "max-width": {
+          "description": "Define o tamanho horizontal máximo do widget. O widget será reduzido para se adequar a conteúdo mais curto.",
+          "label": "Largura Máxima"
+        },
+        "scrolling-mode": {
+          "description": "Controlar quando a rolagem de texto está habilitada para títulos de janela longos.",
+          "label": "Modo de rolagem"
+        },
+        "show-app-icon": {
+          "description": "Exibir o ícone do aplicativo ao lado do título da janela.",
+          "label": "Mostrar ícone do aplicativo"
+        },
+        "use-fixed-width": {
+          "description": "Quando ativado, o widget sempre usará a largura máxima em vez de ajustar dinamicamente ao conteúdo.",
+          "label": "Usar Largura Fixa"
+        }
+      },
+      "audio-visualizer": {
+        "color-name": {
+          "description": "Selecione a cor para o visualizador.",
+          "label": "Cor de preenchimento"
+        },
+        "hide-when-idle": {
+          "description": "Quando ativado, o visualizador fica oculto a menos que haja reprodução ativa.",
+          "label": "Ocultar quando não houver reprodução"
+        },
+        "width": {
+          "description": "Largura do componente personalizado.",
+          "label": "Largura"
+        }
+      },
+      "battery": {
+        "device": {
+          "default": "Padrão (Dispositivo de Exibição)",
+          "description": "Selecione qual dispositivo de bateria exibir.",
+          "label": "Dispositivo de bateria"
+        },
+        "display-mode": {
+          "description": "Escolha como você gostaria que este valor aparecesse.",
+          "label": "Modo de exibição"
+        },
+        "low-battery-threshold": {
+          "description": "Mostrar um aviso quando a bateria cair abaixo desta porcentagem.",
+          "label": "Limite de aviso de bateria fraca"
+        },
+        "show-noctalia-performance": {
+          "description": "Exibir o interruptor do modo de desempenho Noctalia no painel da bateria.",
+          "label": "Mostrar alternância de Noctalia Desempenho"
+        },
+        "show-power-profile": {
+          "description": "Exibir a seleção de perfil de energia no painel da bateria.",
+          "label": "Mostrar controles de perfil de energia"
+        }
+      },
+      "brightness": {
+        "display-mode": {
+          "description": "Escolha como você gostaria que este valor aparecesse.",
+          "label": "Modo de exibição"
+        }
+      },
+      "clock": {
+        "clock-display": {
+          "description": "Personalize a exibição do seu relógio adicionando tokens da lista abaixo. Para usar o formato de 12 horas, você deve incluir o token 'AP'.",
+          "label": "Exibição do relógio"
+        },
+        "custom-font": {
+          "description": "Selecione uma fonte personalizada para a exibição do relógio.",
+          "label": "Fonte personalizada",
+          "placeholder": "Selecionar fonte personalizada...",
+          "search-placeholder": "Procurar fontes..."
+        },
+        "horizontal-bar": {
+          "description": "Dica: Use \\n para criar uma quebra de linha.",
+          "label": "Barra horizontal"
+        },
+        "preview": "Pré-visualização",
+        "use-custom-font": {
+          "description": "Substitua a fonte padrão por uma fonte personalizada para o relógio.",
+          "label": "Usar fonte personalizada"
+        },
+        "use-monospaced-font": {
+          "description": "Quando ativado, o relógio usará a fonte monoespaçada.",
+          "label": "Usar fonte monoespaçada"
+        },
+        "use-primary-color": {
+          "description": "Quando ativado, aplica a cor primária para dar ênfase.",
+          "label": "Usar cor primária"
+        },
+        "vertical-bar": {
+          "description": "Use um espaço para separar cada parte em uma nova linha.",
+          "label": "Barra vertical"
+        }
+      },
+      "control-center": {
+        "browse-file": "Navegar por Arquivo",
+        "browse-library": "Navegar na Biblioteca",
+        "color-selection": {
+          "description": "Aplica as cores do tema aos ícones.",
+          "label": "Selecionar cor"
+        },
+        "enable-colorization": {
+          "description": "Ativa a colorização para o ícone do centro de controlo, aplicando as cores do tema.",
+          "label": "Ativar colorização"
+        },
+        "icon": {
+          "description": "Selecione um ícone da biblioteca ou um arquivo personalizado.",
+          "label": "Ícone"
+        },
+        "select-custom-icon": "Selecione um ícone personalizado",
+        "use-distro-logo": {
+          "description": "Usar o logo da sua distribuição em vez de um ícone personalizado.",
+          "label": "Usar logo da distribuição em vez de ícone"
+        }
+      },
+      "custom-button": {
+        "browse": "Navegar",
+        "collapse-condition": {
+          "description": "Se o texto de saída corresponder a este valor, o botão será recolhido.",
+          "label": "Condição de recolhimento"
+        },
+        "display-command-output": {
+          "description": "Digite um comando para ser executado em um intervalo regular. A primeira linha da sua saída será exibida como texto.",
+          "label": "Exibir Saída de Comando",
+          "stream-description": "Insira um comando para executar continuamente."
+        },
+        "dynamic-text": "Texto dinâmico",
+        "hide-mode": {
+          "alwaysExpanded": "Sempre expandido",
+          "description": "Controla a visibilidade do widget quando o comando não tem saída.",
+          "expandWithOutput": "Expandir quando tem saída",
+          "label": "Modo de ocultação",
+          "maxTransparent": "Totalmente expandido mas transparente"
+        },
+        "icon": {
+          "description": "Selecione um ícone da biblioteca.",
+          "label": "Ícone"
+        },
+        "left-click": {
+          "description": "Comando a executar quando o botão é clicado com o botão esquerdo.",
+          "label": "Clique esquerdo",
+          "update-text": "Atualizar texto exibido ao clicar com o botão esquerdo"
+        },
+        "max-text-length-horizontal": {
+          "description": "Número máximo de caracteres a serem exibidos na barra horizontal (0 para ocultar o texto)",
+          "label": "Comprimento máximo do texto (horizontal)"
+        },
+        "max-text-length-vertical": {
+          "description": "Número máximo de caracteres a serem exibidos na barra vertical (0 para ocultar o texto)",
+          "label": "Comprimento máximo do texto (vertical)"
+        },
+        "middle-click": {
+          "description": "Comando a executar quando o botão é clicado com o botão do meio.",
+          "label": "Clique do meio",
+          "update-text": "Atualizar texto exibido com clique do meio"
+        },
+        "parse-json": {
+          "description": "Analisa a saída do comando como um objeto JSON para definir dinamicamente o texto e o ícone.",
+          "label": "Analisar saída como JSON"
+        },
+        "refresh-interval": {
+          "description": "Intervalo em milissegundos.",
+          "label": "Intervalo de atualização"
+        },
+        "right-click": {
+          "description": "Comando a executar quando o botão é clicado com o botão direito.",
+          "label": "Clique direito",
+          "update-text": "Atualizar o texto exibido ao clicar com o botão direito."
+        },
+        "show-icon": {
+          "description": "Alterna a visibilidade do ícone do widget.",
+          "label": "Mostrar ícone"
+        },
+        "text-stream": {
+          "description": "As linhas transmitidas do comando serão exibidas como texto no botão.",
+          "label": "Transmissão"
+        },
+        "wheel": {
+          "description": "Comando a executar quando a roda de rolagem é usada.\nUse $delta para o delta da roda de rolagem no comando",
+          "label": "Roda de rolagem",
+          "update-text": "Atualizar texto exibido ao rolar"
+        },
+        "wheel-down": {
+          "description": "Comando a executar quando a roda de rolagem é rolada para baixo.",
+          "label": "Comando de roda para baixo"
+        },
+        "wheel-mode-separate": {
+          "description": "Ativar comandos separados para roda para cima e para baixo",
+          "label": "Comandos de roda separados"
+        },
+        "wheel-up": {
+          "description": "Comando a executar quando a roda de rolagem é rolada para cima.",
+          "label": "Comando de roda para cima"
+        }
+      },
+      "dialog": {
+        "apply": "Aplicar",
+        "cancel": "Cancelar"
+      },
+      "keyboard-layout": {
+        "display-mode": {
+          "description": "Escolha como você gostaria que este valor aparecesse.",
+          "label": "Modo de exibição"
+        }
+      },
+      "lock-keys": {
+        "browse": "Navegar",
+        "show-caps-lock": {
+          "description": "Exibir o status do Caps Lock.",
+          "label": "Caps Lock"
+        },
+        "show-num-lock": {
+          "description": "Exibir o status do Num Lock.",
+          "label": "Bloq Num"
+        },
+        "show-scroll-lock": {
+          "description": "Exibir o status do Scroll Lock.",
+          "label": "Scroll Lock"
+        }
+      },
+      "media-mini": {
+        "hide-mode": {
+          "description": "Controla o comportamento do widget quando nenhuma mídia está sendo reproduzida.",
+          "label": "Modo de ocultação"
+        },
+        "max-width": {
+          "description": "Define o tamanho horizontal máximo do widget. O widget será reduzido para se adequar a conteúdo mais curto.",
+          "label": "Largura Máxima"
+        },
+        "no-active-player": "Nenhum player ativo",
+        "scrolling-mode": {
+          "description": "Controlar quando a rolagem de texto está habilitada para títulos de faixa longos.",
+          "label": "Modo de rolagem"
+        },
+        "show-album-art": {
+          "description": "Exibir a arte do álbum da faixa atualmente sendo reproduzida.",
+          "label": "Mostrar arte do álbum"
+        },
+        "show-artist-first": {
+          "description": "Exibir artista - título em vez de título - artista.",
+          "label": "Mostrar o artista primeiro"
+        },
+        "show-progress-ring": {
+          "description": "Exibir um indicador de progresso circular mostrando o progresso da faixa.",
+          "label": "Mostrar anel de progresso"
+        },
+        "show-visualizer": {
+          "description": "Exibir um visualizador de áudio quando música está sendo reproduzida.",
+          "label": "Mostrar visualizador"
+        },
+        "use-fixed-width": {
+          "description": "Quando ativado, o widget sempre usará a largura máxima em vez de ajustar dinamicamente ao conteúdo.",
+          "label": "Usar Largura Fixa"
+        },
+        "visualizer-type": {
+          "description": "Escolher o estilo de visualizador de áudio a exibir.",
+          "label": "Tipo de visualizador"
+        }
+      },
+      "microphone": {
+        "display-mode": {
+          "description": "Escolha como você gostaria que este valor aparecesse.",
+          "label": "Modo de exibição"
+        }
+      },
+      "notification-history": {
+        "hide-badge-when-zero": {
+          "description": "Ocultar o distintivo de notificação quando não há notificações não lidas.",
+          "label": "Ocultar distintivo quando zero"
+        },
+        "show-unread-badge": {
+          "description": "Exibir um distintivo mostrando o número de notificações não lidas.",
+          "label": "Mostrar distintivo de não lidos"
+        }
+      },
+      "section-editor": {
+        "placeholder": "Selecione um widget para adicionar...",
+        "search-placeholder": "Pesquisar widgets..."
+      },
+      "spacer": {
+        "width": {
+          "description": "Largura do espaçamento em pixels",
+          "label": "Largura"
+        }
+      },
+      "system-monitor": {
+        "cpu-temperature": {
+          "description": "Mostrar leituras de temperatura da CPU se disponíveis.",
+          "label": "Temperatura da CPU"
+        },
+        "cpu-usage": {
+          "description": "Exibir o percentual atual de uso da CPU.",
+          "label": "Uso da CPU"
+        },
+        "disk-path": {
+          "description": "Selecione qual ponto de montagem de disco monitorar.",
+          "label": "Caminho do disco"
+        },
+        "memory-percentage": {
+          "description": "Mostrar o uso de memória como percentual em vez de valores absolutos.",
+          "label": "Memória como percentual"
+        },
+        "memory-usage": {
+          "description": "Exibir informações atuais de uso da RAM.",
+          "label": "Uso de memória"
+        },
+        "network-traffic": {
+          "description": "Exibir velocidades de upload e download da rede.",
+          "label": "Tráfego de rede"
+        },
+        "storage-usage": {
+          "description": "Mostrar informações de uso do espaço em disco.",
+          "label": "Uso de armazenamento"
+        }
+      },
+      "taskbar": {
+        "colorize-icons": {
+          "description": "Aplicar cores do tema aos ícones da barra de tarefas.",
+          "label": "Colorir ícones"
+        },
+        "hide-mode": {
+          "description": "Controla como o widget se comporta quando não há janelas correspondentes.",
+          "label": "Modo de ocultação"
+        },
+        "max-width": {
+          "description": "Largura máxima da barra de tarefas como porcentagem da largura da tela.",
+          "label": "Largura máxima"
+        },
+        "only-active-workspaces": {
+          "description": "Mostrar apenas aplicativos de áreas de trabalho ativas.",
+          "label": "Apenas de espaços de trabalho ativos"
+        },
+        "only-same-output": {
+          "description": "Mostrar apenas os aplicativos da saída onde a barra está localizada.",
+          "label": "Apenas da mesma saída"
+        },
+        "show-pinned-apps": {
+          "description": "Mostrar aplicativos fixados do Dock na barra de tarefas.",
+          "label": "Mostrar aplicativos fixados"
+        },
+        "show-title": {
+          "description": "Exibir títulos de janelas na barra de tarefas.",
+          "description-disabled": "A barra de tarefas vertical não suporta exibir títulos.",
+          "label": "Mostrar título"
+        },
+        "smart-width": {
+          "description": "Ajustar automaticamente a largura das entradas com base no número de entradas.",
+          "label": "Largura inteligente"
+        },
+        "title-width": {
+          "description": "Definir a largura dos títulos de janelas na barra de tarefas (em pixels).",
+          "label": "Largura do título",
+          "reset-tooltip": "Redefinir largura do título"
+        }
+      },
+      "taskbar-grouped": {
+        "show-labels-only-when-occupied": {
+          "description": "Mostrar apenas o rótulo da área de trabalho para áreas de trabalho que têm janelas abertas.",
+          "label": "Mostrar rótulo somente quando ocupado."
+        }
+      },
+      "tray": {
+        "colorize-icons": {
+          "description": "Aplicar cores do tema aos ícones da bandeja do sistema.",
+          "label": "Colorir ícones"
+        },
+        "drawer-enabled": {
+          "description": "Quando habilitado, os itens da bandeja não fixados são exibidos em um painel gaveta. Quando desabilitado, todos os itens da bandeja são exibidos inline.",
+          "label": "Habilitar gaveta"
+        },
+        "hide-passive": {
+          "description": "Quando ativado, os itens da bandeja com status Passivo serão ocultados.",
+          "label": "Ocultar itens passivos"
+        }
+      },
+      "volume": {
+        "display-mode": {
+          "description": "Escolha como você gostaria que este valor aparecesse.",
+          "label": "Modo de exibição"
+        }
+      },
+      "workspace": {
+        "character-count": {
+          "description": "Número de caracteres a exibir dos nomes de espaços de trabalho (1-10).",
+          "label": "Número de caracteres"
+        },
+        "follow-focused-screen": {
+          "description": "Exibir áreas de trabalho da tela atualmente em foco, em vez da tela onde a barra está localizada.",
+          "label": "Seguir Tela em Foco"
+        },
+        "hide-unoccupied": {
+          "description": "Não exibir áreas de trabalho sem janelas.",
+          "label": "Ocultar desocupados"
+        },
+        "label-mode": {
+          "description": "Escolher como os rótulos de espaço de trabalho são exibidos.",
+          "label": "Modo de rótulo"
+        }
+      }
+    }
+  },
+  "battery": {
+    "battery-level": "Nível da bateria",
+    "brightness": "Brilho",
+    "charging": "Carregando",
+    "charging-rate": "Taxa de carregamento: {rate} W",
+    "discharging": "Descarregando",
+    "discharging-rate": "Taxa de descarregamento: {rate} W",
+    "health": "Saúde: {percent}%",
+    "idle": "Ocioso",
+    "inhibit-idle-description": "Mantém o sistema acordado.",
+    "inhibit-idle-label": "Manter acordado",
+    "no-battery-detected": "Nenhuma bateria detectada",
+    "panel-title": "Bateria",
+    "plugged-in": "Conectado",
+    "power-profile": "Perfil de energia",
+    "time-left": "Tempo restante: {time}",
+    "time-until-full": "Tempo até carga completa: {time}"
+  },
+  "bluetooth": {
+    "panel": {
+      "available-devices": "Dispositivos disponíveis",
+      "blocked": "Bloqueado",
+      "connect": "Conectar",
+      "connected-devices": "Dispositivos conectados",
+      "connecting": "Conectando...",
+      "disabled": "O Bluetooth está desativado",
+      "disconnect": "Desconectar",
+      "enable-message": "Ative o Bluetooth para ver os dispositivos disponíveis.",
+      "known-devices": "Dispositivos conhecidos",
+      "pairing": "Emparelhamento...",
+      "pairing-mode": "Certifique-se de que seu dispositivo está em modo de pareamento.",
+      "scanning": "Procurando por dispositivos...",
+      "title": "Bluetooth"
+    }
+  },
+  "calendar": {
+    "panel": {
+      "week": "Semana"
+    },
+    "timer": {
+      "countdown": "Contagem regressiva",
+      "duration": "Duração",
+      "hours": "h",
+      "minutes": "m",
+      "pause": "Pausar",
+      "reset": "Reiniciar",
+      "seconds": "s",
+      "start": "Começar",
+      "stopwatch": "Cronômetro",
+      "timer": "Temporizador",
+      "title": "Temporizador"
+    },
+    "weather": {
+      "loading": "Carregando o clima…"
+    }
+  },
+  "changelog": {
+    "error": {
+      "fetch-failed": "Não foi possível carregar os dados do changelog. Tente novamente mais tarde.",
+      "rate-limit": "Limite do GitHub atingido. Tente novamente em alguns minutos."
+    },
+    "panel": {
+      "buttons": {
+        "discord": "Entre no nosso Discord",
+        "dismiss": "Ok"
+      },
+      "empty": "As notas da versão ainda não estão disponíveis.",
+      "highlight-title": "Destaques",
+      "section": {
+        "released": "Lançado em {date}",
+        "version": "Versão {version}"
+      },
+      "subtitle": {
+        "fresh": "Obrigado por instalar o Noctalia! Veja o que está incluído nesta compilação.",
+        "updated": "Atualizado a partir da {previousVersion}"
+      },
+      "title": "Novidades na {version}",
+      "version": {
+        "new-user": "Nova instalação"
+      }
+    }
+  },
+  "clock": {
+    "tooltip": "Relógio"
+  },
+  "common": {
+    "add": "Adicionar",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "check-settings": "Verifique as configurações para obter detalhes.",
+    "close": "Fechar",
+    "save": "Salvar"
+  },
+  "context-menu": {
+    "activate-app": "Ativar {app}",
+    "clear-history": "Limpar histórico",
+    "close-app": "Fechar {app}",
+    "connect-vpn": "Conectar-se a {name}",
+    "cycle-visualizer": "Visualizador de ciclo",
+    "disable-bluetooth": "Desativar Bluetooth",
+    "disable-dnd": "Desativar o Não Perturbe",
+    "disable-wifi": "Desativar Wi-Fi",
+    "disconnect-vpn": "Desconectar {name}",
+    "enable-bluetooth": "Ativar Bluetooth",
+    "enable-dnd": "Ativar Não Perturbe",
+    "enable-wifi": "Ativar Wi-Fi",
+    "next": "Próximo(a)",
+    "open-calendar": "Abrir calendário",
+    "open-display-settings": "Configurações de exibição",
+    "open-launcher": "Abrir iniciador",
+    "open-mixer": "Mesa de som",
+    "open-settings": "Abrir configurações",
+    "pause": "Pausa",
+    "play": "Jogar",
+    "previous": "Anterior",
+    "random-wallpaper": "Papel de parede aleatório",
+    "toggle-mute": "Alternar mudo",
+    "widget-settings": "Configurações do widget"
+  },
+  "dock": {
+    "menu": {
+      "close": "Fechar",
+      "focus": "Focar",
+      "pin": "Fixar",
+      "unpin": "Desafixar"
+    }
+  },
+  "general": {
+    "no-results": "Nenhum resultado",
+    "no-summary": "Sem resumo",
+    "unknown": "Desconhecido"
+  },
+  "launcher": {
+    "categories": {
+      "all": "Tudo",
+      "audiovideo": "Áudio e Vídeo",
+      "chat": "Bate-papo",
+      "development": "Desenvolvimento",
+      "education": "Educação",
+      "game": "Jogos",
+      "graphics": "Gráficos",
+      "misc": "Diversos",
+      "network": "Rede",
+      "office": "Escritório",
+      "pinned": "Fixado",
+      "system": "Sistema",
+      "webbrowser": "Navegador web"
+    },
+    "delete": "Apagar",
+    "pin": "Fixar",
+    "unpin": "Desafixar"
+  },
+  "lock-screen": {
+    "authenticating": "Autenticando...",
+    "authentication-failed": "Falha na autenticação",
+    "password": "Digite sua senha...",
+    "restart": "Reiniciar",
+    "shut-down": "Desligar",
+    "suspend": "Suspender",
+    "welcome-back": "Bem-vindo de volta,"
+  },
+  "notifications": {
+    "panel": {
+      "click-to-expand": "Clique para expandir",
+      "description": "Suas notificações aparecerão aqui assim que chegarem.",
+      "no-notifications": "Nenhuma notificação",
+      "title": "Notificações"
+    },
+    "range": {
+      "all": "Todas",
+      "earlier": "Mais antigas",
+      "today": "Hoje",
+      "yesterday": "Ontem"
+    },
+    "time": {
+      "diffD": "há 1 dia",
+      "diffDD": "há {diff} dias",
+      "diffH": "há 1 hora",
+      "diffHH": "há {diff} horas",
+      "diffM": "há 1 minuto",
+      "diffMM": "há {diff} minutos",
+      "now": "agora"
+    }
+  },
+  "options": {
+    "bar": {
+      "density": {
+        "comfortable": "Confortável",
+        "compact": "Compacta",
+        "default": "Padrão",
+        "mini": "Mini"
+      },
+      "position": {
+        "bottom": "Inferior",
+        "left": "Esquerda",
+        "right": "Direita",
+        "top": "Topo"
+      }
+    },
+    "colors": {
+      "error": "Erro",
+      "none": "Nenhum",
+      "onSurface": "Na Superfície",
+      "primary": "Primário",
+      "secondary": "Secundário",
+      "tertiary": "Terciário"
+    },
+    "control-center": {
+      "position": {
+        "bottom_center": "Centro inferior",
+        "bottom_left": "Inferior esquerdo",
+        "bottom_right": "Inferior direito",
+        "center": "Centro",
+        "close_to_bar_button": "Perto do botão da barra",
+        "top_center": "Centro superior",
+        "top_left": "Superior esquerdo",
+        "top_right": "Superior direito"
+      },
+      "quickSettingsStyle": {
+        "classic": "Clássico",
+        "compact": "Compacto",
+        "modern": "Moderno"
+      }
+    },
+    "display-mode": {
+      "always-hide": "Sempre ocultar",
+      "always-show": "Sempre mostrar",
+      "force-open": "Forçar Abertura",
+      "on-hover": "Ao passar o mouse"
+    },
+    "frame-rates": {
+      "fps": "{fps} FPS"
+    },
+    "hide-modes": {
+      "hidden": "Ocultar Quando Vazio",
+      "idle": "Ocultar quando inativo",
+      "transparent": "Transparente quando vazio",
+      "visible": "Sempre Visível"
+    },
+    "launcher": {
+      "position": {
+        "bottom_center": "Centro inferior",
+        "bottom_left": "Inferior esquerdo",
+        "bottom_right": "Inferior direito",
+        "center": "Centro (padrão)",
+        "center_left": "Centro à esquerda",
+        "center_right": "Centro à direita",
+        "follow_bar": "Seguir barra (padrão)",
+        "top_center": "Centro superior",
+        "top_left": "Superior esquerdo",
+        "top_right": "Superior direito"
+      }
+    },
+    "osd": {
+      "position": {
+        "bottom_center": "Centro inferior",
+        "bottom_left": "Inferior esquerdo",
+        "bottom_right": "Inferior direito",
+        "center_left": "Esquerda central",
+        "center_right": "Direita central",
+        "top_center": "Centro superior",
+        "top_left": "Superior esquerdo",
+        "top_right": "Superior direito"
+      }
+    },
+    "screen-recording": {
+      "audio-sources": {
+        "both": "Saída do sistema + entrada do microfone",
+        "microphone-input": "Entrada do microfone",
+        "system-output": "Saída do sistema"
+      },
+      "color-range": {
+        "full": "Completa",
+        "limited": "Limitada"
+      },
+      "quality": {
+        "high": "Alta",
+        "medium": "Média",
+        "ultra": "Ultra",
+        "very-high": "Muito alta"
+      },
+      "sources": {
+        "portal": "Portal",
+        "screen": "Tela"
+      }
+    },
+    "scrolling-modes": {
+      "always": "Rolar Sempre",
+      "hover": "Rolar ao Passar o Mouse",
+      "never": "Nunca Rolar"
+    },
+    "shadow-direction": {
+      "bottom": "Inferior",
+      "bottom_left": "Inferior esquerda",
+      "bottom_right": "Inferior direita",
+      "center": "Centro",
+      "left": "Esquerda",
+      "right": "Direita",
+      "top": "Superior",
+      "top_left": "Superior esquerda",
+      "top_right": "Superior direita"
+    },
+    "visualizer-quality": {
+      "high": "Alto(a)",
+      "low": "Baixo(a)"
+    },
+    "visualizer-types": {
+      "linear": "Linear",
+      "mirrored": "Espelhado",
+      "none": "Nenhum",
+      "wave": "Onda"
+    },
+    "workspace-labels": {
+      "index": "Índice",
+      "index+name": "Índice e Nome",
+      "name": "Nome",
+      "none": "Nenhum"
+    }
+  },
+  "placeholders": {
+    "cancel": "Cancelar",
+    "command-example": "echo \"Olá Mundo\"",
+    "enter-command": "Digite o comando para executar (app ou script personalizado)",
+    "enter-text-to-collapse": "por exemplo, 'nada está sendo reproduzido'. Use /regex/ para padrões.",
+    "enter-tooltip": "Inserir dica de ferramenta",
+    "enter-width-pixels": "Digite a largura em pixels",
+    "profile-picture-path": "/home/usuario/.face",
+    "search": "Pesquisar...",
+    "search-icons": "ex., noctalia, niri, battery, cloud",
+    "search-launcher": "Pesquisar entradas... ou use > para comandos",
+    "search-wallhaven": "Pesquisar no Wallhaven...",
+    "search-wallpapers": "Digite para filtrar papéis de parede...",
+    "select": "Selecionar",
+    "test": "Testar"
+  },
+  "plugins": {
+    "applications": "Aplicativos",
+    "calculator": "Calculadora",
+    "calculator-description": "Calculadora - avalie expressões matemáticas",
+    "calculator-enter-expression": "Digite uma expressão matemática",
+    "calculator-error": "Erro",
+    "calculator-name": "Calculadora",
+    "clipboard": "Histórico da área de transferência",
+    "clipboard-clear-description": "Limpar todo o histórico da área de transferência",
+    "clipboard-clear-description-full": "Remover todos os itens do histórico da área de transferência",
+    "clipboard-clear-history": "Limpar histórico da área de transferência",
+    "clipboard-delete": "Apagar entrada da área de transferência",
+    "clipboard-history-disabled": "Histórico da área de transferência desativado",
+    "clipboard-history-disabled-description": "Ative o histórico da área de transferência nas configurações ou instale o cliphist",
+    "clipboard-loading": "Carregando histórico da área de transferência...",
+    "clipboard-loading-description": "Por favor, aguarde",
+    "clipboard-search-description": "Pesquisar no histórico da área de transferência",
+    "command": "Comando",
+    "command-description": "Executar comandos shell",
+    "command-name": "Comando",
+    "emoji": "Seletor de emojis",
+    "emoji-loading": "Carregando emojis...",
+    "emoji-loading-description": "Por favor, aguarde",
+    "emoji-search-description": "Buscar e copiar emojis"
+  },
+  "quickSettings": {
+    "bluetooth": {
+      "label": {
+        "disabled": "Bluetooth",
+        "enabled": "Bluetooth"
+      },
+      "tooltip": {
+        "action": "Bluetooth"
+      }
+    },
+    "keepAwake": {
+      "label": {
+        "disabled": "Manter acordado",
+        "enabled": "Manter acordado"
+      },
+      "tooltip": {
+        "action": "Manter acordado"
+      }
+    },
+    "nightLight": {
+      "label": {
+        "disabled": "Luz noturna",
+        "enabled": "Luz noturna",
+        "forced": "Luz noturna"
+      },
+      "tooltip": {
+        "action": "Luz noturna"
+      }
+    },
+    "notifications": {
+      "label": {
+        "disabled": "Não perturbar",
+        "enabled": "Notificações"
+      },
+      "tooltip": {
+        "action": "Notificações"
+      }
+    },
+    "powerProfile": {
+      "label": {
+        "unavailable": "Perfil de energia"
+      },
+      "tooltip": {
+        "action": "Perfil de energia",
+        "disabled": "Instale power-profiles-daemon para usar perfis de energia"
+      }
+    },
+    "screenRecorder": {
+      "label": {
+        "recording": "Parar",
+        "stopped": "Gravar"
+      },
+      "tooltip": {
+        "action": "Gravador de tela"
+      }
+    },
+    "wallpaperSelector": {
+      "label": "Papel de parede",
+      "tooltip": {
+        "action": "Seletor de papel de parede"
+      }
+    },
+    "wifi": {
+      "label": {
+        "disconnected": "Wi-Fi desconectado",
+        "ethernet": "Ethernet",
+        "wifi": "Wi-Fi"
+      },
+      "tooltip": {
+        "action": "Wi-Fi"
+      }
+    }
+  },
+  "session-menu": {
+    "action-in-seconds": "{action} em {seconds} segundos...",
+    "hibernate": "Hibernação",
+    "lock": "Bloquear",
+    "lock-and-suspend": "Bloquear e Suspender",
+    "logout": "Sair",
+    "reboot": "Reiniciar",
+    "shutdown": "Desligar",
+    "suspend": "Suspender",
+    "title": "Menu da Sessão"
+  },
+  "settings": {
+    "about": {
+      "contributors": {
+        "section": {
+          "description": "Agradecimentos ao nosso <b>incrível</b> colaborador!",
+          "description_plural": "Agradecimentos aos nossos {count} <b>incríveis</b> colaboradores!",
+          "label": "Contribuidores"
+        }
+      },
+      "noctalia": {
+        "download-latest": "Baixar a versão mais recente",
+        "git-commit": "Commit Git:",
+        "git-commit-loading": "Carregando...",
+        "installed-version": "Versão instalada:",
+        "latest-version": "Última versão:",
+        "section": {
+          "description": "Um shell de desktop elegante e minimalista, cuidadosamente criado para Wayland, construído com Quickshell.",
+          "label": "Shell Noctalia"
+        }
+      },
+      "support": "Apoie-nos",
+      "title": "Sobre"
+    },
+    "audio": {
+      "devices": {
+        "input-device": {
+          "description": "Selecione o dispositivo de entrada de áudio desejado.",
+          "label": "Dispositivo de entrada"
+        },
+        "output-device": {
+          "description": "Selecione o dispositivo de saída de áudio desejado.",
+          "label": "Dispositivo de saída"
+        },
+        "section": {
+          "description": "Configure os dispositivos de entrada e saída de áudio disponíveis.",
+          "label": "Dispositivos de áudio"
+        }
+      },
+      "external-mixer": {
+        "description": "Insira o comando ou o caminho do aplicativo para iniciar ao ativar o recurso de mixer de áudio externo.",
+        "label": "Comando de Mixer de Áudio Externo",
+        "placeholder": "pwvucontrol || pavucontrol"
+      },
+      "media": {
+        "excluded-player": {
+          "description": "Adicione palavras-chave para os reprodutores que você deseja que o sistema ignore. Cada palavra-chave deve estar em uma nova linha.",
+          "label": "Reprodutor excluído",
+          "placeholder": "digite a substring e pressione +"
+        },
+        "frame-rate": {
+          "description": "Taxas mais altas são mais suaves, mas consomem mais recursos.",
+          "label": "Taxa de quadros"
+        },
+        "primary-player": {
+          "description": "Digite uma palavra-chave para identificar seu reprodutor principal.",
+          "label": "Reprodutor principal",
+          "placeholder": "ex: spotify, vlc, mpv"
+        },
+        "scrolling-speed": {
+          "description": "Tempo em segundos para o título rolar do início ao fim",
+          "label": "Velocidade de rolagem"
+        },
+        "scrolling-title": {
+          "description": "Ativar rolagem contínua para títulos de mídia longos",
+          "label": "Título com rolagem"
+        },
+        "section": {
+          "description": "Defina seus aplicativos de mídia preferidos e ignorados.",
+          "label": "Reprodutores de mídia"
+        },
+        "visualizer-quality": {
+          "description": "Alta qualidade usa mais recursos da GPU.",
+          "label": "Qualidade da visualização"
+        },
+        "visualizer-type": {
+          "description": "Escolha um tipo de visualização para a reprodução de mídia",
+          "label": "Tipo de visualização"
+        }
+      },
+      "title": "Áudio",
+      "volumes": {
+        "input-volume": {
+          "description": "Nível de volume de entrada do microfone.",
+          "label": "Volume de entrada"
+        },
+        "mute-input": {
+          "description": "Silencia a entrada de áudio padrão (microfone).",
+          "label": "Silenciar entrada de áudio"
+        },
+        "mute-output": {
+          "description": "Silencia a saída de áudio principal do sistema.",
+          "label": "Silenciar saída de áudio"
+        },
+        "output-volume": {
+          "description": "Nível de volume de todo o sistema.",
+          "label": "Volume de saída"
+        },
+        "section": {
+          "description": "Ajuste os controles de volume e os níveis de áudio.",
+          "label": "Volumes"
+        },
+        "step-size": {
+          "description": "Ajuste o tamanho do passo para alterações de volume (roda do mouse, atalhos de teclado).",
+          "label": "Tamanho do passo do volume"
+        },
+        "volume-overdrive": {
+          "description": "Permite aumentar o volume para além dos 100%. Poderá não ser suportado por todo o hardware.",
+          "label": "Permitir volume acima de 100%"
+        }
+      }
+    },
+    "bar": {
+      "appearance": {
+        "background-opacity": {
+          "description": "Ajuste a opacidade do fundo da barra.",
+          "label": "Opacidade do fundo"
+        },
+        "capsule-opacity": {
+          "description": "Define o nível de opacidade para fundos dos widgets quando a cápsula é mostrada.",
+          "label": "Opacidade da cápsula"
+        },
+        "density": {
+          "description": "Ajuste o preenchimento da barra para um visual compacto ou espaçoso.",
+          "label": "Densidade da barra"
+        },
+        "floating": {
+          "description": "Exibe a barra como uma 'pílula' flutuante.",
+          "label": "Barra flutuante"
+        },
+        "margins": {
+          "description": "Ajuste as margens ao redor da barra flutuante.",
+          "horizontal": "Horizontal",
+          "label": "Margens",
+          "vertical": "Vertical"
+        },
+        "outer-corners": {
+          "description": "Exibe cantos curvados para fora na barra.",
+          "label": "Cantos externos"
+        },
+        "position": {
+          "description": "Escolha onde posicionar a barra na tela.",
+          "label": "Posição da barra"
+        },
+        "section": {
+          "description": "Personalize a aparência e a posição da barra.",
+          "label": "Aparência"
+        },
+        "show-capsule": {
+          "description": "Mostra o fundo dos widgets.",
+          "label": "Mostrar cápsula"
+        }
+      },
+      "monitors": {
+        "section": {
+          "description": "Mostra a barra em monitores específicos. O padrão é todos, se nenhum for escolhido.",
+          "label": "Exibição nos monitores"
+        }
+      },
+      "title": "Barra",
+      "tray": {
+        "back": "Voltar",
+        "blacklist": {
+          "description": "Adicione regras de exclusão para a bandeja do sistema, suporta curingas (*).",
+          "label": "Lista Negra",
+          "placeholder": "ex: nm-applet, Fcitx*"
+        },
+        "pin-application": "Fixar Aplicativo",
+        "unpin-application": "Desfixar Aplicativo"
+      },
+      "widgets": {
+        "section": {
+          "description": "Arraste os widgets para alterar a ordem. Use o menu do botão direito para transferir widgets entre seções ou removê-los.",
+          "label": "Posicionamento dos widgets"
+        }
+      }
+    },
+    "color-scheme": {
+      "color-source": {
+        "matugen-scheme-type": {
+          "description": {
+            "scheme-content": "Deriva cores que correspondem de perto à imagem subjacente.",
+            "scheme-expressive": "Paleta vibrante com saturação divertida.",
+            "scheme-fidelity": "Paleta de alta fidelidade que preserva as tonalidades originais.",
+            "scheme-fruit-salad": "Mistura colorida de detalhes contrastantes e vibrantes.",
+            "scheme-monochrome": "Paleta minimalista construída em torno de uma única tonalidade.",
+            "scheme-neutral": "Paleta de cores neutras com tons suaves e calmantes.",
+            "scheme-rainbow": "Paleta diversificada abrangendo todo o espectro.",
+            "scheme-tonal-spot": "Paleta equilibrada com toques focais."
+          },
+          "label": "Tipo de esquema Matugen"
+        },
+        "section": {
+          "description": "Configurações principais para as cores do Noctalia.",
+          "label": "Fonte de cor"
+        },
+        "use-wallpaper-colors": {
+          "description": "Gerar esquemas de cores do seu papel de parede usando Matugen. Extrai automaticamente cores para criar um tema coeso.",
+          "label": "Usar cores do papel de parede"
+        }
+      },
+      "dark-mode": {
+        "mode": {
+          "description": "Ativa a mudança automática entre o modo claro e o modo escuro.",
+          "label": "Agendamento do modo escuro",
+          "location": "Localização",
+          "manual": "Manual",
+          "off": "Desligado"
+        },
+        "switch": {
+          "description": "Muda para um tema mais escuro para facilitar a visualização à noite.",
+          "label": "Modo escuro"
+        }
+      },
+      "delete": {
+        "error": {
+          "description": "Falha ao excluir {scheme}",
+          "title": "Falha ao excluir"
+        },
+        "success": {
+          "description": "{scheme} excluído com sucesso",
+          "title": "Esquema de cores excluído"
+        }
+      },
+      "download": {
+        "button": "Baixar mais",
+        "delete": "Excluir",
+        "download": "Baixar",
+        "downloading": "Baixando...",
+        "empty": "Nenhum esquema de cores disponível",
+        "error": {
+          "api-error": "Erro da API: {status}",
+          "description": "Falha ao baixar {scheme}",
+          "download-failed": "Falha no download com código de saída: {code}",
+          "invalid-response": "Formato de resposta da API inválido",
+          "no-files": "Nenhum arquivo encontrado para o esquema",
+          "parse-failed": "Falha ao analisar a resposta da API: {error}",
+          "rate-limit": "Limite de taxa da API do GitHub excedido",
+          "title": "Falha no download"
+        },
+        "fetching": "Buscando esquemas de cores disponíveis...",
+        "installed": "Instalado",
+        "refresh": "Atualizar",
+        "success": {
+          "description": "{scheme} baixado com sucesso",
+          "title": "Esquema de cores baixado"
+        },
+        "title": "Baixar esquemas de cores"
+      },
+      "predefined": {
+        "generate-templates": {
+          "description": "Gera modelos Matugen (GTK, temas de terminal, etc.) ao usar esquemas de cores predefinidos.",
+          "label": "Gerar modelos para esquemas predefinidos"
+        },
+        "section": {
+          "description": "Escolha entre uma coleção de esquemas de cores predefinidos.",
+          "label": "Esquemas de cores predefinidos"
+        }
+      },
+      "templates": {
+        "compositors": {
+          "description": "Tematização do compositor.",
+          "label": "Compositores",
+          "niri": {
+            "description": "Escrever {filepath}. Requer Niri v25.11+",
+            "description-missing": "Requer que o {app} esteja instalado."
+          }
+        },
+        "misc": {
+          "description": "Crie seus próprios modelos",
+          "label": "Avançado",
+          "user-templates": {
+            "description": "Ative apenas se souber o que está fazendo, consulte nossa documentação online",
+            "label": "Ativar modelos do usuário"
+          }
+        },
+        "programs": {
+          "cava": {
+            "description": "Escreva em {filepath}.",
+            "description-missing": "Requer que o {app} esteja instalado."
+          },
+          "code": {
+            "description": "Escreva em {filepath}. O tema Hyprluna precisa ser instalado e ativado manualmente.",
+            "description-missing": "Nenhum cliente Code detectado. Instale VSCode ou VSCodium."
+          },
+          "description": "Tematização específica de aplicativos.",
+          "discord": {
+            "description": "Escrever {filepath} para {client}",
+            "description-missing": "Nenhum cliente Discord detectado. Instale vencord, vesktop, webcord, armcord, equibop, lightcord ou dorion."
+          },
+          "fuzzel": {
+            "description": "Escrever {filepath} e recarregar",
+            "description-missing": "Requer que o {app} esteja instalado"
+          },
+          "label": "Programas",
+          "pywalfox": {
+            "description": "Escrever {filepath} e executar pywalfox update",
+            "description-missing": "Requer que o {app} esteja instalado"
+          },
+          "spicetify": {
+            "description": "Escreva em {filepath}. O tema Comfy precisa ser instalado e ativado manualmente.",
+            "description-missing": "Requer que o {app} esteja instalado."
+          },
+          "telegram": {
+            "description": "Escreva em {filepath}.",
+            "description-missing": "Requer que o {app} esteja instalado."
+          },
+          "vicinae": {
+            "description": "Escrever {filepath} e recarregar",
+            "description-missing": "Requer que o {app} esteja instalado"
+          },
+          "walker": {
+            "description": "Escrever {filepath} e definir tema como noctalia",
+            "description-missing": "Requer que o {app} esteja instalado"
+          }
+        },
+        "section": {
+          "description": "Aplicar cores a aplicações externas.",
+          "label": "Modelos"
+        },
+        "terminal": {
+          "alacritty": {
+            "description": "Escreva {filepath} e recarregue.",
+            "description-missing": "Requer que o {app} esteja instalado."
+          },
+          "description": "Tematização do emulador de terminal.",
+          "foot": {
+            "description": "Escrever {filepath} e recarregar",
+            "description-missing": "Requer que o {app} esteja instalado"
+          },
+          "ghostty": {
+            "description": "Escrever {filepath} e recarregar",
+            "description-missing": "Requer que o {app} esteja instalado"
+          },
+          "kitty": {
+            "description": "Escrever {filepath} e recarregar",
+            "description-missing": "Requer que o {app} esteja instalado"
+          },
+          "label": "Terminal",
+          "wezterm": {
+            "description": "Escreva {filepath} e recarregue.",
+            "description-missing": "Requer que o {app} esteja instalado."
+          }
+        },
+        "ui": {
+          "description": "Tematização do ambiente de desktop e kit de ferramentas de UI.",
+          "gtk": {
+            "description": "Escrever {filepath}"
+          },
+          "kcolorscheme": {
+            "description": "Escrever {filepath}"
+          },
+          "label": "UI",
+          "qt": {
+            "description": "Escrever {filepath}"
+          }
+        }
+      },
+      "title": "Esquema de cores"
+    },
+    "control-center": {
+      "cards": {
+        "section": {
+          "description": "Personalize quais controles aparecem na Central de Controle e em que ordem.",
+          "label": "Cartas"
+        }
+      },
+      "position": {
+        "description": "Escolha onde o painel da Central de Controle aparece quando aberto.",
+        "label": "Posição"
+      },
+      "section": {
+        "description": "Configurar o posicionamento e o comportamento do painel da Central de Controle.",
+        "label": "Aparência"
+      },
+      "shortcuts": {
+        "custom-button": {
+          "browse": "Procurar",
+          "command": {
+            "description": "O comando a ser executado quando o botão é clicado.",
+            "label": "Comando"
+          },
+          "enable-on-state-logic": {
+            "description": "Ativa um segundo ícone e um estado 'quente' com base em um comando de verificação.",
+            "label": "Ativar lógica de estado ativado"
+          },
+          "general-tooltip-text": {
+            "description": "Descrição geral para a dica de ferramenta do botão.",
+            "label": "Texto geral da dica de ferramenta"
+          },
+          "icon": {
+            "description": "Selecione um ícone da biblioteca.",
+            "label": "Ícone"
+          },
+          "on-clicked": {
+            "description": "Comando a ser executado quando o botão é clicado com o botão esquerdo.",
+            "label": "Comando de clique esquerdo"
+          },
+          "on-middle-clicked": {
+            "description": "Comando a ser executado quando o botão é clicado com o botão do meio.",
+            "label": "Comando de clique do meio"
+          },
+          "on-right-clicked": {
+            "description": "Comando a ser executado quando o botão é clicado com o botão direito.",
+            "label": "Comando de clique direito"
+          },
+          "on-state-command": {
+            "description": "Comando a ser executado para verificar se o botão deve estar no estado 'ligado'. Retorna 0 para ligado, diferente de zero para desligado.",
+            "label": "Comando de verificação de estado ativado"
+          },
+          "on-state-icon": {
+            "description": "O ícone para o botão quando ele está no estado 'ligado'.",
+            "label": "Ícone de estado ativado"
+          },
+          "state-checks": {
+            "add": "Adicionar verificação de estado",
+            "browse-icon": "Procurar",
+            "command": "Comando a ser executado para esta verificação de estado",
+            "label": "Verificações de estado",
+            "remove": "Remover"
+          },
+          "tooltip": {
+            "description": "A dica de ferramenta a ser exibida ao passar o mouse sobre o botão.",
+            "label": "Dica de ferramenta"
+          }
+        },
+        "dialog": {
+          "apply": "Aplicar",
+          "cancel": "Cancelar"
+        },
+        "section": {
+          "description": "Arraste os widgets para alterar a ordem. Use o menu do botão direito para transferir widgets entre seções ou removê-los.",
+          "label": "Widgets de atalhos"
+        },
+        "sectionLeft": "Esquerda",
+        "sectionRight": "Direito/Certo/À direita"
+      },
+      "title": "Central de Controle"
+    },
+    "display": {
+      "monitors": {
+        "brightness": "Brilho",
+        "brightness-step": {
+          "description": "Ajuste o tamanho do passo para alterações de brilho (roda do mouse e atalhos de teclado).",
+          "label": "Tamanho do passo do brilho"
+        },
+        "brightness-unavailable": {
+          "ddc-disabled": "Controle de brilho indisponível. Ative \"Suporte de brilho externo\" para controlar o brilho desta tela.",
+          "generic": "O controle de brilho não está disponível para esta tela."
+        },
+        "enforce-minimum": {
+          "description": "Resolve o problema da retroiluminação apagar completamente em alguns monitores com brilho em 0%.",
+          "label": "Forçar brilho mínimo (1%)"
+        },
+        "external-brightness": {
+          "description": "Ativar suporte DDCUtil para controlar o brilho em monitores externos através do protocolo DDC/CI.",
+          "label": "Suporte de brilho externo"
+        },
+        "section": {
+          "description": "Ajustar o brilho das configurações para cada tela.",
+          "label": "Configurações por monitor"
+        }
+      },
+      "night-light": {
+        "auto-schedule": {
+          "description": "Baseado no horário do pôr do sol e do nascer do sol em <i>{location}</i> - recomendado.",
+          "label": "Agendamento automático"
+        },
+        "enable": {
+          "description": "Aplica um filtro de cor quente para reduzir a emissão de luz azul.",
+          "label": "Ativar luz noturna"
+        },
+        "force-activation": {
+          "description": "Ignora o agendamento e aplica o filtro noturno imediatamente.",
+          "label": "Forçar ativação"
+        },
+        "manual-schedule": {
+          "description": "Defina horários personalizados para o nascer e o pôr do sol.",
+          "label": "Agendamento manual",
+          "select-start": "Selecionar hora de início",
+          "select-stop": "Selecionar hora de término",
+          "sunrise": "Horário do nascer do sol",
+          "sunset": "Horário do pôr do sol"
+        },
+        "section": {
+          "description": "Reduz a emissão de luz azul para ajudar você a dormir melhor e diminuir o cansaço visual.",
+          "label": "Luz noturna"
+        },
+        "temperature": {
+          "day": "Dia",
+          "day-description": "Controla a temperatura durante o dia.",
+          "description": "Defina o quão quente a cor será durante a noite e o dia.",
+          "label": "Temperatura da cor",
+          "night": "Noite",
+          "night-description": "Controla a temperatura durante a noite."
+        }
+      },
+      "title": "Tela"
+    },
+    "dock": {
+      "appearance": {
+        "background-opacity": {
+          "description": "Ajuste a opacidade do fundo da dock.",
+          "label": "Opacidade do fundo"
+        },
+        "border-radius": {
+          "description": "Ajustar o raio da borda da dock.",
+          "label": "Raio da borda"
+        },
+        "colorize-icons": {
+          "description": "Aplicar cores do tema aos ícones de aplicativos da dock (apenas aplicativos não focados).",
+          "label": "Colorir ícones"
+        },
+        "dead-opacity": {
+          "description": "Ajustar a opacidade dos ícones de aplicativos que não estão em execução.",
+          "label": "Opacidade Morta"
+        },
+        "display": {
+          "always-visible": "Sempre visível",
+          "auto-hide": "Ocultar automaticamente",
+          "description": "Escolha como a dock se comporta.",
+          "exclusive": "Exclusivo",
+          "label": "Exibição"
+        },
+        "floating-distance": {
+          "description": "Ajuste a distância de flutuação da borda da tela.",
+          "label": "Distância de flutuação da dock"
+        },
+        "icon-size": {
+          "description": "Ajustar o tamanho geral do Dock.",
+          "label": "Tamanho do Dock"
+        },
+        "inactive-indicators": {
+          "description": "Exibir indicadores de pílula para todos os aplicativos, não apenas para o aplicativo ativo no momento.",
+          "label": "Indicadores de execução"
+        },
+        "pinned-static": {
+          "description": "Sempre posicione os ícones de aplicativos fixados à esquerda em ordem estática.",
+          "label": "Aplicativos Fixados Estaticamente"
+        },
+        "section": {
+          "description": "Personalize o comportamento e a aparência da dock.",
+          "label": "Aparência"
+        }
+      },
+      "enabled": {
+        "description": "Mostrar ou ocultar o dock completamente",
+        "label": "Ativar dock"
+      },
+      "monitors": {
+        "only-same-output": {
+          "description": "Mostrar apenas aplicativos da saída onde o dock está localizado.",
+          "label": "Apenas aplicativos da mesma saída"
+        },
+        "section": {
+          "description": "Mostrar dock em monitores específicos. O padrão é todos se nenhum for escolhido.",
+          "label": "Exibição no monitor"
+        }
+      },
+      "title": "Dock"
+    },
+    "general": {
+      "fonts": {
+        "default": {
+          "description": "Fonte principal usada em toda a interface.",
+          "label": "Fonte padrão",
+          "placeholder": "Selecione a fonte padrão...",
+          "scale": {
+            "description": "Aumentar ou diminuir o tamanho do texto padrão.",
+            "label": "Tamanho de fonte padrão"
+          },
+          "search-placeholder": "Pesquisar fontes..."
+        },
+        "monospace": {
+          "description": "Fonte monoespaçada usada para exibição de números e estatísticas.",
+          "label": "Fonte monoespaçada",
+          "placeholder": "Selecione a fonte monoespaçada...",
+          "scale": {
+            "description": "Aumentar ou diminuir o tamanho do texto monoespaçado.",
+            "label": "Tamanho da fonte monoespaçada"
+          },
+          "search-placeholder": "Pesquisar fontes monoespaçadas..."
+        },
+        "reset-scaling": "Redefinir escala",
+        "section": {
+          "description": "Escolha as fontes usadas em toda a interface.",
+          "label": "Fontes"
+        }
+      },
+      "language": {
+        "section": {
+          "description": "Escolha o seu idioma preferido para a aplicação.",
+          "label": "Idioma"
+        },
+        "select": {
+          "auto-detect": "Automático",
+          "description": "Selecione o idioma usado na interface da aplicação.",
+          "label": "Idioma da aplicação"
+        }
+      },
+      "launch-setup-wizard": "Iniciar o assistente de configuração",
+      "profile": {
+        "picture": {
+          "description": "Sua foto de perfil que aparece em toda a interface.",
+          "label": "Foto de perfil de {user}"
+        },
+        "section": {
+          "description": "Edite os detalhes do seu usuário e avatar.",
+          "label": "Perfil"
+        },
+        "select-avatar": "Selecionar imagem de avatar",
+        "tooltip": "Foto de perfil"
+      },
+      "screen-corners": {
+        "radius": {
+          "description": "Ajuste os cantos arredondados da tela.",
+          "label": "Raio dos cantos da tela",
+          "reset": "Redefinir raio dos cantos da tela"
+        },
+        "section": {
+          "description": "Personalize o arredondamento dos cantos da tela e os efeitos visuais.",
+          "label": "Cantos da tela"
+        },
+        "show-corners": {
+          "description": "Exibe cantos arredondados na borda da tela.",
+          "label": "Mostrar cantos da tela"
+        },
+        "solid-black": {
+          "description": "Use preto sólido em vez da cor de fundo da barra.",
+          "label": "Cantos pretos sólidos"
+        }
+      },
+      "title": "Geral"
+    },
+    "hooks": {
+      "info": {
+        "command-info": {
+          "description": "• Comandos são executados via shell (sh -c)\n• Comandos rodam em segundo plano (desanexados)\n• Botões de teste executam com os valores atuais",
+          "label": "Informações de Comando do Hook"
+        },
+        "parameters": {
+          "description": "• Hook de Papel de Parede: $1 = caminho do papel de parede, $2 = nome da tela\n• Hook de Alternância de Tema: $1 = true/false (estado do modo escuro)",
+          "label": "Parâmetros Disponíveis"
+        }
+      },
+      "system-hooks": {
+        "enable": {
+          "description": "Ativa ou desativa todos os comandos de hook.",
+          "label": "Ativar hooks"
+        },
+        "section": {
+          "description": "Configure comandos para serem executados quando eventos do sistema ocorrerem.",
+          "label": "Ganchos do sistema"
+        }
+      },
+      "theme-changed": {
+        "description": "Comando a ser executado quando o tema alterna entre modo escuro e claro.",
+        "label": "Tema alterado",
+        "placeholder": "ex., notify-send \"Tema\" \"Alternado\""
+      },
+      "title": "Hooks",
+      "wallpaper-changed": {
+        "description": "Comando a ser executado quando o papel de parede muda.",
+        "label": "Papel de parede alterado",
+        "placeholder": "ex., notify-send \"Papel de parede\" \"Alterado\""
+      }
+    },
+    "launcher": {
+      "settings": {
+        "background-opacity": {
+          "description": "Ajuste a opacidade do fundo do lançador.",
+          "label": "Opacidade do fundo"
+        },
+        "clip-preview": {
+          "description": "Mostra uma pré-visualização do conteúdo da área de transferência ao usar o comando >clip.",
+          "label": "Ativar pré-visualização da área de transferência"
+        },
+        "clipboard-history": {
+          "description": "Acesse itens copiados anteriormente a partir do lançador.",
+          "label": "Ativar histórico da área de transferência"
+        },
+        "custom-launch-prefix": {
+          "description": "Prefixar comandos com um inicializador personalizado (ex. 'runapp' para integração systemd).",
+          "label": "Prefixo de inicialização personalizado"
+        },
+        "custom-launch-prefix-enabled": {
+          "description": "Usar um prefixo personalizado para inicializar aplicativos em vez do método padrão.",
+          "label": "Habilitar prefixo de inicialização personalizado"
+        },
+        "grid-view": {
+          "description": "Exibir itens em uma grade em vez de uma lista.",
+          "label": "Visualização em grade"
+        },
+        "position": {
+          "description": "Escolha onde o painel do lançador aparece.",
+          "label": "Posição"
+        },
+        "section": {
+          "description": "Personalize o comportamento e a aparência do lançador.",
+          "label": "Aparência"
+        },
+        "show-categories": {
+          "description": "Mostrar abas de categorias para filtrar aplicativos.",
+          "label": "Mostrar categorias"
+        },
+        "sort-by-usage": {
+          "description": "Quando ativado, os aplicativos mais usados aparecem primeiro na lista.",
+          "label": "Ordenar por mais usados"
+        },
+        "terminal-command": {
+          "description": "Comando para iniciar um terminal. Ex: 'kitty -e' ou 'gnome-terminal --'.",
+          "label": "Comando do terminal"
+        },
+        "use-app2unit": {
+          "description": "Usa um método de inicialização alternativo para gerenciar melhor os processos de aplicativos e evitar problemas.",
+          "label": "Usar App2Unit para iniciar aplicativos"
+        }
+      },
+      "title": "Lançador"
+    },
+    "location": {
+      "calendar": {
+        "cards": {
+          "section": {
+            "description": "Organize e ative/desative cartões no painel do calendário.",
+            "label": "Cartões de calendário"
+          }
+        },
+        "header": {
+          "label": "Cabeçalho do Calendário"
+        },
+        "month": {
+          "label": "Mês do calendário"
+        }
+      },
+      "date-time": {
+        "12hour-format": {
+          "description": "Exibe a hora no formato de 12 horas na tela de bloqueio e no calendário. O relógio da barra tem suas próprias configurações.",
+          "label": "Use o formato de hora de 12 horas"
+        },
+        "first-day-of-week": {
+          "automatic": "Automático (usar localização do sistema)",
+          "description": "Escolha qual dia começa a semana no calendário.",
+          "label": "Primeiro dia da semana"
+        },
+        "section": {
+          "description": "Personalize como a data e a hora aparecem.",
+          "label": "Data e hora"
+        },
+        "show-events": {
+          "description": "Exibir eventos no painel do calendário.",
+          "label": "Mostrar eventos do calendário"
+        },
+        "use-analog": {
+          "description": "Mostrar um relógio estilo analógico na janela do calendário e na tela de bloqueio.",
+          "label": "Use um relógio de estilo analógico."
+        },
+        "week-numbers": {
+          "description": "Exibe a semana do ano (ex., Semana 38) no calendário.",
+          "label": "Mostrar números da semana"
+        }
+      },
+      "location": {
+        "search": {
+          "description": "ex., São Paulo, SP",
+          "label": "Procurar por uma localização",
+          "placeholder": "Digite o nome da localização"
+        },
+        "section": {
+          "description": "Obtenha previsão do tempo e agendamento de luz noturna precisos definindo sua localização.",
+          "label": "Sua localização"
+        }
+      },
+      "title": "Localização",
+      "weather": {
+        "enabled": {
+          "description": "Mostrar informações meteorológicas em toda a interface e buscar dados do clima. Quando desativado, todos os elementos do clima serão ocultados e nenhuma solicitação de rede será feita.",
+          "label": "Ativar clima"
+        },
+        "fahrenheit": {
+          "description": "Exibe a temperatura em Fahrenheit em vez de Celsius.",
+          "label": "Exibir temperatura em Fahrenheit (°F)"
+        },
+        "section": {
+          "description": "Escolha sua unidade de temperatura preferida.",
+          "label": "Clima"
+        },
+        "show-effects": {
+          "description": "Mostra efeitos visuais adicionais (como chuva, neve ou relâmpagos) no cartão de clima.",
+          "label": "Exibir efeitos climáticos"
+        },
+        "show-in-calendar": {
+          "description": "Mostre a previsão do tempo diária diretamente na sua visualização de calendário.",
+          "label": "Exibir clima no calendário"
+        }
+      }
+    },
+    "lock-screen": {
+      "compact-lockscreen": {
+        "description": "Mostrar apenas a entrada de login e os controles do sistema, ocultando os widgets de clima e mídia.",
+        "label": "Tela de bloqueio compacta"
+      },
+      "lock-on-suspend": {
+        "description": "Bloquear a tela automaticamente ao suspender o sistema.",
+        "label": "Bloquear ao suspender"
+      },
+      "show-hibernate": {
+        "description": "Mostrar a opção 'hibernar' nas ações de energia.",
+        "label": "Mostrar hibernar"
+      },
+      "show-session-buttons": {
+        "description": "Permitir acesso às configurações de energia a partir da tela de bloqueio.",
+        "label": "Controles de energia"
+      },
+      "title": "Tela de bloqueio"
+    },
+    "network": {
+      "bluetooth": {
+        "label": "Ativar Bluetooth"
+      },
+      "section": {
+        "description": "Gerencie conexões Wi-Fi e Bluetooth."
+      },
+      "title": "Rede",
+      "wifi": {
+        "label": "Ativar Wi-Fi"
+      }
+    },
+    "notifications": {
+      "duration": {
+        "critical-urgency": {
+          "description": "Por quanto tempo as notificações de prioridade crítica permanecem visíveis.",
+          "label": "Urgência crítica"
+        },
+        "low-urgency": {
+          "description": "Por quanto tempo as notificações de baixa prioridade permanecem visíveis.",
+          "label": "Urgência baixa"
+        },
+        "normal-urgency": {
+          "description": "Por quanto tempo as notificações de prioridade normal permanecem visíveis.",
+          "label": "Urgência normal"
+        },
+        "reset": "Redefinir duração do tempo limite",
+        "respect-expire": {
+          "description": "Usa o tempo de expiração definido na notificação.",
+          "label": "Respeitar tempo de expiração"
+        },
+        "section": {
+          "description": "Configure por quanto tempo as notificações permanecem visíveis com base no nível de urgência.",
+          "label": "Duração da notificação"
+        }
+      },
+      "monitors": {
+        "section": {
+          "description": "Mostra a notificação em monitores específicos. O padrão é todos, se nenhum for escolhido.",
+          "label": "Exibição nos monitores"
+        }
+      },
+      "settings": {
+        "always-on-top": {
+          "description": "Exibe notificações acima de janelas em tela cheia e outras camadas.",
+          "label": "Sempre no topo"
+        },
+        "background-opacity": {
+          "description": "Ajustar a opacidade dos fundos das notificações.",
+          "label": "Opacidade do fundo"
+        },
+        "do-not-disturb": {
+          "description": "Desativa todos os pop-ups de notificação quando ativado.",
+          "label": "Não perturbe"
+        },
+        "enable-osd": {
+          "description": "Mostra alterações de volume e brilho em tempo real.",
+          "label": "Ativar exibição na tela"
+        },
+        "enabled": {
+          "description": "Ativar ou desativar o daemon de notificações, requer reiniciar o noctalia-shell.",
+          "label": "Ativar notificações"
+        },
+        "location": {
+          "description": "Onde as notificações aparecem na tela.",
+          "label": "Localização"
+        },
+        "section": {
+          "description": "Configure a aparência e o comportamento das notificações.",
+          "label": "Aparência"
+        }
+      },
+      "sounds": {
+        "enabled": {
+          "description": "Ativar efeitos sonoros para notificações recebidas.",
+          "label": "Ativar sons de notificação"
+        },
+        "excluded-apps": {
+          "description": "Pular a reprodução do som de notificação configurado para aplicativos específicos que têm seus próprios sons integrados.",
+          "label": "Aplicativos excluídos",
+          "placeholder": "discord,firefox,chrome,chromium,edge"
+        },
+        "files": {
+          "critical": {
+            "description": "Caminho para o arquivo de som tocado para notificações de prioridade crítica.",
+            "label": "Som de urgência crítica",
+            "select-title": "Selecionar Arquivo de Som de Urgência Crítica"
+          },
+          "low": {
+            "description": "Caminho para o arquivo de som tocado para notificações de prioridade baixa.",
+            "label": "Som de urgência baixa",
+            "select-title": "Selecionar Arquivo de Som de Urgência Baixa"
+          },
+          "normal": {
+            "description": "Caminho para o arquivo de som tocado para notificações de prioridade normal.",
+            "label": "Som de urgência normal",
+            "select-title": "Selecionar Arquivo de Som de Urgência Normal"
+          },
+          "placeholder": "Digitar o caminho para o arquivo de som",
+          "section": {
+            "description": "Configurar arquivos de som personalizados para diferentes níveis de urgência de notificação.",
+            "label": "Arquivos de som"
+          },
+          "select-file": "Selecionar Arquivo de Som",
+          "unified": {
+            "description": "Caminho para o arquivo de som tocado para notificações.",
+            "label": "Som de notificação",
+            "select-title": "Selecionar Arquivo de Som de Notificação"
+          }
+        },
+        "section": {
+          "description": "Configurar efeitos sonoros e volume de notificações.",
+          "label": "Configurações de som"
+        },
+        "separate": {
+          "description": "Usar arquivos de som diferentes para notificações de prioridade baixa, normal e crítica.",
+          "label": "Usar sons diferentes por prioridade"
+        },
+        "unavailable": {
+          "description": "Instale o Qt6 Multimedia para habilitar sons de notificação.",
+          "label": "Sons de notificação indisponíveis"
+        },
+        "volume": {
+          "description": "Ajustar o nível de volume para sons de notificação.",
+          "label": "Volume do som"
+        }
+      },
+      "title": "Notificações",
+      "toast": {
+        "keyboard": {
+          "description": "Mostrar uma notificação quando o layout do teclado mudar.",
+          "label": "Layout do teclado"
+        },
+        "section": {
+          "description": "Configurar a aparência e o comportamento do toast.",
+          "label": "Torrada"
+        }
+      }
+    },
+    "osd": {
+      "always-on-top": {
+        "description": "Exibir OSD acima de janelas em tela cheia e outras camadas.",
+        "label": "Sempre no topo"
+      },
+      "background-opacity": {
+        "description": "Controla a transparência do fundo do OSD.",
+        "label": "Opacidade do fundo"
+      },
+      "description": "Configure indicadores na tela, como volume e brilho.",
+      "duration": {
+        "auto-hide": {
+          "description": "Ajusta o tempo antes da OSD desaparecer.",
+          "label": "Ocultar após"
+        },
+        "section": {
+          "description": "Quanto tempo a OSD permanece visível antes de ocultar automaticamente.",
+          "label": "Tempo para ocultar"
+        }
+      },
+      "enabled": {
+        "description": "Mostrar alterações de volume e brilho em tempo real.",
+        "label": "Ativar exibição na tela"
+      },
+      "location": {
+        "description": "Onde a exibição na tela aparece.",
+        "label": "Localização"
+      },
+      "monitors": {
+        "section": {
+          "description": "Mostrar a OSD em monitores específicos. Padrão é todos se nenhum for escolhido.",
+          "label": "Exibição nos monitores"
+        }
+      },
+      "section": {
+        "general": {
+          "description": "Configurar visibilidade e comportamento da OSD.",
+          "label": "Geral"
+        }
+      },
+      "title": "Exibição na tela",
+      "types": {
+        "brightness": {
+          "description": "Mostrar o OSD quando o brilho da tela mudar.",
+          "label": "Brilho"
+        },
+        "input-volume": {
+          "description": "Mostrar o OSD quando o volume do microfone mudar.",
+          "label": "Volume de entrada"
+        },
+        "lockkey": {
+          "description": "Mostrar o OSD quando Caps Lock, Num Lock ou Scroll Lock forem alternadas.",
+          "label": "Teclas de bloqueio"
+        },
+        "section": {
+          "description": "Selecione os eventos que acionam o OSD.",
+          "label": "Eventos de disparo OSD"
+        },
+        "volume": {
+          "description": "Mostrar o OSD quando o volume de saída de áudio mudar.",
+          "label": "Volume de saída"
+        }
+      }
+    },
+    "plugins": {
+      "available": {
+        "description": "Navegue e instale plugins a partir de fontes configuradas.",
+        "label": "Plugins disponíveis",
+        "no-plugins-description": "Verifique as fontes do seu plugin ou atualize a lista.",
+        "no-plugins-label": "Nenhum plugin disponível."
+      },
+      "filter": {
+        "all": "Tudo",
+        "downloaded": "Baixado",
+        "not-downloaded": "Não Baixado"
+      },
+      "install": "Instalar",
+      "install-error": "Falha ao instalar: {error}",
+      "install-success": "{plugin} instalado com sucesso.",
+      "installed": {
+        "description": "Gerenciar e configurar todos os plugins instalados localmente.",
+        "label": "Plugins instalados",
+        "no-plugins-description": "Instale os plugins da seção Plugins Disponíveis abaixo.",
+        "no-plugins-label": "Nenhum plugin instalado"
+      },
+      "installing": "Instalando {plugin}...",
+      "plugin-settings-title": "Configurações do {plugin}",
+      "refresh": {
+        "refreshing": "Atualizando a lista de plugins...",
+        "tooltip": "Atualizar plugins disponíveis"
+      },
+      "settings": {
+        "tooltip": "Configurações do plugin"
+      },
+      "settings-error-not-loaded": "Plugin não carregado",
+      "settings-saved": "Configurações do plugin salvas.",
+      "sources": {
+        "add-custom": "Adicionar repositório personalizado",
+        "add-dialog": {
+          "description": "Adicionar um repositório GitHub como fonte de plugin.",
+          "error": "Falha ao adicionar a fonte do plugin.",
+          "name": "Nome do repositório",
+          "name-placeholder": "Meus Plugins Personalizados",
+          "success": "Fonte do plugin adicionada com sucesso.",
+          "title": "Adicionar fonte do plugin",
+          "url": "URL do repositório"
+        },
+        "description": "Gerenciar repositórios de plugins de onde os plugins são baixados.",
+        "label": "Fontes de plugins",
+        "placeholder": "Meu repositório legal",
+        "remove": {
+          "tooltip": "Remover código fonte do plugin"
+        }
+      },
+      "title": "Plugins",
+      "uninstall": "Desinstalar",
+      "uninstall-dialog": {
+        "description": "Tem certeza de que deseja desinstalar {plugin}? Isso removerá todos os dados do plugin.",
+        "title": "Desinstalar plugin"
+      },
+      "uninstall-error": "Falha ao desinstalar: {error}",
+      "uninstall-success": "{plugin} desinstalado com sucesso",
+      "uninstalling": "Desinstalando {plugin}...",
+      "update": "Atualização",
+      "update-all": "Atualizar Tudo ({count})",
+      "update-all-success": "Todos os plugins foram atualizados com sucesso.",
+      "update-available": "{count} atualização(ões) de plugin disponível(eis)",
+      "update-error": "Falha ao atualizar o plugin: {plugin}: {error}",
+      "update-incompatible": "Requer Noctalia v{version} ou superior",
+      "update-success": "{plugin} atualizado para a versão {version}",
+      "update-version": "v{atual} → v{novo}",
+      "updating": "Atualizando {plugin}..."
+    },
+    "screen-recorder": {
+      "audio": {
+        "audio-codec": {
+          "description": "Opus é recomendado para melhor desempenho e menor tamanho de áudio.",
+          "label": "Codec de áudio"
+        },
+        "audio-source": {
+          "description": "Fonte de áudio a ser capturada durante a gravação.",
+          "label": "Fonte de áudio"
+        },
+        "section": {
+          "description": "Configure as opções de gravação de áudio.",
+          "label": "Configurações de áudio"
+        }
+      },
+      "general": {
+        "output-folder": {
+          "description": "Pasta onde as gravações de tela serão salvas.",
+          "label": "Pasta de saída",
+          "tooltip": "Pasta de saída"
+        },
+        "section": {
+          "description": "Gerencie a saída e o conteúdo da gravação de tela.",
+          "label": "Configurações gerais"
+        },
+        "select-output-folder": "Selecionar pasta de saída",
+        "show-cursor": {
+          "description": "Grava o cursor do mouse no vídeo.",
+          "label": "Mostrar cursor"
+        }
+      },
+      "title": "Gravador de tela",
+      "video": {
+        "color-range": {
+          "description": "Limitada é recomendada para melhor compatibilidade.",
+          "label": "Gama de cores"
+        },
+        "frame-rate": {
+          "description": "Taxa de quadros alvo para gravações de tela.",
+          "label": "Taxa de quadros"
+        },
+        "section": {
+          "description": "Configure as opções de gravação de vídeo.",
+          "label": "Configurações de vídeo"
+        },
+        "video-codec": {
+          "description": "h264 é o codec mais comum.",
+          "label": "Codec de vídeo"
+        },
+        "video-quality": {
+          "description": "Qualidade mais alta resulta em arquivos maiores.",
+          "label": "Qualidade de vídeo"
+        },
+        "video-source": {
+          "description": "Portal é recomendado, se você tiver artefatos, tente Screen.",
+          "label": "Fonte de vídeo"
+        }
+      }
+    },
+    "session-menu": {
+      "countdown-duration": {
+        "description": "Definir por quanto tempo o temporizador de contagem regressiva dura antes de executar ações de energia.",
+        "label": "Duração da contagem regressiva"
+      },
+      "enable-countdown": {
+        "description": "Mostrar um temporizador de contagem regressiva antes de executar ações de energia.",
+        "label": "Ativar temporizador de contagem regressiva"
+      },
+      "entries": {
+        "section": {
+          "description": "Personalizar quais ações de energia aparecem no Menu de sessão e em que ordem.",
+          "label": "Ações de energia"
+        }
+      },
+      "entry-settings": {
+        "command": {
+          "description": "Comando personalizado para executar para esta ação. Deixe vazio para usar o comando padrão do sistema.",
+          "label": "Comando",
+          "placeholder": "systemctl poweroff"
+        },
+        "default-command": {
+          "lock": "Tela de bloqueio interna (sem comando)",
+          "logout": "Logout interno (sem comando)"
+        },
+        "default-info": {
+          "description": "Se nenhum comando personalizado for especificado, o comando padrão do sistema será usado.",
+          "label": "Comando padrão"
+        },
+        "title": "Configurar {entry}",
+        "tooltip": "Configurar comando"
+      },
+      "general": {
+        "section": {
+          "description": "Configurar o comportamento e a aparência do painel do menu de sessão.",
+          "label": "Geral"
+        }
+      },
+      "position": {
+        "description": "Escolha onde o painel do Menu de sessão aparece quando aberto.",
+        "label": "Posição"
+      },
+      "show-header": {
+        "description": "Exibir o título e o botão de fechar na parte superior do Menu de sessão.",
+        "label": "Mostrar cabeçalho"
+      },
+      "title": "Menu de sessão"
+    },
+    "system-monitor": {
+      "cpu-critical-threshold": {
+        "label": "Limite crítico"
+      },
+      "cpu-section": {
+        "label": "Uso da CPU"
+      },
+      "cpu-warning-threshold": {
+        "label": "Limite de aviso"
+      },
+      "critical-color": {
+        "label": "Cor crítica"
+      },
+      "custom-highlight-colors-title": {
+        "label": "Cores de destaque personalizadas"
+      },
+      "disk-critical-threshold": {
+        "label": "Limite crítico"
+      },
+      "disk-section": {
+        "label": "Uso do disco"
+      },
+      "disk-warning-threshold": {
+        "label": "Limite de aviso"
+      },
+      "general": {
+        "section": {
+          "description": "Configure o comportamento e a aparência do Monitor do Sistema.",
+          "label": "Geral"
+        }
+      },
+      "highlight-colors-section": {
+        "label": "Cores de destaque"
+      },
+      "mem-critical-threshold": {
+        "label": "Limite crítico"
+      },
+      "mem-warning-threshold": {
+        "label": "Limite de aviso"
+      },
+      "memory-section": {
+        "label": "Uso de memória"
+      },
+      "network-section": {
+        "label": "Rede"
+      },
+      "polling-interval": {
+        "label": "Intervalo de pesquisa"
+      },
+      "temp-critical-threshold": {
+        "label": "Limite crítico"
+      },
+      "temp-warning-threshold": {
+        "label": "Limite de aviso"
+      },
+      "temperature-section": {
+        "label": "Temperatura da CPU"
+      },
+      "thresholds-section": {
+        "description": "Ajuste os limites de aviso/crítico e os intervalos de consulta para cada métrica do sistema.",
+        "label": "Limiares"
+      },
+      "title": "Monitor do Sistema",
+      "use-custom-highlight-colors": {
+        "description": "Quando desativado, são usadas as cores de destaque padrão do tema.",
+        "label": "Usar cores de destaque personalizadas"
+      },
+      "warning-color": {
+        "label": "Cor de aviso"
+      }
+    },
+    "user-interface": {
+      "allow-panels-without-bar": {
+        "description": "Quando ativado, os painéis podem abrir em qualquer tela. Quando desativado, os painéis só abrirão em telas que tenham uma barra, o que pode reduzir o uso de memória.",
+        "label": "Permitir painéis em telas sem uma barra."
+      },
+      "animation-disable": {
+        "description": "Desative todas as animações para uma experiência mais rápida e responsiva.",
+        "label": "Desativar animações da interface do usuário"
+      },
+      "animation-speed": {
+        "description": "Ajustar a velocidade global da animação.",
+        "label": "Velocidade da animação",
+        "reset": "Redefinir velocidade da animação"
+      },
+      "box-border-radius": {
+        "description": "Ajusta o arredondamento dos cantos das principais seções do layout, como barras laterais, cards e painéis de conteúdo.",
+        "label": "Raio do Contêiner",
+        "reset": "Redefinir raio do recipiente"
+      },
+      "control-border-radius": {
+        "description": "Controla a curvatura de elementos interativos, incluindo botões, alternâncias e campos de texto.",
+        "label": "Raio de entrada",
+        "reset": "Redefinir raio de entrada"
+      },
+      "dim-desktop": {
+        "description": "Escurecer a área de trabalho quando painéis ou menus estiverem abertos.",
+        "label": "Dim área de trabalho"
+      },
+      "dimmer-opacity": {
+        "description": "Definir o nível de opacidade para o escurecimento da área de trabalho.",
+        "label": "Opacidade da área de trabalho escurecida",
+        "reset": "Redefinir opacidade da área de trabalho escurecida"
+      },
+      "panel-background-opacity": {
+        "description": "Definir a opacidade de fundo para todos os painéis (Launcher, Centro de Controle, Configurações, etc.).",
+        "label": "Opacidade de fundo do painel"
+      },
+      "panels-attached-to-bar": {
+        "description": "Os painéis travam na barra e nas bordas da tela, criando uma aparência perfeita com cantos invertidos elegantes.",
+        "label": "Ajustar Painéis às Bordas"
+      },
+      "panels-overlay": {
+        "description": "Garante que os painéis e a barra permaneçam visíveis, mesmo sobre aplicativos em tela cheia.",
+        "label": "Manter Painéis e Barra no Topo"
+      },
+      "scaling": {
+        "description": "Altera o tamanho da interface geral do usuário, excluindo a barra.",
+        "label": "Escalonamento da interface",
+        "reset-scaling": "Redefinir escala da interface"
+      },
+      "section": {
+        "description": "Personalize a aparência, a sensação e o comportamento da interface.",
+        "label": "Aparência"
+      },
+      "settings-panel-attached-to-bar": {
+        "description": "Mantenha a janela de Configurações alinhada com a barra para um visual uniforme.",
+        "label": "Ajustar Configurações à barra"
+      },
+      "shadows": {
+        "description": "Ativa sombras projetadas sob barras e painéis.",
+        "direction": {
+          "description": "Escolha de onde a sombra é projetada.",
+          "label": "Direção da sombra"
+        },
+        "label": "Sombras projetadas"
+      },
+      "title": "Interface do usuário",
+      "tooltips": {
+        "description": "Ativar ou desativar dicas de ferramentas em toda a interface.",
+        "label": "Mostrar dicas de ferramenta"
+      }
+    },
+    "wallpaper": {
+      "automation": {
+        "custom-interval": {
+          "description": "Digite o tempo como HH:MM (ex., 01:30).",
+          "label": "Intervalo personalizado"
+        },
+        "interval": {
+          "description": "Com que frequência alterar os papéis de parede automaticamente.",
+          "label": "Intervalo do papel de parede"
+        },
+        "random-wallpaper": {
+          "description": "Agende mudanças aleatórias de papel de parede em intervalos regulares.",
+          "label": "Papel de parede aleatório"
+        },
+        "section": {
+          "label": "Automação"
+        }
+      },
+      "look-feel": {
+        "edge-smoothness": {
+          "description": "Aplica um efeito suave e esfumaçado à borda das transições.",
+          "label": "Suavizar borda da transição"
+        },
+        "fill-color": {
+          "description": "Escolha uma cor de preenchimento que pode aparecer atrás do papel de parede.",
+          "label": "Cor de preenchimento"
+        },
+        "fill-mode": {
+          "description": "Selecione como a imagem deve ser dimensionada para corresponder à resolução do seu monitor.",
+          "label": "Modo de preenchimento"
+        },
+        "section": {
+          "label": "Aparência e estilo"
+        },
+        "transition-duration": {
+          "description": "Duração das animações de transição em segundos.",
+          "label": "Duração da transição"
+        },
+        "transition-type": {
+          "description": "Tipo de animação ao alternar entre papéis de parede.",
+          "label": "Tipo de transição"
+        }
+      },
+      "settings": {
+        "enable-management": {
+          "description": "Gerencie papéis de parede com o Noctalia. Desmarque se preferir usar outro aplicativo.",
+          "label": "Ativar gerenciamento de papel de parede"
+        },
+        "enable-overview": {
+          "description": "Aplica um papel de parede desfocado e escurecido à tela de visão geral.",
+          "label": "Ativar papel de parede de visão geral"
+        },
+        "folder": {
+          "description": "Caminho para a sua pasta principal de papéis de parede.",
+          "label": "Pasta de papéis de parede",
+          "tooltip": "Pasta de papéis de parede"
+        },
+        "hide-wallpaper-filenames": {
+          "description": "Ocultar nomes de arquivos de papel de parede no seletor.",
+          "label": "Ocultar nomes de arquivos"
+        },
+        "monitor-specific": {
+          "description": "Defina uma pasta de papel de parede diferente para cada monitor.",
+          "label": "Diretórios específicos por monitor",
+          "tooltip": "Pasta de papéis de parede do monitor"
+        },
+        "recursive-search": {
+          "description": "Também buscar papéis de parede em subpastas do diretório de papéis de parede.",
+          "label": "Buscar em subpastas"
+        },
+        "section": {
+          "description": "Controle como os papéis de parede são gerenciados e exibidos.",
+          "label": "Configurações de papel de parede"
+        },
+        "select-folder": "Selecionar pasta de papéis de parede",
+        "select-monitor-folder": "Selecionar pasta de papéis de parede do monitor",
+        "selector": {
+          "description": "Escolha o seu papel de parede.",
+          "label": "Seletor de papel de parede",
+          "tooltip": "Seletor de papel de parede"
+        },
+        "selector-position": {
+          "description": "Escolha onde o painel do seletor de papel de parede aparece.",
+          "label": "Posição"
+        }
+      },
+      "title": "Papel de parede"
+    }
+  },
+  "setup": {
+    "appearance": {
+      "header": "Aparência",
+      "subheader": "Escolha o modo escuro e as fontes de cores (Matugen ou predefinidas)."
+    },
+    "customize": {
+      "header": "Personalizar a sua experiência",
+      "subheader": "Ajuste a posição da barra, densidade, escala e mais."
+    },
+    "wallpaper": {
+      "choose-dir": "Escolha um diretório contendo seus papéis de parede",
+      "dir": {
+        "browse": "Procurar pasta",
+        "description": "Escolha a pasta que contém seus papéis de parede",
+        "label": "Diretório de papéis de parede",
+        "select-title": "Selecionar pasta de papéis de parede"
+      },
+      "header": "Escolha o seu papel de parede",
+      "no-dir": "Nenhum diretório de papéis de parede selecionado",
+      "no-valid": "Nenhuma imagem válida encontrada em: {dir}",
+      "none-in-dir": "Nenhum papel de parede encontrado no diretório",
+      "preview-error": "Falha ao carregar a imagem",
+      "select-prompt": "Selecione um papel de parede abaixo",
+      "subheader": "Defina o ambiente com um belo fundo."
+    },
+    "welcome": {
+      "note": "Apenas alguns ajustes básicos para começar - o restante está em Configurações"
+    }
+  },
+  "system": {
+    "cpu-temperature": "{temp}°C",
+    "disk-usage": "{percent}%",
+    "location-display": "{name} ({coordinates})",
+    "monitor-description": "{model} ({width}x{height} @ {scale}x)",
+    "no-media-player-detected": "Nenhum reprodutor de mídia detectado",
+    "scaling-percentage": "{percentage}%",
+    "signal-strength": "{signal}%",
+    "unknown": "Desconhecido",
+    "unknown-app": "Aplicativo Desconhecido",
+    "unknown-layout": "Desconhecido",
+    "unknown-version": "Desconhecida",
+    "uptime": "Atividade: {uptime}",
+    "user-requested": "Solicitado pelo usuário",
+    "welcome-back": "Bem-vindo(a) de volta, {user}!",
+    "widget-settings-title": "Configurações de {widget}"
+  },
+  "toast": {
+    "airplane-mode": {
+      "disabled": "Desativado",
+      "enabled": "Ativado",
+      "title": "Modo avião"
+    },
+    "battery": {
+      "low": "Bateria Fraca",
+      "low-desc": "A bateria está em {percent}%. Por favor, conecte o carregador."
+    },
+    "bluetooth": {
+      "disabled": "Desativado",
+      "enabled": "Ativado"
+    },
+    "clipboard": {
+      "unavailable": "Histórico da área de transferência indisponível",
+      "unavailable-desc": "O aplicativo 'cliphist' não está instalado. Por favor, instale-o para usar os recursos do histórico da área de transferência."
+    },
+    "dark-mode": {
+      "dark-mode": "Modo escuro",
+      "enabled": "Ativado",
+      "light-mode": "Modo claro"
+    },
+    "do-not-disturb": {
+      "disabled": "'Não perturbe' desativado",
+      "disabled-desc": "Mostrando todas as notificações.",
+      "enabled": "'Não perturbe' ativado",
+      "enabled-desc": "Você encontrará essas notificações no seu histórico."
+    },
+    "internet": {
+      "limited": "Conectado sem Internet"
+    },
+    "ipc": {
+      "powerpanel-deprecated": "PowerPanel foi renomeado para SessionMenu, esta chamada de IPC será descontinuada em breve. Por favor, use \"ipc call sessionMenu toggle\".",
+      "sidepanel-deprecated": "SidePanel foi renomeado para ControlCenter, esta chamada de IPC será descontinuada em breve. Por favor, use \"ipc call controlCenter toggle\"."
+    },
+    "keep-awake": {
+      "disabled": "Desativado",
+      "enabled": "Ativado"
+    },
+    "keyboard-layout": {
+      "changed": "Layout de teclado alterado para {layout}"
+    },
+    "kofi": {
+      "opened": "Página do Ko-fi aberta no seu navegador"
+    },
+    "missing-control-center": {
+      "description": "O widget da Central de Controle foi removido da barra. Para acessá-lo novamente pela barra, adicione o widget novamente. Você também pode abri-lo clicando com o botão direito na barra.",
+      "label": "Último widget da Central de Controle removido"
+    },
+    "night-light": {
+      "disabled": "Desativada",
+      "enabled": "Ativada",
+      "forced": "Ativação forçada",
+      "normal": "Modo normal",
+      "not-installed": "wlsunset não está instalado"
+    },
+    "noctalia-performance": {
+      "disabled": "Modo de desempenho desativado",
+      "enabled": "Modo de desempenho ativado",
+      "label": "Noctalia Desempenho"
+    },
+    "power-profile": {
+      "changed": "Perfil de energia alterado",
+      "profile-name": "\"{profile}\""
+    },
+    "recording": {
+      "failed-general": "O gravador encerrou com um erro.",
+      "failed-gpu": "gpu-screen-recorder encerrou inesperadamente.",
+      "failed-start": "Falha ao iniciar a gravação",
+      "no-portals": "Portais de desktop não estão em execução",
+      "no-portals-desc": "Inicie o xdg-desktop-portal e um portal de compositor (wlr/hyprland/gnome/kde).",
+      "not-installed": "gpu-screen-recorder não instalado",
+      "not-installed-desc": "Por favor instale o gpu-screen-recorder para usar as funcionalidades de gravação de tela.",
+      "saved": "Gravação salva",
+      "started": "Gravação iniciada",
+      "stopping": "Parando gravação…"
+    },
+    "theming-processor-failed": {
+      "desc-generic": "Ocorreu um erro ao processar os templates.",
+      "title-matugen": "Falha no processamento do template Matugen",
+      "title-predefined": "O processamento do esquema de cores predefinido falhou."
+    },
+    "vpn": {
+      "connected": "Conectado a '{name}'",
+      "disconnected": "Desconectado de '{name}'"
+    },
+    "wallpaper-colors": {
+      "disabled": "Cores do papel de parede desativadas",
+      "enabled": "Cores do papel de parede ativadas",
+      "label": "Geração de cores para papel de parede",
+      "not-installed": "Matugen não instalado - necessário para extração de cores do papel de parede"
+    },
+    "wifi": {
+      "connected": "Conectado a '{ssid}'",
+      "disabled": "Desativado",
+      "disconnected": "Desconectado de '{ssid}'",
+      "enabled": "Ativado"
+    }
+  },
+  "tooltips": {
+    "add-widget": "Adicionar widget",
+    "bluetooth-devices": "Dispositivos Bluetooth",
+    "brightness-at": "Brilho: {brightness}%",
+    "cancel-timer": "Temporizador",
+    "clear-history": "Limpar histórico",
+    "click-to-start-recording": "Gravador de tela (iniciar gravação)",
+    "click-to-stop-recording": "Gravador de tela (parar gravação)",
+    "close": "Fechar",
+    "connect-disconnect-devices": "Dispositivo Bluetooth",
+    "delete-notification": "Excluir notificação",
+    "disable-keep-awake": "Manter acordado",
+    "do-not-disturb-disabled": "Não perturbe",
+    "do-not-disturb-enabled": "Não perturbe",
+    "enable-keep-awake": "Manter acordado",
+    "forget-network": "Esquecer rede",
+    "grid-view": "Visualização em grade",
+    "hidden-files-hide": "Arquivos ocultos",
+    "hidden-files-show": "Arquivos ocultos",
+    "home": "Diretório home",
+    "input-muted": "Microfone",
+    "keep-awake": "Manter acordado",
+    "keyboard-layout": "Layout de teclado {layout}",
+    "list-view": "Visualização em lista",
+    "manage-vpn": "Conexões VPN",
+    "manage-wifi": "Wi-Fi",
+    "microphone-volume-at": "Volume do microfone: {volume}%",
+    "move-to-center-section": "Seção central",
+    "move-to-left-section": "Seção esquerda",
+    "move-to-right-section": "Seção direita",
+    "next-media": "Próxima faixa",
+    "next-month": "Próximo mês",
+    "night-light-disabled": "Luz noturna",
+    "night-light-enabled": "Luz noturna",
+    "night-light-forced": "Luz noturna",
+    "night-light-not-installed": "Luz noturna (não disponível)",
+    "noctalia-performance-disabled": "Modo de desempenho Noctalia",
+    "noctalia-performance-enabled": "Modo de desempenho Noctalia",
+    "open-control-center": "Central de controle",
+    "open-notification-history-disable-dnd": "Histórico de notificações",
+    "open-notification-history-enable-dnd": "Histórico de notificações",
+    "open-settings": "Configurações",
+    "open-tray-dropdown": "Bandeja do sistema",
+    "open-wallpaper-selector": "Seletor de papel de parede",
+    "output-muted": "Saída de áudio",
+    "pause": "Pausar",
+    "play": "Reproduzir",
+    "power-profile": "{profile} perfil de energia",
+    "previous-media": "Faixa anterior",
+    "previous-month": "Mês anterior",
+    "refresh": "Atualizar",
+    "refresh-devices": "Atualizar dispositivos",
+    "refresh-wallhaven": "Atualizar resultados do Wallhaven",
+    "refresh-wallpaper-list": "Atualizar lista de papéis de parede",
+    "remove-widget": "Remover widget",
+    "screen-recorder-not-installed": "Gravador de tela (não instalado)",
+    "search": "Pesquisar",
+    "search-close": "Fechar pesquisa",
+    "session-menu": "Menu da Sessão",
+    "set-power-profile": "{profile} perfil de energia",
+    "start-screen-recording": "Gravador de tela",
+    "stop-screen-recording": "Gravador de tela",
+    "switch-to-dark-mode": "Modo escuro",
+    "switch-to-light-mode": "Modo claro",
+    "up": "Diretório superior",
+    "volume-at": "Volume de saída: {volume}%",
+    "wallpaper-selector": "Seletor de papel de parede",
+    "widget-settings": "Configurações do widget"
+  },
+  "wallpaper": {
+    "configure-directory": "Configure seu diretório de papéis de parede com imagens.",
+    "fill-modes": {
+      "center": "Centralizar",
+      "crop": "Cortar (Preencher)",
+      "fit": "Ajustar (Conter)",
+      "stretch": "Esticar"
+    },
+    "no-match": "Nenhuma correspondência encontrada.",
+    "no-wallpaper": "Nenhum papel de parede encontrado.",
+    "panel": {
+      "apply-all-monitors": {
+        "description": "Aplica o papel de parede selecionado a todos os monitores de uma só vez.",
+        "label": "Aplicar a todos os monitores"
+      },
+      "categories": {
+        "anime": "Anime",
+        "general": "Geral",
+        "label": "Categorias",
+        "people": "Pessoas"
+      },
+      "order": {
+        "asc": "Crescente",
+        "desc": "Decrescente",
+        "label": "Ordem"
+      },
+      "purity": {
+        "all": "Tudo",
+        "label": "Filtro de conteúdo",
+        "sfw": "SFW",
+        "sketchy": "Sketchy"
+      },
+      "resolution": {
+        "atleast": "Pelo menos",
+        "exact": "Exato",
+        "label": "Resolução",
+        "mode": {
+          "label": "Modo"
+        }
+      },
+      "search": "Pesquisar:",
+      "sorting": {
+        "date_added": "Data de adição",
+        "favorites": "Favoritos",
+        "label": "Ordenar por",
+        "random": "Aleatório",
+        "relevance": "Relevância",
+        "toplist": "Lista superior",
+        "views": "Visualizações"
+      },
+      "source": {
+        "label": "Fonte",
+        "local": "Local",
+        "wallhaven": "Wallhaven"
+      },
+      "title": "Seletor de papel de parede",
+      "wallhaven-settings": {
+        "apply": "Aplicar",
+        "title": "Configurações do Wallhaven"
+      }
+    },
+    "transitions": {
+      "disc": "Disco",
+      "fade": "Esmaecer",
+      "none": "Nenhuma",
+      "random": "Aleatória",
+      "stripes": "Listras",
+      "wipe": "Limpar"
+    },
+    "try-different-search": "Tente uma busca diferente.",
+    "unknown": "Desconhecido",
+    "wallhaven": {
+      "loading": "Carregando papéis de parede...",
+      "no-results": "Nenhum papel de parede encontrado. Tente uma busca diferente.",
+      "page": "{current} de {total}"
+    }
+  },
+  "weather": {
+    "clear-sky": "Céu limpo",
+    "drizzle": "Garoa",
+    "fog": "Névoa",
+    "mainly-clear": "Predominantemente limpo",
+    "overcast": "Nublado",
+    "partly-cloudy": "Parcialmente nublado",
+    "rain-showers": "Pancadas de chuva",
+    "snow": "Neve",
+    "thunderstorm": "Tempestade",
+    "unknown": "Desconhecido"
+  },
+  "widgets": {
+    "color-picker": {
+      "apply": "Aplicar",
+      "cancel": "Cancelar",
+      "palette": {
+        "description": "Escolha entre uma vasta gama de cores predefinidas.",
+        "label": "Paleta",
+        "theme-colors": "Acesso rápido à paleta de cores do seu tema."
+      },
+      "title": "Seletor de cores"
+    },
+    "datetime-tokens": {
+      "ampm": {
+        "lowercase": "am/pm em minúsculas",
+        "uppercase": "AM/PM em maiúsculas"
+      },
+      "common": {
+        "12hour-time-minutes": "Horário de 12 horas com minutos",
+        "24hour-time-minutes": "Horário de 24 horas com minutos",
+        "24hour-time-seconds": "Horário de 24 horas com segundos",
+        "european-date": "Formato de data europeu",
+        "iso-date": "Formato de data ISO",
+        "us-date": "Formato de data dos EUA",
+        "weekday-date": "Dia da semana com data",
+        "weekday-month-day": "Dia da semana, mês e dia"
+      },
+      "day": {
+        "abbreviated": "Nome do dia abreviado",
+        "full": "Nome completo do dia",
+        "leading-zero": "Dia com zero à esquerda (01-31)",
+        "no-leading-zero": "Dia sem zero à esquerda (1-31)"
+      },
+      "hour": {
+        "leading-zero": "Hora com zero à esquerda (00-23) - formato de 24 horas",
+        "no-leading-zero": "Hora sem zero à esquerda (0-23) - formato de 24 horas"
+      },
+      "minute": {
+        "leading-zero": "Minuto com zero à esquerda (00-59)",
+        "no-leading-zero": "Minuto sem zero à esquerda (0-59)"
+      },
+      "month": {
+        "abbreviated": "Nome do mês abreviado",
+        "full": "Nome completo do mês",
+        "number-leading-zero": "Mês como número com zero à esquerda (01-12)",
+        "number-no-zero": "Mês como número sem zero à esquerda (1-12)"
+      },
+      "second": {
+        "leading-zero": "Segundo com zero à esquerda (00-59)",
+        "no-leading-zero": "Segundo sem zero à esquerda (0-59)"
+      },
+      "timezone": {
+        "abbreviation": "Abreviação do fuso horário"
+      },
+      "year": {
+        "four-digit": "Ano com quatro dígitos",
+        "two-digit": "Ano com dois dígitos (00-99)"
+      }
+    },
+    "file-picker": {
+      "cancel": "Cancelar",
+      "search-placeholder": "Pesquisar arquivos e pastas...",
+      "select-current": "Selecionar Atual",
+      "select-file": "Selecionar Arquivo",
+      "select-folder": "Selecionar Pasta",
+      "title": "Seletor de Arquivos"
+    },
+    "icon-picker": {
+      "apply": "Aplicar",
+      "cancel": "Cancelar",
+      "search": {
+        "label": "Pesquisar"
+      },
+      "title": "Seletor de ícones"
+    },
+    "text-input": {
+      "clear": "Limpar"
+    },
+    "tooltip": {
+      "placeholder": "Espaço reservado"
+    }
+  },
+  "wifi": {
+    "panel": {
+      "available-networks": "Redes Disponíveis",
+      "connect": "Conectar",
+      "connected": "Conectado",
+      "disabled": "O Wi-Fi está desativado",
+      "disconnect": "Desconectar",
+      "disconnecting": "Desconectando...",
+      "enable-message": "Ative o Wi-Fi para ver as redes disponíveis.",
+      "enter-password": "Digite a senha...",
+      "forget": "Esquecer",
+      "forget-network": "Esquecer esta rede?",
+      "forgetting": "Esquecendo...",
+      "known-networks": "Redes Conhecidas",
+      "no-networks": "Nenhuma rede encontrada",
+      "password": "Senha",
+      "saved": "Salva",
+      "scan-again": "Escanear novamente",
+      "searching": "Procurando redes próximas...",
+      "title": "Wi-Fi"
+    }
+  }
+}

@@ -11,7 +11,7 @@ set -euo pipefail
 
 # Configuration
 STATE_FILE="$HOME/.cache/wehttamsnaps/gaming-mode-state"
-NIRI_CONFIG_DIR="$HOME/.config/niri/conf.d"
+NIRI_CONFIG_DIR="$HOME/.config/niri/"
 GAMING_CONFIG="$NIRI_CONFIG_DIR/40-gaming.kdl"
 JARVIS_SCRIPT="$HOME/.config/wehttamsnaps/scripts/jarvis-manager.sh"
 
