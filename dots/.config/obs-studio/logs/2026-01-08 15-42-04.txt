@@ -1,0 +1,750 @@
+15:42:04.339: Platform: Wayland
+15:42:04.339: CPU Name: Intel(R) Core(TM) i7-4790 CPU @ 3.60GHz
+15:42:04.339: CPU Speed: 3627.582MHz
+15:42:04.339: Physical Cores: 4, Logical Cores: 8
+15:42:04.339: Physical Memory: 15934MB Total, 4008MB Free
+15:42:04.339: Kernel Version: Linux 6.18.3-2-cachyos
+15:42:04.339: Distribution: "CachyOS Linux" Unknown
+15:42:04.339: Desktop Environment: niri (niri)
+15:42:04.339: Session Type: wayland
+15:42:04.341: Current Date/Time: 2026-01-08, 03:42:04 PM
+15:42:04.341: Browser Hardware Acceleration: true
+15:42:04.341: Qt Version: 6.10.1 (runtime), 6.10.0 (compiled)
+15:42:04.341: Portable mode: false
+15:42:04.389: OBS 32.0.2 (linux)
+15:42:04.389: ---------------------------------
+15:42:04.398: ---------------------------------
+15:42:04.398: audio settings reset:
+15:42:04.398: 	samples per sec: 48000
+15:42:04.398: 	speakers:        2
+15:42:04.398: 	max buffering:   960 milliseconds
+15:42:04.398: 	buffering type:  dynamically increasing
+15:42:04.401: ---------------------------------
+15:42:04.401: Initializing OpenGL...
+15:42:04.401: Using EGL/Wayland
+15:42:04.461: Initialized EGL 1.5
+15:42:04.480: Loading up OpenGL on adapter AMD AMD Radeon RX 580 Series (radeonsi, polaris10, ACO, DRM 3.64, 6.18.3-2-cachyos)
+15:42:04.480: OpenGL loaded successfully, version 4.6 (Core Profile) Mesa 25.3.3-arch1.4, shading language 4.60
+15:42:04.524: ---------------------------------
+15:42:04.524: video settings reset:
+15:42:04.524: 	base resolution:   1920x1080
+15:42:04.524: 	output resolution: 1280x720
+15:42:04.524: 	downscale filter:  Bicubic
+15:42:04.524: 	fps:               30/1
+15:42:04.524: 	format:            NV12
+15:42:04.524: 	YUV mode:          Rec. 709/Partial
+15:42:04.524: NV12 texture support enabled
+15:42:04.524: P010 texture support not available
+15:42:04.526: Audio monitoring device:
+15:42:04.526: 	name: Default
+15:42:04.526: 	id: default
+15:42:04.530: ---------------------------------
+15:42:04.531: Failed to load 'en-US' text for module: 'decklink-captions.so'
+15:42:04.533: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+15:42:04.535: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+15:42:04.535: Failed to initialize module 'decklink.so'
+15:42:04.657: [pipewire] Available capture sources:
+15:42:04.657: [pipewire]     - Monitor source
+15:42:04.657: [pipewire]     - Window source
+15:42:04.673: [linux-vkcapture] plugin loaded successfully (version 1.5.3)
+15:42:04.738: VAAPI: API version 1.22
+15:42:04.738: FFmpeg VAAPI H264 encoding supported
+15:42:04.742: FFmpeg VAAPI AV1 encoding not supported
+15:42:04.746: FFmpeg VAAPI HEVC encoding supported
+15:42:04.757: os_dlopen(libnvidia-encode.so.1->libnvidia-encode.so.1): libnvidia-encode.so.1: cannot open shared object file: No such file or directory
+15:42:04.757: 
+15:42:04.757: NVENC not supported
+15:42:04.757: Failed to initialize module 'obs-nvenc.so'
+15:42:04.797: [obs-vaapi] version: 0.4.2, gst-runtime: 1.26.10
+15:42:04.940: [obs-vaapi] found vah264enc
+15:42:04.940: [obs-vaapi] found vah265enc
+15:42:04.941: [obs-vaapi] found vaapih265enc
+15:42:04.941: [obs-vaapi] found vaapih264enc
+15:42:04.969: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.6.3 | RPC Version: 1)
+15:42:04.969: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.10.0 | Qt version (run-time): 6.10.1
+15:42:04.969: [obs-websocket] [obs_module_load] Linked ASIO Version: 103600
+15:42:04.975: [obs-websocket] [obs_module_load] Module loaded.
+15:42:04.981: ---------------------------------
+15:42:04.981:   Loaded Modules:
+15:42:04.981:     text-freetype2.so
+15:42:04.981:     rtmp-services.so
+15:42:04.981:     obs-x264.so
+15:42:04.981:     obs-websocket.so
+15:42:04.981:     obs-webrtc.so
+15:42:04.981:     obs-vst.so
+15:42:04.981:     obs-vaapi.so
+15:42:04.981:     obs-transitions.so
+15:42:04.981:     obs-qsv11.so
+15:42:04.981:     obs-outputs.so
+15:42:04.981:     obs-libfdk.so
+15:42:04.981:     obs-filters.so
+15:42:04.981:     obs-ffmpeg.so
+15:42:04.981:     linux-vkcapture.so
+15:42:04.981:     linux-v4l2.so
+15:42:04.981:     linux-pulseaudio.so
+15:42:04.981:     linux-pipewire.so
+15:42:04.981:     linux-jack.so
+15:42:04.981:     linux-capture.so
+15:42:04.981:     linux-alsa.so
+15:42:04.981:     image-source.so
+15:42:04.981:     frontend-tools.so
+15:42:04.981:     decklink-output-ui.so
+15:42:04.981:     decklink-captions.so
+15:42:04.981: ---------------------------------
+15:42:04.981: ---------------------------------
+15:42:04.981: Available Encoders:
+15:42:04.981:   Video Encoders:
+15:42:04.981: 	- ffmpeg_svt_av1 (SVT-AV1)
+15:42:04.981: 	- ffmpeg_aom_av1 (AOM AV1)
+15:42:04.981: 	- ffmpeg_vaapi_tex (FFmpeg VAAPI H.264)
+15:42:04.981: 	- hevc_ffmpeg_vaapi_tex (FFmpeg VAAPI HEVC)
+15:42:04.989: 	- obs-va-vah264enc (VAAPI H.264 on Ellesmere [Radeon RX 470/480/570/570X/580/580X/590])
+15:42:04.995: 	- obs-va-vah265enc (VAAPI H.265 on Ellesmere [Radeon RX 470/480/570/570X/580/580X/590])
+15:42:04.995: 	- obs-vaapi-vaapih265enc (VAAPI H.265  (Legacy))
+15:42:04.995: 	- obs-vaapi-vaapih264enc (VAAPI H.264  (Legacy))
+15:42:04.995: 	- obs_x264 (x264)
+15:42:04.995:   Audio Encoders:
+15:42:04.995: 	- ffmpeg_aac (FFmpeg AAC)
+15:42:04.995: 	- ffmpeg_opus (FFmpeg Opus)
+15:42:04.995: 	- ffmpeg_pcm_s16le (FFmpeg PCM (16-bit))
+15:42:04.995: 	- ffmpeg_pcm_s24le (FFmpeg PCM (24-bit))
+15:42:04.995: 	- ffmpeg_pcm_f32le (FFmpeg PCM (32-bit float))
+15:42:04.995: 	- ffmpeg_alac (FFmpeg ALAC (24-bit))
+15:42:04.995: 	- ffmpeg_flac (FFmpeg FLAC (16-bit))
+15:42:04.995: 	- libfdk_aac (libfdk AAC)
+15:42:04.995: ==== Startup complete ===============================================
+15:42:05.039: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+15:42:05.039: All scene data cleared
+15:42:05.039: ------------------------------------------------
+15:42:05.041: Source ID 'text_gdiplus_v3' not found
+15:42:05.041: Failed to create source 'Youtube Username'!
+15:42:05.041: Source ID 'text_gdiplus_v3' not found
+15:42:05.041: Failed to create source 'Instagram Username'!
+15:42:06.126: Source ID 'browser_source' not found
+15:42:06.126: Failed to create source 'AlertBox'!
+15:42:06.297: Source ID 'browser_source' not found
+15:42:06.297: Failed to create source 'Chatbox'!
+15:42:06.397: Source ID 'dshow_input' not found
+15:42:06.397: Failed to create source 'Webcam'!
+15:42:06.398: Source ID 'game_capture' not found
+15:42:06.398: Failed to create source 'Game Capture'!
+15:42:06.545: Source ID 'text_gdiplus_v3' not found
+15:42:06.545: Failed to create source 'Bar Overlay'!
+15:42:06.545: Source ID 'text_gdiplus_v3' not found
+15:42:06.545: Failed to create source 'FaceCam'!
+15:42:06.579: ext_screencopy_manager_v1 not available
+15:42:06.585: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+15:42:06.587: pulse-input: An error occurred while getting the source info!
+15:42:06.588: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+15:42:06.588: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+15:42:06.588: pulse-input: Started recording from 'easyeffects_source'
+15:42:06.589: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+15:42:06.589: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+15:42:06.589: pulse-input: Started recording from 'Discord.monitor'
+15:42:06.589: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+15:42:06.590: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+15:42:06.590: pulse-input: Started recording from 'Game.monitor'
+15:42:06.590: pulse-input: Server name: 'PulseAudio (on PipeWire 1.4.9) 15.0.0'
+15:42:06.590: pulse-input: Audio format: float32le, 48000 Hz, 2 channels
+15:42:06.590: pulse-input: Started recording from 'Music.monitor'
+15:42:06.591: ext_screencopy_manager_v1 not available
+15:42:06.591: PipeWire initialized
+15:42:06.594: Switched to scene 'audio ports'
+15:42:06.594: ------------------------------------------------
+15:42:06.594: Loaded scenes:
+15:42:06.594: - scene 'Livescreen':
+15:42:06.594:     - source: 'Game Capture' (game_capture)
+15:42:06.594:     - source: 'Bar Overlay' (text_gdiplus_v3)
+15:42:06.594:     - source: 'FaceCam' (text_gdiplus_v3)
+15:42:06.594:     - source: 'AlertBox' (browser_source)
+15:42:06.594:     - source: 'Game Capture 2' (vkcapture-source)
+15:42:06.594:     - source: 'Video Capture Device (PipeWire) (BETA)' (pipewire-camera-source)
+15:42:06.594: - scene 'Collab Cam Scene':
+15:42:06.594:     - source: 'Game Capture' (game_capture)
+15:42:06.594:     - source: 'Bar Overlay' (text_gdiplus_v3)
+15:42:06.594:     - source: 'FaceCam' (text_gdiplus_v3)
+15:42:06.594:     - source: 'AlertBox' (browser_source)
+15:42:06.594: - scene 'Starting Screen':
+15:42:06.594:     - source: 'Social Media (Change Me)' (scene)
+15:42:06.594:     - source: 'AlertBox' (browser_source)
+15:42:06.594:     - source: 'Starting Sceen' (image_source)
+15:42:06.594:     - source: 'Audio Input Capture (PulseAudio)' (pulse_input_capture)
+15:42:06.594:     - source: 'Video Capture Device (PipeWire) (BETA) 2' (pipewire-camera-source)
+15:42:06.594: - scene 'Intermission Screen':
+15:42:06.594:     - source: 'Game Capture' (game_capture)
+15:42:06.594:     - source: 'Webcam' (dshow_input)
+15:42:06.594:     - source: 'Intermission Sceen' (image_source)
+15:42:06.594:     - source: 'Chatbox' (browser_source)
+15:42:06.594:     - source: 'Social Media (Change Me)' (scene)
+15:42:06.594:     - source: 'AlertBox' (browser_source)
+15:42:06.594: - scene 'Back Soon Screen':
+15:42:06.594:     - source: 'Backsoon sceen' (image_source)
+15:42:06.594:     - source: 'Social Media (Change Me)' (scene)
+15:42:06.594:     - source: 'AlertBox' (browser_source)
+15:42:06.594: - scene 'Ending Screen':
+15:42:06.594:     - source: 'Ending Sceen' (image_source)
+15:42:06.594:     - source: 'Social Media (Change Me)' (scene)
+15:42:06.594:     - source: 'AlertBox' (browser_source)
+15:42:06.594: - scene 'Offline Screen':
+15:42:06.594:     - source: 'Offline Sceen' (image_source)
+15:42:06.595:     - source: 'Social Media (Change Me)' (scene)
+15:42:06.595: - scene 'Social Media (Change Me)':
+15:42:06.595:     - source: 'Youtube group' (group)
+15:42:06.595:         - source: 'youtube' (image_source)
+15:42:06.595:         - source: 'Youtube Username' (text_gdiplus_v3)
+15:42:06.595:     - source: 'Instagramm' (group)
+15:42:06.595:         - source: 'Instagram' (image_source)
+15:42:06.595:         - source: 'Instagram Username' (text_gdiplus_v3)
+15:42:06.595:     - source: 'Twitter group' (group)
+15:42:06.595:         - source: 'Twitter' (image_source)
+15:42:06.595:         - source: 'Twitter Username' (text_ft2_source_v2)
+15:42:06.595: - scene 'audio ports':
+15:42:06.595:     - source: 'MIC' (pulse_input_capture)
+15:42:06.595:     - source: 'Discord' (pulse_output_capture)
+15:42:06.595:     - source: 'Game' (pulse_output_capture)
+15:42:06.595:     - source: 'Music' (pulse_output_capture)
+15:42:06.595:     - source: 'Game Capture 3' (vkcapture-source)
+15:42:06.595:     - source: 'Screen Capture (PipeWire)' (pipewire-screen-capture-source)
+15:42:06.595: ------------------------------------------------
+15:42:06.604: [Media Source 'fire Stinger (Stinger)']: settings:
+15:42:06.604: 	input:                   /run/media/wehttamsnaps/GAMEDRIVE/linux-20240108T071141Z-001/streamlabs overlays/slobs-client/Overlays/bd4e7d1f-3180-4f7d-b4e9-9bdea85ea8bc/83.webm
+15:42:06.604: 	input_format:            (null)
+15:42:06.604: 	speed:                   100
+15:42:06.604: 	is_looping:              no
+15:42:06.604: 	is_linear_alpha:         no
+15:42:06.604: 	is_hw_decoding:          yes
+15:42:06.604: 	is_clear_on_media_end:   yes
+15:42:06.604: 	restart_on_activate:     yes
+15:42:06.604: 	close_when_inactive:     no
+15:42:06.604: 	full_decode:             no
+15:42:06.604: 	ffmpeg_options:          
+15:42:06.692: [camera-portal] Successfully accessed cameras
+15:42:06.692: [pipewire] Screencast session created
+15:42:06.721: [pipewire] Asking for monitor and window
+15:42:06.747: [pipewire] Server version: 1.4.9
+15:42:06.747: [pipewire] Library version: 1.4.9
+15:42:06.747: [pipewire] Header version: 1.4.9
+15:42:06.747: [pipewire] Created registry 0x55b863ff9f60
+15:42:06.747: [camera-portal] Found device v4l2_input.pci-0000_00_14.0-usb-0_2_1.0
+15:42:06.747: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_2_1.0'
+15:42:06.747: [pipewire] Created stream 0x7f41fc002e60
+15:42:06.747: [pipewire] Stream 0x7f41fc002e60 state: "connecting" (error: none)
+15:42:06.747: [pipewire] Playing stream 0x7f41fc002e60
+15:42:06.747: [camera-portal] Found device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+15:42:06.747: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+15:42:06.747: [pipewire] Created stream 0x7f41fc016980
+15:42:06.747: [pipewire] Stream 0x7f41fc016980 state: "connecting" (error: none)
+15:42:06.747: [pipewire] Playing stream 0x7f41fc016980
+15:42:06.748: [pipewire] Stream 0x7f41fc002e60 state: "paused" (error: none)
+15:42:06.748: [pipewire] Stream 0x7f41fc016980 state: "paused" (error: none)
+15:42:06.753: [pipewire] source selected, setting up screencast
+15:42:06.761: [pipewire] Server version: 1.4.9
+15:42:06.761: [pipewire] Library version: 1.4.9
+15:42:06.761: [pipewire] Header version: 1.4.9
+15:42:06.761: [pipewire] Created stream 0x55b86428d930
+15:42:06.761: [pipewire] Stream 0x55b86428d930 state: "connecting" (error: none)
+15:42:06.761: [pipewire] Playing stream 0x55b86428d930
+15:42:06.761: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+15:42:06.861: [pipewire] Negotiated format:
+15:42:06.861: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+15:42:06.861: [pipewire]     Size: 1920x1080
+15:42:06.861: [pipewire]     Framerate: 5/1
+15:42:07.044: [pipewire] Negotiated format:
+15:42:07.044: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+15:42:07.044: [pipewire]     Size: 1920x1080
+15:42:07.044: [pipewire]     Framerate: 5/1
+15:42:07.046: [pipewire] Stream 0x7f41fc002e60 state: "streaming" (error: none)
+15:42:07.046: [pipewire] Negotiated format:
+15:42:07.046: [pipewire]     Format: 8 (Spa:Enum:VideoFormat:BGRx)
+15:42:07.046: [pipewire]     Modifier: 0xffffffffffffff
+15:42:07.046: [pipewire]     Size: 1920x1080
+15:42:07.046: [pipewire]     Framerate: 0/1
+15:42:07.050: [pipewire] Stream 0x7f41fc016980 state: "streaming" (error: none)
+15:42:07.058: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+15:42:07.171: adding 21 milliseconds of audio buffering, total audio buffering is now 21 milliseconds (source: Discord)
+15:42:07.171: 
+15:42:13.379: adding 64 milliseconds of audio buffering, total audio buffering is now 85 milliseconds (source: Game)
+15:42:13.379: 
+15:42:14.221: User added scene '----MAIN SCENES----'
+15:42:14.223: User switched to scene '----MAIN SCENES----'
+15:42:16.260: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+15:42:24.923: User switched to scene 'Livescreen'
+15:42:26.215: User switched to scene 'Starting Screen'
+15:42:26.227: [pipewire] Stream 0x7f41fc016980 state: "paused" (error: none)
+15:42:29.611: User switched to scene 'Back Soon Screen'
+15:42:31.593: [pipewire] Stream 0x7f41fc002e60 state: "paused" (error: none)
+15:42:43.091: User switched to scene 'Starting Screen'
+15:42:43.158: [pipewire] Negotiated format:
+15:42:43.158: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+15:42:43.158: [pipewire]     Size: 1920x1080
+15:42:43.158: [pipewire]     Framerate: 5/1
+15:42:43.158: [pipewire] Stream 0x7f41fc002e60 state: "streaming" (error: none)
+15:42:48.595: User switched to scene 'Intermission Screen'
+15:42:50.560: [pipewire] Stream 0x7f41fc002e60 state: "paused" (error: none)
+15:42:51.495: User switched to scene 'Ending Screen'
+15:43:18.075: User added scene '----AFK SCENES----'
+15:43:18.077: User switched to scene '----AFK SCENES----'
+15:43:46.671: User switched to scene 'Starting Screen'
+15:43:46.758: [pipewire] Negotiated format:
+15:43:46.758: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+15:43:46.758: [pipewire]     Size: 1920x1080
+15:43:46.758: [pipewire]     Framerate: 5/1
+15:43:46.758: [pipewire] Stream 0x7f41fc002e60 state: "streaming" (error: none)
+15:43:59.579: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b863af15b0
+15:44:16.404: User added scene 'Just chatting'
+15:44:16.405: User switched to scene 'Just chatting'
+15:44:18.360: [pipewire] Stream 0x7f41fc002e60 state: "paused" (error: none)
+15:44:46.683: User added scene '----Nested SCENES----'
+15:44:46.686: User switched to scene '----Nested SCENES----'
+15:45:06.628: User switched to scene 'Social Media (Change Me)'
+15:45:10.304: User switched to scene 'audio ports'
+15:45:10.326: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+15:45:15.801: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864499230 with focusing surface 0x55b863fcb110
+15:45:17.076: User Removed source 'Screen Capture (PipeWire)' (pipewire-screen-capture-source) from scene 'audio ports'
+15:45:17.076: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+15:45:17.077: [pipewire] Stream 0x55b86428d930 state: "unconnected" (error: none)
+15:45:19.512: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8643330c0 with focusing surface 0x55b863fcb110
+15:45:20.906: User Removed source 'Game Capture 3' (vkcapture-source) from scene 'audio ports'
+15:45:34.916: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b863575680 with focusing surface 0x55b863fcb110
+15:45:47.338: User added scene 'Screens'
+15:45:47.340: User switched to scene 'Screens'
+15:45:47.358: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b863fcb110 with focusing surface 0x55b863575680
+15:46:07.004: PipeWire initialized
+15:46:07.006: User added source 'Main Screen' (pipewire-screen-capture-source) to scene 'Screens'
+15:46:07.016: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b861533ec0
+15:46:07.026: [pipewire] Screencast session created
+15:46:07.026: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b86267d990 with focusing surface 0x55b863fcb110
+15:46:07.035: [pipewire] Asking for monitor and window
+15:46:12.778: [pipewire] source selected, setting up screencast
+15:46:12.782: [pipewire] Server version: 1.4.9
+15:46:12.782: [pipewire] Library version: 1.4.9
+15:46:12.782: [pipewire] Header version: 1.4.9
+15:46:12.782: [pipewire] Created stream 0x55b86428d930
+15:46:12.782: [pipewire] Stream 0x55b86428d930 state: "connecting" (error: none)
+15:46:12.782: [pipewire] Playing stream 0x55b86428d930
+15:46:12.782: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+15:46:12.795: [pipewire] Negotiated format:
+15:46:12.795: [pipewire]     Format: 8 (Spa:Enum:VideoFormat:BGRx)
+15:46:12.795: [pipewire]     Modifier: 0xffffffffffffff
+15:46:12.795: [pipewire]     Size: 1920x1080
+15:46:12.795: [pipewire]     Framerate: 0/1
+15:46:12.797: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+15:46:22.329: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b8641ddf30 with focusing surface 0x55b863fcb110
+15:46:39.588: ext_screencopy_manager_v1 not available
+15:46:39.590: User added source 'Game Sceen' (vkcapture-source) to scene 'Screens'
+15:46:39.613: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863dface0 with focusing surface 0x55b863fcb110
+15:47:02.909: User switched to scene 'Social Media (Change Me)'
+15:47:04.860: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+15:47:37.801: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b86449d970 with focusing surface 0x55b863fcb110
+15:48:04.059: User added source 'Twitter Username 2' (text_ft2_source_v2) to scene 'Social Media (Change Me)'
+15:48:15.064: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864541ae0 with focusing surface 0x55b863fcb110
+15:48:20.373: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864151aa0 with focusing surface 0x55b863fcb110
+15:48:23.826: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864151cb0 with focusing surface 0x55b863fcb110
+15:48:58.153: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b86466ed60 with focusing surface 0x55b863fcb110
+15:49:00.362: User Removed source 'Instagram Username' (text_gdiplus_v3) from scene 'Instagramm'
+15:49:35.449: Source 'Twitter Username 2' renamed to 'Instagram Username'
+15:51:11.864: User added source 'Instagram Username 2' (text_ft2_source_v2) to scene 'Social Media (Change Me)'
+15:51:26.797: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863508150 with focusing surface 0x55b863fcb110
+15:51:28.878: User Removed source 'Youtube Username' (text_gdiplus_v3) from scene 'Youtube group'
+15:51:43.739: Source 'Instagram Username 2' renamed to 'Youtube Username'
+15:53:45.740: User switched to scene 'Starting Screen'
+15:53:45.826: [pipewire] Negotiated format:
+15:53:45.826: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+15:53:45.826: [pipewire]     Size: 1920x1080
+15:53:45.826: [pipewire]     Framerate: 5/1
+15:53:45.829: [pipewire] Stream 0x7f41fc002e60 state: "streaming" (error: none)
+15:53:56.927: User switched to scene 'Back Soon Screen'
+15:53:58.893: [pipewire] Stream 0x7f41fc002e60 state: "paused" (error: none)
+15:54:08.116: User switched to scene 'Intermission Screen'
+15:54:09.912: User switched to scene 'Social Media (Change Me)'
+15:54:55.005: User added source 'Youtube group 2' (group) to scene 'Social Media (Change Me)'
+15:54:55.026: User added source 'Instagramm 2' (group) to scene 'Social Media (Change Me)'
+15:54:55.052: User added source 'Twitter group 2' (group) to scene 'Social Media (Change Me)'
+15:56:03.817: User switched to scene 'Back Soon Screen'
+15:56:36.058: User switched to scene 'Social Media (Change Me)'
+15:57:01.246: User added scene 'Social Media 2 (Change Me)'
+15:57:01.249: User switched to scene 'Social Media 2 (Change Me)'
+15:57:01.253: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b864321190
+15:57:04.334: User switched to scene 'Social Media (Change Me)'
+15:57:25.382: User switched to scene 'Social Media 2 (Change Me)'
+15:57:29.967: User added source 'Youtube group 2 2' (group) to scene 'Social Media 2 (Change Me)'
+15:57:29.979: User added source 'Instagramm 2 2' (group) to scene 'Social Media 2 (Change Me)'
+15:57:29.998: User added source 'Twitter group 2 2' (group) to scene 'Social Media 2 (Change Me)'
+15:57:36.943: User switched to scene 'Social Media (Change Me)'
+15:57:43.958: User switched to scene 'Social Media 2 (Change Me)'
+15:57:43.966: User Removed scene 'Social Media (Change Me)'
+15:57:57.897: User added scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Youtube group' (group) to scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Instagramm' (group) to scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Twitter group' (group) to scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Youtube group 2' (group) to scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Instagramm 2' (group) to scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Twitter group 2' (group) to scene 'Social Media (Change Me)'
+15:57:57.897: User added source 'Social Media (Change Me)' (scene) to scene 'Starting Screen'
+15:57:57.897: User added source 'AlertBox' (browser_source) to scene 'Starting Screen'
+15:57:57.897: User added source 'Starting Sceen' (image_source) to scene 'Starting Screen'
+15:57:57.897: User added source 'Audio Input Capture (PulseAudio)' (pulse_input_capture) to scene 'Starting Screen'
+15:57:57.897: User added source 'Video Capture Device (PipeWire) (BETA) 2' (pipewire-camera-source) to scene 'Starting Screen'
+15:57:57.897: User added source 'Game Capture' (game_capture) to scene 'Intermission Screen'
+15:57:57.897: User added source 'Webcam' (dshow_input) to scene 'Intermission Screen'
+15:57:57.897: User added source 'Intermission Sceen' (image_source) to scene 'Intermission Screen'
+15:57:57.897: User added source 'Chatbox' (browser_source) to scene 'Intermission Screen'
+15:57:57.897: User added source 'Social Media (Change Me)' (scene) to scene 'Intermission Screen'
+15:57:57.897: User added source 'AlertBox' (browser_source) to scene 'Intermission Screen'
+15:57:57.897: User added source 'Backsoon sceen' (image_source) to scene 'Back Soon Screen'
+15:57:57.897: User added source 'Social Media (Change Me)' (scene) to scene 'Back Soon Screen'
+15:57:57.897: User added source 'AlertBox' (browser_source) to scene 'Back Soon Screen'
+15:57:57.897: User added source 'Ending Sceen' (image_source) to scene 'Ending Screen'
+15:57:57.897: User added source 'Social Media (Change Me)' (scene) to scene 'Ending Screen'
+15:57:57.897: User added source 'AlertBox' (browser_source) to scene 'Ending Screen'
+15:57:57.897: User added source 'Offline Sceen' (image_source) to scene 'Offline Screen'
+15:57:57.897: User added source 'Social Media (Change Me)' (scene) to scene 'Offline Screen'
+15:57:57.912: Switched to scene 'Social Media (Change Me)'
+15:58:00.139: User switched to scene 'Social Media 2 (Change Me)'
+15:58:02.038: User switched to scene 'Social Media (Change Me)'
+15:58:07.014: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864cbab10 with focusing surface 0x55b863fcb110
+15:58:11.404: User Removed source 'Youtube group 2' (group) from scene 'Social Media (Change Me)'
+15:58:14.642: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864994350 with focusing surface 0x55b863fcb110
+15:58:16.465: User Removed source 'Instagramm 2' (group) from scene 'Social Media (Change Me)'
+15:58:19.237: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8647d8c80 with focusing surface 0x55b863fcb110
+15:58:21.288: User Removed source 'Twitter group 2' (group) from scene 'Social Media (Change Me)'
+15:58:23.239: User switched to scene 'Social Media 2 (Change Me)'
+15:58:47.263: User switched to scene 'Back Soon Screen'
+15:58:56.025: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864485f40 with focusing surface 0x55b863fcb110
+15:58:59.900: User added source 'Social Media 2 (Change Me)' (scene) to scene 'Back Soon Screen'
+15:59:09.540: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8641454f0 with focusing surface 0x55b863fcb110
+15:59:10.784: User Removed source 'Social Media (Change Me)' (scene) from scene 'Back Soon Screen'
+15:59:19.147: User switched to scene 'Intermission Screen'
+15:59:29.174: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864287ea0 with focusing surface 0x55b863fcb110
+15:59:30.752: User Removed source 'Game Capture' (game_capture) from scene 'Intermission Screen'
+15:59:30.752: User Removed source 'Webcam' (dshow_input) from scene 'Intermission Screen'
+15:59:39.097: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864122380 with focusing surface 0x55b863fcb110
+15:59:41.084: User Removed source 'Social Media (Change Me)' (scene) from scene 'Intermission Screen'
+15:59:45.432: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863588a70 with focusing surface 0x55b863fcb110
+15:59:48.849: User added source 'Social Media 2 (Change Me)' (scene) to scene 'Intermission Screen'
+15:59:59.804: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8646c9590 with focusing surface 0x55b863fcb110
+16:00:00.982: User Removed source 'Social Media 2 (Change Me)' (scene) from scene 'Intermission Screen'
+16:11:36.290: User switched to scene 'Social Media 2 (Change Me)'
+16:12:00.008: User added scene 'Social Media 3 (Change Me)'
+16:12:00.008: User added source 'Youtube group 2 2' (group) to scene 'Social Media 3 (Change Me)'
+16:12:00.008: User added source 'Instagramm 2 2' (group) to scene 'Social Media 3 (Change Me)'
+16:12:00.008: User added source 'Twitter group 2 2' (group) to scene 'Social Media 3 (Change Me)'
+16:12:00.017: Switched to scene 'Social Media 3 (Change Me)'
+16:12:00.017: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b86405a6b0
+16:12:05.606: User switched to scene 'Social Media 2 (Change Me)'
+16:12:06.118: User switched to scene 'Social Media 3 (Change Me)'
+16:12:20.727: User switched to scene 'Social Media 2 (Change Me)'
+16:12:28.827: User switched to scene 'Intermission Screen'
+16:12:34.990: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864b4b640 with focusing surface 0x55b863fcb110
+16:12:38.447: User added source 'Social Media 3 (Change Me)' (scene) to scene 'Intermission Screen'
+16:12:44.787: User switched to scene 'Social Media 3 (Change Me)'
+16:12:56.523: User switched to scene 'Back Soon Screen'
+16:12:59.887: User switched to scene 'Intermission Screen'
+16:13:04.940: User switched to scene 'Ending Screen'
+16:13:15.873: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864908410 with focusing surface 0x55b863fcb110
+16:13:21.036: User added source 'Social Media 2 (Change Me)' (scene) to scene 'Ending Screen'
+16:13:30.231: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864b2a170 with focusing surface 0x55b863fcb110
+16:13:31.892: User Removed source 'Social Media (Change Me)' (scene) from scene 'Ending Screen'
+16:13:43.391: User switched to scene 'Collab Cam Scene'
+16:13:50.011: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8647e3090 with focusing surface 0x55b863fcb110
+16:13:51.615: User Removed source 'Game Capture' (game_capture) from scene 'Collab Cam Scene'
+16:13:57.239: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8647e9b90 with focusing surface 0x55b863fcb110
+16:13:58.727: User Removed source 'FaceCam' (text_gdiplus_v3) from scene 'Collab Cam Scene'
+16:14:10.732: User switched to scene 'Ending Screen'
+16:14:13.728: User switched to scene 'Intermission Screen'
+16:14:16.976: User switched to scene 'Back Soon Screen'
+16:14:19.404: User switched to scene 'Starting Screen'
+16:14:19.491: [pipewire] Negotiated format:
+16:14:19.491: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:14:19.491: [pipewire]     Size: 1920x1080
+16:14:19.491: [pipewire]     Framerate: 5/1
+16:14:19.492: [pipewire] Stream 0x7f41fc002e60 state: "streaming" (error: none)
+16:14:44.610: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8648d4db0 with focusing surface 0x55b863fcb110
+16:14:46.096: User Removed source 'Video Capture Device (PipeWire) (BETA) 2' (pipewire-camera-source) from scene 'Starting Screen'
+16:14:46.096: [pipewire] Stream 0x7f41fc002e60 state: "paused" (error: none)
+16:14:46.097: [pipewire] Stream 0x7f41fc002e60 state: "unconnected" (error: none)
+16:14:49.590: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864b7bdb0 with focusing surface 0x55b863fcb110
+16:14:51.160: User Removed source 'Audio Input Capture (PulseAudio)' (pulse_input_capture) from scene 'Starting Screen'
+16:15:02.196: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863e2fc20 with focusing surface 0x55b863fcb110
+16:15:03.443: User Removed source 'Social Media (Change Me)' (scene) from scene 'Starting Screen'
+16:15:07.434: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8648a4a10 with focusing surface 0x55b863fcb110
+16:15:09.865: User added source 'Social Media 2 (Change Me)' (scene) to scene 'Starting Screen'
+16:15:24.944: User switched to scene 'Back Soon Screen'
+16:15:42.492: User switched to scene 'Intermission Screen'
+16:15:49.236: User switched to scene 'Screens'
+16:15:49.260: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+16:15:51.896: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b864679460
+16:15:53.822: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b864679460
+16:16:14.454: User added scene 'WebCam 1'
+16:16:14.456: User switched to scene 'WebCam 1'
+16:16:16.426: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+16:16:24.158: User added scene 'WebCam 2'
+16:16:24.160: User switched to scene 'WebCam 2'
+16:16:24.169: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b863fcb110 with focusing surface 0x55b86356ead0
+16:16:26.589: User switched to scene 'WebCam 1'
+16:16:47.374: obs-data.c: [obs_data_create_from_json] Failed reading json string (1): '[' or '{' expected near end of file
+16:16:47.377: User added source 'Cam 1' (pipewire-camera-source) to scene 'WebCam 1'
+16:16:47.389: [camera-portal] Selected format for ''
+16:16:47.389: [camera-portal] selected camera ''
+16:16:47.408: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b86493a320 with focusing surface 0x55b863fcb110
+16:16:50.184: [camera-portal] selected camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:16:50.184: [camera-portal] Updating pixel formats
+16:16:50.184: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:16:50.184: obs-data.c: [obs_data_create_from_json] Failed reading json string (1): '[' or '{' expected near end of file
+16:16:50.186: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:16:50.186: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:16:50.186: [pipewire] Created stream 0x55b864ceeda0
+16:16:50.186: [pipewire] Stream 0x55b864ceeda0 state: "connecting" (error: none)
+16:16:50.187: [pipewire] Playing stream 0x55b864ceeda0
+16:16:50.188: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:16:50.193: [pipewire] Renegotiating stream
+16:16:50.193: [camera-portal] Updating device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+16:16:50.358: [pipewire] Negotiated format:
+16:16:50.358: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:16:50.358: [pipewire]     Size: 640x480
+16:16:50.358: [pipewire]     Framerate: 5/1
+16:16:50.359: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+16:16:53.456: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:16:53.456: [pipewire] Renegotiating stream
+16:16:53.456: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:16:53.459: [camera-portal] Updating device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+16:16:53.521: [pipewire] Negotiated format:
+16:16:53.521: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:16:53.521: [pipewire]     Size: 1920x1080
+16:16:53.521: [pipewire]     Framerate: 5/1
+16:16:53.593: [pipewire] Negotiated format:
+16:16:53.593: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:16:53.593: [pipewire]     Size: 1920x1080
+16:16:53.593: [pipewire]     Framerate: 5/1
+16:16:53.596: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+16:17:01.733: User switched to scene 'WebCam 2'
+16:17:03.693: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:17:22.600: obs-data.c: [obs_data_create_from_json] Failed reading json string (1): '[' or '{' expected near end of file
+16:17:22.602: User added source 'Cam 2' (pipewire-camera-source) to scene 'WebCam 2'
+16:17:22.614: [camera-portal] Selected format for ''
+16:17:22.614: [camera-portal] selected camera ''
+16:17:22.635: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8634c9d90 with focusing surface 0x55b863fcb110
+16:17:23.324: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8634c9d90 with focusing surface 0x55b863fcb110
+16:17:27.073: [camera-portal] selected camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:17:27.073: [camera-portal] Updating pixel formats
+16:17:27.073: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:17:27.073: obs-data.c: [obs_data_create_from_json] Failed reading json string (1): '[' or '{' expected near end of file
+16:17:27.075: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:17:27.075: [camera-portal] streaming camera 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:17:27.075: [pipewire] Created stream 0x55b864d49fc0
+16:17:27.076: [pipewire] Stream 0x55b864d49fc0 state: "connecting" (error: none)
+16:17:27.076: [pipewire] Playing stream 0x55b864d49fc0
+16:17:27.076: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:17:27.077: [pipewire] Renegotiating stream
+16:17:27.093: [camera-portal] Updating device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+16:17:27.244: [pipewire] Negotiated format:
+16:17:27.244: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:17:27.244: [pipewire]     Size: 640x480
+16:17:27.244: [pipewire]     Framerate: 5/1
+16:17:27.246: [pipewire] Stream 0x55b864d49fc0 state: "streaming" (error: none)
+16:17:33.428: [camera-portal] Selected format for 'v4l2_input.pci-0000_00_14.0-usb-0_4_1.2'
+16:17:33.428: [pipewire] Renegotiating stream
+16:17:33.428: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:17:33.459: [camera-portal] Updating device v4l2_input.pci-0000_00_14.0-usb-0_4_1.2
+16:17:33.494: [pipewire] Negotiated format:
+16:17:33.494: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:17:33.494: [pipewire]     Size: 1920x1080
+16:17:33.494: [pipewire]     Framerate: 5/1
+16:17:33.565: [pipewire] Negotiated format:
+16:17:33.565: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:17:33.565: [pipewire]     Size: 1920x1080
+16:17:33.565: [pipewire]     Framerate: 5/1
+16:17:33.568: [pipewire] Stream 0x55b864d49fc0 state: "streaming" (error: none)
+16:17:37.841: User switched to scene 'WebCam 1'
+16:17:37.861: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+16:17:39.793: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:18:04.721: User switched to scene 'WebCam 2'
+16:18:04.726: [pipewire] Stream 0x55b864d49fc0 state: "streaming" (error: none)
+16:18:06.693: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:18:26.470: User switched to scene 'Social Media (Change Me)'
+16:18:28.426: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:18:32.786: User switched to scene 'Livescreen'
+16:18:32.865: [pipewire] Negotiated format:
+16:18:32.865: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:18:32.865: [pipewire]     Size: 1920x1080
+16:18:32.865: [pipewire]     Framerate: 5/1
+16:18:32.867: [pipewire] Stream 0x7f41fc016980 state: "streaming" (error: none)
+16:18:46.451: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864b9b9a0 with focusing surface 0x55b863fcb110
+16:18:47.605: User Removed source 'Video Capture Device (PipeWire) (BETA)' (pipewire-camera-source) from scene 'Livescreen'
+16:18:47.606: [pipewire] Stream 0x7f41fc016980 state: "paused" (error: none)
+16:18:47.607: [pipewire] Stream 0x7f41fc016980 state: "unconnected" (error: none)
+16:18:50.918: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8647f6dd0 with focusing surface 0x55b863fcb110
+16:18:52.134: User Removed source 'Game Capture 2' (vkcapture-source) from scene 'Livescreen'
+16:19:01.694: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8641488a0 with focusing surface 0x55b863fcb110
+16:19:03.666: User Removed source 'FaceCam' (text_gdiplus_v3) from scene 'Livescreen'
+16:19:13.632: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b864900410 with focusing surface 0x55b863fcb110
+16:19:18.783: User added source 'Cam 1' (pipewire-camera-source) to scene 'Livescreen'
+16:19:18.962: [pipewire] Negotiated format:
+16:19:18.962: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:19:18.962: [pipewire]     Size: 1920x1080
+16:19:18.962: [pipewire]     Framerate: 5/1
+16:19:18.962: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+16:19:42.263: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864288620 with focusing surface 0x55b863fcb110
+16:19:43.826: User Removed source 'Game Capture' (game_capture) from scene 'Livescreen'
+16:19:48.719: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b864619160 with focusing surface 0x55b863fcb110
+16:19:53.087: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b864aaf400 with focusing surface 0x55b863fcb110
+16:19:57.671: User added source 'Main Screen' (pipewire-screen-capture-source) to scene 'Livescreen'
+16:19:57.693: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+16:20:18.878: User switched to scene 'Intermission Screen'
+16:20:20.860: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+16:20:20.860: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:20:28.576: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b864b78630 with focusing surface 0x55b863fcb110
+16:20:31.794: User added source 'Cam 2' (pipewire-camera-source) to scene 'Intermission Screen'
+16:20:31.962: [pipewire] Negotiated format:
+16:20:31.963: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:20:31.963: [pipewire]     Size: 1920x1080
+16:20:31.963: [pipewire]     Framerate: 5/1
+16:20:31.964: [pipewire] Stream 0x55b864d49fc0 state: "streaming" (error: none)
+16:21:04.617: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b8646b8040 with focusing surface 0x55b863fcb110
+16:21:09.052: User added source 'Main Screen' (pipewire-screen-capture-source) to scene 'Intermission Screen'
+16:21:09.060: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+16:21:51.315: User switched to scene 'Starting Screen'
+16:21:53.293: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+16:21:53.293: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:21:54.283: User switched to scene 'Back Soon Screen'
+16:21:56.059: User switched to scene 'Livescreen'
+16:21:56.061: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+16:21:56.132: [pipewire] Negotiated format:
+16:21:56.133: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:21:56.133: [pipewire]     Size: 1920x1080
+16:21:56.133: [pipewire]     Framerate: 5/1
+16:21:56.135: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+16:22:00.447: User switched to scene 'Just chatting'
+16:22:02.426: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+16:22:02.426: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:22:02.779: User switched to scene 'Starting Screen'
+16:22:07.143: User switched to scene 'Back Soon Screen'
+16:22:14.447: User switched to scene 'Intermission Screen'
+16:22:14.460: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+16:22:14.626: [pipewire] Negotiated format:
+16:22:14.626: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:22:14.626: [pipewire]     Size: 1920x1080
+16:22:14.626: [pipewire]     Framerate: 5/1
+16:22:14.628: [pipewire] Stream 0x55b864d49fc0 state: "streaming" (error: none)
+16:22:19.731: User switched to scene 'Ending Screen'
+16:22:21.693: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+16:22:21.693: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:22:22.935: User switched to scene 'Collab Cam Scene'
+16:22:25.504: User switched to scene 'Offline Screen'
+16:22:32.567: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864d16e90 with focusing surface 0x55b863fcb110
+16:22:33.677: User Removed source 'Social Media (Change Me)' (scene) from scene 'Offline Screen'
+16:22:40.284: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b8649c3dc0 with focusing surface 0x55b863fcb110
+16:22:44.557: User added source 'Social Media 2 (Change Me)' (scene) to scene 'Offline Screen'
+16:22:56.393: virtual void QtWaylandClient::QWaylandTextInputv3::enableSurface(wl_surface*) Try to enable surface 0x55b864723b40 with focusing surface 0x55b863fcb110
+16:23:04.309: User added source 'Logo' (image_source) to scene 'Offline Screen'
+16:23:04.331: virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Try to disable surface 0x55b864ac7ba0 with focusing surface 0x55b863fcb110
+16:24:17.720: User switched to scene 'Screens'
+16:24:17.726: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+16:24:22.057: User switched to scene 'WebCam 1'
+16:24:22.228: [pipewire] Negotiated format:
+16:24:22.228: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+16:24:22.228: [pipewire]     Size: 1920x1080
+16:24:22.228: [pipewire]     Framerate: 5/1
+16:24:22.230: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+16:24:24.026: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+16:24:26.044: User switched to scene 'WebCam 2'
+16:24:26.060: [pipewire] Stream 0x55b864d49fc0 state: "streaming" (error: none)
+16:24:28.026: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+16:24:29.632: User switched to scene 'Social Media 3 (Change Me)'
+16:24:31.593: [pipewire] Stream 0x55b864d49fc0 state: "paused" (error: none)
+16:24:33.305: User switched to scene 'Social Media 2 (Change Me)'
+16:24:39.094: User switched to scene 'Starting Screen'
+16:24:58.821: User switched to scene 'Screens'
+16:24:58.826: [pipewire] Stream 0x55b86428d930 state: "streaming" (error: none)
+17:04:22.094: User switched to scene 'Livescreen'
+17:04:22.296: [pipewire] Negotiated format:
+17:04:22.296: [pipewire]     Format: 4 (Spa:Enum:VideoFormat:YUY2)
+17:04:22.296: [pipewire]     Size: 1920x1080
+17:04:22.296: [pipewire]     Framerate: 5/1
+17:04:22.299: [pipewire] Stream 0x55b864ceeda0 state: "streaming" (error: none)
+17:04:31.740: ==== Shutting down ==================================================
+17:04:31.754: pulse-input: Stopped recording from 'easyeffects_source'
+17:04:31.754: pulse-input: Got 173839 packets with 208606800 frames
+17:04:31.754: pulse-input: Stopped recording from 'Discord.monitor'
+17:04:31.755: pulse-input: Got 197806 packets with 237367200 frames
+17:04:31.755: pulse-input: Stopped recording from 'Game.monitor'
+17:04:31.755: pulse-input: Got 197800 packets with 237360000 frames
+17:04:31.755: pulse-input: Stopped recording from 'Music.monitor'
+17:04:31.755: pulse-input: Got 197800 packets with 237360000 frames
+17:04:31.755: [pipewire] Stream 0x55b86428d930 state: "paused" (error: none)
+17:04:31.755: [pipewire] Stream 0x55b86428d930 state: "unconnected" (error: none)
+17:04:31.760: [linux-vkcapture] destroy
+17:04:31.761: [pipewire] Stream 0x55b864ceeda0 state: "paused" (error: none)
+17:04:31.761: [pipewire] Stream 0x55b864ceeda0 state: "unconnected" (error: none)
+17:04:31.762: [pipewire] Stream 0x55b864d49fc0 state: "unconnected" (error: none)
+17:04:31.815: All scene data cleared
+17:04:31.815: ------------------------------------------------
+17:04:31.898: [obs-websocket] [obs_module_unload] Shutting down...
+17:04:31.898: Tried to call obs_frontend_remove_event_callback with no callbacks!
+17:04:31.898: [obs-websocket] [obs_module_unload] Finished shutting down.
+17:04:31.899: [linux-vkcapture] plugin unloaded
+17:04:31.906: [Scripting] Total detached callbacks: 0
+17:04:31.907: Freeing OBS context data
+17:04:31.928: == Profiler Results =============================
+17:04:31.928: run_program_init: 2411.3 ms
+17:04:31.929:  ┣OBSApp::AppInit: 21.825 ms
+17:04:31.929:  ┃ ┗OBSApp::InitLocale: 2.243 ms
+17:04:31.929:  ┗OBSApp::OBSInit: 2343.32 ms
+17:04:31.929:    ┣obs_startup: 2.309 ms
+17:04:31.929:    ┗OBSBasic::OBSInit: 2292.38 ms
+17:04:31.929:      ┣OBSBasic::InitBasicConfig: 8.23 ms
+17:04:31.929:      ┣OBSBasic::ResetAudio: 0.188 ms
+17:04:31.929:      ┣OBSBasic::ResetVideo: 128.246 ms
+17:04:31.929:      ┃ ┗obs_init_graphics: 125.853 ms
+17:04:31.929:      ┃   ┗shader compilation: 42.194 ms
+17:04:31.929:      ┣OBSBasic::InitOBSCallbacks: 0.003 ms
+17:04:31.929:      ┣OBSBasic::InitHotkeys: 0.021 ms
+17:04:31.929:      ┣obs_load_all_modules2: 450.983 ms
+17:04:31.929:      ┃ ┣obs_init_module(decklink-captions.so): 0 ms
+17:04:31.929:      ┃ ┣obs_init_module(decklink-output-ui.so): 0 ms
+17:04:31.929:      ┃ ┣obs_init_module(decklink.so): 0.073 ms
+17:04:31.929:      ┃ ┣obs_init_module(frontend-tools.so): 80.112 ms
+17:04:31.929:      ┃ ┣obs_init_module(image-source.so): 0.005 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-alsa.so): 0.001 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-capture.so): 0 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-jack.so): 0.002 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-pipewire.so): 16.031 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-pulseaudio.so): 0.002 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-v4l2.so): 8.259 ms
+17:04:31.929:      ┃ ┣obs_init_module(linux-vkcapture.so): 0.098 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-ffmpeg.so): 12.278 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-filters.so): 0.014 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-libfdk.so): 0.001 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-nvenc.so): 0.076 ms
+17:04:31.929:      ┃ ┃ ┗nvenc_check: 0.067 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-outputs.so): 0.003 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-qsv11.so): 8.185 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-transitions.so): 0.005 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-vaapi.so): 143.92 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-vst.so): 0.004 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-webrtc.so): 0.004 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-websocket.so): 5.602 ms
+17:04:31.929:      ┃ ┣obs_init_module(obs-x264.so): 0.001 ms
+17:04:31.929:      ┃ ┣obs_init_module(rtmp-services.so): 1.071 ms
+17:04:31.929:      ┃ ┗obs_init_module(text-freetype2.so): 0.011 ms
+17:04:31.929:      ┣OBSBasic::InitService: 1.963 ms
+17:04:31.929:      ┣OBSBasic::ResetOutputs: 4.929 ms
+17:04:31.929:      ┣OBSBasic::CreateHotkeys: 0.024 ms
+17:04:31.929:      ┣OBSBasic::InitPrimitives: 0.426 ms
+17:04:31.929:      ┗OBSBasic::Load: 1605.4 ms
+17:04:31.929: obs_hotkey_thread(25 ms): min=0 ms, median=0 ms, max=0.384 ms, 99th percentile=0.001 ms, 100% below 25 ms
+17:04:31.929: audio_thread(Audio): min=0.009 ms, median=0.035 ms, max=11.329 ms, 99th percentile=0.076 ms
+17:04:31.929: obs_graphics_thread(33.3333 ms): min=0.114 ms, median=0.424 ms, max=203.175 ms, 99th percentile=2.034 ms, 99.998% below 33.333 ms
+17:04:31.929:  ┣tick_sources: min=0 ms, median=0.029 ms, max=202.523 ms, 99th percentile=0.398 ms
+17:04:31.929:  ┣output_frame: min=0.058 ms, median=0.206 ms, max=8.015 ms, 99th percentile=1.557 ms
+17:04:31.929:  ┃ ┗gs_context(video->graphics): min=0.058 ms, median=0.206 ms, max=8.014 ms, 99th percentile=1.556 ms
+17:04:31.929:  ┃   ┣render_video: min=0.017 ms, median=0.064 ms, max=6.175 ms, 99th percentile=1.271 ms
+17:04:31.929:  ┃   ┃ ┗render_main_texture: min=0.013 ms, median=0.06 ms, max=6.17 ms, 99th percentile=1.266 ms
+17:04:31.929:  ┃   ┗gs_flush: min=0.002 ms, median=0.122 ms, max=4.012 ms, 99th percentile=0.376 ms
+17:04:31.929:  ┗render_displays: min=0.002 ms, median=0.162 ms, max=10.577 ms, 99th percentile=0.652 ms
+17:04:31.929: =================================================
+17:04:31.929: == Profiler Time Between Calls ==================
+17:04:31.929: obs_hotkey_thread(25 ms): min=25.008 ms, median=25.075 ms, max=35.257 ms, 99.851% within ±2% of 25 ms (0% lower, 0.149037% higher)
+17:04:31.929: obs_graphics_thread(33.3333 ms): min=15.071 ms, median=33.334 ms, max=203.18 ms, 99.7844% within ±2% of 33.333 ms (0.107133% lower, 0.10848% higher)
+17:04:31.929: =================================================
+17:04:31.941: Number of memory leaks: 0

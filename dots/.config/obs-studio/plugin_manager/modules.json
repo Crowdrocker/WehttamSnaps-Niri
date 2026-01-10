@@ -3,8 +3,8 @@
         "display_name": "",
         "enabled": true,
         "encoders": [
-            "obs-va-vah265enc",
             "obs-va-vah264enc",
+            "obs-va-vah265enc",
             "obs-vaapi-vaapih265enc",
             "obs-vaapi-vaapih264enc"
         ],
