@@ -1,17 +1,17 @@
-sudo mkdir -p /mnt/wehttamsnaps/LINUXDRIVE
-sudo mkdir -p /mnt/wehttamsnaps/EXTRA1TB
-sudo mkdir -p /mnt/wehttamsnaps/GAMEDRIVE
-sudo mkdir -p /mnt/wehttamsnaps/WettamSnapsMain
+sudo mkdir -p /mnt/LINUXDRIVE
+sudo mkdir -p /mnt/EXTRA1TB
+sudo mkdir -p /mnt/GAMEDRIVE
+sudo mkdir -p /mnt/WettamSnapsMain
 
-sudo mount /dev/sdb1 /mnt/wehttamsnaps/LINUXDRIVE-1
-sudo mount -t ntfs-3g /dev/sdd1 /mnt/wehttamsnaps/PC-EXTRA-2
-sudo mount -t ntfs-3g /dev/sdi1 /mnt/wehttamsnaps/GAMEDRIVE
-sudo mount -t ntfs-3g /dev/sdj1 /mnt/wehttamsnaps/Wettam-Snaps-Main
+sudo mount /dev/sdc1 /mnt/LINUXDRIVE
+sudo mount /dev/sdf1 /mnt/EXTRA1TB
+sudo mount /dev/sde1 /mnt/GAMEDRIVE
+sudo mount -t ntfs-3g /dev/sdd1 /mnt/WettamSnapsMain
 
-sudo unmount /dev/sdb1 /mnt/wehttamsnaps/LINUXDRIVE-1
-sudo udiskie-umount /dev/sdd1 /mnt/wehttamsnaps/PC-EXTRA-2
-sudo udiskie-umount /dev/sde1 /mnt/wehttamsnaps/GAMEDRIVE
-sudo udiskie-umount /dev/sdj1 /mnt/wehttamsnaps/Wettam-Snaps-Main
+sudo unmount /dev/sdb1 /mnt/LINUXDRIVE-1
+sudo udiskie-umount /dev/sdd1 /mnt/PC-EXTRA-2
+sudo udiskie-umount /dev/sde1 /mnt/GAMEDRIVE
+sudo udiskie-umount /dev/sdj1 /mnt/Wettam-Snaps-Main
 
 echo "========================================"
 echo "Arch Linux Disk Mounting Cheat Sheet"
@@ -36,16 +36,16 @@ echo "# Check drive health: sudo smartctl -a /dev/sdX"
 # --- WehttamSnaps Data Drives ---
 
 # /dev/sdc1 -> LINUXDRIVE
-UUID=c0f59cf7-9437-4ee3-be68-e27e7b1e52ae  /mnt/wehttamsnaps/LINUXDRIVE       ext4    defaults,noatime,nofail    0>
+UUID=c0f59cf7-9437-4ee3-be68-e27e7b1e52ae  /mnt/LINUXDRIVE       ext4    defaults,noatime,nofail    0>
 
 # /dev/sdf1 -> EXTRA1TB
-UUID=d3283959-c9d3-494a-b832-72f961ea7a92  /mnt/wehttamsnaps/EXTRA1TB         ext4    defaults,noatime,nofail    0>
+UUID=d3283959-c9d3-494a-b832-72f961ea7a92  /mnt/EXTRA1TB         ext4    defaults,noatime,nofail    0>
 
 # /dev/sdd1 -> GAMEDRIVE
-UUID=3f996c97-b699-4208-b9fc-1a64bc65b478  /mnt/wehttamsnaps/GAMEDRIVE        ext4    defaults,noatime,nofail    0>
+UUID=3f996c97-b699-4208-b9fc-1a64bc65b478  /mnt/GAMEDRIVE        ext4    defaults,noatime,nofail    0>
 
 # /dev/sde1 -> WettamSnapsMain (4.5TB NTFS)
-UUID=2C66D88566D850E6                      /mnt/wehttamsnaps/WettamSnapsMain  ntfs-3g defaults,uid=1000,gid=1000,d>
+UUID=2C66D88566D850E6                      /mnt/WettamSnapsMain  ntfs-3g defaults,uid=1000,gid=1000,d>
 
 
 echo -e "\n📁 AUTO-MOUNT AT BOOT (fstab):"
