@@ -36,16 +36,16 @@ echo "# Check drive health: sudo smartctl -a /dev/sdX"
 # --- WehttamSnaps Data Drives ---
 
 # /dev/sdc1 -> LINUXDRIVE
-UUID=c0f59cf7-9437-4ee3-be68-e27e7b1e52ae  /mnt/LINUXDRIVE       ext4    defaults,noatime,nofail    0>
+UUID=2be94340-fe0c-464c-9afc-fde6ddc300cc  /mnt/LINUXDRIVE        ext4    defaults,noatime,nofail    0 2
 
-# /dev/sdf1 -> EXTRA1TB
-UUID=d3283959-c9d3-494a-b832-72f961ea7a92  /mnt/EXTRA1TB         ext4    defaults,noatime,nofail    0>
+# /dev/sde1 -> EXTRA1TB
+UUID=d3283959-c9d3-494a-b832-72f961ea7a92  /mnt/EXTRA1TB          ext4    defaults,noatime,nofail    0 2
 
 # /dev/sdd1 -> GAMEDRIVE
-UUID=3f996c97-b699-4208-b9fc-1a64bc65b478  /mnt/GAMEDRIVE        ext4    defaults,noatime,nofail    0>
+UUID=3f996c97-b699-4208-b9fc-1a64bc65b478  /mnt/GAMEDRIVE         ext4    defaults,noatime,nofail    0 2
 
-# /dev/sde1 -> WettamSnapsMain (4.5TB NTFS)
-UUID=2C66D88566D850E6                      /mnt/WettamSnapsMain  ntfs-3g defaults,uid=1000,gid=1000,d>
+# NTFS Drive (Ensure correct mount options for gaming/Steam compatibility if running Proton games)
+UUID=2C66D88566D850E6                      /mnt/WettamSnapsMain   ntfs-3g defaults,uid=1000,gid=1000,dmask=022,fmask=111,nofail  0 0
 
 
 echo -e "\n📁 AUTO-MOUNT AT BOOT (fstab):"
