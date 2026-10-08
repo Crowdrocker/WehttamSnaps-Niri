@@ -156,20 +156,30 @@ config-notification {
 
 // ╭─────────────────────────────── ENVIRONMENT VARIABLES ────────────────────────────╮
 environment {
+    // Force Wayland native execution across core frameworks
     QT_QPA_PLATFORM "wayland"
+    GDK_BACKEND "wayland"
+    MOZ_ENABLE_WAYLAND "1"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    
+    // Desktop integration identities
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+
     // Qt theming: use kde platform for kdeglobals colors, Darkly for widget style
     QT_QPA_PLATFORMTHEME "kde"
     QT_STYLE_OVERRIDE "Darkly"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+
     // Quickshell Python virtual environment
     ILLOGICAL_IMPULSE_VIRTUAL_ENV "$HOME/.local/state/quickshell/.venv"
-    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
-    GDK_BACKEND "wayland"
-    MOZ_ENABLE_WAYLAND "1"
-    RADV_PERFTEST "gpl"
-    mesa_glthread "true"
-    ELECTRON_OZONE_PLATFORM_HINT "auto"
-    XDG_CURRENT_DESKTOP "niri"
-    XDG_SESSION_TYPE "wayland"
+
+    // --- GAME DRIVER OPTIMIZATION FIXES ---
+    // Let modern RADV manage its pipelines natively to prevent leaks
+    RADV_PERFTEST "sam" 
+    
+    // Enable modern Vulkan dynamic synchronization for explicit layout control
+    VK_EXT_graphics_pipeline_library "1"
 }
 // ╰──────────────────────────────────────────────────────────────────────────────────╯
 
@@ -225,9 +235,12 @@ hotkey-overlay {
 
 // ╭─────────────────────────────── DEBUG SETTINGS ───────────────────────────────────╮
 debug {
-    //enable-offload-optimizations true
-    wait-for-frame-completion-before-queueing
+    // REMOVED: wait-for-frame-completion-before-queueing (Prevents the 1-hour game freeze)
+    
+    // Explicitly offload rendering to your primary AMD Vulkan driver slot
     render-drm-device "/dev/dri/renderD128"
+    
+    // Smooth out Wayland application signaling behavior
     honor-xdg-activation-with-invalid-serial
 }
 // ╰──────────────────────────────────────────────────────────────────────────────────╯
