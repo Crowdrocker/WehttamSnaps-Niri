@@ -1,0 +1,49 @@
+// ╭────────────────────────────── GAMING RULES ──────────────────────────────╮
+
+// 1. Force Games and Micro-Compositors to open in Exclusive Fullscreen
+window-rule {
+    // Match games running natively or sandboxed inside Gamescope
+    match app-id="^gamescope$"
+    match title="^The Division 2$"
+
+    // Force full-screen geometry and bypass Niri's tiling bounds
+    open-fullscreen true
+    default-column-width { proportion 1.0; }
+    
+    // Disable decorative borders and focus rings to maximize rendering performance
+    draw-border-with-barbage false
+    exclude-from-layer-routing true
+}
+
+// 2. Prevent Screentime Out or Blanking during Controller/Keyboard Gaming
+window-rule {
+    match app-id="^gamescope$"
+    match app-id="^steam_app_"
+    
+    // Inhibit idle inhibitors so your screen doesn't turn off mid-session
+    block-when-unfocused false
+    inhibit-idle true
+}
+
+// 3. Keep Game Launchers and Popups Clean
+window-rule {
+    // Catch Steam, Ubisoft Connect, and generic wine/proton launcher stubs
+    match app-id="^steam$"
+    match title="^Steam$"
+    match title="^Ubisoft Connect$"
+    match title="^Wine tool$"
+
+    // Allow them to size normally but default them to a wide layout so text isn't squished
+    default-column-width { proportion 0.8; }
+}
+
+// 4. Optimization: Disable Window Layout Animations for Fullscreen Apps
+// This prevents layout lag when alt-tabbing or launching heavy games
+window-rule {
+    match is-active-fullscreen=true
+    
+    // Tell Niri to completely skip frame animations when swapping to/from this window
+    geometry-animation-skip true
+}
+
+// ╰──────────────────────────────────────────────────────────────────────────╯
