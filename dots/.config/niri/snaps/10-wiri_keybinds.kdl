@@ -1,8 +1,7 @@
 // WehttamSnaps Niri Configuration
 // Author: Matthew (Crowdrocker)
-// Hardware: Dell XPS 8700 - i7-4790 @ 4.0GHz, RX 580, 16GB RAM
-// Display: DP-3 1920x1080@60Hz
-
+// Hardware: AM5 Build - Ryzen 5 9600X, XFX RX 7600 8GB, 16GB DDR5 RAM, 850W PSU
+// Display: DP-2 1920x1080@60Hz
 
 // ╭─────────────────────────────── KEYBINDINGS ──────────────────────────────────────╮
 binds {
@@ -43,8 +42,6 @@ binds {
     // ii Overlay
     Super+G    hotkey-overlay-title="overlay"{ spawn "qs" "-c" "ii" "ipc" "call" "overlay" "toggle"; }
 
-    // ii Overview (daemon)
-    //Mod+Space repeat=false    hotkey-overlay-title="overview"{ spawn "qs" "-c" "ii" "ipc" "call" "overview" "toggle"; }
     // ii Clipboard
     Mod+V    hotkey-overlay-title="clipboard"{ spawn "qs" "-c" "ii" "ipc" "call" "clipboard" "toggle"; }
 
@@ -84,7 +81,7 @@ binds {
     // Free-Form Command Input
     Mod+Alt+Slash    hotkey-overlay-title="jarvis-menu-command"{ spawn "jarvis-menu" "command"; }
 
-    // J.A.R.V.I.S. Interactive Terminal (from before)
+    // J.A.R.V.I.S. Interactive Terminal
     Mod+Alt+J    hotkey-overlay-title="jarvis-menu-interactive"{ spawn "konsole" "-e" "jarvis" "interactive"; }
 
     // Window management
@@ -116,71 +113,37 @@ binds {
     // === GAMING MODE TOGGLE ===
     Mod+G    hotkey-overlay-title="sound-system gaming-toggle" { spawn "sound-system" "gaming-toggle"; }
 
-    // Gaming and media
-    Mod+Shift+g    hotkey-overlay-title="toggle-gaming-mode" { spawn "~/.config/wehttamsnaps/scripts/jarvis-manager.sh"; }
-    Mod+Alt+r    hotkey-overlay-title="niri-validate" { spawn "~/bin/niri-validate.sh"; }
+    // Gaming and media management manager script
+    Mod+Shift+G    hotkey-overlay-title="toggle-gaming-mode" { spawn "~/.config/niri/scripts/jarvis-manager.sh"; }
+    Mod+Alt+R    hotkey-overlay-title="niri-validate" { spawn "~/bin/niri-validate.sh"; }
 
     // ── APPLICATIONS ──
-    // Applications (change "ghostty" to your preferred terminal)
     Mod+T { spawn "ghostty"; }
     Mod+Return { spawn "ghostty"; }
     Mod+B    hotkey-overlay-title="Open Vivaldi" { spawn "vivaldi-stable"; }
     Super+E    hotkey-overlay-title="Open Thunar" { spawn "thunar"; }
     Mod+Alt+D    hotkey-overlay-title="Open Rofi" { spawn "rofi" "-show" "drun"; }
     Mod+Shift+B   hotkey-overlay-title="Open Brave" { spawn "brave"; }
-    Mod+Alt+H   hotkey-overlay-title="Show Keyhints" { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/KeyHints.sh"; }
+    Mod+Alt+H   hotkey-overlay-title="Show Keyhints" { spawn "sh" "-c" "~/.config/niri/scripts/KeyHints.sh"; }
     Mod+Shift+N   hotkey-overlay-title="Show Quick Settings" { spawn "sh" "-c" "~/.config/niri/scripts/niri_quick_settings.sh"; }
     Mod+Shift+T   hotkey-overlay-title="Open Kate" { spawn "kate"; }
 
     // OBS Studio
     Mod+O   hotkey-overlay-title="Open OBS" { spawn "flatpak" "run" "com.obsproject.Studio"; }
-
     Mod+P   hotkey-overlay-title="Open spotify-launcher" { spawn "spotify-launcher"; }
 
     // ── WEBAPPS ──
-    Mod+Ctrl+t   hotkey-overlay-title="twitch"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh twitch"; }
-    Mod+Ctrl+y   hotkey-overlay-title="youtube"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh youtube"; }
-    Mod+Ctrl+s   hotkey-overlay-title="spotify"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh spotify"; }
-    Mod+Ctrl+d   hotkey-overlay-title="discord"  { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/webapp-launcher.sh discord"; }
+    Mod+Ctrl+T   hotkey-overlay-title="twitch"  { spawn "sh" "-c" "~/.config/niri/scripts/webapp-launcher.sh twitch"; }
+    Mod+Ctrl+Y   hotkey-overlay-title="youtube"  { spawn "sh" "-c" "~/.config/niri/scripts/webapp-launcher.sh youtube"; }
+    Mod+Ctrl+S   hotkey-overlay-title="spotify"  { spawn "sh" "-c" "~/.config/niri/scripts/webapp-launcher.sh spotify"; }
+    Mod+Ctrl+D   hotkey-overlay-title="discord"  { spawn "sh" "-c" "~/.config/niri/scripts/webapp-launcher.sh discord"; }
 
     // ── GAMING & GAME LAUNCHERS ──
-    // === STEAM WITH IDROID LAUNCH ===
-    // Mod+Shift+S  hotkey-overlay-title="Open steam" { spawn "sh" "-c" "sound-system steam-launch && steam"; }
     Mod+Alt+P  hotkey-overlay-title="Open protonup-qt" { spawn "protonup-qt"; }
-
-    // Audio routing
-    //Mod+A   hotkey-overlay-title="audio-routing" { spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/audio-routing.sh gaming"; }
-    //Mod+Shift+A    hotkey-overlay-title="qpwgraph" { spawn "qpwgraph"; }
-    //Mod+Shift+V     hotkey-overlay-title="jarvis" { spawn "~/.config/wehttamsnaps/scripts/jarvis.sh"; }
-    // === SCREENSHOT WITH SOUND ===
-    Mod+Print hotkey-overlay-title="Take screenshot" { spawn "sh" "-c" "grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png && sound-system screenshot"; }
-    Ctrl+Print  hotkey-overlay-title="screenshot screen" { screenshot-screen; }
-    Alt+Print  hotkey-overlay-title="screenshot window" { screenshot-window; }
-
-
-    // Audio controls
-    //XF86AudioRaiseVolume { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "increase"; }
-    //XF86AudioLowerVolume { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "decrease"; }
-    //XF86AudioMute { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "muteOutput"; }
-
-    // ── MEDIA CONTROLS ──
-    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
-    XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
-    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
-    XF86AudioStop allow-when-locked=true { spawn "playerctl" "stop"; }
-
-
-    // === AUDIO CONTROLS WITH ADAPTIVE SOUNDS ===
-    XF86AudioMute allow-when-locked=true { spawn "sound-system" "mute"; }
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "sound-system" "volume-up"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "sound-system" "volume-down"; }
-     XF86AudioMicMute allow-when-locked=true { spawn "sound-system" "mic-mute"; }
-
-
-    // ── POWER MANAGEMENT ──
-    // Mod+Shift+Ctrl+R { spawn "niri" "msg" "action" "reload-config"; }
-
-    // This bind will always work, even when using a virtual machine.
-    //Mod+Alt+L allow-inhibiting=false  hotkey-overlay-title="swaylock" { spawn "~/.config/wehttamsnaps/scripts/swaylock.sh"; }
+    
+    // Screenshot integration tools
+    Mod+Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
 }
 // ╰──────────────────────────────────────────────────────────────────────────────────╯
