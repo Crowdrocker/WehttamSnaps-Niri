@@ -1,30 +1,38 @@
 // WehttamSnaps Niri Configuration
 // Author: Matthew (Crowdrocker)
-// Hardware: Dell XPS 8700 - i7-4790 @ 4.0GHz, RX 580, 16GB RAM
-// Display: DP-3 1920x1080@60Hz
+// Hardware: AM5 Build - Ryzen 5 9600X, XFX RX 7600 8GB, 16GB DDR5 RAM, 850W PSU
+// Display: DP-2 1920x1080@60Hz
 
 // ╭─────────────────────────────── AUTOSTART ────────────────────────────────────────╮
-spawn-at-startup "bash" "-c" "wl-paste --watch cliphist store &"
-spawn-at-startup "/usr/lib/mate-polkit/polkit-mate-authentication-agent-1"
-spawn-at-startup "qs" "-c" "ii"
+
+// Core System Bridges & Wayland Tools
 spawn-at-startup "xwayland-satellite"
-spawn-sh-at-startup "swww-daemon" // Wallpaper daemon
-// J.A.R.V.I.S. startup with notification
-spawn-at-startup "sh" "-c" "sound-system startup && notify-send 'J.A.R.V.I.S.' 'Systems online. Welcome back, Matthew.' -i audio-speakers"
-// Config watcher for real-time validation
-spawn-at-startup "bash" "-c" "~/.config/wehttamsnaps/scripts/config-watcher.sh start &"
-// save list of currently installed programs
-// Optional: Welcome screen on first boot
-spawn-at-startup "python3" "~/.config/wehttamsnaps/scripts/welcome.py"
-spawn-at-startup "~/.config/wehttamsnaps/scripts/save-program-list.sh"
-spawn-at-startup "bash" "-c" "~/.config/wehttamsnaps/scripts/RainbowBorders.sh"
-spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"  // Polkit
-spawn-at-startup "dunst"  // Notification daemon
-// Auto-setup audio routing on login
-spawn-at-startup "bash" "-c" "sleep 5 && ~/.config/wehttamsnaps/scripts/audio-routing.sh gaming"
+spawn-sh-at-startup "swww-daemon" // Smooth wallpaper management
+spawn-at-startup "bash" "-c" "wl-paste --watch cliphist store &"
+spawn-at-startup "udiskie" "--tray"  // Secure storage auto-mounting
+spawn-at-startup "blueman-applet"  // Bluetooth manager tray
+spawn-at-startup "nm-applet"  // Network tray icon
+
+// Polkit Authentication (Cleanly using single GNOME agent for native GTK integration)
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+
+// Desktop Shell & Status Components
+spawn-at-startup "noctalia" // Handles bar layout, workspaces, and notifications natively
+// spawn-at-startup "qs" "-c" "ii" // Quickshell alternative path hook
 spawn-sh-at-startup "niriswitcher"
-spawn-at-startup "udiskie" "--tray"  // Auto-mount USB devices
-spawn-at-startup "blueman-applet"  // Bluetooth tray
-spawn-at-startup "nm-applet"  // Network manager tray
-spawn-at-startup "sh" "-c" "swayidle -w timeout 600 'swaylock' timeout 900 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock'"
+
+// Personalized Creative & System Customization Scripts
+spawn-at-startup "bash" "-c" "~/.config/niri/scripts/config-watcher.sh start &"
+spawn-at-startup "bash" "-c" "~/.config/niri/scripts/RainbowBorders.sh"
+spawn-at-startup "~/.config/niri/scripts/save-program-list.sh"
+spawn-at-startup "python3" "~/.config/niri/scripts/welcome.py"
+
+// Interactive J.A.R.V.I.S Initialization with Audio Router Setup
+// Launches your gaming profile cleanly 5 seconds after desktop load
+spawn-at-startup "sh" "-c" "sound-system startup && notify-send 'J.A.R.V.I.S.' 'Systems online. Welcome back, Matthew.' -i audio-speakers"
+spawn-at-startup "bash" "-c" "sleep 5 && ~/.config/niri/scripts/audio-routing.sh gaming"
+
+// Power Management & Secure Lock Screen Hook
+spawn-sh-at-startup "swayidle -w timeout 600 'swaylock' timeout 900 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock'"
+
 // ╰──────────────────────────────────────────────────────────────────────────────────╯
