@@ -80,6 +80,37 @@ A Quickshell shell for Niri. Fork of end-4's illogical-impulse, butchered to wor
 - **Audio Routing** – PipeWire + qpwgraph for advanced audio control
 - **Custom Branding** – WehttamSnaps theme throughout
 ---
+
+## 🖥️ System Architecture Specs
+
+| Component | Target Hardware Specification |
+| :--- | :--- |
+| **CPU** | AMD Ryzen 5 9600X (6 Cores / 12 Threads) |
+| **GPU** | XFX Speedster SWFT210 Radeon RX 7600 (8GB VRAM) |
+| **RAM** | 16GB DDR5 (Upgrading to 32GB Dual-Channel) |
+| **PSU** | EVGA 850W Modular Power Supply |
+| **Chassis** | HYTE Y60 (White with Black Trim, Panoramic Glass) |
+| **Displays** | **Main:** Samsung 4K (Configured to 1920x1080 @ 60Hz)<br>**Left:** Native 1080p @ 60Hz |
+
+---
+
+## 🗃️ Modular Configuration Matrix (`snaps/`)
+
+To prevent monolith configuration decay, my main Niri `config.kdl` parses modular file segments sequentially:
+
+*   📁 **`00-base.kdl`**: Root environment limits, 1:1 flat mouse tracking configuration, and XWayland scale handling.
+*   📁 **`05-wiri_startup.kdl`**: Autostart system bridges (`xwayland-satellite`), secure storage auto-mounters, GNOME Polkit agents, and background scripts.
+*   📁 **`10-wiri_keybinds.kdl`**: Keyboard layout mappings (Vim-style navigation) and J.A.R.V.I.S automation execution hooks.
+*   📁 **`20-wiri_rules.kdl`**: Precise window geometry bounds and floating rules for modding infrastructure (Vortex, MO2, xEdit, SteamTinkerLaunch).
+*   📁 **`30-workspaces.kdl`**: Monitored desktop layouts splitting peripheral applications to the left screen and full-screen environments to the center display.
+*   📁 **`40-gaming.kdl`**: Exclusive full-screen application sandboxing rules utilizing `gamescope`.
+*   📁 **`99-overrides.kdl`**: Absolute layout overrides pinning coordinate geometry planes for my dual 1080p display matrix.
+
+---
+
+## 🎵 J.A.R.V.I.S Audio Routing Matrix
+
+System audio streams are parsed cleanly into isolated virtual lines using PipeW
 📸<a id="Screenshots"></a>
 <img src="https://readme-typing-svg.herokuapp.com?font=Lexend+Giga&size=25&pause=1000&color=CCA9DD&vCenter=true&width=435&height=25&lines=Screenshots" width="450"/>
 ### Material ii
