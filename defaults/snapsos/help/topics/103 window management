@@ -1,0 +1,137 @@
+> Window Management
+
+Window Management is done primarily through your keyboard, with a couple of mouse options.
+
+
+Within Mango, windows will automatically lay themselves out depending on your configured layout. you can tweak this layout at any time using *SUPER+SHIFT+W*.
+
+the different layouts will be covered in 105 - layouts.
+
+
+the following keybinds will help you with window management:
+
+### general
+
+[^SUPER+Q]: close window
+quits the active window, works like pressing the x button on a desktop.
+
+
+[^SUPER+T]: float/unfloat window
+floated windows will appear above your tiled applications, and do not tile. 
+
+
+[^SUPER+F]: toggle fullscreen
+fullscreens the application, this puts the application in front of tiled and floating applications but behind overlay applications.
+
+
+[^SUPER+ALT+F]: toggle fake fullscreen
+tells the application it is fullscreen, but keeps the window tiled, this can be used to get rid of things top bars and window decoration. 
+
+
+[^SUPER+SHIFT+P]: toggle overlay mode
+overlay mode shows over top of everything regardless of whether it is tiled, floating or fullscreen. 
+
+
+[^SUPER+P]: pin window
+makes the window "global", meaning it will stay on your screen regardless of which workspace/tag you're on.
+
+use again to remove. 
+
+window *will* resize automatically if tiled, but will still be global if floated.
+
+
+[^SUPER+A]: special layout toggle
+this depends on your layout:
+dwindle: maximizes the focused window, keeping it "windowed" but covering all other windows on the screen, making it appear as if it's the only tiled application.
+scrolling: changes the scroller ratio for the focused window
+grid layouts: toggles gaps
+deck and master/stack (aka tile) layouts: swap the focused window with master.
+
+
+[^ALT+TAB]: toggle and tab through overview
+shows you all the windows on your current monitor, regardless of tab. hold down alt and press tab to cycle through, let go of alt to open the workspace/tag of the selected window.
+
+you can also left click to open a window or right click to close it.
+
+
+### workspace-related
+
+[^SUPER+[1-9]]: switch to workspace
+this moves all of your windows to showing this workspace/tag
+
+
+[^SUPER+SHIFT+[1-9]]: move window to workspace
+this will *only* switch the tag/workspace on currently active window, and will move the focused window to that tag/workspace
+
+
+[^SUPER+ALT+[1-9]]: toggle a workspace
+unlike in most other window managers, in mango, you can view multiple tags at once, using super+alt+numbers will toggle visibility of a tag/workspace.
+this is independent per monitor. 
+
+
+[^SUPER+SHIFT+A]: cycle through common layouts
+this is configured in your config file using the circle_layouts config option (found in layouts.conf)
+by default it switches as follows:
+dwindle - scroller - vertical scroller - center tile - tile
+
+### scratchpad
+
+[^SUPER+CTRL+C]: move window to scratchpad
+this minimizes the focused window to the scratchpad on that monitor. multiple windows can be stored in the scratchpad
+
+[^SUPER+ALT+C]: move window out of scratchpad
+this brings the last focused scratchpad window back out of the scratchpad on that monitor
+
+[^SUPER+C]: open/close the scratchpad
+views one of the windows in the current monitor's scratchpad. toggle this to cycle through.
+
+[^SUPER+ALT+SPACE]: toggle terminal-specific scratchpad (quick-access terminal)
+this is a special second scratchpad that will only ever contain a specially titled instance of ghostty. 
+if this instance is not yet active, pressing the keybind will spawn one, if one exists but is not in the scratchpad, it'll be pulled into the scratchpad
+if there *is* an instance in the terminal-specific scratchpad on that monitor, it'll show/hide that terminal. 
+
+SNAPS-Os pre-loads one instance of ghostty to your main monitor's terminal scratchpad.
+
+
+### arrow keys
+
+[^SUPER+ARROWS]: move focus
+moves focus between windows using the keyboard
+
+[^SUPER+SHIFT+LEFT/RIGHT]: focus previous/next
+for some layouts where windows overlap eachother, this will allow you to go to the previously focused window. 
+
+[^SUPER+SHIFT+UP/DOWN]: exchange stack clients (previous/next)
+moves the window up and down the stack in all master/stack (tiled) layouts.
+
+[^SUPER+CTRL+ARROWS]: resize window
+resizes the window
+
+
+### mouse binds
+[^SUPER+LEFTCLICK-DRAG]: drag-and-drop window
+
+this keybind allows you to drag windows around, you can grab a window anywhere. window will be temporarily floating while being dragged and will show where it'll tile to. 
+
+if the window was already floating before being dragged, it will continue to float. 
+
+
+[^SUPER+RIGHTCLICK-DRAG]: resize window
+
+this keybind allows you to drag to resize a window, both tiled and floating. Do keep in mind you cannot resize a tiled window in a way that would cause the desktop to be visible.
+
+for example, if you have two windows on a dwindle layout next to eachother, you can *only* resize them by moving the boundary between them left/right. 
+
+[^SUPER+MIDDLECLICK]: maximize window
+
+this keeps the window tiled, but allows it to use the full window, swallowing and hiding everything else on the monitor but keeping the top bar available. 
+
+
+
+
+
+
+
+
+
+

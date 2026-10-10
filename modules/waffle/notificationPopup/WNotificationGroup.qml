@@ -32,8 +32,9 @@ Item {
     Behavior on implicitHeight {
         enabled: false
         NumberAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
+            duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
         }
     }
 
@@ -72,7 +73,6 @@ Item {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        propagateComposedEvents: true
         acceptedButtons: Qt.NoButton
         
         onContainsMouseChanged: {
@@ -126,24 +126,27 @@ Item {
         Behavior on x {
             enabled: false
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
             }
         }
 
         Behavior on height {
             enabled: false
             NumberAnimation {
-                duration: 250
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
             }
         }
         
         Behavior on color {
             enabled: false
             ColorAnimation {
-                duration: 150
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
             }
         }
 
@@ -219,7 +222,7 @@ Item {
                         rotation: root.expanded ? 180 : 0
 
                         Behavior on rotation {
-                            animation: Looks.transition.rotate.createObject(this)
+                            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                         }
                     }
                 }
@@ -232,7 +235,7 @@ Item {
                     color: closeMA.containsMouse ? Looks.colors.bg1Hover : "transparent"
 
                     Behavior on color {
-                        animation: Looks.transition.color.createObject(this)
+                        animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                     }
 
                     MouseArea {
@@ -273,7 +276,7 @@ Item {
                 wrapMode: Text.Wrap
                 
                 Behavior on opacity {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
             }
 
@@ -285,7 +288,7 @@ Item {
                 spacing: 2
                 
                 Behavior on opacity {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
 
                 Repeater {
@@ -313,8 +316,9 @@ Item {
 
                 Behavior on opacity {
                     NumberAnimation {
-                        duration: 200
-                        easing.type: Easing.OutCubic
+                        duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
                     }
                 }
 
@@ -350,15 +354,17 @@ Item {
                                 target: notifItem
                                 property: "opacity"
                                 to: 1
-                                duration: 200
-                                easing.type: Easing.OutCubic
+                                duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                                easing.type: Easing.BezierSpline
+                                easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
                             }
                             NumberAnimation {
                                 target: itemTranslate
                                 property: "y"
                                 to: 0
-                                duration: 250
-                                easing.type: Easing.OutCubic
+                                duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0
+                                easing.type: Easing.BezierSpline
+                                easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
                             }
                         }
                     }

@@ -22,19 +22,20 @@ StyledPopup {
             spacing: 2
 
             RowLayout {
+                visible: Weather.showVisibleCity
                 Layout.alignment: Qt.AlignHCenter
                 spacing: 6
 
                 MaterialSymbol {
                     fill: 0
                     font.weight: Font.Medium
-                    text: "location_on"
+                    text: "place"
                     iconSize: Appearance.font.pixelSize.large
                     color: Appearance.colors.colOnSurfaceVariant
                 }
 
                 StyledText {
-                    text: Weather.data.city
+                    text: Weather.visibleCity
                     font {
                         weight: Font.Medium
                         pixelSize: Appearance.font.pixelSize.normal
@@ -98,6 +99,18 @@ StyledPopup {
                 symbol: "bedtime"
                 value: Weather.data.sunset
             }
+        }
+
+        // Footer: last refresh
+        StyledText {
+            Layout.alignment: Qt.AlignHCenter
+            text: Network.online ? Translation.tr("Last refresh: %1").arg(Weather.updatedLabel)
+                : Translation.tr("Offline · from %1").arg(Weather.updatedLabel)
+            font {
+                weight: Font.Medium
+                pixelSize: Appearance.font.pixelSize.smaller
+            }
+            color: Appearance.colors.colOnSurfaceVariant
         }
     }
 }

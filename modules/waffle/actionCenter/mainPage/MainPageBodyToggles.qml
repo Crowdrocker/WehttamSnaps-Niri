@@ -1,5 +1,4 @@
 pragma ComponentBehavior: Bound
-import Qt.labs.synchronizer
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -59,9 +58,8 @@ Item {
 
         orientation: Qt.Vertical
         clip: true
-        Synchronizer on currentIndex {
-            property alias source: root.currentPage
-        }
+        currentIndex: root.currentPage
+        onCurrentIndexChanged: if (currentIndex !== root.currentPage) root.currentPage = currentIndex
 
         Repeater {
             model: root.pages

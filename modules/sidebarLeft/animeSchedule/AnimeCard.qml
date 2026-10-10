@@ -7,6 +7,7 @@ import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 import "root:services"
+import qs.services.deferred
 
 RippleButton {
     id: root
@@ -22,19 +23,22 @@ RippleButton {
     buttonRadius: cardRadius
     
     // Theming - aurora/inir/material
-    colBackground: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+    colBackground: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+        : Appearance.inirEverywhere ? Appearance.inir.colLayer2
         : Appearance.auroraEverywhere ? "transparent"
         : Appearance.colors.colLayer1
-    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
+    colBackgroundHover: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+        : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
-        : Appearance.colors.colLayer1Hover
-    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
+        : Appearance.colLayer1Hover
+    colRipple: Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive
+        : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive
-        : Appearance.colors.colLayer1Active
+        : Appearance.colLayer1Active
     colBackgroundToggled: colBackgroundHover
     colBackgroundToggledHover: colRipple
     
-    // Left click -> MAL
+    // Left click -> AniList page
     onClicked: {
         if (root.anime?.url) {
             Qt.openUrlExternally(root.anime.url)
@@ -42,21 +46,21 @@ RippleButton {
     }
     
     // Right click -> context menu
-    altAction: () => contextMenu.active = true
+    altAction: () => contextMenu.requestOpen()
     
     function truncateSynopsis(text, maxLen) {
         if (!text) return ""
         return text.length <= maxLen ? text : text.substring(0, maxLen).trim() + "..."
     }
     
-    // HiAnime - best free streaming, fast, no ads with ublock
-    function getHiAnimeUrl() {
+    // Custom watch site from config, or 9anime as default
+    function getWatchUrl() {
         const title = root.anime?.title ?? ""
-        return "https://hianime.to/search?keyword=" + encodeURIComponent(title)
-    }
-    
-    function getAniListUrl() {
-        return "https://anilist.co/search/anime?search=" + encodeURIComponent(root.anime?.title ?? "")
+        const customSite = Config.options?.sidebar?.animeSchedule?.watchSite ?? ""
+        if (customSite) {
+            return customSite.replace("%s", encodeURIComponent(title))
+        }
+        return "https://9animetv.to/search?keyword=" + encodeURIComponent(title)
     }
     
     ContextMenu {
@@ -68,10 +72,9 @@ RippleButton {
         anchorHovered: root.buttonHovered
         
         model: [
-            { text: Translation.tr("Watch on HiAnime"), iconName: "play_circle", action: () => Qt.openUrlExternally(root.getHiAnimeUrl()) },
-            { text: Translation.tr("View on AniList"), iconName: "bookmark", action: () => Qt.openUrlExternally(root.getAniListUrl()) },
+            { text: Translation.tr("Watch"), iconName: "play_circle", monochromeIcon: true, action: () => Qt.openUrlExternally(root.getWatchUrl()) },
             { type: "separator" },
-            { text: Translation.tr("Open on MAL"), iconName: "open_in_new", action: () => Qt.openUrlExternally(root.anime?.url ?? "") }
+            { text: Translation.tr("Open on AniList"), iconName: "open_in_new", monochromeIcon: true, action: () => Qt.openUrlExternally(root.anime?.url ?? "") }
         ]
     }
     
@@ -119,7 +122,7 @@ RippleButton {
                     anchors.centerIn: parent
                     text: "image"
                     iconSize: 24
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.colSecondaryActionIcon
                 }
             }
             
@@ -158,7 +161,7 @@ RippleButton {
                 visible: !root.compact && root.anime?.titleJapanese && root.anime.titleJapanese !== (root.anime?.titleEnglish ?? root.anime?.title)
                 text: root.anime?.titleJapanese ?? ""
                 font.pixelSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colSubtext
+                color: Appearance.colMetadataText
                 elide: Text.ElideRight
             }
             
@@ -175,7 +178,7 @@ RippleButton {
                     MaterialSymbol {
                         text: "star"
                         iconSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.m3colors.m3tertiary
+                        color: Appearance.colors.colTertiary
                         fill: 1
                     }
                     StyledText {
@@ -193,12 +196,12 @@ RippleButton {
                     MaterialSymbol {
                         text: "movie"
                         iconSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        color: Appearance.colSecondaryActionIcon
                     }
                     StyledText {
                         text: root.anime?.episodes ?? "?"
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        color: Appearance.colMetadataText
                     }
                 }
                 
@@ -238,7 +241,7 @@ RippleButton {
                     Layout.fillWidth: true
                     text: AnimeService.formatBroadcast(root.anime?.broadcast ?? "")
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.colMetadataText
                     elide: Text.ElideRight
                 }
             }
@@ -266,7 +269,7 @@ RippleButton {
                             text: modelData
                             font.pixelSize: Appearance.font.pixelSize.smallest
                             color: Appearance.inirEverywhere ? Appearance.inir.colOnSecondaryContainer
-                                : Appearance.colors.colOnSurfaceVariant
+                                : Appearance.colMetadataText
                         }
                     }
                 }

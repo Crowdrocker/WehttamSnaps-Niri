@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WehttamSnaps // Keybinds</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap");
+:root{--cyan:#00ffd1;--blue:#3b82ff;--pink:#ff5af1;--dark:#0a0014;--mid:#110022;--surf:#1a0035;--text:#cce8e4;--dim:#4a6860}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;font-size:15px;padding:28px 24px}
+body::before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:999}
+header{text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(0,255,209,.25)}
+header h1{font-family:"Orbitron",monospace;font-size:2rem;font-weight:800;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.12em}
+header p{color:var(--dim);font-family:"Share Tech Mono",monospace;font-size:.82rem;margin-top:6px}
+.sw{max-width:480px;margin:0 auto 28px}
+#search{width:100%;padding:10px 16px;background:var(--mid);border:1px solid var(--cyan);border-radius:4px;color:var(--cyan);font-family:"Share Tech Mono",monospace;font-size:.9rem;outline:none}
+#search::placeholder{color:var(--dim)}
+#search:focus{border-color:var(--blue);box-shadow:0 0 10px rgba(59,130,255,.25)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:18px}
+.section{background:var(--mid);border:1px solid #200040;border-radius:6px;overflow:hidden;border-left:3px solid var(--cyan)}
+.section.gaming{border-left-color:var(--pink)}.section.jarvis{border-left-color:var(--blue)}
+.section.photo{border-left-color:#b8ff80}.section.system{border-left-color:#ff8c42}
+.section h2{font-family:"Orbitron",monospace;font-size:.68rem;font-weight:600;letter-spacing:.18em;color:var(--cyan);background:rgba(0,255,209,.05);padding:8px 14px;border-bottom:1px solid #200040;text-transform:uppercase}
+.section.gaming h2{color:var(--pink);background:rgba(255,90,241,.05)}
+.section.jarvis h2{color:var(--blue);background:rgba(59,130,255,.05)}
+.section.photo h2{color:#b8ff80;background:rgba(184,255,128,.04)}
+.section.system h2{color:#ff8c42;background:rgba(255,140,66,.05)}
+table{width:100%;border-collapse:collapse}
+tr{transition:background .1s}tr:hover{background:rgba(0,255,209,.04)}tr.hidden{display:none}
+td{padding:5px 14px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.key{width:46%;font-family:"Share Tech Mono",monospace;font-size:.8rem;white-space:nowrap}
+kbd{display:inline-block;background:var(--surf);border:1px solid var(--blue);border-radius:3px;padding:1px 6px;color:var(--blue);font-family:"Share Tech Mono",monospace;font-size:.78rem;margin:1px}
+.plus{color:var(--dim);font-size:.7rem;margin:0 1px}
+td.action{color:var(--text);font-size:.9rem;font-weight:600}
+.rn{background:var(--mid);border:1px solid #200040;border-left:3px solid var(--pink);border-radius:6px;padding:14px 18px;margin-top:18px;font-family:"Share Tech Mono",monospace;font-size:.82rem;color:var(--dim);line-height:1.9}
+.rn strong{color:var(--pink)}
+footer{text-align:center;margin-top:28px;color:var(--dim);font-family:"Share Tech Mono",monospace;font-size:.78rem;border-top:1px solid #1e0040;padding-top:16px}
+footer a{color:var(--cyan);text-decoration:none}
+</style></head><body>
+<header><h1>WehttamSnaps // Keybinds</h1>
+<p>SwayFX &middot; Noctalia &middot; J.A.R.V.I.S. &nbsp;&middot;&nbsp; github.com/Crowdrocker &nbsp;&middot;&nbsp; twitch.tv/WehttamSnaps</p></header>
+<div class="sw"><input type="text" id="search" placeholder="// Search keybinds..." autocomplete="off" spellcheck="false"></div>
+<div class="grid" id="grid">
+<div class="section default"><h2>Launcher</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>d</kbd></td><td class="action">rofi -show drun</td></tr>
+</table></div>
+<div class="section default"><h2>Apps</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>slash</kbd></td><td class="action">kitty --class="floating_shell" -e sh -c "cat read"</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>e</kbd></td><td class="action">kate</td></tr>
+</table></div>
+<div class="section default"><h2>Windows</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>alt</kbd><span class="plus">+</span><kbd>c</kbd></td><td class="action">move position center</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>h</kbd></td><td class="action">move left</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>j</kbd></td><td class="action">move down</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>k</kbd></td><td class="action">move up</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>r</kbd></td><td class="action">mode "resize"</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>semicolon</kbd></td><td class="action">move right</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>v</kbd></td><td class="action">floating toggle</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Down</kbd></td><td class="action">focus down</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>equal</kbd></td><td class="action">resize grow width 10 ppt</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>F11</kbd></td><td class="action">fullscreen toggle</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>grave</kbd></td><td class="action">scratchpad show</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Left</kbd></td><td class="action">focus left</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>minus</kbd></td><td class="action">resize shrink width 10 ppt</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>q</kbd></td><td class="action">kill</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>r</kbd></td><td class="action">swaymsg resize set width 50ppt</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Right</kbd></td><td class="action">focus right</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>equal</kbd></td><td class="action">resize grow height 10 ppt</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>minus</kbd></td><td class="action">resize shrink height 10 ppt</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>p</kbd></td><td class="action">swaymsg output \* dpms off</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>v</kbd></td><td class="action">focus mode_toggle</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>t</kbd></td><td class="action">layout toggle split</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Up</kbd></td><td class="action">focus up</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>w</kbd></td><td class="action">layout tabbed</td></tr>
+</table></div>
+<div class="section default"><h2>Media</h2><table><tr><td class="key"><kbd>XF86AudioStop</kbd></td><td class="action">playerctl stop</td></tr>
+<tr><td class="key"><kbd>XF86MonBrightnessDown</kbd></td><td class="action">brightnessctl set 10%-</td></tr>
+<tr><td class="key"><kbd>XF86MonBrightnessUp</kbd></td><td class="action">brightnessctl set +10%</td></tr>
+</table></div>
+<div class="section gaming"><h2>Gaming</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>alt</kbd><span class="plus">+</span><kbd>l</kbd></td><td class="action">lutris</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>alt</kbd><span class="plus">+</span><kbd>p</kbd></td><td class="action">protonup-qt</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>alt</kbd><span class="plus">+</span><kbd>s</kbd></td><td class="action">steam-launch && steam</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>F12</kbd></td><td class="action">&& \</td></tr>
+</table></div>
+<div class="section photo"><h2>Photography</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>g</kbd></td><td class="action">gimp</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>i</kbd></td><td class="action">krita</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>k</kbd></td><td class="action">digikam</td></tr>
+</table></div>
+<div class="section default"><h2>Browser</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>b</kbd></td><td class="action">brave</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>t</kbd></td><td class="action">twitch</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>y</kbd></td><td class="action">youtube</td></tr>
+</table></div>
+<div class="section default"><h2>Webapps</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>d</kbd></td><td class="action">discord</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>s</kbd></td><td class="action">spotify</td></tr>
+</table></div>
+<div class="section jarvis"><h2>J.A.R.V.I.S.</h2><table><tr><td class="key"><kbd>Alt</kbd><span class="plus">+</span><kbd>F1</kbd></td><td class="action">lock && gtklock</td></tr>
+<tr><td class="key"><kbd>Alt</kbd><span class="plus">+</span><kbd>s</kbd></td><td class="action">shutdown && noctalia</td></tr>
+<tr><td class="key"><kbd>Alt</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>c</kbd></td><td class="action">reload && exec reload</td></tr>
+<tr><td class="key"><kbd>Alt</kbd><span class="plus">+</span><kbd>v</kbd></td><td class="action">float && swaymsg floating toggle</td></tr>
+<tr><td class="key"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F10</kbd></td><td class="action">&& screenshot</td></tr>
+<tr><td class="key"><kbd>F10</kbd></td><td class="action">grim -g "$(slurp)" - | swappy -f - && screenshot</td></tr>
+<tr><td class="key"><kbd>Shift</kbd><span class="plus">+</span><kbd>F10</kbd></td><td class="action">&& screenshot</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>b</kbd></td><td class="action">browser && brave</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>l</kbd></td><td class="action">locking-screen && swaylock</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>f</kbd></td><td class="action">files && thunar</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>m</kbd></td><td class="action">spotify && spotify</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>o</kbd></td><td class="action">obs && obs</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>p</kbd></td><td class="action">spotify && spotify</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Return</kbd></td><td class="action">terminal && kitty</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>b</kbd></td><td class="action">browser && brave --new-window https://dashboard.twitch.tv</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>c</kbd></td><td class="action">reloading-config && swaymsg reload</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>e</kbd></td><td class="action">export && photo-export</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>g</kbd></td><td class="action">stream-start</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>j</kbd></td><td class="action">-e</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>q</kbd></td><td class="action">closing-window && swaymsg kill</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>r</kbd></td><td class="action">status-report && \</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>s</kbd></td><td class="action">reload && ~/scripts/github-backup.sh[cite: 1]</td></tr>
+<tr><td class="key"><kbd>XF86AudioLowerVolume</kbd></td><td class="action">volume-down && pactl set-sink-volume @DEFAULT_SINK@ -5%</td></tr>
+<tr><td class="key"><kbd>XF86AudioNext</kbd></td><td class="action">playerctl next && music-next</td></tr>
+<tr><td class="key"><kbd>XF86AudioPlay</kbd></td><td class="action">playerctl play-pause && music-play</td></tr>
+<tr><td class="key"><kbd>XF86AudioPrev</kbd></td><td class="action">playerctl previous && music-previous</td></tr>
+<tr><td class="key"><kbd>XF86AudioRaiseVolume</kbd></td><td class="action">volume-up && pactl set-sink-volume @DEFAULT_SINK@ +5%</td></tr>
+</table></div>
+<div class="section system"><h2>System</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>alt</kbd><span class="plus">+</span><kbd>e</kbd></td><td class="action">swaymsg exit</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>e</kbd></td><td class="action">swaynag -t warning -m 'Systems Offline?' -B 'Yes' '</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>s</kbd></td><td class="action">noctalia controlCenter toggle</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>slash</kbd></td><td class="action">swaymsg -t get_bindings | less</td></tr>
+</table></div>
+<div class="section default"><h2>Other</h2><table><tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>comma</kbd></td><td class="action">noctalia settings toggle</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>s</kbd></td><td class="action">\</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>d</kbd></td><td class="action">nwg-drawer</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>f</kbd></td><td class="action">dolphin</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>space</kbd></td><td class="action">rofi</td></tr>
+<tr><td class="key"><kbd>Super</kbd><span class="plus">+</span><kbd>space</kbd></td><td class="action">noctalia launcher toggle</td></tr>
+<tr><td class="key"><kbd>XF86AudioMicMute</kbd></td><td class="action">pactl set-source-mute @DEFAULT_SOURCE@ toggle</td></tr>
+</table></div>
+
+
+</div>
+<div class="rn"><strong>Resize Mode</strong> &mdash; Enter with <kbd style="background:#1a0035;border:1px solid #ff5af1;border-radius:3px;padding:1px 6px;color:#ff5af1;font-family:monospace;font-size:.78rem">Super+Ctrl+R</kbd>, exit with <strong>Enter</strong> or <strong>Escape</strong><br>
+<strong>H/&#8592;</strong> shrink width &nbsp;&middot;&nbsp; <strong>;/&#8594;</strong> grow width &nbsp;&middot;&nbsp; <strong>K/&#8593;</strong> shrink height &nbsp;&middot;&nbsp; <strong>J/&#8595;</strong> grow height</div>
+<footer><a href="https://github.com/Crowdrocker/wehttamsnaps-dots">wehttamsnaps-dots</a>
+&nbsp;&middot;&nbsp; Regenerate: <code style="color:var(--cyan)">generate_cheatsheet.sh</code>
+&nbsp;&middot;&nbsp; <a href="https://twitch.tv/WehttamSnaps">twitch.tv/WehttamSnaps</a></footer>
+<script>
+const s=document.getElementById("search");
+s.addEventListener("input",()=>{
+  const q=s.value.toLowerCase().trim();
+  document.querySelectorAll(".section").forEach(sec=>{
+    let any=false;
+    sec.querySelectorAll("tr").forEach(r=>{
+      const m=!q||r.textContent.toLowerCase().includes(q);
+      r.classList.toggle("hidden",!m);
+      if(m)any=true;
+    });
+    sec.style.display=any?"":"none";
+  });
+});
+</script></body></html>

@@ -1,0 +1,10 @@
+## automatic distro logo ##
+
+this selection will set fetch to use your distribution's logo. 
+
+because of how this is handled, this option cannot be previewed in this window.
+
+you can preview the logo by running fastfetch regularly without the fetch wrapper.
+
+this will automatically re-color the logo to use your theme color. 
+this does make the logo single-colored.

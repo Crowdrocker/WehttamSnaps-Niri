@@ -1,3 +1,4 @@
+import qs
 import QtQuick
 import qs.services
 import qs.modules.common
@@ -10,8 +11,8 @@ QuickToggleModel {
     id: root
     name: Translation.tr("Cloudflare WARP")
 
-    readonly property string warpCliPath: "/usr/bin/warp-cli"
-    readonly property string notifySendPath: "/usr/bin/notify-send"
+    readonly property string warpCliPath: "warp-cli"
+    readonly property string notifySendPath: "notify-send"
 
     available: false
     toggled: false
@@ -20,15 +21,36 @@ QuickToggleModel {
     hasStatusText: true
 
     property bool _daemonRunning: true
+    property int _transitionPollsRemaining: 0
+    property bool _transitionExpectedConnected: false
 
     function refreshStatus() {
         fetchActiveState.running = false;
         fetchActiveState.running = true;
     }
-    
+
+    function beginTransitionPoll(expectedConnected: bool): void {
+        root._transitionExpectedConnected = expectedConnected
+        root._transitionPollsRemaining = 10
+        root.refreshStatus()
+        transitionPollTimer.restart()
+    }
+
+    function noteObservedState(connected: bool): void {
+        root.toggled = connected
+        if (root._transitionPollsRemaining > 0 && connected === root._transitionExpectedConnected) {
+            root._transitionPollsRemaining = 0
+            transitionPollTimer.stop()
+        }
+    }
+
+    function showServiceInstructions() {
+        Quickshell.execDetached([root.notifySendPath, Translation.tr("Cloudflare WARP"), Translation.tr("The WARP daemon is stopped. Start warp-svc with your system service manager, then retry."), "-a", "Shell"])
+    }
+
     mainAction: () => {
         if (!root._daemonRunning) {
-            startServiceProc.running = true;
+            root.showServiceInstructions();
             return;
         }
         if (toggled) disconnectProc.running = true;
@@ -36,7 +58,7 @@ QuickToggleModel {
     }
 
     altAction: () => {
-        startServiceProc.running = true;
+        root.showServiceInstructions();
     }
 
     Process {
@@ -49,8 +71,10 @@ QuickToggleModel {
                     Translation.tr("Disconnect failed. Please inspect manually with the <tt>warp-cli</tt> command"),
                     "-a", "Shell"
                 ])
+                root.refreshStatus();
+                return;
             }
-            root.refreshStatus();
+            root.beginTransitionPoll(false)
         }
     }
 
@@ -60,36 +84,22 @@ QuickToggleModel {
         onExited: (exitCode, exitStatus) => {
             if (exitCode !== 0) {
                 Quickshell.execDetached([root.notifySendPath,
-                    Translation.tr("Cloudflare WARP"), 
+                    Translation.tr("Cloudflare WARP"),
                     Translation.tr("Connection failed. Please inspect manually with the <tt>warp-cli</tt> command")
                     , "-a", "Shell"
                 ])
+                root.refreshStatus();
+                return;
             }
-            root.refreshStatus();
-        }
-    }
-
-    Process {
-        id: registrationProc
-        command: [root.warpCliPath, "registration", "new"]
-        onExited: (exitCode, exitStatus) => {
-            console.log("Warp registration exited with code and status:", exitCode, exitStatus)
-            if (exitCode === 0) {
-                connectProc.running = true
-            } else {
-                Quickshell.execDetached([root.notifySendPath,
-                    Translation.tr("Cloudflare WARP"), 
-                    Translation.tr("Registration failed. Please inspect manually with the <tt>warp-cli</tt> command"),
-                    "-a", "Shell"
-                ])
-            }
+            root.beginTransitionPoll(true)
         }
     }
 
     Process {
         id: fetchActiveState
         running: false
-        command: [root.warpCliPath, "status"]
+        command: ["/bin/sh", "-c", root.warpCliPath + " status"]
+
         stdout: StdioCollector {
             id: warpStatusCollector
             onStreamFinished: {
@@ -101,36 +111,59 @@ QuickToggleModel {
                 if (out.includes("Unable to connect")) {
                     root._daemonRunning = false
                     root.toggled = false
+                    root._transitionPollsRemaining = 0
+                    transitionPollTimer.stop()
                     return;
                 }
 
                 root._daemonRunning = true
-                if (out.includes("Unable")) {
-                    registrationProc.running = true
-                } else if (out.includes("Connected")) {
-                    root.toggled = true
+                if (out.includes("Connected")) {
+                    root.noteObservedState(true)
                 } else if (out.includes("Disconnected")) {
-                    root.toggled = false
+                    root.noteObservedState(false)
                 }
+            }
+        }
+
+        onExited: (exitCode, exitStatus) => {
+            // If warp-cli doesn't exist, process fails silently
+            // Disable toggle in that case
+            if (exitCode !== 0) {
+                root.available = false
+                root._daemonRunning = false
+                root._transitionPollsRemaining = 0
+                transitionPollTimer.stop()
             }
         }
     }
 
-    Process {
-        id: startServiceProc
-        command: ["/usr/bin/systemctl", "start", "warp-svc.service"]
-        onExited: (exitCode, exitStatus) => {
-            if (exitCode !== 0) {
-                Quickshell.execDetached([root.notifySendPath,
-                    Translation.tr("Cloudflare WARP"),
-                    Translation.tr("Failed to start warp-svc. You may need to run: <tt>sudo systemctl start warp-svc</tt>"),
-                    "-a", "Shell"
-                ])
+    tooltipText: Translation.tr("Cloudflare WARP (1.1.1.1)")
+
+    Timer {
+        id: warpPollTimer
+        interval: 5000
+        repeat: true
+        triggeredOnStart: true
+        running: root.available && (GlobalStates.sidebarRightOpen || GlobalStates.waffleActionCenterOpen)
+        onTriggered: root.refreshStatus()
+    }
+
+    Timer {
+        id: transitionPollTimer
+        interval: 500
+        repeat: true
+        running: false
+        onTriggered: {
+            if (root._transitionPollsRemaining <= 1) {
+                root._transitionPollsRemaining = 0
+                transitionPollTimer.stop()
+                root.refreshStatus()
+                return
             }
-            root.refreshStatus();
+            root._transitionPollsRemaining -= 1
+            root.refreshStatus()
         }
     }
-    tooltipText: Translation.tr("Cloudflare WARP (1.1.1.1)")
 
     Component.onCompleted: root.refreshStatus()
 }

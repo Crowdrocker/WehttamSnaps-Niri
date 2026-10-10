@@ -13,7 +13,7 @@ AppButton {
     required property var appEntry
     property var tasksParent: null  // Reference to Tasks for closing other menus
     readonly property bool isSeparator: appEntry.appId === "SEPARATOR"
-    readonly property var desktopEntry: DesktopEntries.heuristicLookup(appEntry.appId)
+    readonly property var desktopEntry: AppSearch.lookupDesktopEntry(appEntry.appId)
     property bool active: root.appEntry.toplevels.some(t => t.activated)
     property bool hasWindows: appEntry.toplevels.length > 0
 
@@ -65,13 +65,14 @@ AppButton {
     readonly property int minimizedCount: MinimizedWindows.countMinimizedForApp(appEntry.appId)
     readonly property bool hasMinimized: minimizedCount > 0
 
-    // Helper to find Niri windows for this app
-    function findAppWindows() {
-        const appId = root.appEntry.appId.toLowerCase();
-        return NiriService.windows.filter(w => {
-            const wAppId = (w.app_id ?? "").toLowerCase();
-            return wAppId === appId || wAppId.includes(appId) || appId.includes(wAppId);
-        });
+    function niriWindowIds(): list<var> {
+        const ids = []
+        for (const toplevel of root.appEntry.toplevels ?? []) {
+            const id = Number(toplevel?.niriWindowId ?? -1)
+            if (id > 0)
+                ids.push(id)
+        }
+        return ids
     }
 
     function fluentIconForDesktopAction(iconName, actionName): string {
@@ -111,37 +112,44 @@ AppButton {
     onClicked: {
         root.hoverTimer.stop()
         
-        const appWindows = findAppWindows();
         const isAppFocused = root.wasActive;
-        
-        // Case 1: App is focused -> minimize it (move down)
-        if (isAppFocused && appWindows.length > 0) {
-            const windowToMinimize = appWindows.find(w => w.is_focused) || appWindows[0];
-            MinimizedWindows.minimize(windowToMinimize.id);
-            return;
-        }
-        
-        // Case 2: App has minimized windows -> restore the latest
-        if (root.hasMinimized) {
-            MinimizedWindows.restoreLatestForApp(root.appEntry.appId);
-            return;
-        }
-        
-        // Case 3: App has visible windows but not focused -> focus it
-        if (appWindows.length > 0) {
-            NiriService.focusWindow(appWindows[0].id);
-            return;
+
+        if (CompositorService.isNiri) {
+            const windowIds = root.niriWindowIds()
+
+            // Case 1: App is focused -> minimize the exact active window.
+            if (isAppFocused && windowIds.length > 0) {
+                const focused = root.appEntry.toplevels.find(t => t.activated)
+                MinimizedWindows.minimize(
+                    focused?.niriWindowId ?? windowIds[0])
+                return
+            }
+
+            // Case 2: App has minimized windows -> restore the latest.
+            if (root.hasMinimized) {
+                MinimizedWindows.restoreLatestForApp(root.appEntry.appId)
+                return
+            }
+
+            // Case 3: App has visible windows but is not focused.
+            if (windowIds.length > 0) {
+                NiriService.focusWindow(windowIds[0])
+                return
+            }
+        } else if (root.appEntry.toplevels.length > 0) {
+            root.appEntry.toplevels[0]?.activate()
+            return
         }
         
         // Case 4: App not running -> launch it
         if (root.desktopEntry) {
-            root.desktopEntry.execute()
+            AppSearch.launchEntry(root.desktopEntry)
         }
     }
 
     middleClickAction: () => {
         if (root.desktopEntry) {
-            desktopEntry.execute()
+            AppSearch.launchEntry(root.desktopEntry)
         }
     }
 
@@ -187,10 +195,10 @@ AppButton {
                 color: isFocused ? Looks.colors.accent : Looks.colors.accentUnfocused
 
                 Behavior on implicitWidth {
-                    animation: Looks.transition.enter.createObject(this)
+                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
                 }
                 Behavior on color {
-                    animation: Looks.transition.color.createObject(this)
+                    animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
             }
         }
@@ -208,12 +216,18 @@ AppButton {
         }
 
         Behavior on opacity {
-            animation: Looks.transition.opacity.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
     }
 
+    // Refined has exactly one hover surface: the icon-bearing TaskPreview,
+    // whose header row already renders the app icon and name, so a pinned app
+    // with no windows still gets a label. The plain tooltip used to cover that
+    // case via `!hasWindows`, but the two surfaces raced whenever a window
+    // opened or closed under the pointer and could show at once, overlapping
+    // and outliving each other. Classic keeps the tooltip.
     BarToolTip {
-        extraVisibleCondition: root.shouldShowTooltip && !root.hasWindows
+        barExtraVisibleCondition: root.shouldShowTooltip && !root.hasWindows
         text: desktopEntry ? desktopEntry.name : appEntry.appId
     }
 
@@ -221,13 +235,14 @@ AppButton {
         id: contextMenu
         anchorHovered: root.hovered
         noSmoothClosing: false // On the real thing this is always smooth
+        closeOnHoverLostDelay: 500  // Slower close to give time to click
 
         model: [
             ...((root.desktopEntry?.actions.length > 0) ? root.desktopEntry.actions.map(action =>({
                 iconName: root.fluentIconForDesktopAction(action.icon, action.name),
                 text: action.name,
                 action: () => {
-                    action.execute()
+                    AppSearch.launchDesktopAction(root.desktopEntry, action)
                 }
             })).concat({ type: "separator" }) : []),
             {
@@ -236,7 +251,7 @@ AppButton {
                 monochromeIcon: false,
                 action: () => {
                     if (root.desktopEntry) {
-                        root.desktopEntry.execute()
+                        AppSearch.launchEntry(root.desktopEntry)
                     }
                 }
             },
@@ -247,30 +262,31 @@ AppButton {
                     TaskbarApps.togglePin(root.appEntry.appId);
                 }
             },
-            // Move down option (only for running apps)
-            ...(root.appEntry.toplevels.length > 0 ? [
+            // MinimizedWindows is the Niri hidden-workspace workaround.
+            // Do not advertise a no-op action on secondary compositors.
+            ...(CompositorService.isNiri
+                    && root.appEntry.toplevels.length > 0 ? [
                 {
                     iconName: "caret-down",
                     text: root.multiple ? Translation.tr("Move all down") : Translation.tr("Move down"),
                     action: () => {
-                        // Find Niri windows matching this app
-                        const appId = root.appEntry.appId.toLowerCase();
-                        const niriWindows = NiriService.windows.filter(w => {
-                            const wAppId = (w.app_id ?? "").toLowerCase();
-                            return wAppId === appId || wAppId.includes(appId) || appId.includes(wAppId);
-                        });
-                        
-                        for (const niriWin of niriWindows) {
-                            MinimizedWindows.minimize(niriWin.id);
-                        }
+                        for (const id of root.niriWindowIds())
+                            MinimizedWindows.minimize(id)
                     }
-                },
+                }
+            ] : []),
+            ...(root.appEntry.toplevels.length > 0 ? [
                 {
                     iconName: "dismiss",
                     text: root.multiple ? Translation.tr("Close all windows") : Translation.tr("Close window"),
                     action: () => {
                         for (let toplevel of root.appEntry.toplevels) {
-                            toplevel.close();
+                            if (CompositorService.isNiri
+                                    && toplevel?.niriWindowId) {
+                                NiriService.closeWindow(toplevel.niriWindowId)
+                            } else {
+                                toplevel?.close()
+                            }
                         }
                     }
                 }

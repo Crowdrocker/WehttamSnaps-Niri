@@ -93,7 +93,7 @@ Item {
                     break;
                 }
             }
-            Wallhaven.makeRequest(tagList, Persistent.states.booru.allowNsfw, Config.options.sidebar.wallhaven.limit, pageIndex);
+            Wallhaven.makeRequest(tagList, Persistent.states.booru.allowNsfw, Config.options?.sidebar?.wallhaven?.limit ?? 24, pageIndex);
         }
     }
 
@@ -152,8 +152,8 @@ Item {
                 anchors.fill: parent
                 spacing: 10
 
-                touchpadScrollFactor: Config.options.interactions.scrolling.touchpadScrollFactor * 1.4
-                mouseScrollFactor: Config.options.interactions.scrolling.mouseScrollFactor * 1.4
+                touchpadScrollFactor: (Config.options?.interactions?.scrolling?.touchpadScrollFactor ?? 0.5) * 1.4
+                mouseScrollFactor: (Config.options?.interactions?.scrolling?.mouseScrollFactor ?? 1.0) * 1.4
 
                 property int lastResponseLength: 0
                 property bool userIsScrolling: false
@@ -171,13 +171,20 @@ Item {
                 Connections {
                     target: root
                     function onResponsesChanged() {
-                        if (root.responses.length > wallhavenResponseListView.lastResponseLength) {
-                            // Only auto-scroll if user is not actively scrolling
-                            if (!wallhavenResponseListView.userIsScrolling && wallhavenResponseListView.lastResponseLength > 0) {
-                                wallhavenResponseListView.contentY = wallhavenResponseListView.contentY + root.scrollOnNewResponse
-                            }
-                            wallhavenResponseListView.lastResponseLength = root.responses.length
+                        const nextLength = root.responses.length
+                        if (nextLength === 0) {
+                            wallhavenResponseListView.lastResponseLength = 0
+                            return
                         }
+
+                        // Once the bounded list is full, a new page rotates the
+                        // oldest response without changing the model length.
+                        if (nextLength >= wallhavenResponseListView.lastResponseLength
+                                && !wallhavenResponseListView.userIsScrolling
+                                && wallhavenResponseListView.lastResponseLength > 0) {
+                            wallhavenResponseListView.contentY += root.scrollOnNewResponse
+                        }
+                        wallhavenResponseListView.lastResponseLength = nextLength
                     }
                 }
 
@@ -201,13 +208,14 @@ Item {
                 }
             }
 
-            PagePlaceholder {
+            MaterialPlaceholderMessage {
                 id: placeholderItem
+                anchors.fill: parent
                 z: 2
                 shown: root.responses.length === 0
                 icon: "image"
-                title: Translation.tr("Wallhaven wallpapers")
-                description: Translation.tr("Type tags and hit Enter to search on wallhaven.cc")
+                text: Translation.tr("Wallhaven wallpapers")
+                explanation: Translation.tr("Type tags and hit Enter to search on wallhaven.cc")
                 shape: MaterialShape.Shape.Bun
             }
 
@@ -224,10 +232,11 @@ Item {
                     bottom: parent.bottom
                     bottomMargin: 20 + (root.pullLoading ? 0 : Math.max(0, (root.normalizedPullDistance - 0.5) * 50))
                     Behavior on bottomMargin {
+                        enabled: Appearance.animationsEnabled
                         NumberAnimation {
-                            duration: 200
-                            easing.type: Easing.BezierSpline
-                            easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
+                            duration: Appearance.animation.elementMoveFast.duration
+                            easing.type: Appearance.animation.elementMoveFast.type
+                            easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
                         }
                     }
                 }
@@ -242,14 +251,16 @@ Item {
             property real columnSpacing: 5
             Layout.fillWidth: true
             radius: Appearance.rounding.normal - root.padding
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
             implicitWidth: tagInputField.implicitWidth
             implicitHeight: Math.max(inputFieldRowLayout.implicitHeight + inputFieldRowLayout.anchors.topMargin
                 + commandButtonsRow.implicitHeight + commandButtonsRow.anchors.bottomMargin + columnSpacing, 45)
             clip: true
 
             Behavior on implicitHeight {
-                animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
             }
 
             RowLayout {
@@ -265,7 +276,7 @@ Item {
                     wrapMode: TextArea.Wrap
                     Layout.fillWidth: true
                     padding: 10
-                    color: activeFocus ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
+                    color: activeFocus ? Appearance.colors.colOnSurface : Appearance.colMetadataText
                     renderType: Text.NativeRendering
                     placeholderText: Translation.tr('Enter tags, or "%1" for commands').arg(root.commandPrefix)
                     background: null
@@ -314,7 +325,7 @@ Item {
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         iconSize: 22
-                        color: sendButton.enabled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer2Disabled
+                        color: sendButton.enabled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer2Disabled
                         text: "arrow_upward"
                     }
                 }
@@ -364,7 +375,7 @@ Item {
                             Layout.leftMargin: 10
                             Layout.alignment: Qt.AlignVCenter
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: nsfwSwitch.enabled ? Appearance.colors.colOnLayer1 : Appearance.m3colors.m3outline
+                            color: nsfwSwitch.enabled ? Appearance.colors.colOnLayer1 : Appearance.colors.colOutline
                             text: Translation.tr("Allow NSFW")
                         }
                         StyledSwitch {
@@ -390,7 +401,8 @@ Item {
                         delegate: ApiCommandButton {
                             property string commandRepresentation: `${root.commandPrefix}${modelData.name}`
                             buttonText: commandRepresentation
-                            colBackground: Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
+                            colBackground: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                                : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
 
                             downAction: () => {
                                 if (modelData.sendDirectly) {

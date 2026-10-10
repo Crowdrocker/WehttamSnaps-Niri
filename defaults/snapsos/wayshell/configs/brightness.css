@@ -1,0 +1,49 @@
+@import "./colors.css";
+
+window#waybar {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+#custom-brightness-up,
+#custom-brightness-bar,
+#custom-brightness-down,
+#custom-brightness-icon {
+    background-color: @surface_container;
+    color: @primary;
+    font-size: 12px;
+}
+
+#custom-brightness-up,
+#custom-brightness-bar,
+#custom-brightness-down {
+    margin: 0;
+    border-color: @primary;
+    border-style: solid;
+}
+
+#custom-brightness-up {
+    padding: 4px 6px;
+    border-width: 2px 2px 0 2px;
+    border-radius: 10px 10px 0 0;
+}
+
+#custom-brightness-bar {
+    padding: 0 2px;
+    border-width: 0 2px;
+    border-radius: 0;
+}
+
+#custom-brightness-down {
+    padding: 4px 6px;
+    border-width: 0 2px 2px 2px;
+    border-radius: 0 0 10px 10px;
+}
+
+#custom-brightness-icon {
+    padding: 4px 6px;
+    border: 2px solid @primary;
+    border-radius: 10px;
+    margin-top: 6px;
+}

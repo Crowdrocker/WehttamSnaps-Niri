@@ -5,34 +5,49 @@ import QtQuick.Layouts
 import Quickshell
 import qs.services
 import qs.modules.common
+import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.waffle.looks
 import qs.modules.waffle.settings
 
 WSettingsPage {
     id: root
-    settingsPageIndex: 9
+    settingsPageIndex: 10
     pageTitle: Translation.tr("About")
     pageIcon: "info"
-    pageDescription: Translation.tr("Information about iNiR")
+    pageDescription: Translation.tr("Project information and links")
     
+    // Hero card — project identity
     WSettingsCard {
-        // Logo and title
         RowLayout {
             Layout.fillWidth: true
-            spacing: 16
+            Layout.leftMargin: 4
+            Layout.rightMargin: 4
+            Layout.topMargin: 8
+            Layout.bottomMargin: 4
+            spacing: 18
             
+            MascotImage {
+                id: aboutMascot
+                Layout.preferredWidth: 116
+                Layout.preferredHeight: 116
+                surface: "about"
+                pose: "about-confident"
+            }
+
             Rectangle {
-                implicitWidth: 64
-                implicitHeight: 64
-                radius: Looks.radius.large
+                Layout.preferredWidth: 72
+                Layout.preferredHeight: 72
+                Layout.alignment: Qt.AlignVCenter
+                visible: !aboutMascot.active
+                radius: Looks.radius.medium
                 color: Looks.colors.accent
-                
+
                 WText {
                     anchors.centerIn: parent
-                    text: "ii"
-                    font.pixelSize: 28
-                    font.weight: Font.Bold
+                    text: "iN"
+                    font.pixelSize: Looks.font.pixelSize.xlarger
+                    font.weight: Looks.font.weight.stronger
                     color: Looks.colors.accentFg
                 }
             }
@@ -42,9 +57,9 @@ WSettingsPage {
                 spacing: 4
                 
                 WText {
-                    text: "illogical-impulse"
-                    font.pixelSize: Looks.font.pixelSize.larger + 2
-                    font.weight: Looks.font.weight.strong
+                    text: "iNiR"
+                    font.pixelSize: Looks.font.pixelSize.xlarger * 1.4
+                    font.weight: Looks.font.weight.stronger
                 }
                 
                 WText {
@@ -52,44 +67,88 @@ WSettingsPage {
                     font.pixelSize: Looks.font.pixelSize.normal
                     color: Looks.colors.subfg
                 }
+                
+                RowLayout {
+                    spacing: 8
+                    Layout.topMargin: 4
+                    
+                    // Version badge
+                    Rectangle {
+                        implicitWidth: versionLabel.implicitWidth + 16
+                        implicitHeight: 24
+                        radius: Looks.radius.small
+                        color: Looks.colors.accent
+                        
+                        WText {
+                            id: versionLabel
+                            anchors.centerIn: parent
+                            text: "v" + (ShellUpdates.localVersion || "?")
+                            font.pixelSize: Looks.font.pixelSize.small
+                            font.weight: Looks.font.weight.strong
+                            color: Looks.colors.accentFg
+                        }
+                    }
+                    
+                    // Compositor badge
+                    Rectangle {
+                        implicitWidth: compLabel.implicitWidth + 16
+                        implicitHeight: 24
+                        radius: Looks.radius.small
+                        color: Looks.colors.bg2
+                        
+                        WText {
+                            id: compLabel
+                            anchors.centerIn: parent
+                            text: CompositorService.isNiri ? "Niri" : (CompositorService.isHyprland ? "Hyprland" : "Unknown")
+                            font.pixelSize: Looks.font.pixelSize.small
+                            color: Looks.colors.subfg
+                        }
+                    }
+                    
+                    // Framework badge
+                    Rectangle {
+                        implicitWidth: fwLabel.implicitWidth + 16
+                        implicitHeight: 24
+                        radius: Looks.radius.small
+                        color: Looks.colors.bg2
+                        
+                        WText {
+                            id: fwLabel
+                            anchors.centerIn: parent
+                            text: "Qt 6"
+                            font.pixelSize: Looks.font.pixelSize.small
+                            color: Looks.colors.subfg
+                        }
+                    }
+                }
             }
         }
-        
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Looks.colors.bg2Border
-        }
-        
-        WSettingsRow {
-            label: Translation.tr("Version")
-            description: "2.0.0-niri"
-        }
-        
-        WSettingsRow {
-            label: Translation.tr("Framework")
-            description: "Quickshell + Qt 6"
-        }
-        
-        WSettingsRow {
-            label: Translation.tr("Compositor")
-            description: CompositorService.isNiri ? "Niri" : (CompositorService.isHyprland ? "Hyprland" : "Unknown")
-        }
     }
-    
+
+    // Links
     WSettingsCard {
         title: Translation.tr("Links")
         icon: "open"
         
         WSettingsButton {
             label: Translation.tr("GitHub Repository")
-            icon: "open"
+            description: "github.com/snowarch/inir"
+            icon: "globe-search"
             buttonText: Translation.tr("Open")
             onButtonClicked: Qt.openUrlExternally("https://github.com/snowarch/inir")
+        }
+
+        WSettingsButton {
+            label: Translation.tr("Documentation")
+            description: "github.com/snowarch/inir/wiki"
+            icon: "library"
+            buttonText: Translation.tr("Open")
+            onButtonClicked: Qt.openUrlExternally("https://github.com/snowarch/inir/wiki")
         }
         
         WSettingsButton {
             label: Translation.tr("Original Project (end-4)")
+            description: "github.com/end-4/dots-hyprland"
             icon: "open"
             buttonText: Translation.tr("Open")
             onButtonClicked: Qt.openUrlExternally("https://github.com/end-4/dots-hyprland")
@@ -97,49 +156,67 @@ WSettingsPage {
         
         WSettingsButton {
             label: Translation.tr("Quickshell Documentation")
-            icon: "open"
+            description: "quickshell.outfoxxed.me"
+            icon: "globe-search"
             buttonText: Translation.tr("Open")
             onButtonClicked: Qt.openUrlExternally("https://quickshell.outfoxxed.me")
         }
     }
     
+    // Credits
     WSettingsCard {
         title: Translation.tr("Credits")
-        icon: "people-filled"
+        icon: "people"
         
-        WText {
+        ColumnLayout {
             Layout.fillWidth: true
-            text: Translation.tr("Based on illogical-impulse by end-4, adapted for Niri compositor.")
-            wrapMode: Text.WordWrap
-            color: Looks.colors.subfg
-        }
-        
-        WText {
-            Layout.fillWidth: true
-            Layout.topMargin: 8
-            text: Translation.tr("Special thanks to the Quickshell and Niri communities.")
-            wrapMode: Text.WordWrap
-            color: Looks.colors.subfg
+            Layout.leftMargin: 0
+            Layout.rightMargin: 0
+            Layout.bottomMargin: 6
+            spacing: 12
+            
+            WText {
+                Layout.fillWidth: true
+                text: Translation.tr("Based on illogical-impulse by end-4, adapted for the Niri compositor.")
+                wrapMode: Text.WordWrap
+                font.pixelSize: Looks.font.pixelSize.normal
+                color: Looks.colors.subfg
+                lineHeight: 1.3
+            }
+            
+            WText {
+                Layout.fillWidth: true
+                text: Translation.tr("Special thanks to the Quickshell and Niri communities.")
+                wrapMode: Text.WordWrap
+                font.pixelSize: Looks.font.pixelSize.normal
+                color: Looks.colors.subfg
+                lineHeight: 1.3
+            }
         }
     }
     
+    // System Info
     WSettingsCard {
         title: Translation.tr("System Info")
-        icon: "desktop-filled"
+        icon: "info"
         
         WSettingsRow {
             label: Translation.tr("Config path")
             description: FileUtils.trimFileProtocol(`${Directories.config}/illogical-impulse/`)
+            icon: "folder"
         }
         
         WSettingsRow {
             label: Translation.tr("Shell path")
-            description: FileUtils.trimFileProtocol(`${Directories.config}/quickshell/ii/`)
+            description: FileUtils.trimFileProtocol(`${Directories.config}/quickshell/inir/`)
+            icon: "folder"
         }
         
         WSettingsRow {
             label: Translation.tr("Panel family")
-            description: Config.options?.panelFamily === "waffle" ? "Waffle (Windows 11)" : "ii (Material)"
+            description: Config.options?.panelFamily === "waffle" ? "Waffle (Windows 11)"
+                : Config.options?.panelFamily === "iris" ? "iRiS" : "ii (Material)"
+            icon: "app-generic"
         }
     }
 }

@@ -1,9 +1,10 @@
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
-import Qt.labs.synchronizer
+import qs.modules.pill
 import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Controls
@@ -16,8 +17,20 @@ Item { // Wrapper
     readonly property string xdgConfigHome: Directories.config
     property string searchingText: ""
     property bool showResults: searchingText != ""
+    property bool panelVisible: true
+    property bool applicationDragActive: false
+    property real availableHeight: root.QsWindow?.window?.height ?? (root.QsWindow?.window?.screen?.height ?? 1080)
+    readonly property bool zzzEverywhere: Appearance.zzzEverywhere
+    // Island: the search surface wears the Ricelin gradient card; the glass
+    // fill, wallpaper backdrop and per-style borders step aside. zzz keeps its
+    // own plate doctrine.
+    // Explicit island opt-in outranks the zzz chrome (same rule as the islands
+    // bar, dock and sidebars).
+    readonly property bool islandStyle: (Config.options?.search?.style ?? "default") === "island"
+    readonly property bool actionMode: searchingText.startsWith(root.prefixAction)
+    readonly property string actionQuery: actionMode ? StringUtils.cleanPrefix(searchingText, root.prefixAction) : ""
     implicitWidth: searchWidgetContent.implicitWidth + Appearance.sizes.elevationMargin * 2
-    implicitHeight: searchBar.implicitHeight + searchBar.verticalPadding * 2 + Appearance.sizes.elevationMargin * 2
+    implicitHeight: searchWidgetContent.implicitHeight + Appearance.sizes.elevationMargin * 2
 
     readonly property var searchPrefixes: Config.options?.search?.prefix ?? {}
     readonly property string prefixAction: searchPrefixes.action ?? "/"
@@ -31,6 +44,14 @@ Item { // Wrapper
     property string mathResult: ""
     property string debouncedSearchText: ""
     property var cachedResults: []
+    readonly property real resultsAvailableHeight: Math.max(
+        180,
+        availableHeight
+            - searchBar.implicitHeight
+            - searchBar.verticalPadding * 2
+            - Appearance.sizes.elevationMargin * 2
+            - 24
+    )
 
     property bool clipboardWorkSafetyActive: {
         const enabled = Config.options?.workSafety?.enable?.clipboard ?? false;
@@ -39,71 +60,54 @@ Item { // Wrapper
         return enabled && sensitiveNetwork;
     }
 
-    property var searchActions: [
-        {
-            action: "accentcolor",
-            execute: args => {
-                Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--noswitch", "--color", ...(args != '' ? [`${args}`] : [])]);
-            }
-        },
-        {
-            action: "dark",
-            execute: () => {
-                Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--mode", "dark", "--noswitch"]);
-            }
-        },
-        {
-            action: "konachanwallpaper",
-            execute: () => {
-                Quickshell.execDetached([Quickshell.shellPath("scripts/colors/random/random_konachan_wall.sh")]);
-            }
-        },
-        {
-            action: "light",
-            execute: () => {
-                Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--mode", "light", "--noswitch"]);
-            }
-        },
-        {
-            action: "superpaste",
-            execute: args => {
-                if (!/^(\d+)/.test(args.trim())) { // Invalid if doesn't start with numbers
-                    Quickshell.execDetached([
-                        "/usr/bin/notify-send", 
-                        Translation.tr("Superpaste"), 
-                        Translation.tr("Usage: <tt>%1superpaste NUM_OF_ENTRIES[i]</tt>\nSupply <tt>i</tt> when you want images\nExamples:\n<tt>%1superpaste 4i</tt> for the last 4 images\n<tt>%1superpaste 7</tt> for the last 7 entries").arg(root.prefixAction),
-                        "-a", "Shell"
-                    ]);
-                    return;
-                }
-                const syntaxMatch = /^(?:(\d+)(i)?)/.exec(args.trim());
-                const count = syntaxMatch[1] ? parseInt(syntaxMatch[1]) : 1;
-                const isImage = !!syntaxMatch[2];
-                Cliphist.superpaste(count, isImage);
-            }
-        },
-        {
-            action: "todo",
-            execute: args => {
-                Todo.addTask(args);
-            }
-        },
-        {
-            action: "wallpaper",
-            execute: () => {
-                GlobalStates.wallpaperSelectorOpen = true;
-            }
-        },
-        {
-            action: "wipeclipboard",
-            execute: () => {
-                Cliphist.wipe();
-            }
-        },
-    ]
+    // All actions are now centralized in GlobalActions service.
+    property var searchActions: GlobalActions.searchActions
+
+    function focusAppResultCurrentOrFirst() {
+        if (!appResults.visible || appResults.count <= 0)
+            return
+
+        const targetIndex = appResults.currentIndex >= 0 ? Math.min(appResults.currentIndex, appResults.count - 1) : 0
+        appResults.currentIndex = targetIndex
+    }
+
+    function stepAppResultSelection(step) {
+        if (!appResults.visible || appResults.count <= 0)
+            return false
+
+        const baseIndex = appResults.currentIndex >= 0 ? appResults.currentIndex : (step > 0 ? -1 : 0)
+        const targetIndex = Math.max(0, Math.min(baseIndex + step, appResults.count - 1))
+        appResults.currentIndex = targetIndex
+        return true
+    }
+
+    function executeAppResultCurrentOrFirst() {
+        if (!appResults.visible || appResults.count <= 0)
+            return
+
+        const targetIndex = appResults.currentIndex >= 0 ? Math.min(appResults.currentIndex, appResults.count - 1) : 0
+        appResults.currentIndex = targetIndex
+
+        const item = appResults.itemAtIndex(targetIndex)
+        if (item && item.clicked) {
+            item.clicked()
+            return
+        }
+
+        Qt.callLater(() => {
+            const delayedItem = appResults.itemAtIndex(targetIndex)
+            if (delayedItem && delayedItem.clicked)
+                delayedItem.clicked()
+        })
+    }
 
     function focusFirstItem() {
-        appResults.currentIndex = 0;
+        if (root.actionMode && actionModeView.visible) {
+            actionModeView.focusFirstItem()
+        } else if (appResults.visible && appResults.count > 0) {
+            appResults.currentIndex = 0
+            root.focusAppResultCurrentOrFirst()
+        }
     }
 
     function focusSearchInput() {
@@ -122,6 +126,7 @@ Item { // Wrapper
 
     function setSearchingText(text) {
         searchBar.searchInput.text = text;
+        searchBar.searchInput.cursorPosition = searchBar.searchInput.text.length;
         root.searchingText = text;
     }
 
@@ -135,6 +140,12 @@ Item { // Wrapper
         const text = root.debouncedSearchText;
         
         if (text === "") {
+            root.cachedResults = [];
+            return;
+        }
+
+        // Action mode is handled entirely by ActionModeView
+        if (text.startsWith(root.prefixAction)) {
             root.cachedResults = [];
             return;
         }
@@ -186,10 +197,10 @@ Item { // Wrapper
         }
 
         // Default search
-        nonAppResultsTimer.restart();
-        
+
+        // Use stable keys for non-app results to prevent unnecessary re-renders
         const mathResultObject = {
-            key: `Math result: ${root.mathResult}`,
+            key: "__math_result__",
             name: root.mathResult,
             clickActionName: Translation.tr("Copy"),
             type: Translation.tr("Math result"),
@@ -197,7 +208,7 @@ Item { // Wrapper
             materialSymbol: 'calculate',
             execute: () => { Quickshell.clipboardText = root.mathResult; }
         };
-        
+
         const appQuery = StringUtils.cleanPrefix(text, root.prefixApp)
         const appEntries = AppSearch.fuzzyQuery(appQuery)
         const seenAppNames = new Set()
@@ -210,7 +221,8 @@ Item { // Wrapper
             seenAppNames.add(nameKey)
 
             appResultObjects.push({
-                key: entry.execute,
+                key: `app_${entry.name}`,
+                desktopEntryId: String(entry.id ?? "").trim().replace(/\.desktop$/i, ""),
                 name: entry.name,
                 clickActionName: Translation.tr("Launch"),
                 type: Translation.tr("App"),
@@ -219,9 +231,9 @@ Item { // Wrapper
                 execute: entry.execute,
             })
         }
-        
+
         const commandResultObject = {
-            key: `cmd ${text}`,
+            key: "__run_command__",
             name: StringUtils.cleanPrefix(text, root.prefixShellCommand).replace("file://", ""),
             clickActionName: Translation.tr("Run"),
             type: Translation.tr("Run command"),
@@ -235,18 +247,18 @@ Item { // Wrapper
                 }
                 cleanedCommand = cleanedCommand.trim();
                 if (!cleanedCommand.length) return;
-                const term = Config.options?.apps?.terminal ?? "ghostty";
+                const term = String(Config.options?.apps?.terminal ?? "ghostty").trim() || "ghostty";
+                const quotedCommand = `'${StringUtils.shellSingleQuoteEscape(cleanedCommand)}'`;
                 if (term.indexOf("ghostty") !== -1) {
-                    Quickshell.execDetached([term, "-e", "/usr/bin/sh", "-lc", cleanedCommand]);
+                    ShellExec.execCmd(`${term} -e /usr/bin/sh -lc ${quotedCommand}`);
                 } else {
-                    const commandToRun = `${term} /usr/bin/bash -lc '${cleanedCommand}'`;
-                    Quickshell.execDetached(["/usr/bin/bash", "-c", commandToRun]);
+                    ShellExec.execCmd(`${term} /usr/bin/bash -lc ${quotedCommand}`);
                 }
             }
         };
-        
+
         const webSearchResultObject = {
-            key: `website ${text}`,
+            key: "__web_search__",
             name: StringUtils.cleanPrefix(text, root.prefixWebSearch),
             clickActionName: Translation.tr("Search"),
             type: Translation.tr("Search the web"),
@@ -302,16 +314,33 @@ Item { // Wrapper
         root.cachedResults = result;
     }
 
+    // The default (non-prefixed) result set is the only one that shows a math row,
+    // so it is the only one worth spawning qalc for.
+    function wantsMathResult(text): bool {
+        return text !== ""
+            && !text.startsWith(root.prefixAction)
+            && !text.startsWith(root.prefixClipboard)
+            && !text.startsWith(root.prefixEmojis);
+    }
+
     Timer {
         id: searchDebounceTimer
-        interval: 50  // ~3 frames debounce
+        interval: 60
         onTriggered: {
             root.debouncedSearchText = root.searchingText;
             root.updateSearchResults();
+            // Scheduled here rather than from updateSearchResults(): qalc's stdout
+            // handler calls updateSearchResults(), so restarting the timer in there
+            // made every qalc result spawn another qalc. qalc -t prints something
+            // for any input ("firefox" -> "0 B"), so the cycle never terminated —
+            // ~33 qalc spawns/second for as long as the box had text in it.
+            if (root.wantsMathResult(root.debouncedSearchText))
+                nonAppResultsTimer.restart();
         }
     }
 
     onSearchingTextChanged: {
+        root.mathResult = ""
         searchDebounceTimer.restart();
     }
 
@@ -323,6 +352,12 @@ Item { // Wrapper
             if (expr.startsWith(root.prefixMath)) {
                 expr = expr.slice(root.prefixMath.length);
             }
+            expr = expr.trim()
+            if (expr.length === 0) {
+                root.mathResult = ""
+                root.updateSearchResults()
+                return
+            }
             mathProcess.calculateExpression(expr);
         }
     }
@@ -331,6 +366,7 @@ Item { // Wrapper
         id: mathProcess
         property list<string> baseCommand: ["/usr/bin/qalc", "-t"]
         function calculateExpression(expression) {
+            root.mathResult = "";
             mathProcess.running = false;
             mathProcess.command = baseCommand.concat(expression);
             mathProcess.running = true;
@@ -338,7 +374,7 @@ Item { // Wrapper
         stdout: SplitParser {
             onRead: data => {
                 root.mathResult = data;
-                root.focusFirstItem();
+                root.updateSearchResults();
             }
         }
     }
@@ -388,14 +424,23 @@ Item { // Wrapper
                 searchBar.searchInput.text = searchBar.searchInput.text.slice(0, searchBar.searchInput.cursorPosition) + event.text + searchBar.searchInput.text.slice(searchBar.searchInput.cursorPosition);
                 searchBar.searchInput.cursorPosition += 1;
                 event.accepted = true;
-                root.focusFirstItem();
             }
         }
     }
 
     StyledRectangularShadow {
         target: searchWidgetContent
+        visible: !root.islandStyle
     }
+
+    IslandPanel {
+        anchors.fill: searchWidgetContent
+        visible: root.islandStyle
+        radius: searchWidgetContent.radius
+        glassEnabled: true
+        screen: root.QsWindow?.window?.screen ?? null
+    }
+
     GlassBackground { // Background
         id: searchWidgetContent
         anchors {
@@ -406,19 +451,84 @@ Item { // Wrapper
         clip: true
         implicitWidth: columnLayout.implicitWidth
         implicitHeight: columnLayout.implicitHeight
-        radius: searchBar.height / 2 + searchBar.verticalPadding
-        fallbackColor: Appearance.colors.colBackgroundSurfaceContainer
-        inirColor: Appearance.inir.colLayer1
+        radius: root.islandStyle
+            ? (root.showResults ? (Config.options?.appearance?.island?.radius ?? 18)
+                : searchBar.height / 2 + searchBar.verticalPadding)
+            : root.zzzEverywhere ? Appearance.zzz.panelRadius
+            : Appearance.regaliaEverywhere
+                ? (root.showResults ? Appearance.regalia.panelRadius : Appearance.regalia.roundLarge)
+                : searchBar.height / 2 + searchBar.verticalPadding
+        // Collapsed zzz search: let ZzzGraphicPlate own the (chamfered/rounded) fill so
+        // the GlassBackground's rounded rect doesn't escape behind it. Results surface
+        // still needs the paper fill (its backdrop is decoration only).
+        fallbackColor: root.islandStyle || Appearance.regaliaEverywhere ? "transparent"
+            : root.zzzEverywhere ? (root.showResults ? Appearance.zzz.paper : "transparent") : Appearance.colors.colBackgroundSurfaceContainer
+        inirColor: root.islandStyle ? "transparent" : Appearance.inir.colLayer1
         auroraTransparency: Appearance.aurora.popupTransparentize
-        border.width: auroraEverywhere || inirEverywhere ? 1 : 0
-        border.color: inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer0Border
+        wallpaperBackdropEnabled: root.panelVisible && !root.zzzEverywhere
+            && !Appearance.regaliaEverywhere && !root.islandStyle
+        // Collapsed ZZZ search keeps its integrated plate border, while the
+        // expanded results surface uses the shared panel backdrop + real border.
+        border.width: root.islandStyle || Appearance.regaliaEverywhere ? 0
+            : root.zzzEverywhere
+            ? (root.showResults ? Appearance.zzz.borderThick : 0)
+            : auroraEverywhere || inirEverywhere ? 1 : 0
+        border.color: root.zzzEverywhere ? Appearance.zzz.hairline
+            : Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+            : inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer0Border
+        Behavior on radius {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        Behavior on border.color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+
+        RegaliaPlate {
+            anchors.fill: parent
+            visible: Appearance.regaliaEverywhere && !root.islandStyle
+            fillColor: root.showResults ? Appearance.regalia.bg1 : Appearance.regalia.barSurfaceFloating
+            radius: searchWidgetContent.radius
+            inset: root.showResults ? Appearance.regalia.surfaceInset : Appearance.regalia.controlInset
+            elevated: true
+            glassEnabled: true
+        }
+
+
+        // Collapsed search: a CLEAN plate (just the left category accent bar). The
+        // search field is a small control — no ghost text, tape or frame labels.
+        ZzzGraphicPlate {
+            anchors.fill: parent
+            visible: root.zzzEverywhere && !root.showResults && !root.islandStyle
+            accentColor: Appearance.zzz.accent
+        }
+
+        // Expanded results: a large surface, so a restrained backdrop is welcome —
+        // a faint ghost mark only, no ticks/burst noise.
+        ZzzPanelBackdrop {
+            anchors.fill: parent
+            visible: root.zzzEverywhere && root.showResults && !root.islandStyle
+            label: "RESULTS"
+            index: "RX"
+            ghostText: "RESULT"
+            accentColor: Appearance.zzz.accent
+            showTicks: false
+            showBurst: false
+            showGrid: false
+            horizontalBias: 0.1
+            verticalBias: 0.04
+            ghostWidthFactor: 0.8
+            ghostStrength: 0.7
+        }
 
         Behavior on implicitHeight {
             id: searchHeightBehavior
-            enabled: GlobalStates.overviewOpen && root.showResults
+            enabled: GlobalStates.overviewOpen && root.showResults && Appearance.animationsEnabled
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutQuart
+                duration: Appearance.animation.elementResize.duration
+                easing.type: Appearance.animation.elementResize.type
+                easing.bezierCurve: Appearance.animation.elementResize.bezierCurve
             }
         }
 
@@ -435,7 +545,7 @@ Item { // Wrapper
             layer.effect: OpacityMask {
                 maskSource: Rectangle {
                     width: searchWidgetContent.width
-                    height: searchWidgetContent.width
+                    height: searchWidgetContent.height
                     radius: searchWidgetContent.radius
                 }
             }
@@ -444,38 +554,82 @@ Item { // Wrapper
                 id: searchBar
                 property real verticalPadding: 4
                 Layout.fillWidth: true
-                Layout.leftMargin: 10
-                Layout.rightMargin: 4
-                Layout.topMargin: verticalPadding
-                Layout.bottomMargin: verticalPadding
-                Synchronizer on searchingText {
-                    property alias source: root.searchingText
-                }
+                Layout.leftMargin: root.zzzEverywhere ? 18 : 10
+                Layout.rightMargin: root.zzzEverywhere ? 14 : 4
+                Layout.topMargin: root.zzzEverywhere ? 10 : verticalPadding
+                Layout.bottomMargin: root.zzzEverywhere ? 10 : verticalPadding
+                searchingText: root.searchingText
+                onSearchingTextChanged: if (searchingText !== root.searchingText) root.searchingText = searchingText
             }
 
             Rectangle {
                 // Separator
-                visible: root.showResults
+                visible: root.showResults && !root.actionMode
                 Layout.fillWidth: true
                 height: 1
-                color: Appearance.colors.colOutlineVariant
+                color: root.zzzEverywhere ? Appearance.zzz.hairline
+                    : Appearance.regaliaEverywhere ? Appearance.regalia.separator
+                    : Appearance.colors.colOutlineVariant
+                Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+            }
+
+            // ── Action Mode View (replaces normal results when in / mode) ──
+            ActionModeView {
+                id: actionModeView
+                Layout.fillWidth: true
+                visible: root.actionMode && root.showResults
+                query: root.actionQuery
+                availableHeight: root.resultsAvailableHeight
+                onActionExecuted: GlobalStates.overviewOpen = false
+                onReturnToSearch: root.focusSearchInput()
             }
 
             ListView { // App results
                 id: appResults
-                visible: root.showResults
+                visible: root.showResults && !root.actionMode
                 Layout.fillWidth: true
-                implicitHeight: Math.min(600, appResults.contentHeight + topMargin + bottomMargin)
+                implicitHeight: Math.min(root.resultsAvailableHeight, appResults.contentHeight + topMargin + bottomMargin)
                 clip: true
-                topMargin: 10
-                bottomMargin: 10
-                spacing: 2
+                topMargin: root.zzzEverywhere ? 12 : 10
+                bottomMargin: root.zzzEverywhere ? 14 : 10
+                spacing: root.zzzEverywhere ? 6 : 2
                 KeyNavigation.up: searchBar
                 highlightMoveDuration: 100
 
-                onFocusChanged: {
-                    if (focus)
-                        appResults.currentIndex = 1;
+                function focusCurrentOrFirst() {
+                    root.focusAppResultCurrentOrFirst()
+                }
+
+                function stepSelection(step) {
+                    return root.stepAppResultSelection(step)
+                }
+
+                function activateCurrentOrFirst() {
+                    root.executeAppResultCurrentOrFirst()
+                }
+
+                onActiveFocusChanged: {
+                    if (activeFocus && count > 0) {
+                        if (currentIndex < 0)
+                            currentIndex = 0;
+                    }
+                }
+
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Down) {
+                        stepSelection(1)
+                        event.accepted = true
+                    } else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && currentIndex >= 0) {
+                        activateCurrentOrFirst()
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Up) {
+                        if (currentIndex > 0) {
+                            stepSelection(-1)
+                        } else {
+                            root.focusSearchInput()
+                        }
+                        event.accepted = true
+                    }
                 }
 
                 Connections {
@@ -498,6 +652,8 @@ Item { // Wrapper
                     anchors.left: parent?.left
                     anchors.right: parent?.right
                     entry: modelData
+                    onApplicationDragChanged: active => root.applicationDragActive = active
+                    upTarget: searchBar.searchInput
                     query: StringUtils.cleanOnePrefix(root.debouncedSearchText, [
                         root.prefixAction,
                         root.prefixApp,
@@ -507,6 +663,17 @@ Item { // Wrapper
                         root.prefixShellCommand,
                         root.prefixWebSearch
                     ])
+
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Tab) {
+                            if (model.values.length === 0)
+                                return;
+                            const tabbedText = entry.name;
+                            root.setSearchingText(tabbedText);
+                            event.accepted = true;
+                            root.focusSearchInput();
+                        }
+                    }
                 }
             }
         }

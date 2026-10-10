@@ -13,26 +13,65 @@ Scope {
     id: screenCorners
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
     property var actionForCorner: ({
-        [RoundCorner.CornerEnum.TopLeft]: () => GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen,
-        [RoundCorner.CornerEnum.BottomLeft]: () => GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen,
-        [RoundCorner.CornerEnum.TopRight]: () => GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen,
-        [RoundCorner.CornerEnum.BottomRight]: () => GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen
+        [RoundCorner.CornerEnum.TopLeft]: outputName => GlobalStates.toggleSidebarLeft(outputName),
+        [RoundCorner.CornerEnum.BottomLeft]: outputName => GlobalStates.toggleSidebarLeft(outputName),
+        [RoundCorner.CornerEnum.TopRight]: outputName => GlobalStates.toggleSidebarRight(outputName),
+        [RoundCorner.CornerEnum.BottomRight]: outputName => GlobalStates.toggleSidebarRight(outputName)
     })
 
     component CornerPanelWindow: PanelWindow {
         id: cornerPanelWindow
-        property var screen: QsWindow.window?.screen
         property var brightnessMonitor: Brightness.getMonitorForScreen(screen)
         property bool fullscreen
-        visible: ((Config?.options?.appearance?.fakeScreenRounding ?? 0) === 1 || ((Config?.options?.appearance?.fakeScreenRounding ?? 0) === 2 && !fullscreen))
         property var corner
+
+        // Separate conditions for clarity
+        readonly property int fakeRoundingMode: Config?.options?.appearance?.fakeScreenRounding ?? 0
+        readonly property bool showFakeRounding: fakeRoundingMode === 1 || (fakeRoundingMode === 2 && !fullscreen)
+        readonly property bool cornerOpenEnabled: Config?.options?.sidebar?.cornerOpen?.enable ?? false
+        readonly property bool cornerOpenAtBottom: Config?.options?.sidebar?.cornerOpen?.bottom ?? false
+        readonly property bool cornerOpenMatchesPosition: cornerOpenAtBottom === cornerWidget.isBottom
+        readonly property bool shouldShowCornerOpen: cornerOpenEnabled
+            && cornerOpenMatchesPosition && !fullscreen
+        readonly property string orbitCorner: Config.options?.orbit?.hotCorner ?? "topRight"
+        readonly property string cornerName: cornerWidget.isTopLeft ? "topLeft"
+            : cornerWidget.isTopRight ? "topRight"
+            : cornerWidget.isBottomLeft ? "bottomLeft" : "bottomRight"
+        readonly property string outputName: cornerPanelWindow.screen?.name ?? ""
+        readonly property bool orbitConflictsWithNiriOverview: CompositorService.isNiri
+            && NiriService.isOverviewHotCornerActive(outputName, cornerName)
+        function orbitHotCornerBlocked(): bool {
+            // Fullscreen follows the same compositor contract as the normal
+            // dock/bar: this surface is on Top, so the fullscreen window owns
+            // the edge and receives the pointer. Manual Game Mode remains the
+            // fallback for games that do not enter compositor fullscreen.
+            if (CompositorService.isNiri && NiriService.inOverview)
+                return false
+            return GameMode.manuallyActivated
+        }
+        readonly property bool orbitInteractionSuppressed: orbitHotCornerBlocked()
+        readonly property bool shouldShowOrbitHotCorner: CompositorService.isNiri
+            && (Config.options?.panelFamily ?? "ii") === "ii"
+            && (Config.options?.orbit?.enable ?? true)
+            && (Config.options?.orbit?.hotCornerEnable ?? true)
+            && cornerName === orbitCorner
+            && !orbitConflictsWithNiriOverview
+            && !orbitInteractionSuppressed
+        readonly property bool shouldShowSidebarCornerOpen: shouldShowCornerOpen
+            && !shouldShowOrbitHotCorner
+
+        visible: !fullscreen && (showFakeRounding || shouldShowSidebarCornerOpen || shouldShowOrbitHotCorner)
 
         exclusionMode: ExclusionMode.Ignore
         mask: Region {
-            item: sidebarCornerOpenInteractionLoader.active ? sidebarCornerOpenInteractionLoader : null
+            item: orbitHotCornerLoader.active ? orbitHotCornerLoader
+                : (sidebarCornerOpenInteractionLoader.active ? sidebarCornerOpenInteractionLoader : null)
         }
         WlrLayershell.namespace: "quickshell:screenCorners"
-        WlrLayershell.layer: WlrLayer.Overlay
+        // Match the known-good dock/bar behavior. A compositor fullscreen
+        // window naturally covers Top-layer shell input, while Niri Overview
+        // exposes Top-layer UI again for navigation and interaction.
+        WlrLayershell.layer: WlrLayer.Top
         color: "transparent"
 
         anchors {
@@ -56,19 +95,98 @@ Scope {
             rightVisualMargin: ((Config.options?.interactions?.deadPixelWorkaround?.enable ?? false) && cornerPanelWindow.anchors.right) * 1
             bottomVisualMargin: ((Config.options?.interactions?.deadPixelWorkaround?.enable ?? false) && cornerPanelWindow.anchors.bottom) * 1
 
-            implicitSize: Appearance.rounding.screenRounding
-            implicitHeight: Math.max(implicitSize, sidebarCornerOpenInteractionLoader.implicitHeight)
-            implicitWidth: Math.max(implicitSize, sidebarCornerOpenInteractionLoader.implicitWidth)
+            // Size for fake rounding visual (0 if disabled)
+            // ZZZ square = sharp console silhouette → no fake screen rounding;
+            // ZZZ round (anime) keeps the soft corner like the other styles.
+            readonly property int roundingSize: cornerPanelWindow.showFakeRounding
+                ? (Appearance.zzzEverywhere ? (Appearance.zzz.round ? Appearance.rounding.screenRounding : 0)
+                                            : Appearance.rounding.screenRounding)
+                : 0
+            // Size for corner open interaction area
+            readonly property int cornerOpenWidth: Config.options?.sidebar?.cornerOpen?.cornerRegionWidth ?? 20
+            readonly property int cornerOpenHeight: Config.options?.sidebar?.cornerOpen?.cornerRegionHeight ?? 20
+            readonly property int orbitHotCornerSize: Math.max(4, Math.min(40,
+                Config.options?.orbit?.hotCornerSize ?? 12))
+            readonly property int orbitHotCornerActivationDistance: Math.max(1, Math.min(32,
+                Config.options?.orbit?.hotCornerActivationDistance ?? 2))
+            readonly property int orbitHotCornerHitSize: Math.max(
+                orbitHotCornerSize, orbitHotCornerActivationDistance)
+
+            implicitSize: roundingSize
+            implicitWidth: Math.max(roundingSize,
+                cornerPanelWindow.shouldShowSidebarCornerOpen ? cornerOpenWidth : 0,
+                cornerPanelWindow.shouldShowOrbitHotCorner ? orbitHotCornerHitSize : 0)
+            implicitHeight: Math.max(roundingSize,
+                cornerPanelWindow.shouldShowSidebarCornerOpen ? cornerOpenHeight : 0,
+                cornerPanelWindow.shouldShowOrbitHotCorner ? orbitHotCornerHitSize : 0)
+
+            Loader {
+                id: orbitHotCornerLoader
+                active: cornerPanelWindow.shouldShowOrbitHotCorner
+                anchors {
+                    top: cornerWidget.isTop ? parent.top : undefined
+                    bottom: cornerWidget.isBottom ? parent.bottom : undefined
+                    left: cornerWidget.isLeft ? parent.left : undefined
+                    right: cornerWidget.isRight ? parent.right : undefined
+                }
+
+                sourceComponent: MouseArea {
+                    id: orbitHotCornerArea
+                    implicitWidth: cornerWidget.orbitHotCornerHitSize
+                    implicitHeight: cornerWidget.orbitHotCornerHitSize
+                    hoverEnabled: true
+                    property bool armed: true
+                    property bool atCorner: false
+
+                    function triggerOrbit(): void {
+                        // Recompute at activation time as well as through the
+                        // Loader binding so a fullscreen transition cannot win
+                        // the event-order race against the pointer event.
+                        if (!armed || !atCorner || cornerPanelWindow.orbitHotCornerBlocked())
+                            return
+                        armed = false
+                        orbitDwellTimer.stop()
+                        GlobalStates.openOrbit(cornerPanelWindow.screen?.name ?? "")
+                    }
+
+                    onPositionChanged: mouse => {
+                        const distance = cornerWidget.orbitHotCornerActivationDistance
+                        const atX = cornerWidget.isRight
+                            ? mouse.x >= width - distance : mouse.x <= distance
+                        const atY = cornerWidget.isTop
+                            ? mouse.y <= distance : mouse.y >= height - distance
+                        atCorner = atX && atY
+                        if (!atCorner) {
+                            armed = true
+                            orbitDwellTimer.stop()
+                            return
+                        }
+                        if (!armed)
+                            return
+                        const dwell = Config.options?.orbit?.hotCornerDwellMs ?? 0
+                        if (dwell <= 0)
+                            triggerOrbit()
+                        else if (!orbitDwellTimer.running)
+                            orbitDwellTimer.restart()
+                    }
+                    onExited: {
+                        atCorner = false
+                        orbitDwellTimer.stop()
+                        if (!GlobalStates.overviewOpen || GlobalStates.overviewMode !== "orbit")
+                            armed = true
+                    }
+
+                    Timer {
+                        id: orbitDwellTimer
+                        interval: Math.max(1, Config.options?.orbit?.hotCornerDwellMs ?? 0)
+                        onTriggered: orbitHotCornerArea.triggerOrbit()
+                    }
+                }
+            }
 
             Loader {
                 id: sidebarCornerOpenInteractionLoader
-                active: {
-                    if (!(Config.options?.sidebar?.cornerOpen?.enable ?? false)) return false;
-                    if (cornerPanelWindow.fullscreen) return false;
-                    // Disable corner interactions during GameMode to avoid input capture
-                    if (GameMode.active) return false;
-                    return ((Config.options?.sidebar?.cornerOpen?.bottom ?? false) == cornerWidget.isBottom);
-                }
+                active: cornerPanelWindow.shouldShowSidebarCornerOpen
                 anchors {
                     top: (cornerWidget.isTopLeft || cornerWidget.isTopRight) ? parent.top : undefined
                     bottom: (cornerWidget.isBottomLeft || cornerWidget.isBottomRight) ? parent.bottom : undefined
@@ -78,23 +196,29 @@ Scope {
 
                 sourceComponent: FocusedScrollMouseArea {
                     id: mouseArea
-                    implicitWidth: Config.options?.sidebar?.cornerOpen?.cornerRegionWidth ?? 20
-                    implicitHeight: Config.options?.sidebar?.cornerOpen?.cornerRegionHeight ?? 20
+                    implicitWidth: cornerWidget.cornerOpenWidth
+                    implicitHeight: cornerWidget.cornerOpenHeight
                     hoverEnabled: true
                     onPositionChanged: {
+                        if (Config.options?.sidebar?.cornerOpen?.clickless ?? false) return;
                         if (!(Config.options?.sidebar?.cornerOpen?.clicklessCornerEnd ?? false)) return;
                         const verticalOffset = Config.options?.sidebar?.cornerOpen?.clicklessCornerVerticalOffset ?? 10;
                         const correctX = (cornerWidget.isRight && mouseArea.mouseX >= mouseArea.width - 2) || (cornerWidget.isLeft && mouseArea.mouseX <= 2);
                         const correctY = (cornerWidget.isTop && mouseArea.mouseY > verticalOffset || cornerWidget.isBottom && mouseArea.mouseY < mouseArea.height - verticalOffset);
                         if (correctX && correctY)
-                            screenCorners.actionForCorner[cornerPanelWindow.corner]();
+                            screenCorners.actionForCorner[cornerPanelWindow.corner](cornerPanelWindow.screen?.name ?? "");
                     }
                     onEntered: {
                         if (Config.options?.sidebar?.cornerOpen?.clickless ?? false)
-                            screenCorners.actionForCorner[cornerPanelWindow.corner]();
+                            screenCorners.actionForCorner[cornerPanelWindow.corner](cornerPanelWindow.screen?.name ?? "");
                     }
                     onPressed: {
-                        screenCorners.actionForCorner[cornerPanelWindow.corner]();
+                        if (!(Config.options?.sidebar?.cornerOpen?.clickless ?? false)) {
+                            screenCorners.actionForCorner[cornerPanelWindow.corner](cornerPanelWindow.screen?.name ?? "");
+                            if (Config.options?.background?.effects?.ripple?.hotcorners ?? true) {
+                                GlobalStates.requestRipple(0, 0, cornerPanelWindow.screen.name);
+                            }
+                        }
                     }
                     onScrollDown: {
                         if (!(Config.options?.sidebar?.cornerOpen?.valueScroll ?? false))
@@ -144,7 +268,7 @@ Scope {
             property HyprlandMonitor monitor: CompositorService.isHyprland ? Hyprland.monitorFor(modelData) : null
 
             // Hide when fullscreen
-            property list<HyprlandWorkspace> workspacesForMonitor: CompositorService.isHyprland 
+            property list<HyprlandWorkspace> workspacesForMonitor: CompositorService.isHyprland
                 ? Hyprland.workspaces.values.filter(workspace => workspace.monitor && workspace.monitor.name == monitor.name)
                 : []
             property var activeWorkspaceWithFullscreen: workspacesForMonitor.filter(workspace => ((workspace.toplevels.values.filter(window => window.wayland?.fullscreen)[0] != undefined) && workspace.active))[0]
@@ -152,53 +276,12 @@ Scope {
                 if (CompositorService.isHyprland) {
                     return activeWorkspaceWithFullscreen != undefined;
                 }
-                if (CompositorService.isNiri && typeof NiriService !== "undefined" && NiriService.outputs && NiriService.windows && NiriService.workspaces) {
-                    try {
-                        const outputName = modelData?.name || "";
-                        if (!outputName)
-                            return false;
-                        const outputInfo = NiriService.outputs[outputName];
-                        const logical = outputInfo ? outputInfo.logical : null;
-                        if (!logical)
-                            return false;
-                        const lw = logical.width;
-                        const lh = logical.height;
-                        if (!(lw > 0 && lh > 0))
-                            return false;
-
-                        const windows = NiriService.windows;
-                        const wss = NiriService.workspaces;
-                        for (let i = 0; i < windows.length; ++i) {
-                            const w = windows[i];
-                            // Check if window is fullscreen via is_fullscreen property first
-                            if (w.is_fullscreen === true) {
-                                const ws = wss[w.workspace_id];
-                                if (ws && ws.output === outputName && ws.is_active) {
-                                    return true;
-                                }
-                            }
-                            // Fallback: check by size comparison
-                            const ws = wss[w.workspace_id];
-                            if (!ws || ws.output !== outputName || !ws.is_active)
-                                continue;
-                            const layout = w.layout;
-                            const size = layout && layout.tile_size ? layout.tile_size : null;
-                            if (!size || size.length < 2)
-                                continue;
-                            const ww = size[0];
-                            const wh = size[1];
-                            if (!(ww > 0 && wh > 0))
-                                continue;
-                            const areaWindow = ww * wh;
-                            const areaOutput = lw * lh;
-                            // More aggressive threshold for games
-                            if (areaWindow >= areaOutput * 0.90) {
-                                return true;
-                            }
-                        }
-                    } catch (e) {}
-                    return false;
-                }
+                // Corners only stop being painted; they never unmap a surface
+                // or change the exclusive zone, so they can safely follow
+                // automatic fullscreen detection.
+                if (CompositorService.isNiri)
+                    return !NiriService.inOverview
+                        && GameMode.hasFullscreenOnOutput(modelData?.name ?? "")
                 return false;
             }
 

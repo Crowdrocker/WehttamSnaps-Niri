@@ -6,16 +6,21 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
 
 ColumnLayout {
     id: root
     required property bool isSink
-    readonly property list<var> appPwNodes: isSink ? Audio.outputAppNodes : Audio.inputAppNodes
+    required property bool dialogShown
+    readonly property list<var> appPwNodes: isSink ? MprisController.mixerAppNodes : Audio.inputAppNodes
     readonly property list<var> devices: isSink ? Audio.outputDevices : Audio.inputDevices
     readonly property bool hasApps: appPwNodes.length > 0
-    readonly property var currentDevice: isSink ? Pipewire.defaultAudioSink : Pipewire.defaultAudioSource
+    readonly property var currentDevice: isSink ? Audio.defaultSink : Audio.source
     spacing: 16
+
+    onDialogShownChanged: {
+        if (!dialogShown && devicePopup.visible)
+            devicePopup.close()
+    }
 
     // Device selector button
     RippleButton {
@@ -24,9 +29,12 @@ ColumnLayout {
         Layout.topMargin: 8
         implicitHeight: 48
         
-        colBackground: Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
-        colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
-        colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
+        colBackground: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+            : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
+        colBackgroundHover: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer2Hover
+        colRipple: Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive
+            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer2Active
         buttonRadius: Appearance.rounding.normal
 
         contentItem: RowLayout {
@@ -53,7 +61,7 @@ ColumnLayout {
             MaterialSymbol {
                 text: devicePopup.visible ? "expand_less" : "expand_more"
                 iconSize: Appearance.font.pixelSize.normal
-                color: Appearance.colors.colSubtext
+                color: Appearance.colSecondaryActionIcon
             }
         }
 
@@ -69,10 +77,12 @@ ColumnLayout {
         padding: 8
 
         background: Rectangle {
-            color: Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface : Appearance.colors.colLayer2
-            radius: Appearance.rounding.normal
-            border.width: 1
-            border.color: Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : Appearance.colors.colOutlineVariant
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassPopup
+                : Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface : Appearance.colors.colLayer2
+            radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal : Appearance.rounding.normal
+            border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth : 1
+            border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : Appearance.colors.colOutlineVariant
         }
 
         ListView {
@@ -91,8 +101,8 @@ ColumnLayout {
                 property bool isSelected: modelData.id === root.currentDevice?.id
 
                 colBackground: isSelected ? Appearance.colors.colPrimaryContainer : "transparent"
-                colBackgroundHover: Appearance.colors.colLayer2Hover
-                colRipple: Appearance.colors.colLayer2Active
+                colBackgroundHover: Appearance.colLayer2Hover
+                colRipple: Appearance.colLayer2Active
                 buttonRadius: Appearance.rounding.small
 
                 contentItem: RowLayout {
@@ -106,7 +116,7 @@ ColumnLayout {
                     MaterialSymbol {
                         text: isSelected ? "check" : (root.isSink ? "speaker" : "mic")
                         iconSize: Appearance.font.pixelSize.normal
-                        color: isSelected ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colSubtext
+                        color: isSelected ? Appearance.colors.colOnPrimaryContainer : Appearance.colSecondaryActionIcon
                     }
 
                     StyledText {
@@ -114,7 +124,7 @@ ColumnLayout {
                         text: Audio.friendlyDeviceName(modelData)
                         font.pixelSize: Appearance.font.pixelSize.normal
                         elide: Text.ElideRight
-                        color: isSelected ? Appearance.colors.colOnPrimaryContainer : Appearance.m3colors.m3onSurface
+                        color: isSelected ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnSurface
                     }
                 }
 
@@ -143,11 +153,16 @@ ColumnLayout {
             required property var modelData
             node: modelData
         }
-        PagePlaceholder {
-            icon: "widgets"
-            title: Translation.tr("No applications")
+        MaterialPlaceholderMessage {
+            anchors.centerIn: parent
+            maximumWidth: 320
             shown: !root.hasApps
-            shape: MaterialShape.Shape.Cookie7Sided
+            icon: "widgets"
+            text: Translation.tr("No applications")
+            explanation: root.isSink
+                ? Translation.tr("Apps playing audio will appear here")
+                : Translation.tr("Apps using the microphone will appear here")
+            shape: MaterialShape.Shape.Clover4Leaf
         }
     }
 
@@ -165,5 +180,11 @@ ColumnLayout {
         clip: true
         spacing: 4
         animateAppearance: false
+
+        highlightRangeMode: ListView.StrictlyEnforceRange
+        preferredHighlightBegin: height * 0.5 - 34
+        preferredHighlightEnd: height * 0.5 + 34
+        highlightMoveDuration: Appearance.animationsEnabled ? Appearance.calcEffectiveDuration(180) : 0
+        highlightFollowsCurrentItem: true
     }
 }

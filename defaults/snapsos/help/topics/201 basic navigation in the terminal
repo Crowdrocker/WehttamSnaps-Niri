@@ -1,0 +1,81 @@
+> basic navigation in the terminal
+
+
+to help with navigation, SNAPS-OS comes pre-configured with eza, zoxide and fzf.
+
+eza and zoxide replace your ls and cd commands respectively, fzf gives you access to fuzzy finding. 
+
+
+
+when you spawn a terminal, you'll see something like this:
+
+    ~ 
+
+ this is prettified using powerlevel10k, and shows your *current* directory. 
+
+ you can also get the current directory using the command `pwd` (print working directory)
+
+ by default, this is your home directory, which as ~ as a shorthand.
+
+ the longform is /home/yourusername.
+
+ in guides, you may see /home/$(whoami) instead, this will replace $(whoami) with the output of the command "whoami" on run, which outputs your username.
+
+ some scripts and commands won't like using ~, so you have to use the full path (for example, this is important when using the ln command to make symlinks)
+
+ in this case, if you want your command to be username-agnostic, you can use $(whoami)
+
+
+ to list files in the current directory, type `ls`
+
+ this will use eza under the hood and give you a line-by-line output of files.
+
+
+the lines will look something like this:
+drwxr-xr-x     - den 24 may 23:57  test
+
+here's what each thing means:
+drwxr-xr-x - this is your permissions
+- - this is not filled in here as the example is a directory, but will show the size in bytes.
+den - this is the account that owns the file
+24 mei 23:57 - this is the time/date the file was last modified
+and lastly, the name. 
+
+
+you may see something like this:
+lrwxrwxrwx     - den 12 apr 05:04  .vscode -> /home/den/.vscode-oss
+
+that means that this item is symlinked to /home/den/.vscode-oss
+
+
+
+you can move into a directory using `cd <dirname>`
+
+cd actually uses zoxide under the hood, which means that you actually also have fuzzy finding for directories you've visited before.
+
+
+instead of filling in cd `/home/den/ownCloud/ArchConfig/MangoScripts` for example, i can just run `cd mangoscripts`, as it's the search match that i visit the most often.
+
+
+cd also supports some special syntax, this can be used on its own or within a path:
+
+~ - shorthand for /home/yourusername
+. - shorthand for "current working directory", equal to the directory listed in your prompt. 
+.. - one directory up from the current working directory
+... - two directories up from the current directory
+.... - three directories up from the current directory
+
+normally, if you type `cd DirName`, it'll look for DirName in the current directory, which would be equal to `cd ./DirName`
+
+from a fresh terminal, these will do the following:
+
+`cd dir` - will move to /home/username/dir
+`cd ~/dir` - will move to /home/username/dir regardless of current location
+`cd ./dir` - will move /home/username/dir
+`cd /dir` - will move to /dir
+`cd ../dir` - will move to /home/dir
+`cd ./dir/subdir` - will move to /home/username/dir/subdir
+`cd sub` - will move to /home/username/dir/subdir if you've visited it before and it's the most common path you visit with "sub" in it.
+
+
+

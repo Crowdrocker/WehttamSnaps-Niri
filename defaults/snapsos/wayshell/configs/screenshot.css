@@ -1,0 +1,36 @@
+@import "./colors.css";
+
+window#waybar {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+#custom-ss-monitor,
+#custom-ss-zone,
+#custom-ss-all,
+#custom-ss-window,
+#custom-ss-obs,
+#custom-ss-mode,
+#custom-ss-settings {
+    background-color: @surface_container;
+    color: @primary;
+    font-size: 16px;
+    padding: 4px 10px 6px;
+    border-color: @primary;
+    border-style: solid;
+    border-width: 0 2px 2px;
+    border-radius: 0 0 10px 10px;
+    min-width: 20px;
+}
+
+#custom-ss-monitor:hover,
+#custom-ss-zone:hover,
+#custom-ss-all:hover,
+#custom-ss-window:hover,
+#custom-ss-obs:hover,
+#custom-ss-mode:hover,
+#custom-ss-settings:hover {
+    background-color: @primary;
+    color: @surface_container;
+}

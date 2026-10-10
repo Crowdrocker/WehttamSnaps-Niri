@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import qs
@@ -12,9 +11,19 @@ import qs.modules.waffle.looks
 Scope {
     id: root
 
-    property var focusedScreen: CompositorService.isNiri 
-        ? (Quickshell.screens.find(s => s.name === NiriService.currentOutput) ?? Quickshell.screens[0])
-        : (Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0])
+    property bool initialized: false
+    readonly property var targetScreens: {
+        const list = Config.options?.osd?.screenList ?? []
+        const screens = Quickshell.screens
+        if (!list || list.length === 0)
+            return screens
+        const matched = screens.filter(screen => {
+            const screenName = screen?.name ?? ""
+            return screenName.length > 0 && list.includes(screenName)
+        })
+        // Fallback safety: stale monitor names should never hide the OSD everywhere.
+        return matched.length > 0 ? matched : screens
+    }
     property string currentIndicator: "volume"
     property var indicators: [
         {
@@ -32,7 +41,26 @@ Scope {
             sourceUrl: "MediaOSD.qml",
             globalStateValue: "osdMediaOpen"
         },
+        {
+            id: "keyboardLayout",
+            sourceUrl: "KeyboardLayoutOSD.qml",
+            globalStateValue: "osdKeyboardLayoutOpen"
+        },
+        {
+            id: "connection",
+            sourceUrl: "ConnectionOSD.qml",
+            globalStateValue: "osdConnectionOpen"
+        },
     ]
+    readonly property bool topNotice: root.currentIndicator === "keyboardLayout" || root.currentIndicator === "connection"
+
+    // Suppress OSD during startup and gamemode niri-reload transitions
+    Timer {
+        id: initDelay
+        interval: 1500
+        running: true
+        onTriggered: root.initialized = true
+    }
 
     function triggerBrightnessOsd() {
         root.currentIndicator = "brightness";
@@ -45,8 +73,20 @@ Scope {
     }
 
     function triggerMediaOSD() {
+        if (!(Config.options?.osd?.mediaEnabled ?? true))
+            return;
         root.currentIndicator = "media";
         GlobalStates.osdMediaOpen = true;
+    }
+
+    function triggerConnectionOSD() {
+        root.currentIndicator = "connection";
+        GlobalStates.osdConnectionOpen = true;
+    }
+
+    function triggerKeyboardLayoutOSD() {
+        root.currentIndicator = "keyboardLayout";
+        GlobalStates.osdKeyboardLayoutOpen = true;
     }
 
     // Listen to brightness changes
@@ -61,17 +101,35 @@ Scope {
     Connections {
         target: Audio.sink?.audio ?? null
         function onVolumeChanged() {
-            if (Audio.ready)
+            if (Audio.ready && root.initialized && !GameMode.suppressNiriToast)
                 root.triggerVolumeOSD();
         }
         function onMutedChanged() {
-            if (Audio.ready)
+            if (Audio.ready && root.initialized && !GameMode.suppressNiriToast)
                 root.triggerVolumeOSD();
         }
     }
 
     // Media OSD is triggered via IPC only (not on every track change)
     // See services/MprisController.qml IpcHandler
+
+    Connections {
+        target: KeyboardIndicators
+        function onPopupSequenceChanged() {
+            if (!root.initialized)
+                return;
+            root.triggerKeyboardLayoutOSD();
+        }
+    }
+
+    Connections {
+        target: DeviceEvents
+        function onHappened(event) {
+            if (!root.initialized || GameMode.active)
+                return;
+            root.triggerConnectionOSD();
+        }
+    }
 
     // Open when global state changes
     Connections {
@@ -87,7 +145,23 @@ Scope {
         }
         function onOsdMediaOpenChanged() {
             if (GlobalStates.osdMediaOpen) {
+                if (!(Config.options?.osd?.mediaEnabled ?? true)) {
+                    GlobalStates.osdMediaOpen = false;
+                    return;
+                }
                 root.currentIndicator = "media";
+                panelLoader.active = true;
+            }
+        }
+        function onOsdKeyboardLayoutOpenChanged() {
+            if (GlobalStates.osdKeyboardLayoutOpen) {
+                root.currentIndicator = "keyboardLayout";
+                panelLoader.active = true;
+            }
+        }
+        function onOsdConnectionOpenChanged() {
+            if (GlobalStates.osdConnectionOpen) {
+                root.currentIndicator = "connection";
                 panelLoader.active = true;
             }
         }
@@ -103,23 +177,22 @@ Scope {
                 GlobalStates[i.globalStateValue] = false;
             });
         }
-        sourceComponent: PanelWindow {
-            id: panelWindow
+        sourceComponent: Variants {
+            model: root.targetScreens
+            delegate: PanelWindow {
+                id: panelWindow
+                required property var modelData
+                screen: modelData
 
-            Connections {
-                target: root
-                function onFocusedScreenChanged() {
-                    osdRoot.screen = root.focusedScreen;
-                }
-            }
-
-            color: "transparent"
+                color: "transparent"
             exclusiveZone: 0
             WlrLayershell.namespace: "quickshell:wOnScreenDisplay"
-            WlrLayershell.layer: WlrLayer.Overlay
+            WlrLayershell.layer: root.topNotice
+                ? WlrLayer.Top
+                : WlrLayer.Overlay
             anchors {
-                top: !(Config.options?.waffles?.bar?.bottom ?? false)
-                bottom: Config.options?.waffles?.bar?.bottom ?? false
+                top: root.topNotice ? true : !(Config.options?.waffles?.bar?.bottom ?? false)
+                bottom: root.topNotice ? false : Config.options?.waffles?.bar?.bottom ?? false
             }
             mask: Region {
                 item: osdIndicatorLoader
@@ -162,12 +235,6 @@ Scope {
             }
         }
     }
-
-    IpcHandler {
-        target: "osd"
-
-        function trigger(): void {
-            root.trigger();
-        }
     }
+
 }

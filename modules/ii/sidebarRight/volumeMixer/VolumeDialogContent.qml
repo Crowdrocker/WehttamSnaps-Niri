@@ -6,16 +6,21 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
 
 ColumnLayout {
     id: root
     required property bool isSink
-    readonly property list<var> appPwNodes: isSink ? Audio.outputAppNodes : Audio.inputAppNodes
+    required property bool dialogShown
+    readonly property list<var> appPwNodes: isSink ? MprisController.mixerAppNodes : Audio.inputAppNodes
     readonly property list<var> devices: isSink ? Audio.outputDevices : Audio.inputDevices
     readonly property bool hasApps: appPwNodes.length > 0
-    readonly property var currentDevice: isSink ? Pipewire.defaultAudioSink : Pipewire.defaultAudioSource
+    readonly property var currentDevice: isSink ? Audio.defaultSink : Audio.source
     spacing: Appearance.sizes.spacingMedium
+
+    onDialogShownChanged: {
+        if (!dialogShown && devicePopup.visible)
+            devicePopup.close()
+    }
 
     // Device selector at top
     RippleButton {
@@ -67,7 +72,8 @@ ColumnLayout {
         padding: Appearance.sizes.spacingSmall
 
         background: Rectangle {
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassPopup
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer2
                 : Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface : Appearance.colors.colLayer3
             radius: Appearance.rounding.normal
             border.width: 1
@@ -113,7 +119,7 @@ ColumnLayout {
                         text: Audio.friendlyDeviceName(modelData)
                         font.pixelSize: Appearance.font.pixelSize.small
                         elide: Text.ElideRight
-                        color: isSelected ? Appearance.colors.colOnPrimaryContainer : Appearance.m3colors.m3onSurface
+                        color: isSelected ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnSurface
                     }
                 }
 
@@ -145,10 +151,15 @@ ColumnLayout {
         // Empty state
         StyledText {
             anchors.centerIn: parent
-            visible: root.appPwNodes.length === 0
+            opacity: root.appPwNodes.length === 0 ? 1 : 0
+            visible: opacity > 0
             text: root.isSink ? Translation.tr("No apps playing audio") : Translation.tr("No apps using microphone")
             color: Appearance.colors.colSubtext
             font.pixelSize: Appearance.font.pixelSize.small
+            Behavior on opacity {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
         }
     }
 }

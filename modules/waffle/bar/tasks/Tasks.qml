@@ -24,7 +24,7 @@ MouseArea {
     }
 
     Behavior on implicitWidth {
-        animation: Looks.transition.move.createObject(this)
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
 
     // Apps row

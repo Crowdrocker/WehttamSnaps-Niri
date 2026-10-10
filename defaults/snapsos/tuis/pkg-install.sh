@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Show a fuzzy-finder TUI for picking new Arch and OPR packages to install.
+
+fzf_args=(
+  --multi
+  --preview 'clear && pacman -Sii {1}'
+  --preview-label='alt-p: toggle description, alt-j/k: scroll, tab: multi-select'
+  --preview-label-pos='bottom'
+  --preview-window 'left:65%:wrap'
+  --bind 'alt-p:toggle-preview'
+  --bind 'alt-d:preview-half-page-down,alt-u:preview-half-page-up'
+  --bind 'alt-k:preview-up,alt-j:preview-down'
+  --color 'pointer:green,marker:green'
+)
+
+pkg_names=$(pacman -Slq | fzf "${fzf_args[@]}")
+
+if [[ -n $pkg_names ]]; then
+  # Convert newline-separated selections to space-separated for yay
+  echo "$pkg_names" | tr '\n' ' ' | xargs sudo pacman -S --noconfirm
+  echo "finished installing."
+  read -n 1
+fi

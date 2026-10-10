@@ -36,7 +36,7 @@ DialogListItem {
             MaterialSymbol {
                 iconSize: Appearance.font.pixelSize.larger
                 text: Icons.getBluetoothDeviceMaterialSymbol(root.device?.icon || "")
-                color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colOnSurfaceVariant
+                color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colSecondaryActionIcon
             }
 
             ColumnLayout {
@@ -44,22 +44,25 @@ DialogListItem {
                 Layout.fillWidth: true
                 StyledText {
                     Layout.fillWidth: true
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnSurfaceVariant
+                    color: Appearance.colors.colOnLayer1
                     elide: Text.ElideRight
                     text: root.device?.name || Translation.tr("Unknown device")
                 }
-                StyledText {
-                    visible: (root.device?.connected || root.device?.paired) ?? false
+                Revealer {
+                    vertical: true
+                    reveal: (root.device?.connected || root.device?.paired) ?? false
                     Layout.fillWidth: true
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
-                    elide: Text.ElideRight
-                    text: {
-                        if (!root.device?.paired) return "";
-                        let statusText = root.device?.connected ? Translation.tr("Connected") : Translation.tr("Paired");
-                        if (!root.device?.batteryAvailable) return statusText;
-                        statusText += ` • ${Math.round(root.device?.battery * 100)}%`;
-                        return statusText;
+                    StyledText {
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+                        elide: Text.ElideRight
+                        text: {
+                            if (!root.device?.paired) return "";
+                            let statusText = root.device?.connected ? Translation.tr("Connected") : Translation.tr("Paired");
+                            if (!root.device?.batteryAvailable) return statusText;
+                            statusText += ` • ${Math.round(root.device?.battery * 100)}%`;
+                            return statusText;
+                        }
                     }
                 }
             }
@@ -70,38 +73,78 @@ DialogListItem {
                 color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colOnLayer3
                 rotation: root.expanded ? 180 : 0
                 Behavior on rotation {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
             }
         }
 
-        RowLayout {
-            visible: root.expanded
-            Layout.topMargin: 8
-            Item {
-                Layout.fillWidth: true
-            }
-            ActionButton {
-                buttonText: root.device?.connected ? Translation.tr("Disconnect") : Translation.tr("Connect")
+        Item {
+            Layout.fillWidth: true
+            visible: implicitHeight > 0
+            implicitHeight: root.expanded ? actionsRow.implicitHeight : 0
+            Layout.topMargin: root.expanded ? 8 : 0
+            clip: true
 
-                onClicked: {
-                    if (root.device?.connected) {
-                        root.device.disconnect();
-                    } else {
-                        root.device.connect();
+            Behavior on implicitHeight {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+            }
+            Behavior on Layout.topMargin {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+            }
+
+            RowLayout {
+                id: actionsRow
+                width: parent.width
+
+                Item { Layout.fillWidth: true }
+                ActionButton {
+                    id: connectBtn
+                    property bool operationPending: false
+                    buttonText: {
+                        if (operationPending) {
+                            return root.device?.connected ? Translation.tr("Disconnecting…") : Translation.tr("Connecting…");
+                        }
+                        return root.device?.connected ? Translation.tr("Disconnect") : Translation.tr("Connect")
+                    }
+
+                    onClicked: {
+                        operationPending = true;
+                        pendingTimeout.start();
+                        if (root.device?.connected) {
+                            root.device.disconnect();
+                        } else {
+                            root.device.trusted = true;
+                            root.device.connect();
+                        }
+                    }
+
+                    Connections {
+                        target: root.device
+                        function onConnectedChanged() {
+                            connectBtn.operationPending = false;
+                            pendingTimeout.stop();
+                        }
+                    }
+
+                    Timer {
+                        id: pendingTimeout
+                        interval: 15000
+                        onTriggered: connectBtn.operationPending = false
                     }
                 }
-            }
-            ActionButton {
-                visible: root.device?.paired ?? false
-                colBackground: Appearance.colors.colError
-                colBackgroundHover: Appearance.colors.colErrorHover
-                colRipple: Appearance.colors.colErrorActive
-                colText: Appearance.colors.colOnError
-
-                buttonText: Translation.tr("Forget")
-                onClicked: {
-                    root.device?.forget();
+                Revealer {
+                    reveal: root.device?.paired ?? false
+                    ActionButton {
+                        colBackground: Appearance.colors.colError
+                        colBackgroundHover: Appearance.colors.colErrorHover
+                        colRipple: Appearance.colors.colErrorActive
+                        colText: Appearance.colors.colOnError
+                        buttonText: Translation.tr("Forget")
+                        onClicked: root.device?.forget()
+                    }
                 }
             }
         }

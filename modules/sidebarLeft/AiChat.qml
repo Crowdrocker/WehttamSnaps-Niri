@@ -1,5 +1,7 @@
 import qs
 import qs.services
+import qs.services.ai
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
@@ -13,12 +15,29 @@ import Quickshell.Io
 
 Item {
     id: root
+    clip: true
     property real padding: 4
     property var inputField: messageInputField
     property string commandPrefix: "/"
+    property bool historyOpen: false
+    // The normal sidebar is the baseline. Extra information is added only
+    // after the content has enough room, never by letting compact rows grow.
+    readonly property bool compactLayout: width < 520
+    readonly property bool wideLayout: width >= 620
+    readonly property bool dictating: VoiceSearch.running && VoiceSearch.mode === "dictate"
 
     property var suggestionQuery: ""
     property var suggestionList: []
+
+    Connections {
+        target: VoiceSearch
+        function onTranscriptionReady(text) {
+            if (VoiceSearch.mode !== "dictate") return;
+            const needsSpace = messageInputField.text.length > 0 && !messageInputField.text.endsWith(" ");
+            messageInputField.insert(messageInputField.length, (needsSpace ? " " : "") + text);
+            messageInputField.forceActiveFocus();
+        }
+    }
 
     onFocusChanged: focus => {
         if (focus) {
@@ -54,6 +73,10 @@ Item {
             name: "model",
             description: Translation.tr("Choose model"),
             execute: args => {
+                if (args.length === 0 || !args[0] || args[0] === "get") {
+                    Ai.addMessage(Translation.tr("Usage: %1model MODEL_ID").arg(root.commandPrefix), Ai.interfaceRole);
+                    return;
+                }
                 Ai.setModel(args[0]);
             }
         },
@@ -88,6 +111,10 @@ Item {
             name: "key",
             description: Translation.tr("Set API key"),
             execute: args => {
+                if (args.length === 0) {
+                    Ai.addMessage(Translation.tr("Usage: %1key YOUR_API_KEY\n%1key get").arg(root.commandPrefix), Ai.interfaceRole);
+                    return;
+                }
                 if (args[0] == "get") {
                     Ai.printApiKey();
                 } else {
@@ -209,11 +236,12 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 Ai.addMessage(Translation.tr("Unknown command: ") + command, Ai.interfaceRole);
             }
         } else {
-            Ai.sendUserMessage(inputText);
+            const sent = Ai.sendUserMessage(inputText)
+            if (!sent) return false
         }
 
-        // Always scroll to bottom when user sends a message
-        messageListView.positionViewAtEnd();
+        messageListView.positionViewAtEnd()
+        return true
     }
 
     Process {
@@ -249,12 +277,13 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             MaterialSymbol {
                 text: statusItem.icon
                 iconSize: Appearance.font.pixelSize.huge
-                color: Appearance.colors.colSubtext
+                color: Appearance.colSecondaryActionIcon
             }
             StyledText {
                 font.pixelSize: Appearance.font.pixelSize.small
+                font.weight: Font.Medium
                 text: statusItem.statusText
-                color: Appearance.colors.colSubtext
+                color: Appearance.colMetadataText
                 animateChange: true
             }
         }
@@ -288,8 +317,8 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             layer.enabled: true
             layer.effect: OpacityMask {
                 maskSource: Rectangle {
-                    width: swipeView.width
-                    height: swipeView.height
+                    width: root.width
+                    height: root.height
                     radius: Appearance.rounding.small
                 }
             }
@@ -300,43 +329,78 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 opacity: messageListView.atYBeginning ? 0 : 1
                 visible: opacity > 0
                 Behavior on opacity {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
             }
             Rectangle {
                 id: statusBg
-                z: 2
+                // Above the empty-state placeholder (z:2) and scroll button (z:3):
+                // the model-selector popup grows from here and must cover them.
+                z: 4
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     top: parent.top
                     topMargin: 4
                 }
-                implicitWidth: statusRowLayout.implicitWidth + 10 * 2
+                // Content-sized and centred, with no cap: a long model name plus the
+                // status chips pushed this wider than the sidebar itself, so the row
+                // ran off both edges. It may never exceed the space it sits in.
+                readonly property real _maxWidth: Math.max(0, parent.width - 8)
+                implicitWidth: Math.min(statusRowLayout.implicitWidth + 10 * 2, _maxWidth)
+                width: root.compactLayout ? _maxWidth : implicitWidth
                 implicitHeight: Math.max(statusRowLayout.implicitHeight, 38)
-                radius: Appearance.rounding.normal - root.padding
-                color: Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                // NO clip: the model-selector popup grows downward out of this
+                // plate, so clipping it to contain the row also swallowed the whole
+                // menu. Nothing overflows any more — the cap plus the model name
+                // eliding is what keeps the row inside.
+                radius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.normal - root.padding
+                color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                    : Appearance.inirEverywhere ? Appearance.inir.colLayer2
                     : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
                 RowLayout {
                     id: statusRowLayout
                     anchors.centerIn: parent
+                    // Squeeze inside the capped plate instead of overflowing it —
+                    // the model name is the one item here that can give ground.
+                    width: Math.min(implicitWidth, statusBg._maxWidth - 10 * 2)
                     spacing: 10
 
+                    // Shrinks when the row is tight, never stretches past its natural size.
+                    AiModelSelector {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: root.compactLayout ? 100000 : implicitWidth
+                        containmentItem: root
+                    }
+                    StatusSeparator { visible: !root.compactLayout }
                     StatusItem {
+                        visible: !root.compactLayout
                         icon: Ai.currentModelHasApiKey ? "key" : "key_off"
                         statusText: ""
-                        description: Ai.currentModelHasApiKey ? Translation.tr("API key is set\nChange with /key YOUR_API_KEY") : Translation.tr("No API key\nSet it with /key YOUR_API_KEY")
+                        description: Ai.currentModelHasApiKey
+                            ? Translation.tr("Provider connected securely through the system keyring")
+                            : Translation.tr("Provider not connected\nOpen AI Settings to add its key")
                     }
-                    StatusSeparator {}
+                    StatusSeparator { visible: root.wideLayout }
                     StatusItem {
+                        visible: root.wideLayout
+                        icon: "article"
+                        statusText: Ai.currentPromptName.length > 0 ? Ai.currentPromptName : Translation.tr("default")
+                        description: Translation.tr("Active personality / system prompt\nChange with /prompt NAME")
+                    }
+                    StatusSeparator { visible: root.wideLayout }
+                    StatusItem {
+                        visible: root.wideLayout
                         icon: "device_thermostat"
                         statusText: Ai.temperature.toFixed(1)
                         description: Translation.tr("Temperature\nChange with /temp VALUE")
                     }
                     StatusSeparator {
-                        visible: Ai.tokenCount.total > 0
+                        visible: root.wideLayout && Ai.tokenCount.total > 0
                     }
                     StatusItem {
-                        visible: Ai.tokenCount.total > 0
+                        visible: root.wideLayout && Ai.tokenCount.total > 0
                         icon: "token"
                         statusText: Ai.tokenCount.total
                         description: Translation.tr("Total token count\nInput: %1\nOutput: %2").arg(Ai.tokenCount.input).arg(Ai.tokenCount.output)
@@ -358,8 +422,8 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 popin: false
                 topMargin: statusBg.implicitHeight + statusBg.anchors.topMargin * 2
 
-                touchpadScrollFactor: Config.options.interactions.scrolling.touchpadScrollFactor * 1.4
-                mouseScrollFactor: Config.options.interactions.scrolling.mouseScrollFactor * 1.4
+                touchpadScrollFactor: (Config.options?.interactions?.scrolling?.touchpadScrollFactor ?? 0.5) * 1.4
+                mouseScrollFactor: (Config.options?.interactions?.scrolling?.mouseScrollFactor ?? 1.0) * 1.4
 
                 property int lastResponseLength: 0
                 onContentHeightChanged: {
@@ -391,18 +455,60 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 }
             }
 
-            PagePlaceholder {
+            MaterialPlaceholderMessage {
+                anchors.fill: parent
                 z: 2
-                shown: Ai.messageIDs.length === 0
+                shown: Ai.messageIDs.length === 0 && !aiMascot.active
                 icon: "neurology"
-                title: Translation.tr("Large language models")
-                description: Translation.tr("Type /key to get started with online models\nCtrl+O to expand the sidebar\nCtrl+P to detach sidebar into a window")
+                text: Translation.tr("Large language models")
+                explanation: Translation.tr("Choose a recommended, free or local model above. Connect providers in AI Settings — no model IDs required.\nCtrl+O expands · Ctrl+P detaches")
                 shape: MaterialShape.Shape.PixelCircle
+            }
+
+            ColumnLayout {
+                anchors.centerIn: parent
+                z: 2
+                visible: aiMascot.active && Ai.messageIDs.length === 0
+                spacing: 8
+                width: Math.min(parent.width - 32, 340)
+
+                MascotImage {
+                    id: aiMascot
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: 120
+                    Layout.preferredHeight: 120
+                    surface: "aiChat"
+                    pose: "ai-oracle"
+                }
+
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: Translation.tr("Large language models")
+                    font.pixelSize: Appearance.font.pixelSize.large
+                    color: Appearance.colors.colOnLayer0
+                }
+
+                StyledText {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.Wrap
+                    text: Translation.tr("Choose a recommended, free or local model above. Connect providers in AI Settings — no model IDs required.\nCtrl+O expands · Ctrl+P detaches")
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    color: Appearance.colMetadataText
+                }
             }
 
             ScrollToBottomButton {
                 z: 3
                 target: messageListView
+            }
+
+            ChatHistoryPanel {
+                z: 5
+                anchors.fill: parent
+                open: root.historyOpen
+                onRequestClose: root.historyOpen = false
             }
         }
 
@@ -418,7 +524,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     ? Translation.tr("Select model") 
                     : ""
                 font.pixelSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colSubtext
+                color: Appearance.colMetadataText
                 elide: Text.ElideRight
             }
             KeyboardKey {
@@ -445,13 +551,18 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 }
                 delegate: ApiCommandButton {
                     id: commandButton
-                    colBackground: Appearance.auroraEverywhere 
-                        ? (suggestions.selectedIndex === index ? Appearance.aurora.colSubSurface : "transparent")
-                        : (suggestions.selectedIndex === index ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
+                    colBackground: Appearance.angelEverywhere
+                        ? (suggestions.selectedIndex === index ? Appearance.angel.colGlassCardHover : Appearance.angel.colGlassCard)
+                        : Appearance.auroraEverywhere
+                            ? (suggestions.selectedIndex === index ? Appearance.aurora.colSubSurface : "transparent")
+                            : Appearance.zzzEverywhere
+                                ? (suggestions.selectedIndex === index ? Appearance.zzz.sticker : "transparent")
+                                : (suggestions.selectedIndex === index ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
                     bounce: false
                     contentItem: StyledText {
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.m3colors.m3onSurface
+                        color: Appearance.zzzEverywhere && suggestions.selectedIndex === index
+                            ? Appearance.zzz.onSticker : Appearance.colors.colOnSurface
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData.displayName ?? modelData.name
                     }
@@ -494,17 +605,88 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             }
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: connectionRow.implicitHeight + 12
+            visible: !Ai.currentModelReady
+            radius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.small
+            color: ColorUtils.transparentize(Appearance.colors.colErrorContainer, 0.34)
+
+            RowLayout {
+                id: connectionRow
+                anchors.fill: parent
+                anchors.margins: 6
+                spacing: 7
+
+                MaterialSymbol {
+                    text: Ai.getModel() ? "lock" : "info"
+                    iconSize: Appearance.font.pixelSize.large
+                    color: Appearance.colors.colOnErrorContainer
+                }
+                StyledText {
+                    Layout.fillWidth: true
+                    text: Ai.getModel()
+                        ? Translation.tr("Connect %1 before sending messages.")
+                            .arg(AiProviderCatalog.providerById(Ai.getModel()?.provider_id ?? "")?.name ?? Translation.tr("this provider"))
+                        : Translation.tr("Connect a provider or start a local model.")
+                    font.pixelSize: Appearance.font.pixelSize.smallest
+                    color: Appearance.colors.colOnErrorContainer
+                    wrapMode: Text.WordWrap
+                }
+                RippleButton {
+                    implicitWidth: root.compactLayout ? 30 : connectionButtonLabel.implicitWidth + 16
+                    implicitHeight: 28
+                    buttonRadius: Appearance.rounding.small
+                    colBackground: Appearance.colors.colErrorContainer
+                    colBackgroundHover: Appearance.colors.colErrorContainerHover
+                    onClicked: GlobalStates.openSettingsPage(24)
+                    contentItem: RowLayout {
+                        anchors.centerIn: parent
+                        spacing: 4
+                        MaterialSymbol {
+                            visible: root.compactLayout
+                            text: "key"
+                            iconSize: Appearance.font.pixelSize.normal
+                            color: Appearance.colors.colOnErrorContainer
+                        }
+                        StyledText {
+                            id: connectionButtonLabel
+                            visible: !root.compactLayout
+                            text: Translation.tr("Connect")
+                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colOnErrorContainer
+                        }
+                    }
+                }
+            }
+        }
+
         Rectangle { // Input area
             id: inputWrapper
+            border.width: Appearance.editorialEverywhere ? 1 : 0
+            border.color: messageInputField.activeFocus ? Appearance.editorial.accent : Appearance.editorial.rule
             property real spacing: 5
             Layout.fillWidth: true
-            radius: Appearance.rounding.normal - root.padding
-            color: Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
-            implicitHeight: Math.max(inputFieldRowLayout.implicitHeight + inputFieldRowLayout.anchors.topMargin + commandButtonsRow.implicitHeight + commandButtonsRow.anchors.bottomMargin + spacing, 45) + (attachedFileIndicator.implicitHeight + spacing + attachedFileIndicator.anchors.topMargin)
+            radius: Appearance.editorialEverywhere ? Appearance.editorial.radius : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.normal - root.padding
+            Behavior on radius {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration }
+            }
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
+            implicitHeight: Math.max(45,
+                (attachedFileIndicator.visible
+                    ? attachedFileIndicator.implicitHeight + attachedFileIndicator.anchors.margins + spacing
+                    : 0)
+                + inputFieldRowLayout.implicitHeight + inputFieldRowLayout.anchors.topMargin
+                + commandButtonsRow.implicitHeight + commandButtonsRow.anchors.bottomMargin
+                + spacing)
             clip: true
 
             Behavior on implicitHeight {
-                animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
             }
 
             AttachedFileIndicator {
@@ -533,9 +715,15 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     id: messageInputField
                     wrapMode: TextArea.Wrap
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 40
+                    Layout.maximumHeight: root.compactLayout ? 104 : 156
                     padding: 10
-                    color: activeFocus ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
-                    placeholderText: Translation.tr('Message the model... "%1" for commands').arg(root.commandPrefix)
+                    color: activeFocus ? Appearance.colors.colOnSurface : Appearance.colMetadataText
+                    placeholderText: !Network.online && !(Ai.getModel()?.local ?? false)
+                        ? Translation.tr("%1. Local models still work").arg(Network.offlineReason)
+                        : Ai.currentModelReady
+                        ? Translation.tr("Ask %1 anything...").arg(Ai.getModel()?.name ?? Translation.tr("the assistant"))
+                        : Translation.tr("Connect the selected provider to start chatting")
 
                     background: null
 
@@ -557,12 +745,14 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                 key: "name"
                             });
                             root.suggestionList = modelResults.map(model => {
+                                const resolvedModel = Ai.models[model.target]
+                                if (!resolvedModel) return null
                                 return {
                                     name: `${messageInputField.text.trim().split(" ").length == 1 ? (root.commandPrefix + "model ") : ""}${model.target}`,
-                                    displayName: `${Ai.models[model.target].name}`,
-                                    description: `${Ai.models[model.target].description}`
+                                    displayName: resolvedModel.name ?? model.target,
+                                    description: resolvedModel.description ?? ""
                                 };
-                            });
+                            }).filter(model => model !== null)
                         } else if (messageInputField.text.startsWith(`${root.commandPrefix}prompt`)) {
                             root.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
                             const promptFileResults = Fuzzy.go(root.suggestionQuery, Ai.promptFiles.map(file => {
@@ -670,11 +860,9 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                 messageInputField.insert(messageInputField.cursorPosition, "\n");
                                 event.accepted = true;
                             } else {
-                                // Accept text
-                                const inputText = messageInputField.text;
-                                messageInputField.clear();
-                                root.handleInput(inputText);
-                                event.accepted = true;
+                                const inputText = messageInputField.text
+                                if (root.handleInput(inputText)) messageInputField.clear()
+                                event.accepted = true
                             }
                         } else if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_V) {
                             // Intercept Ctrl+V to handle image/file pasting
@@ -712,23 +900,65 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     }
                 }
 
+                RippleButton { // Voice dictation button
+                    id: micButton
+                    Layout.alignment: Qt.AlignTop
+                    implicitWidth: 40
+                    implicitHeight: 40
+                    buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.small
+                    toggled: root.dictating
+                    colBackgroundToggled: Appearance.colors.colError
+                    onClicked: {
+                        if (VoiceSearch.running) {
+                            VoiceSearch.stop();
+                        } else {
+                            VoiceSearch.startDictation();
+                        }
+                    }
+                    contentItem: MaterialSymbol {
+                        anchors.centerIn: parent
+                        horizontalAlignment: Text.AlignHCenter
+                        iconSize: 22
+                        color: root.dictating ? Appearance.colors.colOnError : Appearance.colors.colOnLayer2
+                        text: root.dictating
+                            ? (VoiceSearch.transcribing ? "graphic_eq" : "stop")
+                            : "mic"
+                    }
+                    StyledToolTip {
+                        text: root.dictating
+                            ? (VoiceSearch.transcribing ? Translation.tr("Transcribing…") : Translation.tr("Stop recording"))
+                            : Translation.tr("Voice input")
+                    }
+                }
+
                 RippleButton { // Send button
                     id: sendButton
                     Layout.alignment: Qt.AlignTop
                     Layout.rightMargin: 5
                     implicitWidth: 40
                     implicitHeight: 40
-                    buttonRadius: Appearance.rounding.small
-                    enabled: messageInputField.text.length > 0
+                    buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.small
+                    enabled: Ai.busy || (messageInputField.text.length > 0 && Ai.currentModelReady)
                     toggled: enabled
+                    // Active send = accent, not the default dark chrome plate.
+                    colBackgroundToggled: Appearance.zzzEverywhere ? Appearance.zzz.accent
+                        : Appearance.inirEverywhere ? Appearance.inir.colPrimary
+                        : Appearance.angelEverywhere ? Appearance.angel.colPrimary
+                        : Appearance.colors.colPrimary
+                    colBackgroundToggledHover: Appearance.zzzEverywhere ? Appearance.zzz.sticker
+                        : Appearance.inirEverywhere ? Appearance.inir.colPrimaryHover
+                        : Appearance.colors.colPrimaryHover
 
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: sendButton.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         onClicked: {
-                            const inputText = messageInputField.text;
-                            root.handleInput(inputText);
-                            messageInputField.clear();
+                            if (Ai.busy && messageInputField.text.length === 0) {
+                                Ai.stopRequest();
+                                return;
+                            }
+                            const inputText = messageInputField.text
+                            if (root.handleInput(inputText)) messageInputField.clear()
                         }
                     }
 
@@ -736,8 +966,15 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         iconSize: 22
-                        color: sendButton.enabled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer2Disabled
-                        text: "arrow_upward"
+                        color: sendButton.enabled
+                            ? (Appearance.zzzEverywhere ? Appearance.zzz.onSticker : Appearance.colors.colOnPrimary)
+                            : Appearance.colors.colOnLayer2Disabled
+                        text: (Ai.busy && messageInputField.text.length === 0) ? "stop" : "arrow_upward"
+                    }
+                    StyledToolTip {
+                        text: (Ai.busy && messageInputField.text.length === 0)
+                            ? Translation.tr("Stop generating")
+                            : Translation.tr("Send")
                     }
                 }
             }
@@ -748,34 +985,58 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 5
-                anchors.leftMargin: 10
+                anchors.leftMargin: root.compactLayout ? 5 : 10
                 anchors.rightMargin: 5
                 spacing: 4
 
                 property var commandsShown: [
-                    {
-                        name: "",
-                        sendDirectly: false,
-                        dontAddSpace: true
-                    },
-                    {
-                        name: "clear",
-                        sendDirectly: true
-                    },
+                    { name: "", sendDirectly: false, dontAddSpace: true },
+                    { name: "clear", sendDirectly: true },
                 ]
 
                 ApiInputBoxIndicator {
-                    // Model indicator
                     icon: "api"
-                    text: Ai.getModel().name
-                    tooltipText: Translation.tr("Current model: %1\nSet it with %2model MODEL").arg(Ai.getModel().name).arg(root.commandPrefix)
+                    readonly property var _model: Ai.getModel()
+                    text: _model?.name ?? Translation.tr("No model")
+                    showText: !root.compactLayout
+                    showDisclosure: !root.compactLayout
+                    maximumTextWidth: root.wideLayout ? 180 : 120
+                    tooltipText: _model?.name ?? Translation.tr("No model — click to select")
+                    clickAction: () => {
+                        messageInputField.text = root.commandPrefix + "model "
+                        messageInputField.cursorPosition = messageInputField.text.length
+                        messageInputField.forceActiveFocus()
+                    }
                 }
 
                 ApiInputBoxIndicator {
-                    // Tool indicator
                     icon: "service_toolbox"
                     text: Ai.currentTool.charAt(0).toUpperCase() + Ai.currentTool.slice(1)
-                    tooltipText: Translation.tr("Current tool: %1\nSet it with %2tool TOOL").arg(Ai.currentTool).arg(root.commandPrefix)
+                    showText: !root.compactLayout
+                    showDisclosure: !root.compactLayout
+                    maximumTextWidth: 84
+                    tooltipText: Ai.currentTool
+                    clickAction: () => {
+                        messageInputField.text = root.commandPrefix + "tool "
+                        messageInputField.cursorPosition = messageInputField.text.length
+                        messageInputField.forceActiveFocus()
+                    }
+                }
+
+                ApiInputBoxIndicator {
+                    icon: "history"
+                    text: ""
+                    tooltipText: Translation.tr("Conversations")
+                    clickAction: () => {
+                        root.historyOpen = !root.historyOpen
+                    }
+                }
+
+                ApiInputBoxIndicator {
+                    icon: "settings"
+                    text: ""
+                    tooltipText: Translation.tr("AI Settings")
+                    clickAction: () => GlobalStates.openSettingsPage(24)
                 }
 
                 Item {

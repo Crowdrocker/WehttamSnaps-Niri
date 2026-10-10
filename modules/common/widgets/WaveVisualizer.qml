@@ -4,18 +4,25 @@ import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Effects
 
-Canvas { // Visualizer
+Canvas {
     id: root
     property list<var> points
-    property list<var> smoothPoints
     property real maxVisualizerValue: 1000
     property int smoothing: 2
     property bool live: true
-    property color color: Appearance.m3colors.m3primary
-
+    property color color: CavaTheme.primaryColor
+    // Fill alpha — reads global config, consumers can override
+    property real fillOpacity: (Config.options?.appearance?.cava?.waveOpacity ?? 30) / 100
     onPointsChanged: () => {
-        root.requestPaint()
+        if (root.visible)
+            root.requestPaint()
     }
+    onVisibleChanged: {
+        if (root.visible)
+            root.requestPaint()
+    }
+    onFillOpacityChanged: requestPaint()
+    onColorChanged: requestPaint()
 
     anchors.fill: parent
     onPaint: {
@@ -29,41 +36,36 @@ Canvas { // Visualizer
         var n = points.length;
         if (n < 2) return;
 
-        // Smoothing: simple moving average (optional)
-        var smoothWindow = root.smoothing; // adjust for more/less smoothing
-        root.smoothPoints = [];
+        var smoothWindow = Math.max(0, root.smoothing);
+        var smoothPoints = new Array(n);
+        var count = smoothWindow * 2 + 1;
+        var sum = 0;
+        for (var j = -smoothWindow; j <= smoothWindow; ++j)
+            sum += points[Math.max(0, Math.min(n - 1, j))];
         for (var i = 0; i < n; ++i) {
-            var sum = 0, count = 0;
-            for (var j = -smoothWindow; j <= smoothWindow; ++j) {
-                var idx = Math.max(0, Math.min(n - 1, i + j));
-                sum += points[idx];
-                count++;
-            }
-            root.smoothPoints.push(sum / count);
+            smoothPoints[i] = sum / count;
+            var outgoing = Math.max(0, Math.min(n - 1, i - smoothWindow));
+            var incoming = Math.max(0, Math.min(n - 1, i + smoothWindow + 1));
+            sum += points[incoming] - points[outgoing];
         }
-        if (!root.live) root.smoothPoints.fill(0); // If not playing, show no points
+        if (!root.live) smoothPoints.fill(0);
 
         ctx.beginPath();
         ctx.moveTo(0, h);
         for (var i = 0; i < n; ++i) {
             var x = i * w / (n - 1);
-            var y = h - (root.smoothPoints[i] / maxVal) * h;
+            var y = h - (smoothPoints[i] / maxVal) * h * 0.9;
             ctx.lineTo(x, y);
         }
         ctx.lineTo(w, h);
         ctx.closePath();
 
-        ctx.fillStyle = Qt.rgba(
-            root.color.r,
-            root.color.g,
-            root.color.b,
-            0.15
-        );
+        ctx.fillStyle = Qt.rgba(root.color.r, root.color.g, root.color.b, root.fillOpacity);
         ctx.fill();
     }
 
-    layer.enabled: Appearance.effectsEnabled
-    layer.effect: MultiEffect { // Blur a bit to obscure away the points
+    layer.enabled: root.visible && Appearance.effectsEnabled
+    layer.effect: MultiEffect {
         source: root
         saturation: 0.2
         blurEnabled: Appearance.effectsEnabled

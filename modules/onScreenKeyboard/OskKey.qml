@@ -1,4 +1,5 @@
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
@@ -13,10 +14,19 @@ RippleButton {
     property var keycode: keyData.keycode
     property string shape: keyData.shape
     property bool isShift: Ydotool.shiftKeys.includes(keycode)
+    property bool isCaps: type === "caps"
     property bool isBackspace: (key.toLowerCase() == "backspace")
     property bool isEnter: (key.toLowerCase() == "enter" || key.toLowerCase() == "return")
     property real baseWidth: 45
     property real baseHeight: 45
+    // What a family may restyle; the defaults are Material's and Waffle's keycap.
+    property color colKeyText: Appearance.zzzEverywhere ? Appearance.zzz.ink : Appearance.colors.colOnLayer1
+    property color colKeyTextToggled: Appearance.zzzEverywhere ? Appearance.zzz.onSticker : Appearance.colors.colOnPrimary
+    property string keyFontFamily: Appearance.font.family.main
+    property string glyphFontFamily: Appearance.font.family.iconMaterial
+    property real keyFontSize: Appearance.font.pixelSize.large
+    property real fnFontSize: Appearance.font.pixelSize.small
+    property real glyphFontSize: Appearance.font.pixelSize.huge
     property var widthMultiplier: ({
         "normal": 1,
         "fn": 1,
@@ -33,11 +43,16 @@ RippleButton {
         "shift": 1,
         "control": 1
     })
-    toggled: isShift ? Ydotool.shiftMode : false
+    toggled: isShift ? Ydotool.shiftMode : isCaps ? Ydotool.shiftMode == 2 : false
 
     enabled: shape != "empty"
-    colBackground: shape == "empty" ? ColorUtils.transparentize(Appearance.colors.colLayer1) : Appearance.colors.colLayer1
-    buttonRadius: Appearance.rounding.small
+    // ZZZ: raised carbon keycaps (bg2) over the bg0 backplate, with the active
+    // mod key reading as a signal sticker. Other styles keep the flat layer1.
+    colBackground: shape == "empty"
+        ? ColorUtils.transparentize(Appearance.colors.colLayer1)
+        : (Appearance.zzzEverywhere ? Appearance.zzz.bg2 : Appearance.colors.colLayer1)
+    colBackgroundToggled: Appearance.zzzEverywhere ? Appearance.zzz.sticker : Appearance.colors.colPrimary
+    buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.small
     implicitWidth: baseWidth * widthMultiplier[shape] || baseWidth
     implicitHeight: baseHeight * heightMultiplier[shape] || baseHeight
     Layout.fillWidth: shape == "space" || shape == "expand"
@@ -68,11 +83,20 @@ RippleButton {
     }
 
     downAction: () => {
+        if (root.isCaps)
+            return;
         Ydotool.press(root.keycode);
         if (isShift && Ydotool.shiftMode == 0) Ydotool.shiftMode = 1;
     }
     releaseAction: () => {
-        if (root.type == "normal") {
+        if (root.isCaps) {
+            if (Ydotool.shiftMode == 2) {
+                Ydotool.releaseShiftKeys();
+            } else {
+                Ydotool.press(Ydotool.shiftKeys[0]);
+                Ydotool.shiftMode = 2; // Caps lock mode
+            }
+        } else if (root.type == "normal") {
             Ydotool.release(root.keycode);
             if (Ydotool.shiftMode == 1) {
                 Ydotool.releaseShiftKeys()
@@ -107,13 +131,14 @@ RippleButton {
     contentItem: StyledText {
         id: keyText
         anchors.fill: parent
-        font.family: (isBackspace || isEnter) ? Appearance.font.family.iconMaterial : Appearance.font.family.main
-        font.pixelSize: root.shape == "fn" ? Appearance.font.pixelSize.small : 
-            (isBackspace || isEnter) ? Appearance.font.pixelSize.huge :
-            Appearance.font.pixelSize.large
+        font.family: (isBackspace || isEnter) ? root.glyphFontFamily : root.keyFontFamily
+        font.pixelSize: root.shape == "fn" ? root.fnFontSize :
+            (isBackspace || isEnter) ? root.glyphFontSize :
+            root.keyFontSize
         horizontalAlignment: Text.AlignHCenter
-        color: root.toggled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
+        color: root.toggled ? root.colKeyTextToggled : root.colKeyText
         text: root.isBackspace ? "backspace" : root.isEnter ? "subdirectory_arrow_left" :
+            (root.toggled && root.keyData.labelToggled) ? root.keyData.labelToggled :
             Ydotool.shiftMode == 2 ? (root.keyData.labelCaps || root.keyData.labelShift || root.keyData.label) :
             Ydotool.shiftMode == 1 ? (root.keyData.labelShift || root.keyData.label) : 
             root.keyData.label

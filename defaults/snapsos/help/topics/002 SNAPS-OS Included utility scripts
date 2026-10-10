@@ -1,0 +1,119 @@
+> Included Utility scripts
+
+SNAPS-OS has a couple of utility scripts, all of which can be found under ~/.config/snapsos
+
+#help/cmd-help.sh#
+this script presents a searchable list of commands with their TLDR explainers on the right to the user. 
+the list of commands can be found in cmds.list. 
+when the user selects a command, it'll open the man page for that command.
+
+this is bound to the bind *super+H* and the terminal alias `tldrtui`
+
+#help/help.sh#
+shows this menu! it effectively just shows you all the files in the topics folder with their contents. 
+
+this is bound to the bind *super+shift+H* and the terminal alias `tldrtui`
+
+#help/references.sh#
+this script takes a list file (like references.list, mangoipc.list or DMSipc.list) and presents it using fzf. 
+this is not used directly but used through another script to present searchable reference lists.
+
+#screenshots/mode-toggle.sh#
+this script rotates between 3 save modes for screenshots. these are then used by the other scripts.
+modes are:
+save to clipboard
+save to file
+open in editor
+
+this is bound to the bind *printscreen*
+
+#screenshots/fullscreen.sh#
+takes an all-screen screenshot
+
+this is bound to the bind *super+control+printscreen*
+
+#screenshots/region.sh#
+allows you to select a region
+
+this is bound to the bind *super+printscreen*
+
+#tips/tips.list#
+this one is actually just a single line, so it doesnt have its own script, but this is the source file the tips system pulls from.
+this is the line:
+`shuf -n 1 ~/.config/snapsos/tips/tips.list`
+
+this runs automatically on opening your first terminal (not on any successive terminals)
+you can also get a tip by running `tipme` in the terminal or by pressing *super+0*
+
+#tuis/aur-install.sh#
+provides a graphical interface for browsing the AUR, including multi-select functionality and a details pane
+
+you can launch this script with the terminal alias `aurgui`
+
+#tuis/pkg-install.sh#
+provides a graphical interface for browsing the pacman repository, including multi-select functionality and a details pane
+
+you can launch this script with the terminal alias `pacgui`
+
+#tuis/documentation.sh#
+provides quick access to various pieces of documentation, including various interactive reference lists. 
+
+you can launch this script with the terminal alias `documentation` or the bind *super+shift+M*
+
+#tuis/layout-switch.sh#
+allows you to switch through layouts using a selectable menu, pulls layouts from layouts.list, so new layouts can be added easily. 
+
+you can launch this script with the bind *super+shift+W*
+
+#tuis/project-select.sh#
+shows a list of git repositories within your projects directory (default ~/projects) with their top level list of files + readme.
+when you select a git repo, it'll open this repo in code-oss (vscode). 
+
+you can launch this script with the alias `git-projects` or the bind *super+shift+tab*
+
+#mango-config.sh#
+gives you a browsable TUI for all configuration files in ~/.config/mango, with a preview, selecting an entry opens it in micro. 
+
+you can launch this script with the alias `mangoconf` or the bind *super+M*
+
+#config-overview/menu.sh#
+gives a browsable TUI that allows you to see details for each line in your mango config.
+
+binds to *super+alt+m*
+
+#wallpapers/setwallpapergroup.sh#
+
+can either be called with the name of one of the folders in wallpapers, or without anything.
+
+if called with the name of a folder, sets the wallpapers to that folder.
+
+if called without, presents a menu to select a folder.
+
+bound by default to *super+w*, cycling wallpapers manually can be done with alt+W and shift+alt+w for forwards and backwards.
+
+#tuis/bar-presets.sh#
+
+presents a FZF menu that allows you to toggle the pre-configured bars and dock, as well as select from various combination presets.
+
+this menu can be spawned with *super+shift+d*
+
+
+#optional: unipkg# 
+
+unipkg does not exist in the ~/.config/snapsos directory, but is installed to your system.
+
+you can open the unipkg TUI using `unipkg launch-tui`, launch an interactive help TUI for it with `unipkg help-tui` or use `unipkg help` to find out more.
+
+
+#optional: dotfile-git-sync
+
+this is also added as a command to your system, and can be run from the terminal as follows:
+
+`dotfile-git-sync ~/path/to/your/github/repository`
+
+this will open a menu showing you the files in your ~/.config directory, allowing you to multi-select with tab.
+
+the script will move all selected folders from .config to your github repository, then symlink them back using stow (also including any folders in the github repository that were already imported), then *sync* your repository to github.
+
+it's recommended to put your git repository for your dotfiles inside your projects folder so you can easily access it with project-select (*super+shift+tab* or alias `git-projects`)
+

@@ -77,24 +77,30 @@ Item { // Window
     }
 
     Behavior on x {
-        animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve }
     }
     Behavior on y {
-        animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve }
     }
     Behavior on width {
-        animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve }
     }
     Behavior on height {
-        animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve }
     }
 
     ScreencopyView {
         id: windowPreview
         anchors.fill: parent
-        captureSource: GlobalStates.overviewOpen ? root.toplevel : null
+        // Fullscreen GameMode must not retain a live screencopy source.
+        captureSource: (GlobalStates.overviewOpen && !GameMode.active)
+            ? root.toplevel : null
         // Pause during recording to avoid lag
-        live: !RecorderStatus.isRecording
+        live: !RecorderStatus.isRecording && !GameMode.active
 
         // Color overlay for interactions
         Rectangle {
@@ -106,7 +112,7 @@ Item { // Window
             color: pressed ? ColorUtils.transparentize(Appearance.colors.colLayer2Active, 0.5) : 
                 hovered ? ColorUtils.transparentize(Appearance.colors.colLayer2Hover, 0.7) : 
                 ColorUtils.transparentize(Appearance.colors.colLayer2)
-            border.color : ColorUtils.transparentize(Appearance.m3colors.m3outline, 0.88)
+            border.color : ColorUtils.transparentize(Appearance.colors.colOutline, 0.88)
             border.width : 1
         }
 
@@ -136,10 +142,12 @@ Item { // Window
             sourceSize: Qt.size(iconSize, iconSize)
 
             Behavior on width {
-                animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve }
             }
             Behavior on height {
-                animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve }
             }
         }
     }

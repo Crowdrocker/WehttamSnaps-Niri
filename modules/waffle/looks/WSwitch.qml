@@ -44,7 +44,7 @@ Switch {
     indicator: Rectangle {
         implicitWidth: (root.pressed || root.down) ? root.indicatorPressedWidth : root.indicatorHeight
         implicitHeight: (root.pressed || root.down) ? root.indicatorPressedHeight : root.indicatorHeight
-        radius: height / 2
+        radius: Math.min(width, height) / 2
         color: root.checked ? Looks.colors.accentFg : root.borderColor
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
@@ -76,7 +76,7 @@ Switch {
             }
         }
         Behavior on color {
-            animation: Looks.transition.color.createObject(this)
+            animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
     }
 }

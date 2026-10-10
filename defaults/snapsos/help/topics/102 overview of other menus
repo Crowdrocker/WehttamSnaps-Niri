@@ -1,0 +1,117 @@
+> Other Menus
+
+DMS and SNAPS-OS have a variety of menus, here's an overview of them and how you can access them
+
+## runner
+the runner can be accessed using the keybind *SUPER+SPACE*
+
+it can also be accessed by clicking the button on the top left of the bar, a button for this can also be turned on in the dock.
+
+by default, the button will be in apps mode, the keybind will be in "all" mode.
+
+in apps mode, the runner menu will allow you to launch applications
+
+in search mode, the runner will allow you to search through your /home directory
+
+under plugins, you can select settings, you can also do this by starting your search with "?"
+
+this will allow you to search through DMS settings. 
+
+## Keybinds
+
+this can be accessed with *SUPER+K*
+
+the keybinds menu gives you a searchable overview of the keybinds configured in ~/.config/mango/binds.conf
+
+## clipboard History
+
+this can be accessed with *SUPER+V* or from a widget on your bar.
+
+you can see your clipboard history from here and load any of those elements back to your clipboard
+
+## process list
+
+this can be accessed with *SUPER+X* or from various widgets on your bar.
+
+this menu acts as a "Task Manager", allowing you to view, search and kill processes, monitor performance and monitor disk usage.
+
+this is also a good place to find information about your system, such as what kernel you're running, what your hostname is and what CPU/GPU you have.
+
+## dash
+
+the dash can be accessed through various bar widgets and contains an overview with calendar and metrics, a media player, wallpaper selector, weather and access to your settigns.
+
+
+## notifications
+
+notifications can be accessed with *SUPER+SHIFT+N*, from the notifications widget or from the control center
+
+this will show you a notification history as well as current notifications, allows you to toggle do not disturb and allows you to configure notification settings.
+
+## control center
+
+this can be accessed with *SUPER+ESCAPE* or from the bar widget and gives you quick access to common settings like wifi, bluetooth, audio, theming, the settings menu and power controls. 
+
+
+## power menu
+
+this can be accessed from a bar widget or *SUPER+Z* and allows you to reboot, shut down or sleep your PC.
+
+## notepad
+
+this can be toggled with *SUPER+N* or a bar widget, and is a simple space to keep quick notes. 
+
+
+## command help
+
+this can be spawned with *SUPER+H* and gives you a searchable list of basic commands with their TLDR overviews
+
+selecting a command shows the full manual page, pressing q in the manual page brings you back to the main menu
+
+
+## full help
+
+this menu! spawned with *SUPER+SHIFT+H*
+
+
+## package installer
+
+spawned with *SUPER+Y*, this menu allows you to search the pacman, aur and optionally flatpak repositories.
+
+
+## unipkg installer
+
+spawned with *SUPER+SHIFT+Y*, this menu uses a package manager agnostic wrapper to present a TUI allowing you to use any of your package managers.
+
+
+## Mango Config editor TUI
+
+spawned with *SUPER+M*, this menu gives you a list of your mango configuration files with a preview, selecting an item will open it in the micro text editor. 
+
+## Mango Config explainer TUI
+
+spawned with *SUPER+ALT+M*, this menu allows you to open any of your mango config files and browse through them line-by-line, showing details on what that line does and how to configure it.
+
+
+## layout switcher
+
+spawned with *SUPER+SHIFT+W*, this menu allows you to switch between mangoWM layouts
+
+## wallpaper switcher 
+
+spawned with *SUPER+W*, this allows you to select different wallpaper options.
+
+## bar switcher
+
+spawned with *SUPER+SHIFT+D*, this allows you to switch between different bar layouts as well as toggle individual components.
+
+
+## documentation
+
+spawned with *SUPER+SHIFT+M*, this menu gives you quick access to relevant documentation
+
+
+## Project selector
+
+spawned with *SUPER+SHIFT+TAB*, this menu gives you quick access to working on any git projects in your ~/projects directory
+

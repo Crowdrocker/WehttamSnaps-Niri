@@ -8,7 +8,7 @@ ColumnLayout {
     id: root
     property string title
     property string icon: ""
-    default property alias data: sectionContent.data
+    default property alias contentData: sectionContent.data
     
     // Settings search integration
     property bool enableSettingsSearch: true
@@ -39,6 +39,8 @@ ColumnLayout {
             return;
         if (typeof SettingsSearchRegistry === "undefined")
             return;
+        if (!SettingsSearchRegistry.dynamicRegistrationEnabled)
+            return;
 
         var ctx = _findSettingsContext();
         var page = ctx.page;
@@ -60,7 +62,16 @@ ColumnLayout {
         }
     }
 
+    ZzzSectionHeader {
+        Layout.fillWidth: true
+        visible: Appearance.zzzEverywhere && root.title.length > 0
+        title: root.title
+        symbol: root.icon
+        accentColor: Appearance.zzz.accent
+    }
+
     RowLayout {
+        visible: !Appearance.zzzEverywhere
         spacing: 6
         OptionalMaterialSymbol {
             icon: root.icon
@@ -70,7 +81,7 @@ ColumnLayout {
             text: root.title
             font.pixelSize: Appearance.font.pixelSize.larger
             font.weight: Font.Medium
-            color: Appearance.colors.colOnSecondaryContainer
+            color: SettingsMaterialPreset.titleExpandedColor
         }
     }
 

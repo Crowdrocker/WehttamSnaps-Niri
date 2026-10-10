@@ -42,13 +42,11 @@ StyledOverlayWidget {
                 }
 
                 BigActionButton {
-                    materialSymbol: (Audio.source?.audio?.muted ?? false) ? "mic_off" : "mic"
+                    materialSymbol: Audio.micMuted ? "mic_off" : "mic"
                     name: "Toggle mic (global)"
-                    active: Audio.source?.audio?.muted ?? false
+                    active: Audio.micMuted
                     onClicked: {
-                        if (Audio.source?.audio) {
-                            Audio.toggleMicMute()
-                        }
+                        Audio.toggleMicMute()
                     }
                 }
 
@@ -77,9 +75,9 @@ StyledOverlayWidget {
         implicitWidth: 66
         buttonRadius: height / 2
 
-        colBackground: Appearance.colors.colLayer3
-        colBackgroundHover: Appearance.colors.colLayer3Hover
-        colRipple: Appearance.colors.colLayer3Active
+        colBackground: OverlayLook.colLayer3
+        colBackgroundHover: OverlayLook.colLayer3Hover
+        colRipple: OverlayLook.colLayer3Active
 
         contentItem: MaterialSymbol {
             anchors.centerIn: parent
@@ -87,7 +85,7 @@ StyledOverlayWidget {
             verticalAlignment: Text.AlignVCenter
             text: bigButton.materialSymbol
             iconSize: 28
-            color: bigButton.active ? Appearance.colors.colError : Appearance.colors.colOnSurface
+            color: bigButton.active ? OverlayLook.colError : OverlayLook.colOnSurface
         }
 
         StyledToolTip {

@@ -1,0 +1,253 @@
+# ~/.config/wehttamsnaps/shell/.aliases
+# WehttamSnaps Cyberpunk Aliases
+# Cleaned up to work with existing .bashrc
+
+# ═══════════════════════════════════════════════════════════════════
+# SYSTEM MAINTENANCE
+# ═══════════════════════════════════════════════════════════════════
+
+# Update system (enhanced versions)
+alias update='sudo pacman -Syu && yay -Syu'
+alias upd='sudo pacman -Syu'
+alias upyay='yay -Syu'
+alias updall='sudo pacman -Syu && yay -Syu && flatpak update'
+
+# Clean package cache
+alias clean='sudo pacman -Sc && yay -Sc'
+alias cleanall='sudo pacman -Scc && yay -Scc'
+alias cleancache='paccache -r && yay -Sc'
+
+# Remove orphaned packages
+alias orphans='sudo pacman -Rns $(pacman -Qtdq)'
+alias cleanup='sudo pacman -Rns $(pacman -Qtdq) 2>/dev/null && echo "✓ System cleaned!"'
+
+# List explicitly installed packages
+alias listpkgs='pacman -Qe'
+alias listpkgsyay='yay -Qe'
+
+# Search packages
+alias search='pacman -Ss'
+alias searchyay='yay -Ss'
+
+# ═══════════════════════════════════════════════════════════════════
+# SYSTEM INFO
+# ═══════════════════════════════════════════════════════════════════
+
+alias sysinfo='fastfetch'
+alias hardware='inxi -Fxz'
+alias meminfo='free -h'
+alias cpuinfo='lscpu'
+
+# ═══════════════════════════════════════════════════════════════════
+# GRIM Screenshot
+# ═══════════════════════════════════════════════════════════════════
+
+# Screenshot shortcuts
+alias ss='grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png && sound-system screenshot'
+alias ssregion='grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png && sound-system screenshot'
+
+#For interactive area selection (recommended):
+#This uses slurp to select a region, then pipes it to grim
+alias grsnap='grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png && sound-system screenshot'
+
+
+
+
+# ═══════════════════════════════════════════════════════════════════
+# NIRI & WEHTTAMSNAPS
+# ═══════════════════════════════════════════════════════════════════
+
+# Edit configs
+alias editniri='kate ~/.config/niri/config.kdl'
+alias editkeybinds='kate ~/.config/niri/snaps/10-wiri_keybinds.kdl'
+alias editstartup='kate ~/.config/niri/snaps/05-wiri_startup.kdl'
+alias editrules='kate ~/.config/niri/snaps/20-wiri_rules.kdl'
+alias editws='kate ~/.config/niri/snaps/30-workspaces.kdl'
+alias editsnaps='kate ~/.config/wehttamsnaps/'
+alias editalias='kate ~/.config/wehttamsnaps/shell/.aliases && source ~/.bashrc'
+
+# Niri management
+alias nreload='niri msg action reload-config'
+alias nvalidate='niri validate'
+alias nquick='~/.config/niri/scripts/niri_quick_settings.sh'
+
+# WehttamSnaps specific
+alias welcome='python3 ~/.config/wehttamsnaps/scripts/welcome.py --force'
+alias keyhints='~/.config/wehttamsnaps/scripts/KeyHints.sh'
+alias jarvis='~/.config/wehttamsnaps/scripts/jarvis-manager.sh'
+
+# ═══════════════════════════════════════════════════════════════════
+# FILE OPERATIONS (Enhanced with eza if available)
+# ═══════════════════════════════════════════════════════════════════
+
+# Override with eza if installed
+if command -v eza &> /dev/null; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -la --icons --group-directories-first'
+    alias lt='eza --tree --level=2 --icons'
+    alias llt='eza -la --tree --level=2 --icons'
+    alias lsa='eza -la --icons --group-directories-first'
+fi
+
+# Quick navigation (additional to existing)
+alias docs='cd ~/Documents'
+alias dl='cd ~/Downloads'
+alias pics='cd ~/Pictures'
+alias vids='cd ~/Videos'
+alias conf='cd ~/.config'
+alias games='cd ~/Games'
+alias snaps='cd ~/.config/wehttamsnaps'
+
+# ═══════════════════════════════════════════════════════════════════
+# APPLICATIONS
+# ═══════════════════════════════════════════════════════════════════
+
+# Browsers (with Wayland support)
+alias brave='brave --enable-features=UseOzonePlatform --ozone-platform=wayland'
+alias vivaldi='vivaldi-stable --enable-features=UseOzonePlatform --ozone-platform=wayland'
+alias firefox='firefox-developer-edition'
+
+# File managers
+alias fm='thunar'
+alias nfm='nautilus'
+
+# Editors (v and vim already set to nvim in .bashrc)
+alias k='kate'
+
+# ═══════════════════════════════════════════════════════════════════
+# GAMING
+# ═══════════════════════════════════════════════════════════════════
+
+# Launch gaming mode
+alias gamemode='sound-system gaming-toggle'
+alias gaming='sound-system gaming-toggle'
+
+# Gaming platforms (steam already has sound-system integration)
+alias steam='sound-system steam-launch && steam'
+alias lutris='lutris'
+alias heroic='heroic'
+
+# Mod managers (adjust paths to your Wine prefixes)
+alias vortex='wine ~/.wine/drive_c/Program\ Files/Vortex/Vortex.exe'
+alias mo2='wine ~/.wine/drive_c/Modding/MO2/ModOrganizer.exe'
+alias stl='~/.local/share/Steam/steamapps/common/SteamTinkerLaunch/steamtinkerlaunch'
+
+# ═══════════════════════════════════════════════════════════════════
+# AUDIO & MEDIA
+# ═══════════════════════════════════════════════════════════════════
+
+# Audio routing
+alias audioroute='~/.config/wehttamsnaps/scripts/audio-routing.sh gaming'
+alias audiograph='qpwgraph'
+alias audiomix='pavucontrol'
+
+# Media players
+alias music='spotify-launcher'
+alias spot='spotify-launcher'
+alias mpv='mpv --vo=gpu --hwdec=auto'
+
+# ═══════════════════════════════════════════════════════════════════
+# DEVELOPMENT (Git shortcuts already in .bashrc via gcom/lazyg)
+# ═══════════════════════════════════════════════════════════════════
+
+# Python
+alias py='python3'
+alias venv='python3 -m venv venv'
+alias activate='source venv/bin/activate'
+
+# Quick project shortcuts
+alias cdniri='cd ~/.config/niri'
+alias cdsnaps='cd ~/.config/wehttamsnaps'
+alias cddots='cd ~/dotfiles' # adjust to your dotfiles location
+
+# ═══════════════════════════════════════════════════════════════════
+# NETWORKING (some already in .bashrc)
+# ═══════════════════════════════════════════════════════════════════
+
+alias myip='curl ifconfig.me'
+alias localip='ip addr show | grep "inet " | grep -v 127.0.0.1'
+alias speedtest='speedtest-cli'
+
+# ═══════════════════════════════════════════════════════════════════
+# UTILITIES
+# ═══════════════════════════════════════════════════════════════════
+
+# Reload shell config
+alias reload='source ~/.bashrc'
+
+# Weather
+alias weather='curl wttr.in'
+
+# Copy to clipboard (Wayland)
+alias copy='wl-copy'
+alias paste='wl-paste'
+
+# Quick notes
+alias note='kate ~/Documents/notes.txt'
+
+# Clock
+alias clock='tty-clock -c -C 6 -r'
+
+
+
+# ═══════════════════════════════════════════════════════════════════
+# CUSTOM FUNCTIONS
+# ═══════════════════════════════════════════════════════════════════
+
+# Make directory and cd into it (mkdirg already exists in .bashrc)
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Quick backup (with timestamp)
+backup() {
+    cp "$1"{,.backup-$(date +%Y%m%d-%H%M%S)}
+    echo "✓ Backed up: $1.backup-$(date +%Y%m%d-%H%M%S)"
+}
+
+# Find and replace in files
+replace() {
+    if [ $# -lt 2 ]; then
+        echo "Usage: replace <search> <replace>"
+        return 1
+    fi
+    find . -type f -exec sed -i "s/$1/$2/g" {} +
+    echo "✓ Replaced '$1' with '$2'"
+}
+
+# Quick git commit and push
+gcp() {
+    git add .
+    git commit -m "$1"
+    git push
+    echo "✓ Committed and pushed: $1"
+}
+
+# Update all the things
+updateall() {
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🔄 Updating System Packages..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    sudo pacman -Syu && yay -Syu
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📦 Updating Flatpaks..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    flatpak update -y
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "✓ All updates complete!"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# CYBERPUNK GREETING (Optional - uncomment if desired)
+# ═══════════════════════════════════════════════════════════════════
+
+# echo -e "\033[1;36m╔══════════════════════════════════════════════════════════════╗\033[0m"
+# echo -e "\033[1;36m║         \033[1;35mWehttamSnaps\033[1;36m - The future is now                   ║\033[0m"
+# echo -e "\033[1;36m╚══════════════════════════════════════════════════════════════╝\033[0m"
+# echo -e "\033[1;35mType 'welcome' for the quick start guide\033[0m"
+# echo ""

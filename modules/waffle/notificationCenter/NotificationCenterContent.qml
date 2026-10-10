@@ -3,7 +3,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import Qt.labs.synchronizer
 import qs
 import qs.services
 import qs.modules.common
@@ -23,18 +22,22 @@ WBarAttachedPanelContent {
 
     contentItem: ColumnLayout {
         id: contentLayout
-        spacing: 12
+        spacing: Looks.dp(12)
 
         // Notification area
         Item {
             id: notificationArea
             Layout.fillWidth: true
-            Layout.preferredHeight: Math.min(300, notificationPane.implicitHeight)
+            Layout.preferredHeight: Math.min(Looks.dp(560), notificationPane.implicitHeight)
             implicitWidth: notificationPane.implicitWidth
 
             WPane {
                 id: notificationPane
                 anchors.fill: parent
+                screenX: root.panelScreenX + root.visualMargin
+                screenY: root.panelScreenY + root.visualMargin
+                screenWidth: root._screenW
+                screenHeight: root._screenH
                 contentItem: NotificationPaneContent {
                     implicitWidth: calendarColumnLayout.implicitWidth
                 }
@@ -45,13 +48,16 @@ WBarAttachedPanelContent {
         WPane {
             id: calendarPane
             Layout.fillWidth: true
+            screenX: root.panelScreenX + root.visualMargin
+            screenY: root.panelScreenY + root.visualMargin + notificationArea.height + Looks.dp(12)
+            screenWidth: root._screenW
+            screenHeight: root._screenH
             contentItem: WPanelPageColumn {
                 id: calendarColumnLayout
                 DateHeader {
                     Layout.fillWidth: true
-                    Synchronizer on collapsed {
-                        property alias source: root.collapsed
-                    }
+                    collapsed: root.collapsed
+                    onCollapsedChanged: if (collapsed !== root.collapsed) root.collapsed = collapsed
                 }
 
                 WPanelSeparator {
@@ -60,9 +66,8 @@ WBarAttachedPanelContent {
 
                 CalendarWidget {
                     Layout.fillWidth: true
-                    Synchronizer on collapsed {
-                        property alias source: root.collapsed
-                    }
+                    collapsed: root.collapsed
+                    onCollapsedChanged: if (collapsed !== root.collapsed) root.collapsed = collapsed
                 }
 
                 WPanelSeparator {}

@@ -8,12 +8,16 @@ RippleButton {
     id: root
     property string buttonIcon
     property alias iconSize: iconWidget.iconSize
+    property bool autoToggle: true
+    // Optional wrapping subtext under the label ("what does this do?")
+    property string description: ""
     // Integración con buscador global de Settings
     property bool enableSettingsSearch: true
     property int settingsSearchOptionId: -1
+    signal toggledByUser(bool checked)
 
     Layout.fillWidth: true
-    implicitHeight: contentItem.implicitHeight + 8 * 2
+    implicitHeight: contentItem.implicitHeight + 6 * 2
     font.pixelSize: Appearance.font.pixelSize.small
 
     function _findSettingsContext() {
@@ -55,6 +59,8 @@ RippleButton {
             return;
         if (typeof SettingsSearchRegistry === "undefined")
             return;
+        if (!SettingsSearchRegistry.dynamicRegistrationEnabled)
+            return;
 
         var ctx = _findSettingsContext();
         var page = ctx.page;
@@ -78,23 +84,45 @@ RippleButton {
         }
     }
 
-    onClicked: checked = !checked
+    onClicked: {
+        const nextChecked = !checked;
+        toggledByUser(nextChecked);
+        if (autoToggle)
+            checked = nextChecked;
+    }
 
     contentItem: RowLayout {
-        spacing: 10
+        spacing: 8
         OptionalMaterialSymbol {
             id: iconWidget
             icon: root.buttonIcon
             opacity: root.enabled ? 1 : 0.4
-            iconSize: Appearance.font.pixelSize.larger
+            iconSize: Appearance.font.pixelSize.large
         }
-        StyledText {
-            id: labelWidget
+        ColumnLayout {
             Layout.fillWidth: true
-            text: root.text
-            font: root.font
-            color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnSecondaryContainer
-            opacity: root.enabled ? 1 : 0.4
+            spacing: 1
+
+            StyledText {
+                id: labelWidget
+                Layout.fillWidth: true
+                text: root.text
+                wrapMode: Text.Wrap
+                font: root.font
+                color: Appearance.angelEverywhere ? Appearance.angel.colText
+                    : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnSurface
+                opacity: root.enabled ? 1 : 0.4
+            }
+
+            StyledText {
+                visible: root.description.length > 0
+                Layout.fillWidth: true
+                text: root.description
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                color: Appearance.colors.colSubtext
+                opacity: root.enabled ? 0.9 : 0.4
+                wrapMode: Text.Wrap
+            }
         }
         StyledSwitch {
             id: switchWidget
@@ -106,4 +134,3 @@ RippleButton {
         }
     }
 }
-

@@ -1,0 +1,40 @@
+{
+    "custom/ss-monitor": {
+        "format": "",
+        "tooltip-format": "Capture monitor",
+        "on-click": "mmsg dispatch spawn_shell,'~/.config/snapsos/wayshell/configs/ss-capture.sh output'"
+    },
+    "custom/ss-zone": {
+        "format": "",
+        "tooltip-format": "Select zone",
+        "on-click": "mmsg dispatch spawn_shell,'~/.config/snapsos/wayshell/configs/ss-capture.sh area'"
+    },
+    "custom/ss-all": {
+        "format": "",
+        "tooltip-format": "All monitors",
+        "on-click": "mmsg dispatch spawn_shell,'~/.config/snapsos/wayshell/configs/ss-capture.sh screen'"
+    },
+    "custom/ss-window": {
+        "format": "",
+        "tooltip-format": "Capture window",
+        "on-click": "mmsg dispatch spawn_shell,'~/.config/snapsos/wayshell/configs/ss-capture.sh active'"
+    },
+    "custom/ss-obs": {
+        "format": "",
+        "tooltip-format": "Open OBS",
+        "on-click": "mmsg dispatch spawn_shell,'obs'"
+    },
+    "custom/ss-mode": {
+        "exec": "~/.config/snapsos/wayshell/configs/ss-mode.sh",
+        "interval": 86400,
+        "signal": 1,
+        "format": "{}",
+        "tooltip-format": "Screenshot mode",
+        "on-click": "mmsg dispatch spawn_shell,'~/.config/snapsos/wayshell/configs/ss-mode-cycle.sh'"
+    },
+    "custom/ss-settings": {
+        "format": "",
+        "tooltip-format": "Settings",
+        "on-click": "mmsg dispatch spawn_shell,'~/.config/snapsos/wayshell/configs/ss-settings-menu.sh'"
+    }
+}

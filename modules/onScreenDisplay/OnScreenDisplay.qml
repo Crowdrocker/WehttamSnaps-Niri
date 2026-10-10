@@ -14,11 +14,28 @@ Scope {
     id: root
     property string protectionMessage: ""
     property bool initialized: false
-    property var focusedScreen: CompositorService.isNiri
-        ? Quickshell.screens.find(s => s.name === NiriService.currentOutput) ?? Quickshell.screens[0]
-        : Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
-
+    property var excludedScreenNames: []
+    readonly property var targetScreens: {
+        const list = Config.options?.osd?.screenList ?? []
+        const screens = Quickshell.screens
+        let selected = screens
+        if (list && list.length > 0) {
+            const matched = screens.filter(screen => {
+                const screenName = screen?.name ?? ""
+                return screenName.length > 0 && list.includes(screenName)
+            })
+            // Fallback safety: stale monitor names should never hide the OSD everywhere.
+            selected = matched.length > 0 ? matched : screens
+        }
+        return selected.filter(screen => !root.excludedScreenNames.includes(screen?.name ?? ""))
+    }
     property string currentIndicator: "volume"
+    property bool _syncingOpenStates: false
+    readonly property bool osdActive: GlobalStates.osdVolumeOpen || GlobalStates.osdBrightnessOpen || GlobalStates.osdMicOpen || GlobalStates.osdMediaOpen || GlobalStates.osdKeyboardLayoutOpen || GlobalStates.osdConnectionOpen
+    readonly property bool mediaOsdVisible: GlobalStates.osdMediaOpen
+        && root.currentIndicator === "media"
+    property bool _surfaceRetained: false
+    property bool _visualOpen: false
     property var indicators: [
         {
             id: "volume",
@@ -29,6 +46,10 @@ Scope {
             sourceUrl: "indicators/BrightnessIndicator.qml"
         },
         {
+            id: "mic",
+            sourceUrl: "indicators/MicIndicator.qml"
+        },
+        {
             id: "media",
             sourceUrl: "indicators/MediaIndicator.qml"
         },
@@ -36,20 +57,86 @@ Scope {
             id: "voiceSearch",
             sourceUrl: "indicators/VoiceSearchIndicator.qml"
         },
+        {
+            id: "keyboardLayout",
+            sourceUrl: "indicators/KeyboardLayoutIndicator.qml"
+        },
+        {
+            id: "connection",
+            sourceUrl: "indicators/ConnectionIndicator.qml"
+        },
     ]
+    // Notices that are not a level sit at the top, under the bar, whatever the bar's edge.
+    readonly property bool topNotice: root.currentIndicator === "keyboardLayout" || root.currentIndicator === "connection"
 
-    function triggerOsd() {
-        if (!initialized) return;
-        GlobalStates.osdVolumeOpen = true;
-        osdTimeout.restart();
+    function setOpenStates(volume, brightness, mic, media, keyboardLayout, connection = false) {
+        root._syncingOpenStates = true;
+        GlobalStates.osdVolumeOpen = volume;
+        GlobalStates.osdBrightnessOpen = brightness;
+        GlobalStates.osdMicOpen = mic;
+        GlobalStates.osdMediaOpen = media;
+        GlobalStates.osdKeyboardLayoutOpen = keyboardLayout;
+        GlobalStates.osdConnectionOpen = connection;
+        root._syncingOpenStates = false;
+        root._reconcilePresentation()
     }
 
-    function triggerMediaOsd() {
+    function hideOsd() {
+        osdTimeout.stop();
+        root.setOpenStates(false, false, false, false, false);
+        root.protectionMessage = "";
+    }
+
+    function _reconcilePresentation(): void {
+        if (root.osdActive) {
+            osdReleaseTimer.stop()
+            root._surfaceRetained = true
+            Qt.callLater(() => {
+                if (root.osdActive)
+                    root._visualOpen = true
+            })
+        } else if (root._surfaceRetained) {
+            root._visualOpen = false
+            osdReleaseTimer.restart()
+        }
+    }
+
+    onOsdActiveChanged: {
+        if (!root._syncingOpenStates)
+            root._reconcilePresentation()
+    }
+
+    Component.onCompleted: {
+        root._reconcilePresentation()
+    }
+
+    Timer {
+        id: osdReleaseTimer
+        interval: Appearance.animation.elementMoveExit.duration + 60
+        repeat: false
+        onTriggered: {
+            if (!root.osdActive)
+                root._surfaceRetained = false
+        }
+    }
+
+    function openIndicator(indicator, autoHide) {
         if (!initialized) return;
-        if (!MprisController.activePlayer) return;
-        root.currentIndicator = "media";
-        GlobalStates.osdMediaOpen = true;
-        osdTimeout.restart();
+        root.currentIndicator = indicator;
+        root.setOpenStates(
+            indicator === "volume" || indicator === "voiceSearch",
+            indicator === "brightness",
+            indicator === "mic",
+            indicator === "media",
+            indicator === "keyboardLayout",
+            indicator === "connection"
+        );
+        if (autoHide)
+            osdTimeout.restart();
+    }
+
+    function triggerOsd() {
+        root.openIndicator(root.currentIndicator, true);
     }
 
     Timer {
@@ -61,15 +148,13 @@ Scope {
 
     Timer {
         id: osdTimeout
-        interval: root.currentIndicator === "media" 
-            ? (Config.options?.osd?.timeout ?? 2000) + 1500  // Longer for media
+        interval: root.currentIndicator === "media" || root.currentIndicator === "connection"
+            ? (Config.options?.osd?.timeout ?? 2000) + 1500
             : (Config.options?.osd?.timeout ?? 2000)
         repeat: false
         running: false
         onTriggered: {
-            GlobalStates.osdVolumeOpen = false;
-            GlobalStates.osdMediaOpen = false;
-            root.protectionMessage = "";
+            root.hideOsd();
         }
     }
 
@@ -86,13 +171,13 @@ Scope {
         // Listen to volume changes
         target: Audio.sink?.audio ?? null
         function onVolumeChanged() {
-            if (!Audio.ready)
+            if (!Audio.ready || GameMode.suppressNiriToast)
                 return;
             root.currentIndicator = "volume";
             root.triggerOsd();
         }
         function onMutedChanged() {
-            if (!Audio.ready)
+            if (!Audio.ready || GameMode.suppressNiriToast)
                 return;
             root.currentIndicator = "volume";
             root.triggerOsd();
@@ -109,15 +194,71 @@ Scope {
         }
     }
 
-    // Media OSD is triggered via IPC only (not on every track change)
-    // See services/MprisController.qml IpcHandler
+    Connections {
+        // Listen to mic volume/mute changes
+        target: Audio
+        function onMicVolumeChanged() {
+            if (!root.initialized) return;
+            root.currentIndicator = "mic";
+            root.triggerOsd();
+        }
+        function onMicMutedChanged() {
+            if (!root.initialized) return;
+            root.currentIndicator = "mic";
+            root.triggerOsd();
+        }
+    }
+
+    Connections {
+        target: GlobalStates
+        function onOsdVolumeOpenChanged() {
+            if (root._syncingOpenStates || !GlobalStates.osdVolumeOpen)
+                return;
+            root.currentIndicator = "volume";
+            osdTimeout.restart();
+        }
+        function onOsdBrightnessOpenChanged() {
+            if (root._syncingOpenStates || !GlobalStates.osdBrightnessOpen)
+                return;
+            root.currentIndicator = "brightness";
+            osdTimeout.restart();
+        }
+        function onOsdMicOpenChanged() {
+            if (root._syncingOpenStates || !GlobalStates.osdMicOpen)
+                return;
+            root.currentIndicator = "mic";
+            osdTimeout.restart();
+        }
+        function onOsdMediaOpenChanged() {
+            if (root._syncingOpenStates || !GlobalStates.osdMediaOpen)
+                return;
+            if (!(Config.options?.osd?.mediaEnabled ?? true)
+                    || !MprisController.activePlayer) {
+                GlobalStates.osdMediaOpen = false;
+                return;
+            }
+            root.currentIndicator = "media";
+            osdTimeout.restart();
+        }
+        function onOsdKeyboardLayoutOpenChanged() {
+            if (root._syncingOpenStates || !GlobalStates.osdKeyboardLayoutOpen)
+                return;
+            root.currentIndicator = "keyboardLayout";
+            osdTimeout.restart();
+        }
+        function onOsdMediaActionTriggered(action: string) {
+            if (!root.mediaOsdVisible || !action.length)
+                return;
+            root.currentIndicator = "media";
+            osdTimeout.restart();
+        }
+    }
 
     Connections {
         target: VoiceSearch
         function onRunningChanged() {
             if (VoiceSearch.running) {
-                root.currentIndicator = "voiceSearch";
-                GlobalStates.osdVolumeOpen = true;
+                root.openIndicator("voiceSearch", false);
                 osdTimeout.stop(); // Don't auto-hide while active
             } else {
                 osdTimeout.restart();
@@ -125,26 +266,59 @@ Scope {
         }
     }
 
+    Connections {
+        target: KeyboardIndicators
+        function onPopupSequenceChanged() {
+            root.currentIndicator = "keyboardLayout";
+            root.triggerOsd();
+        }
+    }
+
+    Connections {
+        target: DeviceEvents
+        function onHappened(event) {
+            if (GameMode.active)
+                return;
+            root.currentIndicator = "connection";
+            root.triggerOsd();
+        }
+    }
+
+    Connections {
+        target: MprisController
+        function onTrackChanged(reverse: bool): void {
+            if (root.mediaOsdVisible)
+                osdTimeout.restart()
+        }
+    }
+
+    Connections {
+        target: MediaArtwork
+        function onDisplaySourceChanged(): void {
+            if (root.mediaOsdVisible)
+                osdTimeout.restart()
+        }
+    }
+
     Loader {
         id: osdLoader
-        active: GlobalStates.osdVolumeOpen || GlobalStates.osdMediaOpen
+        active: root._surfaceRetained
 
-        sourceComponent: PanelWindow {
-            id: osdRoot
-            color: "transparent"
+        sourceComponent: Variants {
+            model: root.targetScreens
+            delegate: PanelWindow {
+                id: osdRoot
+                required property var modelData
+                screen: modelData
+                color: "transparent"
 
-            Connections {
-                target: root
-                function onFocusedScreenChanged() {
-                    osdRoot.screen = root.focusedScreen;
-                }
-            }
-
-            WlrLayershell.namespace: "quickshell:onScreenDisplay"
-            WlrLayershell.layer: WlrLayer.Overlay
+                WlrLayershell.namespace: "quickshell:onScreenDisplay"
+            WlrLayershell.layer: root.topNotice
+                ? WlrLayer.Top
+                : WlrLayer.Overlay
             anchors {
-                top: !(Config.options?.bar?.bottom ?? false)
-                bottom: Config.options?.bar?.bottom ?? false
+                top: root.topNotice ? true : !(Config.options?.bar?.bottom ?? false)
+                bottom: root.topNotice ? false : Config.options?.bar?.bottom ?? false
             }
             mask: Region {
                 item: osdValuesWrapper
@@ -159,21 +333,31 @@ Scope {
 
             implicitWidth: columnLayout.implicitWidth
             implicitHeight: columnLayout.implicitHeight
-            visible: osdLoader.active
 
             ColumnLayout {
                 id: columnLayout
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                // Subtle open animation for the OSD, sliding from the bar edge
-                transformOrigin: !(Config.options?.bar?.bottom ?? false) ? Item.Top : Item.Bottom
-                scale: GlobalStates.osdVolumeOpen ? 1.0 : 0.96
-                opacity: GlobalStates.osdVolumeOpen ? 1.0 : 0.0
-                Behavior on scale {
-                    animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
-                }
-                Behavior on opacity {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                readonly property bool entersFromTop: root.topNotice
+                    || !(Config.options?.bar?.bottom ?? false)
+                property real openProgress: root._visualOpen ? 1 : 0
+                transformOrigin: entersFromTop ? Item.Top : Item.Bottom
+                scale: 0.94 + 0.06 * openProgress
+                opacity: openProgress
+                y: (1 - openProgress) * (entersFromTop ? -12 : 12)
+                visible: openProgress > 0.001
+
+                Behavior on openProgress {
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: root._visualOpen
+                            ? Appearance.animation.elementMoveEnter.duration
+                            : Appearance.animation.elementMoveExit.duration
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: root._visualOpen
+                            ? Appearance.animation.elementMoveEnter.bezierCurve
+                            : Appearance.animationCurves.standardAccel
+                    }
                 }
 
                 Item {
@@ -185,8 +369,19 @@ Scope {
 
                     MouseArea {
                         anchors.fill: parent
+                        enabled: root.currentIndicator !== "media"
                         hoverEnabled: true
-                        onEntered: GlobalStates.osdVolumeOpen = false
+                        onEntered: root.hideOsd()
+                    }
+
+                    HoverHandler {
+                        enabled: root.currentIndicator === "media"
+                        onHoveredChanged: {
+                            if (hovered)
+                                osdTimeout.stop()
+                            else if (root.mediaOsdVisible)
+                                osdTimeout.restart()
+                        }
                     }
 
                     Column {
@@ -216,7 +411,7 @@ Scope {
                             Rectangle {
                                 id: protectionMessageBackground
                                 anchors.centerIn: parent
-                                color: Appearance.m3colors.m3error
+                                color: Appearance.colors.colError
                                 property real padding: 10
                                 implicitHeight: protectionMessageRowLayout.implicitHeight + padding * 2
                                 implicitWidth: protectionMessageRowLayout.implicitWidth + padding * 2
@@ -229,12 +424,12 @@ Scope {
                                         id: protectionMessageIcon
                                         text: "dangerous"
                                         iconSize: Appearance.font.pixelSize.hugeass
-                                        color: Appearance.m3colors.m3onError
+                                        color: Appearance.colors.colOnError
                                     }
                                     StyledText {
                                         id: protectionMessageTextWidget
                                         horizontalAlignment: Text.AlignHCenter
-                                        color: Appearance.m3colors.m3onError
+                                        color: Appearance.colors.colOnError
                                         wrapMode: Text.Wrap
                                         text: root.protectionMessage
                                     }
@@ -246,21 +441,6 @@ Scope {
             }
         }
     }
-
-    IpcHandler {
-        target: "osdVolume"
-
-        function trigger(): void {
-            root.triggerOsd();
-        }
-
-        function hide(): void {
-            GlobalStates.osdVolumeOpen = false;
-        }
-
-        function toggle(): void {
-            GlobalStates.osdVolumeOpen = !GlobalStates.osdVolumeOpen;
-        }
     }
 
     Loader {

@@ -19,11 +19,24 @@ Button {
     property var fallbackTags: []
     property var rowHeight
     property bool aspectCrop: false
+    property bool lazyTagFetch: false
     property bool manualDownload: false
     property string previewDownloadPath
     property string downloadPath
     property string nsfwPath
-    property string fileName: decodeURIComponent((imageData.file_url).substring((imageData.file_url).lastIndexOf('/') + 1))
+    readonly property string _fileUrl: imageData?.file_url ?? imageData?.sample_url ?? imageData?.preview_url ?? ""
+    property string fileName: {
+        if (root._fileUrl.length > 0) {
+            const cleanUrl = root._fileUrl.split("?")[0]
+            const slashIndex = cleanUrl.lastIndexOf("/")
+            const candidate = decodeURIComponent(cleanUrl.substring(slashIndex + 1))
+            if (candidate.length > 0)
+                return candidate
+        }
+        const fallbackId = String(root.imageData?.id ?? "preview")
+        const fallbackExt = String(root.imageData?.file_ext ?? "jpg")
+        return fallbackId + "." + fallbackExt
+    }
     property string filePath: `${root.previewDownloadPath}/${root.fileName}`
     property int maxTagStringLineLength: 50
     property real imageRadius: Appearance.rounding.small
@@ -41,7 +54,7 @@ Button {
         interval: 450
         repeat: false
         onTriggered: {
-            if (!root.aspectCrop)
+            if (!root.lazyTagFetch)
                 return
             if (!root.imageData || !root.imageData.id)
                 return
@@ -57,15 +70,13 @@ Button {
             return root.imageData.tags
         if (root.fallbackTags && root.fallbackTags.length > 0)
             return root.fallbackTags
-        if (root.aspectCrop && root.tagsRequested)
-            return Translation.tr("Loading tags…")
         return ""
     }
 
     hoverEnabled: true
 
     onHoveredChanged: {
-        if (!root.aspectCrop)
+        if (!root.lazyTagFetch)
             return
         if (root.hovered) {
             // Only start the timer if tags are not already present.
@@ -93,8 +104,11 @@ Button {
     }
 
     StyledToolTip {
+        // Scrolling moves the pointer across many thumbnails. Require real
+        // hover intent for Wallhaven instead of flashing every available tag.
+        delay: root.lazyTagFetch ? 750 : 16
         extraVisibleCondition: root.enableTooltip && root.imageData && root._tagText.length > 0
-        alternativeVisibleCondition: root.buttonHovered || root.hovered
+        alternativeVisibleCondition: root.enableTooltip && (root.buttonHovered || root.hovered)
         text: `${StringUtils.wordWrap(root._tagText, root.maxTagStringLineLength)}`
     }
 
@@ -106,7 +120,7 @@ Button {
         implicitWidth: root.rowHeight * modelData.aspect_ratio
         implicitHeight: root.rowHeight
         radius: imageRadius
-        color: root.showBackground ? (Appearance.inirEverywhere ? Appearance.inir.colLayer2 : (Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2)) : "transparent"
+        color: root.showBackground ? (Appearance.angelEverywhere ? Appearance.angel.colGlassCard : Appearance.inirEverywhere ? Appearance.inir.colLayer2 : (Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2)) : "transparent"
     }
 
     contentItem: Item {
@@ -118,7 +132,7 @@ Button {
             width: root.rowHeight * modelData.aspect_ratio
             height: root.rowHeight
             fillMode: root.aspectCrop ? Image.PreserveAspectCrop : Image.PreserveAspectFit
-            source: modelData.preview_url
+            source: root.manualDownload ? "" : modelData.preview_url
             sourceSize.width: root.rowHeight * modelData.aspect_ratio
             sourceSize.height: root.rowHeight
 
@@ -149,9 +163,9 @@ Button {
                 if (mouse.button !== Qt.RightButton)
                     return
 
-                // Anchor the menu at cursor position instead of image center.
-                // (Coordinates are local to this MouseArea / image contentItem.)
-                menuAnchor.x = mouse.x
+                // Anchor at the right edge of the image so the popup
+                // opens outside the sidebar (popupSide: Edges.Right).
+                menuAnchor.x = parent.width
                 menuAnchor.y = mouse.y
 
                 // Re-open cleanly if it was already open.
@@ -159,10 +173,9 @@ Button {
                     contextMenu.close()
                 }
 
-                contextMenu.active = true
+                contextMenu.requestOpen()
                 Qt.callLater(() => {
                     contextMenu.updateAnchor()
-                    contextMenu.grabFocus()
                 })
                 mouse.accepted = true
             }
@@ -172,25 +185,38 @@ Button {
             id: menuButton
             anchors.top: parent.top
             anchors.right: parent.right
-            property real buttonSize: 26
+            property real buttonSize: 24
             anchors.margins: 6
             implicitHeight: buttonSize
             implicitWidth: buttonSize
+            visible: root.hovered || root.buttonHovered || contextMenu.active
 
             buttonRadius: buttonSize / 2
-            colBackground: ColorUtils.transparentize(Appearance.m3colors.m3surface, 0.3)
-            colBackgroundHover: ColorUtils.transparentize(ColorUtils.mix(Appearance.m3colors.m3surface, Appearance.m3colors.m3onSurface, 0.8), 0.2)
-            colRipple: ColorUtils.transparentize(ColorUtils.mix(Appearance.m3colors.m3surface, Appearance.m3colors.m3onSurface, 0.6), 0.1)
+            rippleEnabled: false
+            colBackground: ColorUtils.transparentize(Appearance.colors.colLayer1, 0.38)
+            colBackgroundHover: colBackground
+            colRipple: colBackground
 
             contentItem: MaterialSymbol {
                 horizontalAlignment: Text.AlignHCenter
-                iconSize: Appearance.font.pixelSize.large
-                color: Appearance.m3colors.m3onSurface
+                iconSize: Appearance.font.pixelSize.normal
+                color: Appearance.colors.colOnSurface
                 text: "more_vert"
             }
 
             onClicked: {
-                contextMenu.active = true
+                // Position anchor at right edge, vertically centered on the button
+                menuAnchor.x = parent.width
+                menuAnchor.y = menuButton.y + menuButton.height / 2
+
+                if (contextMenu.active) {
+                    contextMenu.close()
+                }
+
+                contextMenu.requestOpen()
+                Qt.callLater(() => {
+                    contextMenu.updateAnchor()
+                })
             }
         }
 
@@ -211,6 +237,7 @@ Button {
             model: [
                 {
                     iconName: "open_in_new",
+                    monochromeIcon: true,
                     text: Translation.tr("Open file link"),
                     action: () => {
                         if (CompositorService.isHyprland) Hyprland.dispatch("keyword cursor:no_warps true")
@@ -220,6 +247,7 @@ Button {
                 },
                 ...(root.imageData.source && root.imageData.source.length > 0 ? [{
                     iconName: "link",
+                    monochromeIcon: true,
                     text: Translation.tr("Go to source (%1)").arg(StringUtils.getDomain(root.imageData.source)),
                     action: () => {
                         if (CompositorService.isHyprland) Hyprland.dispatch("keyword cursor:no_warps true")
@@ -230,6 +258,7 @@ Button {
                 { type: "separator" },
                 {
                     iconName: "download",
+                    monochromeIcon: true,
                     text: Translation.tr("Download"),
                     action: () => {
                         const targetPath = root.imageData.is_nsfw ? root.nsfwPath : root.downloadPath;
@@ -238,11 +267,12 @@ Button {
                             `mkdir -p '${targetPath}' && curl '${root.imageData.file_url}' -o '${localPath}' && notify-send '${Translation.tr("Download complete")}' '${localPath}' -a 'Shell'`
                         ])
                         if (Config.options?.sidebar?.openFolderOnDownload ?? false)
-                            Quickshell.execDetached(["xdg-open", targetPath])
+                            ShellExec.execDetachedArgs(["xdg-open", targetPath], "Open image")
                     }
                 },
                 {
                     iconName: "wallpaper",
+                    monochromeIcon: true,
                     text: Translation.tr("Set as wallpaper"),
                     action: () => {
                         const targetPath = root.imageData.is_nsfw ? root.nsfwPath : root.downloadPath;

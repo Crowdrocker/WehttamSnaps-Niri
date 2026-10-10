@@ -2,13 +2,35 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
 
 Item {
     id: root
-    implicitHeight: col.implicitHeight
+    implicitHeight: col.implicitHeight + col.anchors.topMargin
+    readonly property bool volumeMuted: Boolean(Audio.sink?.audio?.muted ?? false)
+    readonly property real volumeLevel: Math.max(0, Audio.value)
+    readonly property color primaryAccent: Appearance.editorialEverywhere ? Appearance.editorial.accent
+        : Appearance.regaliaEverywhere ? Appearance.regalia.hardwarePrimary
+        : Appearance.zzzEverywhere ? Appearance.zzz.accent
+        : Appearance.angelEverywhere ? Appearance.angel.colPrimary
+        : Appearance.inirEverywhere ? Appearance.inir.colPrimary
+        : Appearance.colors.colPrimary
+    readonly property color secondaryAccent: Appearance.editorialEverywhere ? Appearance.colors.colSecondary
+        : Appearance.regaliaEverywhere ? Appearance.regalia.hardwareSecondary
+        : Appearance.zzzEverywhere ? Appearance.zzz.secondary
+        : Appearance.angelEverywhere ? Appearance.angel.colSecondary
+        : Appearance.inirEverywhere ? Appearance.inir.colSecondary
+        : Appearance.colors.colSecondary
+    readonly property color metadataText: Appearance.editorialEverywhere ? Appearance.editorial.muted
+        : Appearance.regaliaEverywhere ? Appearance.regalia.onMuted
+        : Appearance.cookieEverywhere ? Appearance.cookie.inkMuted
+        : Appearance.zzzEverywhere ? Appearance.zzz.inkMuted
+        : Appearance.angelEverywhere ? Appearance.angel.colTextSecondary
+        : Appearance.inirEverywhere ? Appearance.inir.colTextSecondary
+        : Appearance.colors.colSubtext
 
     readonly property var locale: {
         const env = Quickshell.env("LC_TIME") || Quickshell.env("LC_ALL") || Quickshell.env("LANG") || ""
@@ -21,19 +43,27 @@ Item {
         anchors.fill: parent
         anchors.leftMargin: 16
         anchors.rightMargin: 16
-        anchors.topMargin: Appearance.inirEverywhere ? 12 : 0
-        spacing: Appearance.inirEverywhere ? 2 : 4
+        // Breathing room between the clock and the card's top edge in every
+        // style — the header used to sit flush against the border in material.
+        anchors.topMargin: 12
+        spacing: (Appearance.angelEverywhere || Appearance.inirEverywhere) ? 2 : 4
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
 
             StyledText {
-                text: Qt.formatTime(DateTime.clock.date, "HH:mm")
-                font.pixelSize: Appearance.font.pixelSize.huge * 2
-                font.weight: Font.Light
+                text: DateTime.time
+                font.pixelSize: Appearance.font.pixelSize.huge * (Appearance.editorialEverywhere ? 2.15 : 2)
+                font.weight: Appearance.zzzEverywhere ? Font.Black
+                    : Appearance.editorialEverywhere ? Appearance.editorial.labelWeight : Font.Medium
                 font.family: Appearance.font.family.numbers
-                color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0
+                font.italic: Appearance.zzzEverywhere
+                color: root.primaryAccent
+                Behavior on color {
+                    enabled: Appearance.animationsEnabled
+                    ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                }
                 animateChange: true
             }
 
@@ -47,14 +77,19 @@ Item {
                 RippleButton {
                     implicitWidth: 36
                     implicitHeight: 36
-                    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
-                    colBackground: Appearance.inirEverywhere ? "transparent" 
+                    buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small
+                        : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                    colBackground: Appearance.inirEverywhere ? "transparent"
                         : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colTertiaryContainer
-                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover 
-                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : (Appearance.colors.colTertiaryContainerHover ?? Appearance.colors.colTertiaryContainer)
-                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active 
+                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : (Appearance.colors.colTertiaryContainerHover ?? Appearance.colors.colTertiaryContainer)
+                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active
                         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : (Appearance.colors.colTertiaryContainerActive ?? Appearance.colors.colTertiaryContainer)
-                    visible: GameMode.active && (Config.options?.sidebar?.widgets?.glance?.showGameMode ?? true)
+                    opacity: GameMode.active && (Config.options?.sidebar?.widgets?.glance?.showGameMode ?? true) ? 1 : 0
+                    visible: opacity > 0
+                    scale: opacity
+                    Behavior on opacity { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+                    Behavior on scale { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
                     onClicked: GameMode.toggle()
 
                     contentItem: Item {
@@ -74,14 +109,20 @@ Item {
                 RippleButton {
                     implicitWidth: 36
                     implicitHeight: 36
-                    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
-                    colBackground: Appearance.inirEverywhere ? "transparent" 
+                    buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small
+                        : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                        : (Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full)
+                    colBackground: Appearance.zzzEverywhere ? Appearance.zzz.sticker : Appearance.inirEverywhere ? "transparent"
                         : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colPrimaryContainer
-                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover 
-                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colPrimaryContainerHover
-                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active 
+                    colBackgroundHover: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryHover : Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colors.colPrimaryContainerHover
+                    colRipple: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryActive : Appearance.inirEverywhere ? Appearance.inir.colLayer1Active
                         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colPrimaryContainerActive
-                    visible: Notifications.silent && (Config.options?.sidebar?.widgets?.glance?.showDnd ?? true)
+                    opacity: Notifications.silent && (Config.options?.sidebar?.widgets?.glance?.showDnd ?? true) ? 1 : 0
+                    visible: opacity > 0
+                    scale: opacity
+                    Behavior on opacity { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+                    Behavior on scale { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
                     onClicked: Notifications.toggleSilent()
 
                     contentItem: Item {
@@ -90,7 +131,11 @@ Item {
                             text: "do_not_disturb_on"
                             iconSize: 18
                             fill: 1
-                            color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colOnPrimaryContainer
+                            color: Appearance.zzzEverywhere ? Appearance.zzz.onSticker : (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colOnPrimaryContainer)
+                            Behavior on color {
+                                enabled: Appearance.animationsEnabled
+                                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration }
+                            }
                         }
                     }
 
@@ -101,19 +146,22 @@ Item {
                 Item {
                     implicitWidth: volumeBtn.implicitWidth
                     implicitHeight: volumeBtn.implicitHeight
-                    visible: Audio.sink !== null && (Config.options?.sidebar?.widgets?.glance?.showVolume ?? true)
+                    opacity: Audio.sink !== null && (Config.options?.sidebar?.widgets?.glance?.showVolume ?? true) ? 1 : 0
+                    visible: opacity > 0
+                    Behavior on opacity { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
 
                     RippleButton {
                         id: volumeBtn
                         anchors.fill: parent
                         implicitWidth: 60
                         implicitHeight: 36
-                        buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small
+                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                         colBackground: "transparent"
-                        colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover 
-                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1Hover
-                        colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active 
-                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer1Active
+                        colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer1Hover
+                        colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer1Active
                         onClicked: Audio.toggleMute()
 
                         contentItem: Item {
@@ -123,36 +171,33 @@ Item {
 
                                 MaterialSymbol {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: Audio.sink?.audio?.muted ? "volume_off" : 
-                                          (Audio.sink?.audio?.volume ?? 0) < 0.01 ? "volume_mute" :
-                                          (Audio.sink?.audio?.volume ?? 0) < 0.5 ? "volume_down" : "volume_up"
+                                    text: root.volumeMuted ? "volume_off" :
+                                          root.volumeLevel < 0.01 ? "volume_mute" :
+                                          root.volumeLevel < 0.5 ? "volume_down" : "volume_up"
                                     iconSize: 18
-                                    fill: Audio.sink?.audio?.muted ? 1 : 0
-                                    color: Audio.sink?.audio?.muted 
-                                        ? (Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext) 
-                                        : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0)
-                                    Behavior on fill { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration } }
-                                    Behavior on color { enabled: Appearance.animationsEnabled; animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this) }
+                                    fill: root.volumeMuted ? 1 : 0
+                                    animateFill: true
+                                    color: root.volumeMuted ? root.metadataText : root.secondaryAccent
+                                    Behavior on color { enabled: Appearance.animationsEnabled; animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
                                 }
 
                                 StyledText {
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: Math.round((Audio.sink?.audio?.volume ?? 0) * 100)
+                                    text: String(Math.round(root.volumeLevel * 100))
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     font.family: Appearance.font.family.numbers
-                                    color: Audio.sink?.audio?.muted 
-                                        ? (Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext) 
-                                        : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0)
+                                    font.weight: Font.Medium
+                                    color: root.volumeMuted ? root.metadataText : root.secondaryAccent
 
                                     Behavior on color {
                                         enabled: Appearance.animationsEnabled
-                                        animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                                        animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                                     }
                                 }
                             }
                         }
 
-                        StyledToolTip { text: Audio.sink?.audio?.muted ? Translation.tr("Unmute") : Translation.tr("Scroll to adjust volume") }
+                        StyledToolTip { text: root.volumeMuted ? Translation.tr("Unmute") : Translation.tr("Scroll to adjust volume") }
                     }
 
                     MouseArea {
@@ -164,6 +209,47 @@ Item {
                         }
                     }
                 }
+
+                // Widget Management Button
+                RippleButton {
+                    id: settingsBtn
+                    implicitWidth: 36
+                    implicitHeight: 36
+                    buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small
+                        : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer1Hover
+                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer1Active
+
+                    onClicked: {
+                        const isWaffle = (Config.options?.panelFamily === "waffle" && Config.options?.waffles?.settings?.useMaterialStyle !== true);
+                        if (isWaffle) {
+                            Quickshell.execDetached(["/usr/bin/env", "QS_SETTINGS_PAGE=6",
+                                "QS_SETTINGS_SECTION=" + Translation.tr("Widgets Panel"),
+                                Quickshell.shellPath("scripts/inir"), "waffle-settings-window"]);
+                            return;
+                        }
+                        GlobalStates.openSettingsPage(5, Translation.tr("Widgets"));
+                    }
+
+                    contentItem: Item {
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "tune" // or 'widgets'
+                            iconSize: 18
+                            fill: 0
+                            color: root.primaryAccent
+                            Behavior on color {
+                                enabled: Appearance.animationsEnabled
+                                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                            }
+                        }
+                    }
+
+                    StyledToolTip { text: Translation.tr("Manage Widgets") }
+                }
             }
         }
 
@@ -172,14 +258,19 @@ Item {
             Layout.fillWidth: true
             Layout.bottomMargin: Appearance.inirEverywhere ? 10 : 0
             spacing: 8
-            
+
             StyledText {
-                // For inir: show weekday and month only (no day number since calendar shows it)
-                text: Appearance.inirEverywhere 
-                    ? root.locale.toString(DateTime.clock.date, "dddd, MMMM yyyy")
-                    : root.locale.toString(DateTime.clock.date, "dddd, d MMMM")
-                font.pixelSize: Appearance.font.pixelSize.normal
-                color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+                readonly property string _configFormat: Config.options?.time?.dateFormat ?? ""
+                readonly property string _defaultFormat: Appearance.inirEverywhere ? "dddd, MMMM yyyy" : "dddd, d MMMM"
+                text: root.locale.toString(DateTime.clock.date, _configFormat.length > 0 ? _configFormat : _defaultFormat)
+                font.pixelSize: Appearance.editorialEverywhere ? Appearance.font.pixelSize.small : Appearance.font.pixelSize.normal
+                font.weight: Appearance.editorialEverywhere ? Appearance.editorial.labelWeight : Font.Medium
+                font.letterSpacing: Appearance.editorialEverywhere ? 0.8 : 0
+                color: root.metadataText
+                Behavior on color {
+                    enabled: Appearance.animationsEnabled
+                    ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                }
             }
         }
     }

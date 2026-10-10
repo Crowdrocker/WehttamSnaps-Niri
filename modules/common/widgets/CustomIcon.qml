@@ -17,6 +17,10 @@ Item {
         id: iconImage
         anchors.fill: parent
         source: {
+            // Empty source would resolve to the bare icons folder and spam
+            // "Cannot open" warnings — render nothing instead.
+            if (!root.source || root.source.length === 0)
+                return ""
             const fullPathWhenSourceIsIconName = iconFolder + "/" + root.source;
             if (iconFolder && fullPathWhenSourceIsIconName) {
                 return fullPathWhenSourceIsIconName

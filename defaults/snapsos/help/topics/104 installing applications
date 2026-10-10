@@ -1,0 +1,70 @@
+> Installing applications
+
+
+
+### installing with Shelly
+
+step 1: open Shelly
+you can do this in multiple ways. either you can open shelly from your runner (*SUPER+SPACE* or from the button in the top bar)
+
+step 2: set up Shelly (first launch only)
+if this is your first time launching shelly, you'll need to tell shelly which repositories it should use.
+
+pick at least pacman and the AUR, optionally also include flatpak.
+
+step 3: select which repository you want to use
+on the left, you'll have two or three tabs:
+-pacman
+-AUR
+-flatpak
+
+this is also the order in which you should use them.
+
+use the pacman repository for all software, unless that software either is not available in pacman or the pacman version does not work.
+
+if pacman does not have it, use the AUR, the AUR contains way more software but is less heavily moderated.
+
+from the AUR, you can generally get multiple versions of the software, versions labeled -git are built from source, versions labeled -bin are a prebuilt binary
+
+if neither have the program you want, flatpak is your last option. flatpaks are sandboxed and cross-platform, which means you'll find the same software across all distro's on flatpak. 
+
+however, due to this sandboxing, there's sometimes permission issues with flatpak. you can alter permissions easily using *flatseal*
+
+
+### installing with Unipkg TUI
+
+to launch the unipkg tui, either press *super+shift+y* or run `unipkg launch-tui` in the terminal
+
+from there, you can select install, and then your package manager of choice.
+
+you'll then be presented with a searchable list of available packages alongside the information about the selected package.
+
+you can multi-select here with *tab*, then press enter to install the selected software (this also installs what you have currently selected)
+
+
+### installing with Unipkg cli 
+
+for this, make sure your ~/.config/unipkg/unipkg.conf is in the right order (pacman - aur - flatpak)
+
+you can do this by either running `micro ~/.config/unipkg/unipkg.conf` or by going to maintenance > edit unipkg.conf in the TUI.
+
+
+then, to install anything, run `unipkg install any <packagename>`
+
+this will attempt to install the package with all of your package managers in the order they are listed in unipkg.conf, stopping once it successfully finds and installs the package. 
+
+
+### installing with Pacman Directly.
+
+to install a piece of software directly, you can run `sudo pacman -S <package>`
+
+this will install the package with pacman.
+
+
+### installing from the AUR
+
+SNAPS-OS comes with yay as its AUR helper, though you can also use paru.
+
+simply run `yay -S <packagename>` to install a package from the AUR. 
+
+

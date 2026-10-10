@@ -1,0 +1,108 @@
+/*******************************************************************************
+ * STEAM DECK FRAME - FINAL ALIGNMENT & NO-REPEAT
+ *******************************************************************************/
+
+@import "wehttamsnaps.rasi"
+
+* {
+    element-icon-size:          120px;
+    bg-color:                   transparent;
+    border-color:               #00ffd1;
+}
+
+window {
+    width:                      1280px;
+    height:                     580px;
+    transparency:               "real";
+    background-color:           transparent;
+    location:                   center;
+    anchor:                     center;
+    border:                     0px;
+}
+
+mainbox {
+    enabled:                    true;
+    orientation:                vertical;
+    background-color:           transparent;
+    /* Scale to fit window exactly without tiling */
+    background-image: url("~/.config/rofi/assets/deck_frame.png", both);
+    /* Insets: Top Right Bottom Left (Positions grid cleanly in black screen) */
+    padding:                    93px 334px 76px 337px;
+    children:                   [ "textbox-header", "inputbar", "listview" ];
+}
+
+textbox-header {
+    expand:                     false;
+    str:                        "WEHTTAMSNAPS  GAMING";
+    font:                       "Share Tech Mono Bold 13";
+    text-color:                 #00ffd1;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    padding:                    0px 0px 8px 0px;
+    background-color:           transparent;
+}
+
+inputbar {
+    enabled:                    true;
+    padding:                    6px 12px;
+    margin:                     0px 0px 10px 0px;
+    background-color:           #0d0a1aee;
+    border-radius:              6px;
+    border:                     1px;
+    border-color:               #ff007faa;
+    children:                   [ "prompt", "entry" ];
+}
+
+prompt {
+    text-color:                 #ff007f;
+    margin:                     0px 6px 0px 0px;
+}
+
+entry {
+    text-color:                 #ffffff;
+    placeholder:                "Search library...";
+    placeholder-color:          #555577;
+}
+
+listview {
+    enabled:                    true;
+    columns:                    5;
+    lines:                      2;
+    spacing:                    10px;
+    cycle:                      true;
+    dynamic:                    true;
+    layout:                     vertical;
+    background-color:           transparent;
+    padding:                    2px;
+}
+
+element {
+    enabled:                    true;
+    orientation:                vertical;
+    padding:                    6px;
+    border-radius:              6px;
+    background-color:           #0d0a1aaa;
+    cursor:                     pointer;
+}
+
+element selected.normal {
+    background-color:           #ff007f44;
+    border:                     2px;
+    border-color:               #00ffd1;
+}
+
+element-icon {
+    background-color:           transparent;
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    size:                       120px;
+}
+
+element-text {
+    background-color:           transparent;
+    text-color:                 #ffffff;
+    font:                       "Share Tech Mono 9";
+    horizontal-align:           0.5;
+    vertical-align:             0.5;
+    margin:                     4px 0px 0px 0px;
+}

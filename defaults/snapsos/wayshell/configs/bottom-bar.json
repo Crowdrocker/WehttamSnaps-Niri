@@ -1,0 +1,33 @@
+{
+    "layer": "overlay",
+    "exclusive": false,
+    "position": "bottom",
+    "margin-bottom": -1,
+    "margin-left": 10,
+    "margin-right": 10,
+    "spacing": 2,
+    "include": [
+        "~/.config/snapsos/wayshell/configs/bottom-bar-modules"
+    ],
+    "modules-left": [
+        "custom/elevated-daemon",
+        "custom/elevated-pin",
+        "custom/elevated-1",
+        "custom/elevated-2",
+        "custom/elevated-3",
+        "custom/elevated-4",
+        "custom/elevated-5",
+        "custom/cap"
+    ],
+    "modules-center": [
+    ],
+    "modules-right": [
+        "custom/focused-daemon",
+        "custom/focused-pin",
+        "custom/focused-cpu",
+        "custom/focused-mem",
+        "custom/focused-fps-daemon",
+        "custom/focused-fps",
+        "custom/focused-cap"
+    ]
+}

@@ -9,6 +9,8 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.ii.overlay
 import qs.modules.ii.sidebarRight.volumeMixer
+import qs.modules.iris.style
+import qs.modules.iris.stage
 import Quickshell.Services.Mpris
 
 StyledOverlayWidget {
@@ -28,8 +30,16 @@ StyledOverlayWidget {
             }
             spacing: 8
 
+            OverlaySegments {
+                visible: OverlayLook.iris
+                Layout.fillWidth: true
+                segments: [{ label: "Output", glyph: "media_output" }, { label: "Input", glyph: "mic" }, { label: "Music", glyph: "music_note" }]
+                currentIndex: tabBar.currentIndex
+                onActivated: index => tabBar.currentIndex = index
+            }
             SecondaryTabBar {
                 id: tabBar
+                visible: !OverlayLook.iris
 
                 currentIndex: Persistent.states.overlay.volumeMixer.tabIndex
                 onCurrentIndexChanged: {
@@ -59,15 +69,25 @@ StyledOverlayWidget {
                 }
                 clip: true
 
-                PaddedVolumeDialogContent { 
-                    isSink: true 
+                PaddedVolumeDialogContent {
+                    isSink: true
+                    irisKind: "sound"
                 }
-                PaddedVolumeDialogContent { 
-                    isSink: false 
+                PaddedVolumeDialogContent {
+                    isSink: false
+                    irisKind: "mic"
                 }
-                MusicControlContent {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+                Item {
+                    MusicControlContent {
+                        anchors.fill: parent
+                        visible: !OverlayLook.iris
+                    }
+                    IrisCardPage {
+                        anchors.fill: parent
+                        visible: OverlayLook.iris
+                        kind: "media"
+                        bleeds: true
+                    }
                 }
             }
         }
@@ -76,15 +96,44 @@ StyledOverlayWidget {
     component PaddedVolumeDialogContent: Item {
         id: paddedVolumeDialogContent
         property alias isSink: volDialogContent.isSink
+        property string irisKind: ""
         property real padding: 12
         implicitWidth: volDialogContent.implicitWidth + padding * 2
         implicitHeight: volDialogContent.implicitHeight + padding * 2
 
         VolumeDialogContent {
             id: volDialogContent
+            visible: !OverlayLook.iris
             anchors {
                 fill: parent
                 margins: paddedVolumeDialogContent.padding
+            }
+            dialogShown: SwipeView.isCurrentItem && !OverlayLook.iris
+        }
+        IrisCardPage {
+            anchors.fill: parent
+            visible: OverlayLook.iris
+            kind: paddedVolumeDialogContent.irisKind
+        }
+    }
+
+    component IrisCardPage: Flickable {
+        id: cardPage
+        property string kind: ""
+        property bool bleeds: false
+        readonly property real pad: cardPage.bleeds ? 0 : Math.round(14 * IrisStyle.density)
+        clip: true
+        contentWidth: width
+        contentHeight: (cardLoader.item?.implicitHeight ?? 0) + cardPage.pad * 2
+        boundsBehavior: Flickable.StopAtBounds
+        Loader {
+            id: cardLoader
+            active: cardPage.visible && cardPage.kind.length > 0
+            x: cardPage.pad
+            y: cardPage.pad
+            width: cardPage.width - cardPage.pad * 2
+            sourceComponent: IrisCardContent {
+                kind: cardPage.kind
             }
         }
     }
@@ -93,54 +142,26 @@ StyledOverlayWidget {
         id: musicContent
 
         readonly property MprisPlayer activePlayer: MprisController.activePlayer
-        readonly property string cleanedTitle: StringUtils.cleanMusicTitle(activePlayer?.trackTitle) || Translation.tr("No media")
+        readonly property string cleanedTitle: StringUtils.cleanMusicTitle(MprisController.titleOf(activePlayer)) || Translation.tr("No media")
 
         // Datos de carátula (cover art) y progreso para la pestaña Music
-        property var artUrl: activePlayer?.trackArtUrl
+        property var artUrl: MprisController.artUrlOf(activePlayer)
         property string artDownloadLocation: Directories.coverArt
-        property string artFileName: artUrl ? Qt.md5(artUrl) : ""
-        property string artFilePath: artUrl && artUrl.length > 0 ? (artDownloadLocation + "/" + artFileName) : ""
-        property bool downloaded: false
-        property int _downloadRetryCount: 0
-        readonly property int _maxRetries: 3
-        property string displayedArtFilePath: downloaded && artFilePath.length > 0 ? Qt.resolvedUrl(artFilePath) : ""
+        readonly property bool downloaded: MediaArtwork.ready
+        property string displayedArtFilePath: MediaArtwork.displaySource
 
         function checkAndDownloadArt() {
-            if (!artUrl || artUrl.length === 0) {
-                downloaded = false
-                _downloadRetryCount = 0
+            MediaArtwork.refresh()
+        }
+
+        function stepVolume(delta: real): void {
+            if (!MprisController.canChangeVolume)
                 return
-            }
-            artExistsChecker.running = true
-        }
-
-        function retryDownload() {
-            if (_downloadRetryCount < _maxRetries && artUrl) {
-                _downloadRetryCount++
-                retryTimer.start()
-            }
-        }
-
-        Timer {
-            id: retryTimer
-            interval: 1000 * musicContent._downloadRetryCount
-            repeat: false
-            onTriggered: {
-                if (musicContent.artUrl && !musicContent.downloaded) {
-                    coverArtDownloader.targetFile = musicContent.artUrl
-                    coverArtDownloader.artFilePath = musicContent.artFilePath
-                    coverArtDownloader.running = true
-                }
-            }
-        }
-
-        onArtFilePathChanged: {
-            _downloadRetryCount = 0
-            checkAndDownloadArt()
+            MprisController.setVolume(MprisController.getVolume() + delta)
         }
 
         onVisibleChanged: {
-            if (visible && artFilePath) {
+            if (visible && artUrl) {
                 checkAndDownloadArt()
             }
         }
@@ -150,46 +171,6 @@ StyledOverlayWidget {
             interval: Config.options?.resources?.updateInterval ?? 3000
             repeat: true
             onTriggered: activePlayer?.positionChanged()
-        }
-
-        Process { // Check if cover art exists
-            id: artExistsChecker
-            command: ["/usr/bin/test", "-f", musicContent.artFilePath]
-            onExited: (exitCode, exitStatus) => {
-                if (exitCode === 0) {
-                    musicContent.downloaded = true
-                    musicContent._downloadRetryCount = 0
-                } else {
-                    musicContent.downloaded = false
-                    coverArtDownloader.targetFile = musicContent.artUrl ?? ""
-                    coverArtDownloader.artFilePath = musicContent.artFilePath ?? ""
-                    coverArtDownloader.running = true
-                }
-            }
-        }
-
-        Process { // Descarga ligera de carátula a caché
-            id: coverArtDownloader
-            property string targetFile: artUrl ?? ""
-            property string artFilePath: musicContent.artFilePath ?? ""
-            command: [
-                "/usr/bin/bash",
-                "-c",
-                `if [ -f '${artFilePath}' ]; then exit 0; fi
-                mkdir -p '${musicContent.artDownloadLocation}'
-                tmp='${artFilePath}.tmp'
-                /usr/bin/curl -sSL --connect-timeout 10 --max-time 30 '${targetFile}' -o "$tmp" && \
-                [ -s "$tmp" ] && /usr/bin/mv -f "$tmp" '${artFilePath}' || { rm -f "$tmp"; exit 1; }`
-            ]
-            onExited: (exitCode, exitStatus) => {
-                if (exitCode === 0) {
-                    musicContent.downloaded = true
-                    musicContent._downloadRetryCount = 0
-                } else {
-                    musicContent.downloaded = false
-                    musicContent.retryDownload()
-                }
-            }
         }
 
         ColumnLayout {
@@ -207,24 +188,34 @@ StyledOverlayWidget {
                     id: coverFrame
                     implicitWidth: 96
                     implicitHeight: 96
-                    radius: Appearance.rounding.small
-                    color: Appearance.colors.colLayer2
+                    radius: OverlayLook.roundingSmall
+                    color: OverlayLook.colLayer2
 
                     StyledImage {
                         anchors.fill: parent
-                        visible: musicContent.displayedArtFilePath !== ""
+                        opacity: musicContent.displayedArtFilePath !== "" && status !== Image.Error ? 1 : 0
+                        visible: opacity > 0
                         source: musicContent.displayedArtFilePath
                         fillMode: Image.PreserveAspectCrop
                         cache: false
                         antialiasing: true
+                        Behavior on opacity {
+                            enabled: Appearance.animationsEnabled
+                            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                     }
 
                     MaterialSymbol {
                         anchors.centerIn: parent
-                        visible: musicContent.displayedArtFilePath === ""
+                        opacity: musicContent.displayedArtFilePath === "" ? 1 : 0
+                        visible: opacity > 0
                         text: "music_note"
                         iconSize: Appearance.font.pixelSize.huge
-                        color: Appearance.colors.colOnLayer2
+                        color: OverlayLook.colOnLayer2
+                        Behavior on opacity {
+                            enabled: Appearance.animationsEnabled
+                            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                     }
                 }
 
@@ -242,28 +233,28 @@ StyledOverlayWidget {
                     StyledText {
                         Layout.fillWidth: true
                         font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
+                        color: OverlayLook.colSubtext
                         elide: Text.ElideRight
-                        text: activePlayer?.trackArtist || ""
+                        text: MprisController.artistOf(activePlayer) || ""
                     }
 
                     StyledText {
                         Layout.fillWidth: true
                         font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        color: OverlayLook.colSubtext
                         elide: Text.ElideRight
-                        text: (activePlayer && activePlayer.length > 0)
-                              ? `${StringUtils.friendlyTimeForSeconds(activePlayer.position)} / ${StringUtils.friendlyTimeForSeconds(activePlayer.length)}`
+                        text: MprisController.lengthOf(activePlayer) > 0
+                              ? `${StringUtils.friendlyTimeForSeconds(MprisController.positionOf(activePlayer))} / ${StringUtils.friendlyTimeForSeconds(MprisController.lengthOf(activePlayer))}`
                               : ""
                     }
 
                     StyledProgressBar {
                         Layout.fillWidth: true
                         wavy: activePlayer?.isPlaying ?? false
-                        highlightColor: Appearance.colors.colPrimary
-                        trackColor: Appearance.colors.colSecondaryContainer
-                        value: (activePlayer && activePlayer.length > 0)
-                               ? (activePlayer.position / activePlayer.length)
+                        highlightColor: OverlayLook.colPrimary
+                        trackColor: OverlayLook.colSecondaryContainer
+                        value: MprisController.lengthOf(activePlayer) > 0
+                               ? (MprisController.positionOf(activePlayer) / MprisController.lengthOf(activePlayer))
                                : 0
                     }
                 }
@@ -279,9 +270,9 @@ StyledOverlayWidget {
 
                 RippleButton {
                     enabled: MprisController.canGoPrevious
-                    colBackground: Appearance.colors.colLayer3
-                    colBackgroundHover: Appearance.colors.colLayer3Hover
-                    colRipple: Appearance.colors.colLayer3Active
+                    colBackground: OverlayLook.colLayer3
+                    colBackgroundHover: OverlayLook.colLayer3Hover
+                    colRipple: OverlayLook.colLayer3Active
                     buttonRadius: height / 2
                     implicitHeight: 40
                     implicitWidth: 40
@@ -296,9 +287,9 @@ StyledOverlayWidget {
 
                 RippleButton {
                     enabled: MprisController.canTogglePlaying
-                    colBackground: Appearance.colors.colLayer3
-                    colBackgroundHover: Appearance.colors.colLayer3Hover
-                    colRipple: Appearance.colors.colLayer3Active
+                    colBackground: OverlayLook.colLayer3
+                    colBackgroundHover: OverlayLook.colLayer3Hover
+                    colRipple: OverlayLook.colLayer3Active
                     buttonRadius: height / 2
                     implicitHeight: 44
                     implicitWidth: 44
@@ -313,9 +304,9 @@ StyledOverlayWidget {
 
                 RippleButton {
                     enabled: MprisController.canGoNext
-                    colBackground: Appearance.colors.colLayer3
-                    colBackgroundHover: Appearance.colors.colLayer3Hover
-                    colRipple: Appearance.colors.colLayer3Active
+                    colBackground: OverlayLook.colLayer3
+                    colBackgroundHover: OverlayLook.colLayer3Hover
+                    colRipple: OverlayLook.colLayer3Active
                     buttonRadius: height / 2
                     implicitHeight: 40
                     implicitWidth: 40
@@ -327,6 +318,20 @@ StyledOverlayWidget {
                         iconSize: 22
                     }
                 }
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            onWheel: event => {
+                if (!MprisController.canChangeVolume)
+                    return
+                const verticalDelta = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y
+                if (verticalDelta === 0)
+                    return
+                musicContent.stepVolume(verticalDelta > 0 ? 0.05 : -0.05)
+                event.accepted = true
             }
         }
     }

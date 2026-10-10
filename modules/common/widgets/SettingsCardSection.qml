@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.modules.common
+import qs.modules.common.functions
 import qs.modules.common.widgets
 
 Item {
@@ -12,18 +13,13 @@ Item {
     property bool expanded: true
     property bool collapsible: true
     property int animationDuration: Appearance.animation.elementMove.duration
-    default property alias data: sectionContent.data
+    property string settingsTaskSection: ""
+    default property alias contentData: sectionContent.data
 
     property bool enableSettingsSearch: true
     property int settingsSearchOptionId: -1
 
-    Layout.fillWidth: false
-    Layout.alignment: Qt.AlignHCenter
-    Layout.maximumWidth: SettingsMaterialPreset.maxContentWidth
-    Layout.preferredWidth: {
-        const parentWidth = root.parent ? root.parent.width : SettingsMaterialPreset.maxContentWidth
-        return Math.min(SettingsMaterialPreset.maxContentWidth, parentWidth)
-    }
+    Layout.fillWidth: true
     implicitHeight: card.implicitHeight
 
     function _findSettingsContext() {
@@ -41,13 +37,18 @@ Item {
 
     function focusFromSettingsSearch() {
         root.expanded = true;
-        root.forceActiveFocus();
+        if (root.collapsible)
+            headerBackground.forceActiveFocus(Qt.TabFocusReason);
+        else
+            root.forceActiveFocus();
     }
 
     Component.onCompleted: {
         if (!enableSettingsSearch || !root.title)
             return;
         if (typeof SettingsSearchRegistry === "undefined")
+            return;
+        if (!SettingsSearchRegistry.dynamicRegistrationEnabled)
             return;
 
         if (SettingsSearchRegistry.registerCollapsibleSection) {
@@ -77,8 +78,53 @@ Item {
         }
     }
 
-    StyledRectangularShadow {
-        target: card
+    // Shadow — lightweight offset for material/aurora, escalonado for angel
+    // Material/aurora: simple offset rectangle instead of GPU-blurred RectangularShadow
+    // for much better performance (especially with many cards visible at once).
+    Rectangle {
+        visible: !SettingsMaterialPreset.unified
+            && !Appearance.angelEverywhere
+            && !Appearance.editorialEverywhere
+            && !Appearance.zzzEverywhere
+            && Appearance.effectsEnabled
+        x: card.x + 0.5
+        y: card.y + (Appearance.cookieEverywhere
+            ? Appearance.cookie.cardShadowOffset : 1.5)
+        width: card.width
+        height: card.height
+        radius: card.radius
+        color: Appearance.cookieEverywhere
+            ? Appearance.cookie.cardShadowColor : Appearance.colors.colShadow
+        z: -1
+    }
+    Loader {
+        active: Appearance.angelEverywhere
+        sourceComponent: EscalonadoShadow {
+            target: card
+            hovered: root.expanded
+        }
+    }
+
+    ZzzPlate {
+        anchors.fill: card
+        visible: Appearance.zzzEverywhere
+        // A step darker than the content field (zzz.bg2) so the card reads as
+        // its own sunken plate instead of blending into the page background.
+        fillColor: Appearance.zzz.bg1
+        strokeColor: Appearance.zzz.hairline
+        strokeWidth: Appearance.zzz.hairlineThick
+        chamfer: Appearance.zzz.cutCorner
+        z: -0.5
+    }
+
+    Loader {
+        anchors.fill: card
+        active: Appearance.cookieEverywhere && root.visible
+        sourceComponent: CookieFace {
+            role: "card"
+            color: SettingsMaterialPreset.cardColor
+            radius: card.radius
+        }
     }
 
     Rectangle {
@@ -87,9 +133,50 @@ Item {
         anchors.fill: parent
         implicitHeight: cardColumn.implicitHeight + SettingsMaterialPreset.cardPadding * 2
         radius: SettingsMaterialPreset.cardRadius
-        color: SettingsMaterialPreset.cardColor
-        border.width: 1
-        border.color: SettingsMaterialPreset.cardBorderColor
+        color: Appearance.cookieEverywhere || Appearance.regaliaEverywhere
+            ? "transparent" : SettingsMaterialPreset.cardColor
+        border.width: SettingsMaterialPreset.unified ? 0
+                     : Appearance.angelEverywhere ? 0
+                     : (Appearance.regaliaEverywhere ? 0
+                     : (Appearance.zzzEverywhere ? 0
+                     : (Appearance.cookieEverywhere ? 0
+                     : (Appearance.editorialEverywhere ? 0
+                     : (Appearance.inirEverywhere ? 1
+                     : (Appearance.auroraEverywhere ? 1 : 1))))))
+        border.color: Appearance.angelEverywhere ? "transparent" : SettingsMaterialPreset.cardBorderColor
+
+        Behavior on color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        Behavior on border.color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        Behavior on border.width {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+
+        RegaliaPlate {
+            anchors.fill: parent
+            visible: Appearance.regaliaEverywhere
+            fillColor: SettingsMaterialPreset.cardColor
+            radius: card.radius
+            inset: Appearance.regalia.surfaceInset
+            elevated: true
+        }
+
+        // Angel partial border
+        AngelPartialBorder {
+            targetRadius: card.radius
+            hovered: root.expanded
+        }
+
+        ZzzDiagonalPattern {
+            stripeSpacing: 36
+            stripeThickness: 1
+        }
 
         ColumnLayout {
             id: cardColumn
@@ -106,12 +193,54 @@ Item {
                 Layout.fillWidth: true
                 implicitHeight: headerRow.implicitHeight + SettingsMaterialPreset.headerPaddingY * 2
                 radius: SettingsMaterialPreset.headerRadius
-                color: headerMouseArea.containsMouse && root.collapsible
-                    ? Appearance.colors.colLayer1Hover
-                    : "transparent"
+                activeFocusOnTab: root.collapsible
+                Accessible.role: root.collapsible ? Accessible.Button : Accessible.Heading
+                Accessible.name: root.title
+                Accessible.focusable: root.collapsible
+                Accessible.onPressAction: toggleExpanded()
+
+                function toggleExpanded() {
+                    if (root.collapsible)
+                        root.expanded = !root.expanded;
+                }
+
+                Keys.onSpacePressed: toggleExpanded()
+                Keys.onReturnPressed: toggleExpanded()
+                Keys.onEnterPressed: toggleExpanded()
+
+                color: Appearance.regaliaEverywhere ? "transparent"
+                    : headerMouseArea.containsMouse && root.collapsible
+                        ? SettingsMaterialPreset.headerHoverColor
+                        : ColorUtils.applyAlpha(SettingsMaterialPreset.headerHoverColor, 0)
 
                 Behavior on color {
-                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                    animation: ColorAnimation { duration: Appearance.animation.stateChange.duration; easing.type: Appearance.animation.stateChange.type; easing.bezierCurve: Appearance.animation.stateChange.bezierCurve }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: headerBackground.radius
+                    color: "transparent"
+                    border.width: 2
+                    border.color: Appearance.editorialEverywhere
+                        ? Appearance.editorial.focusRing : Appearance.colors.colPrimary
+                    visible: headerBackground.activeFocus && root.collapsible
+                }
+
+                EditorialRule {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    height: 2
+                    inset: SettingsMaterialPreset.headerPaddingX
+                    emphasized: root.expanded || headerMouseArea.containsMouse
+                }
+
+                RegaliaControlFace {
+                    anchors.fill: parent
+                    visible: Appearance.regaliaEverywhere && root.collapsible && headerMouseArea.containsMouse
+                    fillColor: Appearance.regalia.controlPlateHover
+                    radius: Appearance.regalia.roundSmall
                 }
 
                 RowLayout {
@@ -119,30 +248,123 @@ Item {
                     anchors.fill: parent
                     anchors.leftMargin: SettingsMaterialPreset.headerPaddingX
                     anchors.rightMargin: SettingsMaterialPreset.headerPaddingX
-                    spacing: 8
+                    spacing: Appearance.editorialEverywhere ? Math.round(8 * Appearance.editorial.spacing) : 8
 
-                    OptionalMaterialSymbol {
-                        icon: root.icon
-                        iconSize: Appearance.font.pixelSize.hugeass
+                    Loader {
+                        active: Appearance.editorialEverywhere && Appearance.editorial.ornaments
+                        Layout.preferredWidth: active ? 28 : 0
+                        Layout.preferredHeight: active ? 28 : 0
+                        visible: active
+                        sourceComponent: MaterialShape {
+                            implicitSize: 26
+                            shape: MaterialShape.Shape.Flower
+                            color: Appearance.editorial.accent
+                            rotation: root.expanded ? 45 : 0
+                            Behavior on rotation {
+                                enabled: Appearance.animationsEnabled
+                                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+                            }
+                        }
+                    }
+
+                    // Icon with expand-state color
+                    Loader {
+                        active: !Appearance.editorialEverywhere && root.icon && root.icon.length > 0
+                        visible: active
+                        Layout.alignment: Qt.AlignVCenter
+
+                        readonly property color _iconColor: root.expanded
+                            ? SettingsMaterialPreset.iconExpandedColor
+                            : SettingsMaterialPreset.iconCollapsedColor
+
+                        sourceComponent: Item {
+                            id: iconHost
+                            // The cookie badge fills this host, and a scalloped
+                            // polygon inscribed in a box is SMALLER than the box —
+                            // its lobes cut inward. Sized to the glyph, the plate
+                            // came out smaller than the glyph sitting on it, so the
+                            // host has to clear the icon for the badge to contain it.
+                            implicitWidth: Appearance.zzzEverywhere ? 26
+                                : Appearance.cookieEverywhere ? Math.round(Appearance.font.pixelSize.larger * 1.75)
+                                : Appearance.font.pixelSize.larger
+                            implicitHeight: implicitWidth
+                            readonly property color iconColor: root.expanded
+                                ? (Appearance.cookieEverywhere
+                                    ? Appearance.colors.colOnPrimaryContainer
+                                    : SettingsMaterialPreset.iconExpandedColor)
+                                : (Appearance.cookieEverywhere
+                                    ? Appearance.colors.colOnLayer2
+                                    : SettingsMaterialPreset.iconCollapsedColor)
+
+                            CookieFace {
+                                anchors.fill: parent
+                                visible: Appearance.cookieEverywhere
+                                role: "badge"
+                                selected: root.expanded
+                                color: root.expanded
+                                    ? Appearance.colors.colPrimaryContainer
+                                    : Appearance.colors.colLayer2
+                            }
+
+                            MaterialSymbol {
+                                visible: !Appearance.zzzEverywhere
+                                anchors.centerIn: parent
+                                text: root.icon
+                                iconSize: Appearance.font.pixelSize.larger
+                                color: iconHost.iconColor
+
+                                Behavior on color {
+                                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                }
+                            }
+                            ZzzGlyphBadge {
+                                visible: Appearance.zzzEverywhere
+                                anchors.centerIn: parent
+                                symbol: root.icon
+                                accentColor: root.expanded ? Appearance.zzz.sticker : Appearance.zzz.secondary
+                                inkColor: root.expanded ? Appearance.zzz.onSticker : Appearance.zzz.onSecondary
+                                badgeSize: 26
+                            }
+                        }
                     }
 
                     StyledText {
-                        text: root.title
-                        font.pixelSize: Appearance.font.pixelSize.larger
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnSecondaryContainer
+                        text: Appearance.zzzEverywhere ? root.title.toUpperCase() : root.title
+                        wrapMode: Text.Wrap
+                        font.family: Appearance.editorialEverywhere ? Appearance.font.family.title : Appearance.font.family.main
+                        font.pixelSize: Appearance.editorialEverywhere ? Appearance.font.pixelSize.huge * Appearance.editorial.titleScale : Appearance.font.pixelSize.normal
+                        readonly property int titleWeight: Appearance.editorialEverywhere
+                            ? Appearance.editorial.titleWeight : Appearance.zzzEverywhere ? Font.ExtraBold : Font.DemiBold
+                        font.weight: titleWeight
+                        font.variableAxes: Object.assign({}, Appearance.font.variableAxes.main, { "wght": titleWeight })
+                        font.letterSpacing: Appearance.editorialEverywhere ? Appearance.editorial.titleTracking : 0
+                        color: root.expanded
+                            ? SettingsMaterialPreset.titleExpandedColor
+                            : SettingsMaterialPreset.titleCollapsedColor
                         Layout.fillWidth: true
+
+                        Behavior on color {
+                            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                     }
 
                     MaterialSymbol {
                         visible: root.collapsible
-                        text: root.expanded ? "expand_less" : "expand_more"
-                        iconSize: Appearance.font.pixelSize.large
-                        color: Appearance.colors.colSubtext
-                        Behavior on text {
-                            enabled: false
+                        text: "expand_more"
+                        iconSize: Appearance.font.pixelSize.normal
+                        color: Appearance.regaliaEverywhere
+                            ? (root.expanded ? Appearance.regalia.onColor : Appearance.regalia.onMuted)
+                            : Appearance.angelEverywhere
+                                ? Appearance.angel.colTextMuted
+                                : Appearance.colors.colSubtext
+                        // One glyph that rotates instead of swapping icons
+                        rotation: root.expanded ? 180 : 0
+                        Behavior on rotation {
+                            enabled: Appearance.animationsEnabled
+                            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
                     }
+
                 }
 
                 MouseArea {
@@ -152,7 +374,8 @@ Item {
                     cursorShape: root.collapsible ? Qt.PointingHandCursor : Qt.ArrowCursor
                     onClicked: {
                         if (root.collapsible) {
-                            root.expanded = !root.expanded;
+                            headerBackground.forceActiveFocus(Qt.MouseFocusReason);
+                            headerBackground.toggleExpanded();
                         }
                     }
                 }
@@ -163,19 +386,24 @@ Item {
                 Layout.fillWidth: true
                 implicitHeight: root.expanded ? sectionContent.implicitHeight : 0
                 clip: true
+                // clip only hides rendering — descendants outside the clipped
+                // area still receive input. Without this, every collapsed
+                // card leaves its full set of switches/sliders live and
+                // clickable, stacked invisibly under whatever renders next.
+                enabled: root.expanded
 
                 Behavior on implicitHeight {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
                 }
 
                 ColumnLayout {
                     id: sectionContent
                     width: parent.width
-                    spacing: 8
+                    spacing: SettingsMaterialPreset.groupSpacing
                     opacity: root.expanded ? 1 : 0
 
                     Behavior on opacity {
-                        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                     }
                 }
             }

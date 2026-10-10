@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
@@ -27,9 +28,11 @@ StyledFlickable {
         }
         return result
     }
-    
+
+    readonly property bool isSearching: searchText.trim().length > 0
+
     readonly property var filteredKeybinds: {
-        if (!searchText || searchText.trim().length === 0) return allKeybinds
+        if (!isSearching) return allKeybinds
         const q = searchText.toLowerCase().trim()
         return allKeybinds.filter(kb =>
             kb.key?.toLowerCase().includes(q) ||
@@ -40,6 +43,29 @@ StyledFlickable {
     }
     
     readonly property bool hasResults: filteredKeybinds.length > 0
+
+    // Category icon mapping
+    function categoryIcon(name) {
+        const icons = {
+            "System": "settings_power",
+            "ii Shell": "dashboard",
+            "Window Switcher": "swap_horiz",
+            "Region Tools": "screenshot_region",
+            "Applications": "apps",
+            "Window Management": "select_window",
+            "Focus": "filter_center_focus",
+            "Move Windows": "open_with",
+            "Workspaces": "workspaces",
+            "Screenshots": "screenshot_monitor",
+            "Media": "music_note",
+            "Brightness": "brightness_medium",
+            "Layout": "view_quilt",
+            "Resize": "aspect_ratio",
+            "Monitors": "monitor",
+            "Other": "more_horiz",
+        }
+        return icons[name] ?? "keyboard"
+    }
     
     property var keyBlacklist: ["Super_L"]
     property var keySubstitutions: ({
@@ -79,7 +105,10 @@ StyledFlickable {
             
             StyledText {
                 text: Translation.tr("Keybinds") + ` (${root.filteredKeybinds.length})`
+                font.family: Appearance.editorialEverywhere ? Appearance.font.family.title : Appearance.font.family.main
                 font.pixelSize: Appearance.font.pixelSize.large
+                font.weight: Appearance.editorialEverywhere ? Appearance.editorial.titleWeight : Font.Normal
+                font.letterSpacing: Appearance.editorialEverywhere ? Appearance.editorial.titleTracking : 0
                 color: Appearance.colors.colOnLayer1
             }
             
@@ -103,7 +132,7 @@ StyledFlickable {
             RippleButton {
                 implicitWidth: 32
                 implicitHeight: 32
-                buttonRadius: Appearance.rounding.full
+                buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.full
                 visible: searchField.text.length > 0
                 onClicked: searchField.text = ""
                 contentItem: MaterialSymbol {
@@ -118,12 +147,26 @@ StyledFlickable {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 200
-            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+            radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                 : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                 : Appearance.inirEverywhere ? Appearance.inir.colLayer1
                  : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
                  : Appearance.colors.colLayer1
-            border.width: Appearance.inirEverywhere ? 1 : 0
-            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
+            border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth
+                        : Appearance.zzzEverywhere ? 1
+                        : Appearance.inirEverywhere ? 1 : 0
+            border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                        : Appearance.zzzEverywhere ? Appearance.zzz.hairline
+                        : Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
+            Behavior on border.width {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
+            Behavior on border.color {
+                enabled: Appearance.animationsEnabled
+                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
             visible: !root.hasResults && root.searchText.length > 0
 
             CheatsheetNoResults {
@@ -131,35 +174,149 @@ StyledFlickable {
                 onClearSearchRequested: searchField.text = ""
             }
         }
-        
-        // Keybinds list
+
+        // Grouped by category (when not searching)
+        Repeater {
+            model: root.isSearching ? 0 : root.categories.length
+
+            delegate: Rectangle {
+                id: catCard
+                required property int index
+                readonly property var catData: root.categories[index]
+                readonly property string catName: catData?.name ?? ""
+                readonly property var catKeybinds: catData?.children?.[0]?.keybinds ?? []
+
+                Layout.fillWidth: true
+                Layout.preferredHeight: catColumn.implicitHeight + 8
+                visible: catKeybinds.length > 0
+                radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                     : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+                color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                     : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                     : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                     : Appearance.colors.colLayer1
+                border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth
+                            : Appearance.inirEverywhere ? 1 : 0
+                border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                            : Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
+
+                Column {
+                    id: catColumn
+                    anchors {
+                        top: parent.top
+                        left: parent.left
+                        right: parent.right
+                        margins: 4
+                    }
+
+                    // Category header
+                    Item {
+                        width: parent.width
+                        height: 36
+
+                        RowLayout {
+                            anchors {
+                                fill: parent
+                                leftMargin: 12
+                                rightMargin: 12
+                            }
+                            spacing: 8
+
+                            MaterialSymbol {
+                                text: root.categoryIcon(catCard.catName)
+                                iconSize: 18
+                                color: Appearance.colors.colPrimary
+                            }
+
+                            StyledText {
+                                text: catCard.catName
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                font.weight: Appearance.editorialEverywhere ? Appearance.editorial.titleWeight : Font.DemiBold
+                                color: Appearance.colors.colPrimary
+                            }
+
+                            Item { Layout.fillWidth: true }
+
+                            // Count badge
+                            Rectangle {
+                                implicitWidth: countLabel.implicitWidth + 12
+                                implicitHeight: 20
+                                radius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.full
+                                color: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                                     : Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                                     : Appearance.colors.colLayer2
+                                StyledText {
+                                    id: countLabel
+                                    anchors.centerIn: parent
+                                    text: catCard.catKeybinds.length
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    color: Appearance.colors.colSubtext
+                                }
+                            }
+                        }
+                    }
+
+                    // Divider under header
+                    Rectangle {
+                        width: parent.width - 24
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: 1
+                        color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                             : Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle
+                             : Appearance.colors.colOutlineVariant
+                        opacity: 0.4
+                    }
+
+                    // Keybind rows for this category
+                    Repeater {
+                        model: catCard.catKeybinds
+
+                        delegate: CheatsheetKeybindRow {
+                            required property var modelData
+                            required property int index
+                            width: catColumn.width
+                            keybindData: Object.assign({category: catCard.catName}, modelData)
+                            keyBlacklist: root.keyBlacklist
+                            keySubstitutions: root.keySubstitutions
+                            showDivider: index < catCard.catKeybinds.length - 1
+                        }
+                    }
+                }
+            }
+        }
+
+        // Flat filtered list (when searching)
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: keybindsColumn.implicitHeight + 16
-            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
-                 : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+            Layout.preferredHeight: searchColumn.implicitHeight + 16
+            radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                 : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                 : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                 : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
                  : Appearance.colors.colLayer1
-            border.width: Appearance.inirEverywhere ? 1 : 0
-            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
-            visible: root.hasResults
+            border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth
+                        : Appearance.inirEverywhere ? 1 : 0
+            border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                        : Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
+            visible: root.isSearching && root.hasResults
 
             Column {
-                id: keybindsColumn
+                id: searchColumn
                 anchors {
                     top: parent.top
                     left: parent.left
                     right: parent.right
                     margins: 8
                 }
-                
+
                 Repeater {
-                    model: root.filteredKeybinds
-                    
+                    model: root.isSearching ? root.filteredKeybinds : []
+
                     delegate: CheatsheetKeybindRow {
                         required property var modelData
                         required property int index
-                        width: keybindsColumn.width
+                        width: searchColumn.width
                         keybindData: modelData
                         keyBlacklist: root.keyBlacklist
                         keySubstitutions: root.keySubstitutions

@@ -23,6 +23,7 @@ WPanelPageColumn {
     BodyRectangle {
         Layout.fillWidth: true
         Layout.fillHeight: true
+        clip: true
 
         ColumnLayout {
             anchors.fill: parent
@@ -51,20 +52,29 @@ WPanelPageColumn {
                 }
             }
 
-            // Pinned grid - 6 columns like Windows 11
-            Grid {
+            // Pinned grid — Flow auto-reflows when StartMenu resizes (no clipping),
+            // wrapper Item centers the row when columns don't fill the available width.
+            Item {
                 Layout.fillWidth: true
-                columns: 6
-                rowSpacing: 4
-                columnSpacing: 4
-                
-                Repeater {
-                    model: root.pinnedApps.slice(0, 18)
-                    delegate: AppButton {
-                        required property string modelData
-                        required property int index
-                        appId: modelData
-                        animIndex: index
+                implicitHeight: pinnedFlow.implicitHeight
+
+                Flow {
+                    id: pinnedFlow
+                    readonly property int cellWidth: 88 + spacing
+                    // Cap to 6 like Windows 11; less if there's not enough room.
+                    readonly property int maxCols: Math.max(1, Math.min(6, Math.floor((parent.width + spacing) / cellWidth)))
+                    width: Math.min(parent.width, maxCols * cellWidth - spacing)
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 4
+
+                    Repeater {
+                        model: root.pinnedApps.slice(0, 18)
+                        delegate: AppButton {
+                            required property string modelData
+                            required property int index
+                            appId: modelData
+                            animIndex: index
+                        }
                     }
                 }
             }
@@ -74,33 +84,44 @@ WPanelPageColumn {
             // Recommended section
             ColumnLayout {
                 Layout.fillWidth: true
-                visible: (root.recentApps?.length ?? 0) > 0
-                spacing: 12
+                Layout.minimumHeight: recHeader.implicitHeight + 8 + Math.min(recGrid.implicitHeight, 2 * 44 + 1 * 4)
+                Layout.maximumHeight: recHeader.implicitHeight + 8 + recGrid.implicitHeight
+                opacity: (root.recentApps?.length ?? 0) > 0 ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Easing.OutCubic } }
+                spacing: 8
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    WText {
-                        text: Translation.tr("Recommended")
-                        font.pixelSize: Looks.font.pixelSize.large
-                        font.weight: Font.DemiBold
-                    }
-                    Item { Layout.fillWidth: true }
+                WText {
+                    id: recHeader
+                    text: Translation.tr("Recommended")
+                    font.pixelSize: Looks.font.pixelSize.large
+                    font.weight: Font.DemiBold
                 }
 
-                Grid {
+                Flickable {
+                    id: recFlickable
                     Layout.fillWidth: true
-                    columns: 2
-                    rowSpacing: 4
-                    columnSpacing: 16
+                    Layout.fillHeight: true
+                    contentHeight: recGrid.implicitHeight
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
 
-                    Repeater {
-                        model: root.recentApps.slice(0, 6)
-                        delegate: RecButton {
-                            required property var modelData
-                            required property int index
-                            appId: modelData.appId
-                            appName: modelData.name
-                            animIndex: index
+                    Grid {
+                        id: recGrid
+                        width: parent.width
+                        columns: 2
+                        rowSpacing: 4
+                        columnSpacing: 16
+
+                        Repeater {
+                            model: root.recentApps.slice(0, 4)
+                            delegate: RecButton {
+                                required property var modelData
+                                required property int index
+                                appId: modelData.appId
+                                appName: modelData.name
+                                animIndex: index
+                            }
                         }
                     }
                 }
@@ -118,7 +139,7 @@ WPanelPageColumn {
         const windowList = CompositorService.isNiri ? (NiriService.windows ?? []) : []
         for (const w of windowList) {
             const appId = w.app_id ?? ""
-            if (appId && !seen.has(appId) && recent.length < 6) {
+            if (appId && !seen.has(appId) && recent.length < 4) {
                 seen.add(appId)
                 const entry = DesktopEntries.heuristicLookup(appId)
                 recent.push({ appId: appId, name: entry?.name ?? appId })
@@ -134,7 +155,7 @@ WPanelPageColumn {
         readonly property var de: DesktopEntries.heuristicLookup(appId)
         implicitWidth: 88
         implicitHeight: 76
-        onClicked: { if (de) de.execute(); GlobalStates.searchOpen = false }
+        onClicked: { if (de) AppSearch.launchEntry(de); GlobalStates.searchOpen = false }
         
         // Staggered entry animation
         opacity: 0
@@ -151,12 +172,13 @@ WPanelPageColumn {
             id: entryAnim
             PauseAnimation { duration: Looks.transition.staggerDelay(appBtn.animIndex, 25) }
             ParallelAnimation {
-                NumberAnimation { target: appBtn; property: "opacity"; to: 1; duration: 180; easing.type: Easing.OutQuad }
-                NumberAnimation { target: appBtn; property: "scale"; to: 1; duration: 200; easing.type: Easing.OutBack; easing.overshoot: 0.2 }
+                NumberAnimation { target: appBtn; property: "opacity"; to: 1; duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.OutQuad }
+                NumberAnimation { target: appBtn; property: "scale"; to: 1; duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.OutBack; easing.overshoot: 0.2 }
             }
         }
         
         contentItem: ColumnLayout {
+            anchors.centerIn: parent
             spacing: 4
             Image {
                 Layout.alignment: Qt.AlignHCenter
@@ -185,7 +207,7 @@ WPanelPageColumn {
         readonly property var de: DesktopEntries.heuristicLookup(appId)
         implicitWidth: 260
         implicitHeight: 44
-        onClicked: { if (de) de.execute(); GlobalStates.searchOpen = false }
+        onClicked: { if (de) AppSearch.launchEntry(de); GlobalStates.searchOpen = false }
         
         // Staggered entry animation (starts after pinned apps)
         opacity: 0
@@ -202,8 +224,8 @@ WPanelPageColumn {
             id: recEntryAnim
             PauseAnimation { duration: 300 + Looks.transition.staggerDelay(recBtn.animIndex, 40) }
             ParallelAnimation {
-                NumberAnimation { target: recBtn; property: "opacity"; to: 1; duration: 180; easing.type: Easing.OutQuad }
-                NumberAnimation { target: recTranslate; property: "x"; to: 0; duration: 220; easing.type: Easing.OutCubic }
+                NumberAnimation { target: recBtn; property: "opacity"; to: 1; duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.OutQuad }
+                NumberAnimation { target: recTranslate; property: "x"; to: 0; duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
             }
         }
         
@@ -257,12 +279,12 @@ WPanelPageColumn {
             WUserAvatar { sourceSize: Qt.size(32, 32) }
             WText {
                 Layout.alignment: Qt.AlignVCenter
-                text: SystemInfo.username
+                text: SystemInfo.displayName || SystemInfo.username
             }
         }
 
         onClicked: userMenu.open()
-        WToolTip { text: SystemInfo.username }
+        WToolTip { text: SystemInfo.displayName || SystemInfo.username }
 
         Popup {
             id: userMenu
@@ -301,7 +323,10 @@ WPanelPageColumn {
                             }
                             WText {
                                 Layout.alignment: Qt.AlignVCenter
-                                text: SystemInfo.hostname ?? "Computer"
+                                // `hostname` is an empty string until /etc/hostname
+                                // resolves, and `??` does not catch "" — this label
+                                // would otherwise render blank on the first frame.
+                                text: SystemInfo.hostname || "Computer"
                                 font.pixelSize: Looks.font.pixelSize.large
                                 font.weight: Looks.font.weight.strong
                             }
@@ -332,7 +357,7 @@ WPanelPageColumn {
                                 Layout.alignment: Qt.AlignVCenter
                                 spacing: 2
                                 WText {
-                                    text: SystemInfo.username
+                                    text: SystemInfo.displayName || SystemInfo.username
                                     font.pixelSize: Looks.font.pixelSize.larger
                                     font.weight: Looks.font.weight.strong
                                 }
@@ -347,8 +372,7 @@ WPanelPageColumn {
                                         anchors.fill: parent
                                         cursorShape: Qt.PointingHandCursor
                                         onClicked: {
-                                            const cmd = Config.options?.apps?.manageUser ?? "kcmshell6 kcm_users"
-                                            ShellExec.execCmd(cmd)
+                                            AppLauncher.launch("manageUser")
                                             GlobalStates.searchOpen = false
                                             userMenu.close()
                                         }

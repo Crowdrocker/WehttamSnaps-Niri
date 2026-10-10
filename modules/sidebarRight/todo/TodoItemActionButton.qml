@@ -11,6 +11,7 @@ RippleButton {
     implicitWidth: implicitHeight
 
     Behavior on implicitWidth {
+        enabled: Appearance.animationsEnabled
         SmoothedAnimation {
             velocity: Appearance.animation.elementMove.velocity
         }

@@ -10,10 +10,9 @@ QuickToggleModel {
     name: Translation.tr("Bluetooth")
     statusText: BluetoothStatus.firstActiveDevice?.name ?? Translation.tr("Not connected")
     tooltipText: Translation.tr("%1 | Right-click to configure").arg(
-        (BluetoothStatus.firstActiveDevice?.name ?? Translation.tr("Bluetooth"))
-        + (BluetoothStatus.activeDeviceCount > 1 ? ` +${BluetoothStatus.activeDeviceCount - 1}` : "")
+        BluetoothStatus.activeDeviceSummary(true) || Translation.tr("Bluetooth")
     )
-    icon: BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
+    icon: BluetoothStatus.activeIcon
 
     available: BluetoothStatus.available
     toggled: BluetoothStatus.enabled
@@ -22,7 +21,6 @@ QuickToggleModel {
     }
     hasMenu: true
     altAction: () => {
-        const cmd = Config.options?.apps?.bluetooth ?? "blueman-manager"
-        ShellExec.execCmd(cmd)
+        AppLauncher.launch("bluetooth")
     }
 }

@@ -19,13 +19,16 @@ ColumnLayout {
     property var segmentContent: ({})
     property var segmentLang: "txt"
     property var messageData: {}
-    property bool isCommandRequest: segmentLang === "command"
-    property var displayLang: (isCommandRequest ? "bash" : segmentLang)
+    property bool isCommandRequest: segmentLang === "command" || segmentLang === "approval"
+    property var displayLang: segmentLang === "command" ? "bash"
+        : segmentLang === "approval" ? "json" : segmentLang
 
     property real codeBlockBackgroundRounding: Appearance.rounding.small
-    property real codeBlockHeaderPadding: 3
-    property real codeBlockComponentSpacing: 2
+    property real codeBlockHeaderPadding: Appearance.editorialEverywhere ? 5 : 3
+    property real codeBlockComponentSpacing: Appearance.editorialEverywhere ? 0 : 2
 
+    Layout.fillWidth: true
+    Layout.minimumWidth: 0
     spacing: codeBlockComponentSpacing
 
     Rectangle { // Code background
@@ -34,7 +37,9 @@ ColumnLayout {
         topRightRadius: codeBlockBackgroundRounding
         bottomLeftRadius: Appearance.rounding.unsharpen
         bottomRightRadius: Appearance.rounding.unsharpen
-        color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+        color: Appearance.editorialEverywhere ? Appearance.editorial.field
+            : Appearance.angelEverywhere ? Appearance.angel.colGlassElevated
+            : Appearance.inirEverywhere ? Appearance.inir.colLayer2 
             : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colSurfaceContainerHighest
         implicitHeight: codeBlockTitleBarRowLayout.implicitHeight + codeBlockHeaderPadding * 2
 
@@ -50,14 +55,18 @@ ColumnLayout {
             StyledText {
                 id: codeBlockLanguage
                 Layout.alignment: Qt.AlignLeft
-                Layout.fillWidth: false
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 Layout.topMargin: 7
                 Layout.bottomMargin: 7
                 Layout.leftMargin: 10
                 font.pixelSize: Appearance.font.pixelSize.small
                 font.weight: Font.DemiBold
-                color: Appearance.colors.colOnLayer2
+                font.letterSpacing: Appearance.editorialEverywhere ? 0.5 : 0
+                color: Appearance.editorialEverywhere ? Appearance.editorial.fieldInk : Appearance.colors.colOnLayer2
                 text: root.displayLang ? Repository.definitionForName(root.displayLang).name : "plain"
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
             }
 
             Item { Layout.fillWidth: true }
@@ -120,6 +129,8 @@ ColumnLayout {
     }
 
     RowLayout { // Line numbers and code
+        Layout.fillWidth: true
+        Layout.minimumWidth: 0
         spacing: codeBlockComponentSpacing
 
         Rectangle { // Line numbers
@@ -153,7 +164,7 @@ ColumnLayout {
                         Layout.alignment: Qt.AlignRight
                         font.family: Appearance.font.family.monospace
                         font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
+                        color: Appearance.colMetadataText
                         horizontalAlignment: Text.AlignRight
                         text: index + 1
                     }
@@ -163,6 +174,7 @@ ColumnLayout {
 
         Rectangle { // Code background
             Layout.fillWidth: true
+            Layout.minimumWidth: 0
             topLeftRadius: Appearance.rounding.unsharpen
             bottomLeftRadius: Appearance.rounding.unsharpen
             topRightRadius: Appearance.rounding.unsharpen
@@ -178,8 +190,8 @@ ColumnLayout {
                 ScrollView {
                     id: codeScrollView
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     // Layout.fillHeight: true
-                    implicitWidth: parent.width
                     implicitHeight: codeTextArea.implicitHeight + 1
                     contentWidth: codeTextArea.width - 1
                     // contentHeight: codeTextArea.contentHeight
@@ -196,17 +208,14 @@ ColumnLayout {
                         visible: opacity > 0
 
                         Behavior on opacity {
-                            NumberAnimation {
-                                duration: Appearance.animation.elementMoveFast.duration
-                                easing.type: Appearance.animation.elementMoveFast.type
-                                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
-                            }
+                            enabled: Appearance.animationsEnabled
+                            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
                         
                         contentItem: Rectangle {
                             implicitHeight: 6
                             radius: Appearance.rounding.small
-                            color: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
+                            color: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer2Active
                         }
                     }
 
@@ -219,7 +228,7 @@ ColumnLayout {
                         font.family: Appearance.font.family.monospace
                         font.hintingPreference: Font.PreferNoHinting // Prevent weird bold text
                         font.pixelSize: Appearance.font.pixelSize.small
-                        selectedTextColor: Appearance.m3colors.m3onSecondaryContainer
+                        selectedTextColor: Appearance.colors.colOnSecondaryContainer
                         selectionColor: Appearance.colors.colSecondaryContainer
                         // wrapMode: TextEdit.Wrap
                         color: messageData.thinking ? Appearance.colors.colSubtext : Appearance.colors.colOnLayer1

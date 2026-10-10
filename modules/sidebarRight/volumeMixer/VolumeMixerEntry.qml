@@ -26,14 +26,7 @@ Item {
             visible: source != ""
             sourceSize.width: size
             sourceSize.height: size
-            source: {
-                let icon;
-                icon = AppSearch.guessIcon(root.node.properties["application.icon-name"]);
-                if (AppSearch.iconExists(icon))
-                    return Quickshell.iconPath(icon, "image-missing");
-                icon = AppSearch.guessIcon(root.node.properties["node.name"]);
-                return Quickshell.iconPath(icon, "image-missing");
-            }
+            source: root.node ? Quickshell.iconPath(MprisController.streamIconName(root.node), "image-missing") : ""
         }
 
         ColumnLayout {
@@ -43,12 +36,13 @@ Item {
             StyledText {
                 Layout.fillWidth: true
                 font.pixelSize: Appearance.font.pixelSize.small
-                color: Appearance.colors.colSubtext
+                color: Appearance.colMetadataText
                 elide: Text.ElideRight
                 text: {
-                    // application.name -> description -> name
-                    const app = root.node.properties["application.name"] ?? (root.node.description != "" ? root.node.description : root.node.name);
-                    const media = root.node.properties["media.name"];
+                    if (!root.node)
+                        return ""
+                    const app = MprisController.streamDisplayName(root.node);
+                    const media = root.node.properties?.["media.name"];
                     return media != undefined ? `${app} • ${media}` : app;
                 }
             }
@@ -57,7 +51,7 @@ Item {
                 id: slider
                 configuration: StyledSlider.Configuration.S
                 property real modelValue: root.node?.audio.volume ?? 0
-                to: (root.node === Audio.sink) ? Audio.uiMaxSinkVolume : 1
+                to: (root.node === Audio.sink) ? 1.5 : 1
 
                 Binding {
                     target: slider
@@ -68,6 +62,8 @@ Item {
                 onMoved: {
                     if (root.node === Audio.sink) {
                         Audio.setSinkVolume(value)
+                    } else if (root.node === Audio.source) {
+                        Audio.setSourceVolume(value)
                     } else if (root.node?.audio) {
                         root.node.audio.volume = value
                     }

@@ -1,0 +1,119 @@
+> layouts
+
+the following layouts exist, most with multiple variants:
+
+- dwindle
+- scroller
+- master/stack (called tile)
+- monocle
+- grid
+- fair
+- deck
+
+this will also cover a bit more about the *overview* and *scratchpad*
+
+
+## dwindle
+
+dwindle uses a *binary space partitioning* system.
+
+when you spawn a window, it'll split the currently focused window in half across the longest side.
+
+if the window is wider than it is tall, it'll split vertically.
+
+if the window is taller than it is wide, it'll split horizontally. 
+
+in this mode, the special layout toggle *super+a* maximizes the focused window. 
+
+
+## scroller
+
+comes in horizontal and vertical variants.
+
+windows are laid out in an infinitely scrollable strip of columns, you can vertically tile within this column.
+
+in this mode, the special layout toggle *super+a* will change the width of the focused scrolling column between different presets.
+
+you can scroll either with super+arrow keys or by moving your mouse over the windows that are partially outside of the window. 
+
+
+## master/stack (tile)
+
+comes in left, right, vertical and center variants.
+
+these all have a primary window that uses 70% of the monitor and won't change size. all other windows will be tiled around it.
+
+on the left and right variants, the windows will be tiled vertically to the side of the master window.
+
+on the vertical variant, the windows will be tiled horizontally below the master window.
+
+on the center variant, windows will be tiled alternating on the left and right of the master window.
+
+in this mode, the special layout toggle *super+a* will swap the focused window with the master window. 
+
+you can also drag and drop a window into the master area to make it the master, pushing the previous master to the top of the stack.
+
+
+## grid
+this is a simple grid setup that keeps all windows the same size. in horizontal grid it'll go left to right, then top to bottom. 
+
+a vertical grid will go top to bottom, then left to right. 
+
+in this mode, special layout toggle *super+a* will toggle the gaps and borders.
+
+
+## fair
+
+this is similar to grid, but fills your monitor as "fairly" as possible instead of just allowing empty space like grid.
+
+
+## monocle
+
+in monocle, you'll see one window at a time. you can cycle through them using *super+shift+left/right* or by using the overview.
+
+the special layout toggle will not do anything in this mode.
+
+
+## deck
+
+deck is effectively a combination between monocle and master/stack. you'll have a master window and stack, but the stack acts like a monocle layout.
+
+binds work the same, and in this layout, the special layout toggle *super+a* will make the focused window the master.
+
+
+## overview
+
+to enter the overview, either move your mouse to the top left corner (hot corner settings) or hold down alt while pressing tab.
+
+this will bring you to the overview, showing you all windows on that monitor regardless of tag/workspace or layout. 
+
+pressing tab allows you to cycle through, letting go of alt focuses the selected window, moving the workspace/tag on that monitor if needed. 
+
+you can also left/right click while in this menu. left click to focus that window, right click to close.
+
+
+## scratchpad
+
+the scratchpad is effectively an extra hidden space you can store windows in, the core usecase is to store something you will need to frequently access but not for a long time, such as a notepad, music player, terminal or file browser.
+
+pressing *super+c* will toggle visibility for the scratchpad, you'll only see one item in your scratchpad space at a time, by pressing *super+c* multiple times you can cycle through them. 
+
+*super+ctrl+c* will move the focused window to that monitor's scratchpad. 
+
+*super+alt+c* will move a window back out of the active monitor's scratchpad.
+
+
+the scratchpad window will show up as a floating window over top of your other windows, and will be slightly smaller than your window, so you can drag-and-drop files from the scratchpad to your workspace.
+
+
+SNAPS-OS also comes with a special scratchpad for a terminal, spawned with *super+alt+space*
+
+this scratchpad has some special behaviour: the button will toggle visibility *if* there is a terminal with a specific title already inside it, if there isn't, it'll spawn a new terminal with a specific title or pick one up if a terminal exists with that title but isn't in the scratchpad.
+
+this means that if the scratchpad is empty, you'll have to press the button combination twice: once to spawn it, and then again to put the terminal in the scratchpad.
+
+a specific title is used as an identifier to avoid accidentally moving other terminals into this workspace. only terminals spawned by this keybind can be picked up by this keybind.
+
+
+the autostart configuration includes pre-loading for the terminal scratchpad on your primary display. 
+

@@ -32,27 +32,81 @@ TabButton {
     PointingHandInteraction {}
 
     // Primary colored bubble tooltip that appears to the right when collapsed
-    ToolTip {
+    PopupToolTip {
         id: hoverBubble
-        visible: !root.expanded && root.hovered
         delay: 0
-        x: root.width + 4
-        y: (root.height - height) / 2
-        padding: 0
-        background: Rectangle {
-            color: Appearance.colors.colPrimary
-            radius: Appearance.rounding.full
-            implicitWidth: bubbleText.implicitWidth + 24
-            implicitHeight: root.baseHighlightHeight
-        }
-        contentItem: StyledText {
-            id: bubbleText
-            text: root.buttonText
-            font.pixelSize: Appearance.font.pixelSize.small
-            font.weight: Font.Medium
-            color: Appearance.colors.colOnPrimary
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+        extraVisibleCondition: !root.expanded
+        anchorEdges: Edges.Right
+        contentItem: Item {
+            id: bubbleContent
+            property bool shown: false
+            implicitWidth: bubbleBackground.implicitWidth
+            implicitHeight: bubbleBackground.implicitHeight
+            opacity: shown ? 1 : 0
+            scale: shown ? 1 : 0.92
+
+            Behavior on opacity {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation {
+                    duration: Appearance.animation.elementMoveFast.duration
+                    easing.type: Appearance.animation.elementMoveFast.type
+                    easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
+                }
+            }
+
+            Behavior on scale {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation {
+                    duration: Appearance.animation.elementMoveFast.duration
+                    easing.type: Appearance.animation.elementMoveFast.type
+                    easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
+                }
+            }
+
+            Rectangle {
+                id: bubbleBackground
+                color: Appearance.regaliaEverywhere ? "transparent"
+                    : Appearance.zzzEverywhere ? Appearance.zzz.accent
+                    : Appearance.editorialEverywhere ? Appearance.editorial.field
+                    : Appearance.colors.colPrimary
+                radius: Appearance.regaliaEverywhere ? Appearance.regalia.controlRadius
+                    : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                    : Appearance.editorialEverywhere ? Appearance.rounding.small
+                    : Appearance.rounding.full
+                border.width: Appearance.editorialEverywhere ? 1 : 0
+                border.color: Appearance.editorialEverywhere ? Appearance.editorial.edge : "transparent"
+                // Organic morph on style/shape switch (organic-transitions)
+                Behavior on radius { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve } }
+                Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+                implicitWidth: bubbleText.implicitWidth + 24
+                implicitHeight: root.baseHighlightHeight
+
+                RegaliaControlFace {
+                    anchors.fill: parent
+                    visible: Appearance.regaliaEverywhere
+                    fillColor: Appearance.regalia.primaryPlate
+                    radius: bubbleBackground.radius
+                    selected: true
+                }
+
+                StyledText {
+                    id: bubbleText
+                    anchors.centerIn: parent
+                    text: root.buttonText
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: Font.Medium
+                    color: Appearance.regaliaEverywhere ? Appearance.regalia.primaryPlateInk
+                        : Appearance.zzzEverywhere ? Appearance.zzz.onSticker
+                        : Appearance.editorialEverywhere ? Appearance.editorial.fieldInk
+                        : Appearance.colors.colOnPrimary
+                    Behavior on color {
+                        enabled: Appearance.animationsEnabled
+                        ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                    }
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
         }
     }
 
@@ -65,9 +119,9 @@ TabButton {
             left: parent.left
             right: undefined
         }
-        
+
         implicitWidth: root.visualWidth
-        implicitHeight: root.expanded ? itemIconBackground.implicitHeight : itemIconBackground.implicitHeight + itemText.implicitHeight 
+        implicitHeight: root.expanded ? itemIconBackground.implicitHeight : itemIconBackground.implicitHeight + itemText.implicitHeight
 
         Rectangle {
             id: itemBackground
@@ -76,24 +130,28 @@ TabButton {
             anchors.bottom: itemIconBackground.bottom
             // When collapsed, only show icon area; when expanded, show full width with text
             implicitWidth: root.expanded ? root.visualWidth : root.baseSize
-            radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
-            color: Appearance.inirEverywhere 
-                ? (toggled 
-                    ? (root.showToggledHighlight 
-                        ? (root.down ? Appearance.inir.colLayer2Active : root.hovered ? Appearance.inir.colLayer2Hover : Appearance.inir.colLayer2)
-                        : "transparent")
-                    : (root.down ? Appearance.inir.colLayer2Active : root.hovered ? Appearance.inir.colLayer2Hover : "transparent"))
-                : Appearance.auroraEverywhere
-                    ? (toggled ? 
-                        root.showToggledHighlight ?
-                            (root.down ? Appearance.aurora.colSubSurfaceActive : root.hovered ? Appearance.aurora.colSubSurface : Appearance.aurora.colElevatedSurface)
-                            : "transparent" :
-                        (root.down ? Appearance.aurora.colSubSurfaceActive : root.hovered ? Appearance.aurora.colSubSurface : "transparent"))
-                    : (toggled ? 
-                        root.showToggledHighlight ?
-                            (root.down ? Appearance.colors.colSecondaryContainerActive : root.hovered ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
-                            : ColorUtils.transparentize(Appearance.colors.colSecondaryContainer) :
-                        (root.down ? Appearance.colors.colLayer1Active : root.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)))
+            radius: Appearance.regaliaEverywhere ? Appearance.regalia.roundSmall
+                : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                : Appearance.editorialEverywhere ? Appearance.rounding.small
+                : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+            // Organic morph on style/shape switch (organic-transitions)
+            Behavior on radius { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve } }
+            // Regalia turns navigation into compact semantic tiles. Other styles
+            // keep the shell-wide bgless doctrine.
+            color: "transparent"
+
+            RegaliaControlFace {
+                anchors.fill: parent
+                visible: Appearance.regaliaEverywhere
+                fillColor: root.toggled ? Appearance.regalia.primaryPlate : Appearance.regalia.controlPlate
+                radius: itemBackground.radius
+                hovered: root.hovered
+                pressed: root.down
+                selected: root.toggled
+                focused: root.visualFocus
+            }
+
 
             states: State {
                 name: "expanded"
@@ -122,7 +180,8 @@ TabButton {
             }
 
             Behavior on color {
-                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
             }
         }
 
@@ -134,18 +193,42 @@ TabButton {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
             }
+
             MaterialSymbol {
                 id: navRailButtonIcon
                 rotation: root.buttonIconRotation
                 anchors.centerIn: parent
                 iconSize: 24
                 fill: toggled ? 1 : 0
+                animateFill: true
                 font.weight: (toggled || root.hovered) ? Font.DemiBold : Font.Normal
                 text: buttonIcon
-                color: toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer1
+                // Bgless: active icon carries the accent itself (no plate behind).
+                color: Appearance.regaliaEverywhere
+                    ? (toggled ? Appearance.regalia.hardwarePrimary
+                        : root.hovered ? Appearance.regalia.hardwarePrimary
+                        : Appearance.regalia.onMuted)
+                    : Appearance.zzzEverywhere
+                    ? (toggled ? Appearance.zzz.accent : (root.hovered ? Appearance.zzz.ink : Appearance.zzz.inkMuted))
+                    : Appearance.angelEverywhere
+                    ? (toggled ? Appearance.angel.colPrimary : (root.hovered ? Appearance.angel.colText : Appearance.angel.colTextSecondary))
+                    : Appearance.inirEverywhere
+                    ? (toggled ? Appearance.inir.colPrimary : (root.hovered ? Appearance.inir.colText : Appearance.inir.colTextSecondary))
+                    : Appearance.editorialEverywhere
+                    ? (toggled ? Appearance.editorial.accent : (root.hovered ? Appearance.editorial.ink : Appearance.editorial.muted))
+                    : (toggled ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1)
+
+                // Bgless press feedback: the glyph dips on press so a click reads
+                // as registered without any plate behind it.
+                scale: root.down && !Appearance.regaliaEverywhere ? (Appearance.editorialEverywhere ? 0.96 : 0.82) : 1
+                Behavior on scale {
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation { duration: Appearance.animation.clickBounce.duration; easing.type: Appearance.animation.clickBounce.type; easing.bezierCurve: Appearance.animation.clickBounce.bezierCurve }
+                }
 
                 Behavior on color {
-                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
             }
         }
@@ -153,20 +236,38 @@ TabButton {
         StyledText {
             id: itemText
             // Only show text when expanded - when collapsed, use PopupToolTip instead
-            visible: root.expanded
+            visible: opacity > 0
             opacity: root.expanded ? 1 : 0
+            width: root.expanded ? implicitWidth : 0
+            clip: true
             anchors {
                 left: itemIconBackground.right
                 verticalCenter: itemIconBackground.verticalCenter
             }
             text: buttonText
             font.pixelSize: Appearance.font.pixelSize.small
-            color: Appearance.colors.colOnLayer1
+            color: Appearance.regaliaEverywhere
+                ? (root.toggled ? Appearance.regalia.primaryPlateInk : Appearance.regalia.onMuted)
+                : Appearance.zzzEverywhere ? Appearance.zzz.ink
+                : Appearance.editorialEverywhere ? (root.toggled ? Appearance.editorial.accent : Appearance.editorial.ink)
+                : Appearance.colors.colOnLayer1
+            Behavior on color {
+                enabled: Appearance.animationsEnabled
+                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
 
             Behavior on opacity {
                 NumberAnimation {
                     duration: Appearance.animation.elementMoveFast.duration
                     easing.type: Appearance.animation.elementMoveFast.type
+                }
+            }
+            Behavior on width {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation {
+                    duration: Appearance.animation.elementResize.duration
+                    easing.type: Appearance.animation.elementResize.type
+                    easing.bezierCurve: Appearance.animation.elementResize.bezierCurve
                 }
             }
         }

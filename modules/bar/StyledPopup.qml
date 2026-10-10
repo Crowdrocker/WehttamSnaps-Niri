@@ -26,10 +26,12 @@ LazyLoader {
 
     // Fullscreen transparent backdrop for Niri to detect clicks outside
     // (same pattern as ContextMenu / SysTrayMenu)
+    // Color must be non-zero alpha so the compositor registers it as a surface,
+    // but visually invisible — do not use "transparent" (alpha=0 breaks input)
     PanelWindow {
         id: clickOutsideBackdrop
         visible: root.active && root.closeOnOutsideClick
-        color: "#01000000"
+        color: Qt.rgba(0, 0, 0, 1/255)
         exclusiveZone: 0
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "quickshell:popup-catcher"
@@ -51,13 +53,39 @@ LazyLoader {
             onHoveredChanged: root.popupHovered = hovered
         }
 
-        anchors.left: !Config.options.bar.vertical || (Config.options.bar.vertical && !Config.options.bar.bottom)
-        anchors.right: Config.options.bar.vertical && Config.options.bar.bottom
-        anchors.top: Config.options.bar.vertical || (!Config.options.bar.vertical && !Config.options.bar.bottom)
-        anchors.bottom: !Config.options.bar.vertical && Config.options.bar.bottom
+        anchors.left: !(Config.options?.bar?.vertical ?? false) || ((Config.options?.bar?.vertical ?? false) && !(Config.options?.bar?.bottom ?? false))
+        anchors.right: (Config.options?.bar?.vertical ?? false) && (Config.options?.bar?.bottom ?? false)
+        anchors.top: (Config.options?.bar?.vertical ?? false) || (!(Config.options?.bar?.vertical ?? false) && !(Config.options?.bar?.bottom ?? false))
+        anchors.bottom: !(Config.options?.bar?.vertical ?? false) && (Config.options?.bar?.bottom ?? false)
 
         implicitWidth: popupBackground.implicitWidth + Appearance.sizes.elevationMargin * 2 + root.popupBackgroundMargin
         implicitHeight: popupBackground.implicitHeight + Appearance.sizes.elevationMargin * 2 + root.popupBackgroundMargin
+
+        readonly property real centeredLeft: {
+            const margin = Appearance.sizes.elevationMargin
+            const base = root.QsWindow?.mapFromItem(
+                root.hoverTarget,
+                ((root.hoverTarget?.width ?? 0) - popupBackground.implicitWidth) / 2,
+                0
+            ).x ?? margin
+            const maxLeft = Math.max(margin,
+                (popupWindow.screen?.width ?? popupBackground.implicitWidth)
+                - popupBackground.implicitWidth - margin)
+            return Math.max(margin, Math.min(base, maxLeft))
+        }
+
+        readonly property real centeredTop: {
+            const margin = Appearance.sizes.elevationMargin
+            const base = root.QsWindow?.mapFromItem(
+                root.hoverTarget,
+                0,
+                ((root.hoverTarget?.height ?? 0) - popupBackground.implicitHeight) / 2
+            ).y ?? margin
+            const maxTop = Math.max(margin,
+                (popupWindow.screen?.height ?? popupBackground.implicitHeight)
+                - popupBackground.implicitHeight - margin)
+            return Math.max(margin, Math.min(base, maxTop))
+        }
 
         mask: Region {
             item: popupBackground
@@ -67,23 +95,13 @@ LazyLoader {
         exclusiveZone: 0
         margins {
             left: {
-                if (!Config.options.bar.vertical && root.QsWindow && root.hoverTarget && root.hoverTarget.width > 0) {
-                    return root.QsWindow.mapFromItem(
-                        root.hoverTarget,
-                        (root.hoverTarget.width - popupBackground.implicitWidth) / 2, 0
-                    ).x;
-                }
+                if (!(Config.options?.bar?.vertical ?? false))
+                    return popupWindow.centeredLeft
                 return Appearance.sizes.verticalBarWidth
             }
             top: {
-                if (!Config.options.bar.vertical) return Appearance.sizes.barHeight;
-                if (root.QsWindow && root.hoverTarget && root.hoverTarget.height > 0) {
-                    return root.QsWindow.mapFromItem(
-                        root.hoverTarget,
-                        (root.hoverTarget.height - popupBackground.implicitHeight) / 2, 0
-                    ).y;
-                }
-                return Appearance.sizes.barHeight;
+                if (!(Config.options?.bar?.vertical ?? false)) return Appearance.sizes.barHeight;
+                return popupWindow.centeredTop
             }
             right: Appearance.sizes.verticalBarWidth
             bottom: Appearance.sizes.barHeight
@@ -98,6 +116,22 @@ LazyLoader {
         Rectangle {
             id: popupBackground
             readonly property real margin: 10
+
+            property bool _shown: false
+            Component.onCompleted: _shown = true
+
+            opacity: _shown ? 1 : 0
+            scale: _shown ? 1.0 : 0.88
+            transformOrigin: (Config.options?.bar?.bottom ?? false) ? Item.Bottom : Item.Top
+
+            Behavior on opacity {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
+            Behavior on scale {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
             anchors {
                 fill: parent
                 leftMargin: Appearance.sizes.elevationMargin + root.popupBackgroundMargin * (!popupWindow.anchors.left)
@@ -107,13 +141,18 @@ LazyLoader {
             }
             implicitWidth: root.contentItem.implicitWidth + margin * 2
             implicitHeight: root.contentItem.implicitHeight + margin * 2
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
-                : Appearance.m3colors.m3surfaceContainer
-            radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.small
+            color: Appearance.regaliaEverywhere ? Appearance.regalia.bg2
+                : Appearance.angelEverywhere ? Appearance.angel.colGlassPopup
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                : Appearance.colors.colSurfaceContainer
+            radius: Appearance.regaliaEverywhere ? Appearance.regalia.roundNormal
+                : Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.small
             children: [root.contentItem]
 
-            border.width: 1
-            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+            border.width: Appearance.regaliaEverywhere ? 0 : 1
+            border.color: Appearance.angelEverywhere ? Appearance.angel.colBorder
+                : Appearance.inirEverywhere ? Appearance.inir.colBorder 
                 : Appearance.colors.colLayer0Border
         }
 

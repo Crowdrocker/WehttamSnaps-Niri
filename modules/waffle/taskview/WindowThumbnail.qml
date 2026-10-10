@@ -24,7 +24,7 @@ Item {
     required property real workspaceSpacing
     required property bool isCurrentWorkspace
     required property real screenWidth
-    
+
     property real proportion: 1.0
     property real proportionOffset: 0.0
     property real tileWidth: 0
@@ -32,7 +32,7 @@ Item {
     property bool isBeingDragged: false
     property bool isKeyboardFocused: false
     property string searchQuery: ""
-    
+
     // Track focus state - compare with currently focused window
     property int _focusedWindowId: {
         const wins = NiriService.windows ?? []
@@ -40,9 +40,9 @@ Item {
         return focused?.id ?? -1
     }
     readonly property bool isFocused: windowData?.id === _focusedWindowId
-    
+
     readonly property bool isMaximized: tileWidth > 0 && tileWidth >= (screenWidth - 60)
-    
+
     function highlightText(text: string): string {
         if (!searchQuery || searchQuery.length === 0) return text
         const query = searchQuery.toLowerCase()
@@ -85,11 +85,11 @@ Item {
 
     property bool hovered: false
     property bool closeHovered: false
-    
+
     // Entry animation - respects GameMode
     opacity: 0
     scale: 0.9
-    
+
     Component.onCompleted: {
         if (Looks.transition.enabled) {
             windowEntryAnim.start()
@@ -98,12 +98,12 @@ Item {
             scale = 1
         }
     }
-    
+
     SequentialAnimation {
         id: windowEntryAnim
         PauseAnimation { duration: Looks.transition.staggerDelay(root.workspaceSlot * 3 + root.indexInWorkspace, 30) }
         ParallelAnimation {
-            NumberAnimation { 
+            NumberAnimation {
                 target: root
                 property: "opacity"
                 to: 1
@@ -111,7 +111,7 @@ Item {
                 easing.type: Easing.BezierSpline
                 easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
             }
-            NumberAnimation { 
+            NumberAnimation {
                 target: root
                 property: "scale"
                 to: 1
@@ -124,7 +124,7 @@ Item {
 
     Behavior on x {
         enabled: !root.Drag.active
-        NumberAnimation { 
+        NumberAnimation {
             duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
             easing.type: Easing.BezierSpline
             easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
@@ -132,7 +132,7 @@ Item {
     }
     Behavior on y {
         enabled: !root.Drag.active
-        NumberAnimation { 
+        NumberAnimation {
             duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
             easing.type: Easing.BezierSpline
             easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
@@ -140,7 +140,7 @@ Item {
     }
     Behavior on width {
         enabled: !root.Drag.active
-        NumberAnimation { 
+        NumberAnimation {
             duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
             easing.type: Easing.BezierSpline
             easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
@@ -148,7 +148,7 @@ Item {
     }
     Behavior on height {
         enabled: !root.Drag.active
-        NumberAnimation { 
+        NumberAnimation {
             duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
             easing.type: Easing.BezierSpline
             easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
@@ -159,14 +159,15 @@ Item {
         id: windowContainer
         anchors.fill: parent
         opacity: root.isFocused || root.hovered ? 1.0 : 0.7
-        
+
         Behavior on opacity {
-            NumberAnimation { duration: 150 }
+            NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0 }
         }
 
         WRectangularShadow {
             target: windowRect
-            visible: root.hovered || root.Drag.active
+            visible: Looks.effectsEnabled
+                && (root.hovered || root.isFocused || root.Drag.active)
         }
 
         // Content container (title bar + preview)
@@ -227,14 +228,14 @@ Item {
 
                 readonly property int windowId: root.windowData?.id ?? 0
                 property string previewUrl: ""
-                
+
                 // Loading shimmer effect
                 Rectangle {
                     id: shimmerBg
                     anchors.fill: parent
                     color: Looks.colors.bg2Base
                     visible: windowPreview.status !== Image.Ready
-                    
+
                     Rectangle {
                         id: shimmer
                         width: parent.width * 0.4
@@ -246,11 +247,11 @@ Item {
                             GradientStop { position: 0.5; color: ColorUtils.transparentize(Looks.colors.fg, 0.92) }
                             GradientStop { position: 1.0; color: "transparent" }
                         }
-                        
+
                         SequentialAnimation on x {
-                            running: shimmerBg.visible && Looks.transition.enabled
+                            running: shimmerBg.visible && previewArea.previewUrl !== "" && Looks.transition.enabled
                             loops: Animation.Infinite
-                            NumberAnimation { 
+                            NumberAnimation {
                                 from: -shimmer.width
                                 to: shimmerBg.width
                                 duration: 1200
@@ -269,12 +270,12 @@ Item {
                     implicitWidth: Math.min(64, parent.width * 0.5)
                     implicitHeight: implicitWidth
                     opacity: windowPreview.status === Image.Ready ? 0 : 0.8
-                    
-                    Behavior on opacity { 
-                        NumberAnimation { 
+
+                    Behavior on opacity {
+                        NumberAnimation {
                             duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
                             easing.type: Easing.OutQuad
-                        } 
+                        }
                     }
                 }
 
@@ -290,14 +291,14 @@ Item {
                     anchors.margins: 2
                     opacity: status === Image.Ready ? 1 : 0
 
-                    Behavior on opacity { 
-                        NumberAnimation { 
+                    Behavior on opacity {
+                        NumberAnimation {
                             duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
                             easing.type: Easing.OutQuad
-                        } 
+                        }
                     }
                 }
-                
+
                 // Listen for preview updates
                 Connections {
                     target: WindowPreviewService
@@ -315,7 +316,7 @@ Item {
                         }
                     }
                 }
-                
+
                 // Also watch for previewCache changes directly
                 Connections {
                     target: WindowPreviewService
@@ -326,7 +327,7 @@ Item {
                         }
                     }
                 }
-                
+
                 // Check if preview already exists on load
                 Component.onCompleted: {
                     // Delay slightly to ensure service is ready
@@ -339,7 +340,7 @@ Item {
                 }
             }
         }
-        
+
         // Border overlay - on top of everything including title bar
         Rectangle {
             id: borderOverlay
@@ -349,15 +350,15 @@ Item {
             // Only show focus highlight if this window is focused AND in the currently selected workspace
             readonly property bool showFocusHighlight: root.isFocused && root.isCurrentWorkspace
             border.width: root.Drag.active || showFocusHighlight || root.isKeyboardFocused || root.hovered ? 2 : 1
-            border.color: root.Drag.active || showFocusHighlight || root.isKeyboardFocused ? Looks.colors.accent : 
+            border.color: root.Drag.active || showFocusHighlight || root.isKeyboardFocused ? Looks.colors.accent :
                           root.hovered ? ColorUtils.transparentize(Looks.colors.accent, 0.5) : Looks.colors.bg2Border
             z: 10
-            
-            Behavior on border.color { 
-                ColorAnimation { 
+
+            Behavior on border.color {
+                ColorAnimation {
                     duration: Looks.transition.enabled ? Looks.transition.duration.fast : 0
                     easing.type: Easing.OutQuad
-                } 
+                }
             }
 
             // Drag/click area
@@ -380,13 +381,13 @@ Item {
                         mouse.accepted = false
                         return
                     }
-                    
+
                     // Middle-click to close window
                     if (mouse.button === Qt.MiddleButton) {
                         NiriService.closeWindow(root.windowData?.id)
                         return
                     }
-                    
+
                     // Right-click opens context menu (no drag)
                     if (mouse.button === Qt.RightButton) {
                         // Close any other open menu first
@@ -398,7 +399,7 @@ Item {
                         mouse.accepted = true
                         return
                     }
-                    
+
                     // Only left button starts drag
                     pressX = mouse.x
                     pressY = mouse.y
@@ -423,15 +424,15 @@ Item {
 
                 onReleased: mouse => {
                     if (mouse.button === Qt.RightButton) return
-                    
+
                     const wasActualDrag = wasDragging
-                    
+
                     root.Drag.active = false
                     root.isBeingDragged = false
                     root.dragEnded()
                     root.x = Qt.binding(() => root.baseX)
                     root.y = Qt.binding(() => root.baseY)
-                    
+
                     // Left click without drag = focus window and center on its workspace
                     if (mouse.button === Qt.LeftButton && !wasActualDrag) {
                         root.focusRequested(root.workspaceSlot)
@@ -441,7 +442,7 @@ Item {
                         }
                     }
                 }
-                
+
                 onDoubleClicked: mouse => {
                     if (mouse.button === Qt.LeftButton) {
                         NiriService.focusWindow(root.windowData?.id)
@@ -468,8 +469,10 @@ Item {
                 color: closeBtnArea.containsMouse ? Looks.colors.danger : "transparent"
                 visible: root.hovered && !root.Drag.active
                 z: 20
-                
-                Behavior on color { ColorAnimation { duration: 100 } }
+
+                Behavior on color {
+                    animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+                }
 
                 WText {
                     anchors.centerIn: parent
@@ -487,9 +490,9 @@ Item {
                     onClicked: NiriService.closeWindow(root.windowData?.id)
                 }
             }
-            
+
         }
-        
+
         // Context menu - waffle style, positioned below thumbnail
         BarMenu {
             id: contextMenu
@@ -498,13 +501,13 @@ Item {
             closeOnFocusLost: false
             closeOnHoverLost: true
             anchorHovered: root.hovered
-            
+
             onActiveChanged: {
                 if (!active && GlobalStates.activeTaskViewMenu === contextMenu) {
                     GlobalStates.activeTaskViewMenu = null
                 }
             }
-            
+
             model: [
                 {
                     iconName: "open",

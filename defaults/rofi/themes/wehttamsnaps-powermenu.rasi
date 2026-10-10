@@ -1,0 +1,56 @@
+/**
+ * wehttamsnaps-powermenu.rasi — Power / Session Menu Variant
+ * Centered, large icons, used by scripts/powermenu.sh
+ * Super + X → Power Menu
+ */
+
+@import "wehttamsnaps.rasi"
+
+window {
+    width:              400px;
+    border-color:       @ws-pink;
+}
+
+inputbar {
+    enabled:            false;
+}
+
+listview {
+    lines:              6;
+    columns:            1;
+    padding:            12px 0px;
+    spacing:            2px;
+}
+
+element {
+    padding:            13px 24px;
+    spacing:            14px;
+    border-radius:      6px;
+    margin:             2px 10px;
+}
+
+element selected.normal {
+    background-color:   @ws-pink-dim;
+    text-color:         @ws-pink;
+    border-color:       @ws-pink;
+    border:             0px 0px 0px 2px;
+    border-radius:      6px;
+}
+
+element-icon {
+    size:               28px;
+}
+
+element-text {
+    font:               "Orbitron Bold 11";
+    vertical-align:     0.5;
+}
+
+/* Pink accent for power menu */
+prompt {
+    text-color:         @ws-pink;
+}
+
+textbox-prompt-colon {
+    text-color:         @ws-pink-dim;
+}

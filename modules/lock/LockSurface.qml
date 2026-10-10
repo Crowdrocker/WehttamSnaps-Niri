@@ -1,14 +1,18 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
+import QtMultimedia
 import Qt5Compat.GraphicalEffects
 import Quickshell.Services.UPower
 import Quickshell.Services.Mpris
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.bar as Bar
+import qs.modules.background.widgets.clock as BackgroundClock
 import Quickshell
 import Quickshell.Services.SystemTray
 
@@ -21,36 +25,73 @@ MouseArea {
     // Show login view when explicitly switched OR when there's password text
     property bool showLoginView: currentView === "login"
     property bool hasAttemptedUnlock: false
+    property bool oskVisible: false
     
     readonly property bool requirePasswordToPower: Config.options?.lock?.security?.requirePasswordToPower ?? true
     readonly property bool blurEnabled: Config.options?.lock?.blur?.enable ?? true
+    readonly property bool useSafeBlurPipeline: CompositorService.isNiri
+    readonly property real blurAmount: 0.8
     readonly property real blurRadius: Config.options?.lock?.blur?.radius ?? 64
     readonly property real blurZoom: Config.options?.lock?.blur?.extraZoom ?? 1.1
-    
-    // Emergency fallback - triple click anywhere to force unlock (safety net)
-    property int emergencyClickCount: 0
-    Timer {
-        id: emergencyClickTimer
-        interval: 1000
-        onTriggered: root.emergencyClickCount = 0
-    }
+    readonly property bool enableAnimation: Config.options?.lock?.enableAnimation ?? false
+    readonly property bool _zzz: Appearance.zzzEverywhere
+    readonly property bool editorial: Appearance.editorialEverywhere
 
+    // Widget visibility
+    readonly property bool showWeather: Config.options?.lock?.widgets?.weather ?? true
+    readonly property bool showMedia: Config.options?.lock?.widgets?.media ?? true
+    readonly property bool showPowerButtons: Config.options?.lock?.widgets?.powerButtons ?? true
+    readonly property bool showHintText: Config.options?.lock?.widgets?.hintText ?? true
+
+    function safeLockNotificationImage(source): string {
+        const value = String(source ?? "")
+        return value.startsWith("image://qsimage/") ? "" : value
+    }
+    
+    // Wallpaper path resolution
+    readonly property string _wallpaperSource: Config.options?.background?.wallpaperPath ?? ""
+    readonly property string _wallpaperThumbnail: Config.options?.background?.thumbnailPath ?? ""
+    readonly property bool wallpaperIsVideo: {
+        const lp = _wallpaperSource.toLowerCase();
+        return lp.endsWith(".mp4") || lp.endsWith(".webm") || lp.endsWith(".mkv") || lp.endsWith(".avi") || lp.endsWith(".mov");
+    }
+    readonly property bool wallpaperIsGif: _wallpaperSource.toLowerCase().endsWith(".gif")
+    // Static image source: use raw path for normal wallpapers, thumbnail for video/gif
+    readonly property string _staticWallpaperPath: {
+        if (!_wallpaperSource) return "";
+        if (wallpaperIsVideo || wallpaperIsGif) return _wallpaperThumbnail || _wallpaperSource;
+        return _wallpaperSource;
+    }
+    
     // Safe fallback background color (prevents red screen on errors)
     Rectangle {
         anchors.fill: parent
-        color: Appearance.m3colors?.m3background ?? "#1a1a2e"
+        color: Appearance.colors.colLayer0
         z: -1
     }
     
-    // Background wallpaper with blur
+    // Static background wallpaper with blur (fallback for video/gif when animation disabled, or primary for static wallpapers)
     Image {
         id: backgroundWallpaper
         anchors.fill: parent
-        source: Config.options?.background?.wallpaperPath ?? ""
+        // Drop source on the safe blur path so the FastBlur layer never
+        // allocates a shader on Niri (where the MultiEffect path is the
+        // only renderer used).  Some GPU drivers leak a red buffer when the
+        // FastBlur shader fails to load even on an invisible item.
+        source: root.useSafeBlurPipeline ? "" : root._staticWallpaperPath
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
+        // Don't retain decoded pixmap in QPixmapCache after the lock surface
+        // is destroyed — wallpaper is only ever rendered while locked, and
+        // global QPixmapCache entries are one of the JSGC mapping leak vectors
+        // tracked in #163/#164.
+        cache: false
+        visible: !root.wallpaperIsGif && !root.wallpaperIsVideo && !root.useSafeBlurPipeline
+        onStatusChanged: {
+            if (status === Image.Error) console.error("[LockSurface] Image load error:", source)
+        }
         
-        layer.enabled: root.blurEnabled
+        layer.enabled: root.blurEnabled && !root.useSafeBlurPipeline
         layer.effect: FastBlur {
             radius: root.blurRadius
         }
@@ -58,6 +99,193 @@ MouseArea {
         transform: Scale {
             origin.x: backgroundWallpaper.width / 2
             origin.y: backgroundWallpaper.height / 2
+            xScale: root.blurEnabled ? root.blurZoom : 1
+            yScale: root.blurEnabled ? root.blurZoom : 1
+        }
+    }
+
+    Image {
+        id: backgroundWallpaperSource
+        anchors.fill: parent
+        source: root.useSafeBlurPipeline && !root.wallpaperIsGif && !root.wallpaperIsVideo ? root._staticWallpaperPath : ""
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        // Same as backgroundWallpaper — don't retain in QPixmapCache (#163).
+        cache: false
+        visible: false
+        z: -2
+        onStatusChanged: {
+            if (status === Image.Error) console.error("[LockSurface] Image source load error:", source)
+        }
+    }
+    
+    // Animated GIF wallpaper
+    // Shows first frame when enableAnimation is false, plays when true
+    AnimatedImage {
+        id: gifWallpaper
+        anchors.fill: parent
+        visible: root.wallpaperIsGif && !root.useSafeBlurPipeline
+        // Same red-buffer guard as backgroundWallpaper above.
+        source: (root.wallpaperIsGif && !root.useSafeBlurPipeline) ? root._wallpaperSource : ""
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: false
+        playing: visible && root.enableAnimation && !Wallpapers.batteryPauseActive
+        onStatusChanged: {
+            if (status === Image.Error) console.error("[LockSurface] GIF load error:", source)
+        }
+        
+        layer.enabled: root.blurEnabled && !root.useSafeBlurPipeline
+        layer.effect: FastBlur {
+            radius: root.blurRadius
+        }
+        
+        transform: Scale {
+            origin.x: gifWallpaper.width / 2
+            origin.y: gifWallpaper.height / 2
+            xScale: root.blurEnabled ? root.blurZoom : 1
+            yScale: root.blurEnabled ? root.blurZoom : 1
+        }
+    }
+
+    AnimatedImage {
+        id: gifWallpaperSource
+        anchors.fill: parent
+        source: root.useSafeBlurPipeline && root.wallpaperIsGif ? root._wallpaperSource : ""
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: false
+        playing: root.enableAnimation && !Wallpapers.batteryPauseActive
+        visible: false
+        z: -2
+        onStatusChanged: {
+            if (status === Image.Error) console.error("[LockSurface] GIF source load error:", source)
+        }
+    }
+    
+    // Video wallpaper
+    // Shows first frame (paused) when enableAnimation is false, plays when true
+    Video {
+        id: videoWallpaper
+        anchors.fill: parent
+        visible: root.wallpaperIsVideo && !root.useSafeBlurPipeline
+        // source already gates on useSafeBlurPipeline below; layer.enabled
+        // is gated to keep the FastBlur shader from being compiled on Niri.
+        source: {
+            if (!root.wallpaperIsVideo || root.useSafeBlurPipeline || !root._wallpaperSource) return "";
+            const path = root._wallpaperSource;
+            return path.startsWith("file://") ? path : ("file://" + path);
+        }
+        fillMode: VideoOutput.PreserveAspectCrop
+        loops: MediaPlayer.Infinite
+        muted: true
+        autoPlay: true
+
+        readonly property bool shouldPlay: root.enableAnimation && !Wallpapers.batteryPauseActive
+
+        function pauseAndShowFirstFrame() {
+            pause()
+            seek(0)
+        }
+
+        onPlaybackStateChanged: {
+            if (playbackState === MediaPlayer.PlayingState && !shouldPlay)
+                pauseAndShowFirstFrame()
+            if (playbackState === MediaPlayer.StoppedState && visible && shouldPlay)
+                play()
+        }
+
+        onShouldPlayChanged: {
+            if (visible && root.wallpaperIsVideo) {
+                if (shouldPlay) play()
+                else pauseAndShowFirstFrame()
+            }
+        }
+        
+        onVisibleChanged: {
+            if (visible && root.wallpaperIsVideo) {
+                if (shouldPlay) play()
+                else pauseAndShowFirstFrame()
+            } else {
+                pause()
+            }
+        }
+        
+        onErrorOccurred: (error, errorString) => {
+            console.error("[LockSurface] Video wallpaper error:", error, errorString, "source:", source)
+        }
+        
+        layer.enabled: root.blurEnabled && !root.useSafeBlurPipeline
+        layer.effect: FastBlur {
+            radius: root.blurRadius
+        }
+        
+        transform: Scale {
+            origin.x: videoWallpaper.width / 2
+            origin.y: videoWallpaper.height / 2
+            xScale: root.blurEnabled ? root.blurZoom : 1
+            yScale: root.blurEnabled ? root.blurZoom : 1
+        }
+    }
+
+    Video {
+        id: videoWallpaperSource
+        anchors.fill: parent
+        visible: false
+        z: -2
+        source: {
+            if (!root.useSafeBlurPipeline || !root.wallpaperIsVideo || !root._wallpaperSource) return "";
+            const path = root._wallpaperSource;
+            return path.startsWith("file://") ? path : ("file://" + path);
+        }
+        fillMode: VideoOutput.PreserveAspectCrop
+        loops: MediaPlayer.Infinite
+        muted: true
+        autoPlay: true
+
+        readonly property bool shouldPlay: root.enableAnimation && !Wallpapers.batteryPauseActive
+
+        function pauseAndShowFirstFrame() {
+            pause()
+            seek(0)
+        }
+
+        onPlaybackStateChanged: {
+            if (playbackState === MediaPlayer.PlayingState && !shouldPlay)
+                pauseAndShowFirstFrame()
+            if (playbackState === MediaPlayer.StoppedState && root.useSafeBlurPipeline && root.wallpaperIsVideo && shouldPlay)
+                play()
+        }
+
+        onShouldPlayChanged: {
+            if (root.useSafeBlurPipeline && root.wallpaperIsVideo) {
+                if (shouldPlay) play()
+                else pauseAndShowFirstFrame()
+            }
+        }
+        
+        onErrorOccurred: (error, errorString) => {
+            console.error("[LockSurface] Video wallpaper source error:", error, errorString, "source:", source)
+        }
+    }
+
+    MultiEffect {
+        id: backgroundWallpaperSafe
+        anchors.fill: parent
+        source: root.wallpaperIsGif ? gifWallpaperSource
+              : root.wallpaperIsVideo ? videoWallpaperSource
+              : backgroundWallpaperSource
+        visible: root.useSafeBlurPipeline
+        z: -1
+
+        blurEnabled: root.blurEnabled
+        blur: root.blurAmount
+        blurMax: root.blurRadius
+        saturation: 0.5
+
+        transform: Scale {
+            origin.x: backgroundWallpaperSafe.width / 2
+            origin.y: backgroundWallpaperSafe.height / 2
             xScale: root.blurEnabled ? root.blurZoom : 1
             yScale: root.blurEnabled ? root.blurZoom : 1
         }
@@ -91,7 +319,7 @@ MouseArea {
     Rectangle {
         id: unlockOverlay
         anchors.fill: parent
-        color: Appearance.m3colors?.m3background ?? "#1a1a2e"
+        color: Appearance.colors.colLayer0
         opacity: 0
         z: 100
         
@@ -113,6 +341,18 @@ MouseArea {
         }
     }
 
+    // Wallpaper dim overlay
+    Rectangle {
+        anchors.fill: parent
+        color: Appearance.colors.colScrim
+        opacity: (Config.options?.lock?.dim?.enable ?? false) ? (Config.options?.lock?.dim?.opacity ?? 0.3) : 0
+        z: 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+        }
+    }
+
     // ===== CLOCK VIEW (Initial) =====
     Item {
         id: clockView
@@ -122,75 +362,313 @@ MouseArea {
         scale: root.showLoginView ? 0.92 : 1
         
         Behavior on opacity {
+            enabled: Appearance.animationsEnabled
             NumberAnimation {
-                duration: 400
-                easing.type: Easing.OutCubic
+                duration: Appearance.animation.elementMoveEnter.duration
+                easing.type: Appearance.animation.elementMoveEnter.type
+                easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve
             }
         }
         Behavior on scale {
+            enabled: Appearance.animationsEnabled
             NumberAnimation {
-                duration: 450
-                easing.type: Easing.OutBack
+                duration: Appearance.animation.elementMoveEnter.duration
+                easing.type: Appearance.animation.elementMoveEnter.type
+                easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve
             }
         }
         
-        // Clock - Material You style (centered, large)
-        ColumnLayout {
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -80
-            spacing: 8
-            
-            // Time
-            Text {
-                id: clockText
-                Layout.alignment: Qt.AlignHCenter
-                text: Qt.formatTime(new Date(), "hh:mm")
-                font.pixelSize: Math.round(108 * Appearance.fontSizeScale)
-                font.weight: Font.Light
-                font.family: Appearance.font.family.title
-                color: Appearance.colors.colOnSurface
-                
-                layer.enabled: true
-                layer.effect: DropShadow {
-                    horizontalOffset: 0
-                    verticalOffset: 3
-                    radius: 16
-                    samples: 33
-                    color: Qt.rgba(0, 0, 0, 0.5)
+        // Config-driven clock properties
+        readonly property string clockStyle: Config.options?.lock?.clock?.style ?? "default"
+        readonly property string clockPosition: Config.options?.lock?.clock?.position ?? "center"
+        readonly property bool statusEnabled: Config.options?.lock?.status?.enable ?? true
+
+        // Status row - compact indicators at top
+        Loader {
+            active: clockView.statusEnabled
+            asynchronous: true
+            anchors {
+                top: parent.top
+                topMargin: 24
+                horizontalCenter: parent.horizontalCenter
+            }
+
+            sourceComponent: Row {
+                spacing: 16
+
+                // WiFi
+                Revealer {
+                    reveal: Network.ethernet || Network.wifiEnabled
+                Row {
+                    spacing: 4
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Network.materialSymbol ?? "signal_wifi_off"
+                        iconSize: 16
+                        color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Network.ethernet ? Translation.tr("Ethernet") : (Network.networkName ?? "")
+                        visible: text.length > 0 && text.length < 16
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.family: Appearance.font.family.main
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                    }
                 }
-                
-                Timer {
-                    interval: 1000
-                    running: true
-                    repeat: true
-                    onTriggered: clockText.text = Qt.formatTime(new Date(), "hh:mm")
+                }
+
+                // Bluetooth
+                Revealer {
+                    reveal: BluetoothStatus.enabled
+                MaterialSymbol {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: BluetoothStatus.connected ? "bluetooth_connected" : "bluetooth"
+                    iconSize: 16
+                    color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                        color: Qt.rgba(0, 0, 0, 0.4)
+                    }
+                }
+                }
+
+                // Volume
+                Row {
+                    spacing: 4
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Audio.value <= 0 ? "volume_off"
+                            : Audio.value < 0.33 ? "volume_mute"
+                            : Audio.value < 0.66 ? "volume_down"
+                            : "volume_up"
+                        iconSize: 16
+                        color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Math.round(Audio.value * 100) + "%"
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.family: Appearance.font.family.numbers
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                    }
+                }
+
+                // Battery (laptop only)
+                Revealer {
+                    reveal: UPower.displayDevice?.isPresent ?? false
+                Row {
+                    id: topBatteryRow
+                    spacing: 4
+
+                    readonly property int batteryLevel: Math.round((UPower.displayDevice?.percentage ?? 0) * 100)
+                    readonly property bool isCharging: UPower.displayDevice?.state === UPowerDeviceState.Charging
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: {
+                            if (topBatteryRow.isCharging) return "battery_charging_full"
+                            if (topBatteryRow.batteryLevel <= 10) return "battery_alert"
+                            if (topBatteryRow.batteryLevel <= 30) return "battery_2_bar"
+                            if (topBatteryRow.batteryLevel <= 60) return "battery_4_bar"
+                            if (topBatteryRow.batteryLevel <= 80) return "battery_5_bar"
+                            return "battery_full"
+                        }
+                        iconSize: 16
+                        color: (topBatteryRow.batteryLevel <= 15 && !topBatteryRow.isCharging)
+                            ? Appearance.colors.colError
+                            : (root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface)
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: topBatteryRow.batteryLevel + "%"
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.family: Appearance.font.family.numbers
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                    }
+                }
                 }
             }
-            
-            // Date
-            Text {
-                id: dateText
-                Layout.alignment: Qt.AlignHCenter
-                text: Qt.formatDate(new Date(), "dddd, d MMMM")
-                font.pixelSize: Math.round(22 * Appearance.fontSizeScale)
-                font.weight: Font.Normal
-                font.family: Appearance.font.family.main
-                color: Appearance.colors.colOnSurface
-                
-                layer.enabled: true
-                layer.effect: DropShadow {
-                    horizontalOffset: 0
-                    verticalOffset: 1
-                    radius: 8
-                    samples: 17
-                    color: Qt.rgba(0, 0, 0, 0.4)
+        }
+
+        // Clock container - position-aware
+        Item {
+            id: clockContainer
+            width: clockContent.implicitWidth
+            height: clockContent.implicitHeight
+
+            states: [
+                State {
+                    name: "center"; when: clockView.clockPosition === "center"
+                    AnchorChanges {
+                        target: clockContainer
+                        anchors.horizontalCenter: clockView.horizontalCenter
+                        anchors.verticalCenter: clockView.verticalCenter
+                    }
+                    PropertyChanges { target: clockContainer; anchors.verticalCenterOffset: -80 }
+                },
+                State {
+                    name: "topLeft"; when: clockView.clockPosition === "topLeft"
+                    AnchorChanges {
+                        target: clockContainer
+                        anchors.left: clockView.left
+                        anchors.top: clockView.top
+                    }
+                    PropertyChanges { target: clockContainer; anchors.leftMargin: 48; anchors.topMargin: 80 }
+                },
+                State {
+                    name: "bottomLeft"; when: clockView.clockPosition === "bottomLeft"
+                    AnchorChanges {
+                        target: clockContainer
+                        anchors.left: clockView.left
+                        anchors.bottom: clockView.bottom
+                    }
+                    PropertyChanges { target: clockContainer; anchors.leftMargin: 48; anchors.bottomMargin: 140 }
                 }
-                
-                Timer {
-                    interval: 60000
-                    running: true
-                    repeat: true
-                    onTriggered: dateText.text = Qt.formatDate(new Date(), "dddd, d MMMM")
+            ]
+
+            // Default digital clock
+            ColumnLayout {
+                id: clockContent
+                visible: clockView.clockStyle !== "analog"
+                spacing: 4
+
+                Text {
+                    id: clockText
+                    Layout.alignment: clockView.clockPosition === "center" ? Qt.AlignHCenter : Qt.AlignLeft
+                    text: DateTime.time
+                    font.pixelSize: Math.round((clockView.clockStyle === "minimal" ? 72 : 112) * Appearance.fontSizeScale)
+                    font.weight: root.editorial ? Font.Normal : Font.Light
+                    font.family: Appearance.font.family.numbers
+                    font.letterSpacing: root.editorial ? -1.2 : 0
+                    color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0
+                        verticalOffset: 3
+                        radius: 16
+                        samples: 33
+                        color: Qt.rgba(0, 0, 0, 0.5)
+                    }
+                }
+
+                Text {
+                    id: dateText
+                    Layout.alignment: clockView.clockPosition === "center" ? Qt.AlignHCenter : Qt.AlignLeft
+                    text: Qt.formatDate(new Date(), "dddd, d MMMM")
+                    font.pixelSize: Math.round((clockView.clockStyle === "minimal" ? 15 : 20) * Appearance.fontSizeScale)
+                    font.weight: root.editorial ? Font.DemiBold : Font.Normal
+                    font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.title
+                    font.letterSpacing: root.editorial ? 1.1 : 0.5
+                    font.capitalization: root.editorial ? Font.AllUppercase : Font.MixedCase
+                    color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurface
+
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0
+                        verticalOffset: 1
+                        radius: 8
+                        samples: 17
+                        color: Qt.rgba(0, 0, 0, 0.4)
+                    }
+
+                    Timer {
+                        interval: 60000
+                        running: true
+                        repeat: true
+                        onTriggered: dateText.text = Qt.formatDate(new Date(), "dddd, d MMMM")
+                    }
+                }
+            }
+
+            // Analog clock - CookieClock from background widgets
+            Loader {
+                id: analogClockLoader
+                active: clockView.clockStyle === "analog"
+                asynchronous: true
+                anchors.centerIn: parent
+
+                sourceComponent: Item {
+                    id: analogRoot
+                    width: cookieClock.implicitSize + dateTextAnalog.implicitHeight + 20
+                    height: width
+
+                    BackgroundClock.CookieClock {
+                        id: cookieClock
+                        implicitSize: Math.round(230 * Appearance.fontSizeScale)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+
+                    Text {
+                        id: dateTextAnalog
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: cookieClock.bottom
+                            topMargin: 16
+                        }
+                        text: Qt.formatDate(new Date(), "dddd, d MMMM")
+                        font.pixelSize: Math.round(16 * Appearance.fontSizeScale)
+                        font.weight: root.editorial ? Font.DemiBold : Font.Normal
+                        font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.title
+                        font.letterSpacing: root.editorial ? 1.1 : 0.5
+                        font.capitalization: root.editorial ? Font.AllUppercase : Font.MixedCase
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurface
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 8; samples: 17
+                            color: Qt.rgba(0, 0, 0, 0.4)
+                        }
+
+                        Timer {
+                            interval: 60000; running: true; repeat: true
+                            onTriggered: dateTextAnalog.text = Qt.formatDate(new Date(), "dddd, d MMMM")
+                        }
+                    }
                 }
             }
         }
@@ -198,9 +676,11 @@ MouseArea {
         // Media player widget (below clock) - only show if music is actually playing or paused
         Loader {
             id: mediaWidgetLoader
-            active: MprisController.activePlayer !== null && 
+            asynchronous: true
+            active: root.showMedia &&
+                    MprisController.activePlayer !== null && 
                     MprisController.activePlayer.playbackState !== MprisPlaybackState.Stopped &&
-                    (MprisController.activePlayer.trackTitle?.length > 0 ?? false)
+                    (MprisController.titleOf(MprisController.activePlayer)?.length > 0 ?? false)
             anchors {
                 horizontalCenter: parent.horizontalCenter
                 top: parent.verticalCenter
@@ -213,10 +693,349 @@ MouseArea {
                 height: 120
             }
         }
+
+        // Lock screen notifications - grouped by app, read-only
+        Loader {
+            id: lockNotificationsLoader
+            readonly property bool lockNotifEnabled: Config.options?.lock?.notifications?.enable ?? false
+            readonly property int lockNotifMaxCount: Config.options?.lock?.notifications?.maxCount ?? 3
+            readonly property bool lockNotifShowBody: Config.options?.lock?.notifications?.showBody ?? true
+            readonly property string lockNotifPosition: {
+                const pos = Config.options?.lock?.notifications?.position ?? "auto"
+                return pos === "auto" ? "center" : pos
+            }
+            active: lockNotifEnabled && Notifications.list.length > 0
+            asynchronous: true
+
+            anchors {
+                top: mediaWidgetLoader.active ? mediaWidgetLoader.bottom : parent.verticalCenter
+                topMargin: mediaWidgetLoader.active ? 16 : 100
+                bottom: parent.bottom
+                bottomMargin: 80
+            }
+            width: Math.min(380, parent.width - 80)
+
+            states: [
+                State {
+                    name: "center"; when: lockNotificationsLoader.lockNotifPosition === "center"
+                    AnchorChanges {
+                        target: lockNotificationsLoader
+                        anchors.horizontalCenter: clockView.horizontalCenter
+                    }
+                },
+                State {
+                    name: "left"; when: lockNotificationsLoader.lockNotifPosition === "left"
+                    AnchorChanges {
+                        target: lockNotificationsLoader
+                        anchors.left: clockView.left
+                    }
+                    PropertyChanges { target: lockNotificationsLoader; anchors.leftMargin: 40 }
+                },
+                State {
+                    name: "right"; when: lockNotificationsLoader.lockNotifPosition === "right"
+                    AnchorChanges {
+                        target: lockNotificationsLoader
+                        anchors.right: clockView.right
+                    }
+                    PropertyChanges { target: lockNotificationsLoader; anchors.rightMargin: 40 }
+                }
+            ]
+
+            sourceComponent: Column {
+                spacing: 8
+                clip: true
+
+                Repeater {
+                    model: {
+                        const apps = Notifications.appNameList
+                        const max = lockNotificationsLoader.lockNotifMaxCount
+                        return apps.length > max ? apps.slice(0, max) : apps
+                    }
+
+                    delegate: Item {
+                        id: groupDelegate
+                        required property var modelData
+                        readonly property var group: Notifications.groupsByAppName[modelData] ?? null
+                        readonly property var latestNotif: group?.notifications?.[0] ?? null
+                        readonly property int groupCount: group?.notifications?.length ?? 0
+                        property bool expanded: false
+
+                        width: parent.width
+                        height: groupCol.implicitHeight
+                        visible: latestNotif !== null
+
+                        Column {
+                            id: groupCol
+                            width: parent.width
+                            spacing: 4
+
+                            ZzzPlate {
+                                anchors.fill: groupCard
+                                visible: root._zzz
+                                fillColor: groupMouseArea.containsMouse
+                                    ? Appearance.colors.colLayer2Hover
+                                    : Appearance.colors.colLayer1
+                                strokeColor: Appearance.zzz.hairline
+                                strokeWidth: Appearance.zzz.hairlineThick
+                                chamfer: Appearance.zzz.cutCorner
+                            }
+
+                            Rectangle {
+                                id: groupCard
+                                width: parent.width
+                                height: groupContent.implicitHeight + 16
+                                radius: root._zzz ? Appearance.zzz.panelRadius
+                                    : root.editorial ? Appearance.editorial.radius
+                                    : Appearance.rounding.normal
+                                border.width: 0
+                                border.color: root._zzz ? Appearance.zzz.hairline : "transparent"
+                                color: root._zzz
+                                    ? "transparent"
+                                    : root.editorial
+                                        ? (groupMouseArea.containsMouse ? Appearance.colors.colLayer1Hover : Appearance.editorial.layer(1))
+                                    : (groupMouseArea.containsMouse
+                                        ? ColorUtils.transparentize(Appearance.colors.colLayer1, 0.04)
+                                        : ColorUtils.transparentize(Appearance.colors.colLayer1, 0.08))
+
+                                Behavior on color { ColorAnimation { duration: Appearance.animation.elementMoveFast.duration } }
+
+                                layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                                layer.effect: DropShadow {
+                                    horizontalOffset: 0
+                                    verticalOffset: 2
+                                    radius: 8
+                                    samples: 17
+                                    color: Qt.rgba(0, 0, 0, 0.3)
+                                }
+
+                                MouseArea {
+                                    id: groupMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: groupDelegate.groupCount > 1 ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onClicked: {
+                                        if (groupDelegate.groupCount > 1) groupDelegate.expanded = !groupDelegate.expanded
+                                    }
+                                }
+
+                                RowLayout {
+                                    id: groupContent
+                                    anchors {
+                                        left: parent.left; right: parent.right
+                                        verticalCenter: parent.verticalCenter
+                                        margins: 12
+                                    }
+                                    spacing: 10
+
+                                    // App icon
+                                    Item {
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: 32
+                                        Layout.preferredHeight: 32
+
+                                        NotificationAppIcon {
+                                            anchors.fill: parent
+                                            appIcon: groupDelegate.latestNotif?.appIcon ?? ""
+                                            image: root.safeLockNotificationImage(groupDelegate.latestNotif?.image)
+                                            summary: groupDelegate.latestNotif?.summary ?? ""
+                                            urgency: groupDelegate.latestNotif?.urgency ?? 0
+                                        }
+
+                                        // Count badge
+                                        Rectangle {
+                                            visible: groupDelegate.groupCount > 1
+                                            anchors {
+                                                right: parent.right
+                                                top: parent.top
+                                                rightMargin: -4
+                                                topMargin: -4
+                                            }
+                                            width: Math.max(16, badgeText.implicitWidth + 6)
+                                            height: 16
+                                            radius: Appearance.rounding.full
+                                            color: Appearance.colors.colPrimary
+                                            z: 1
+
+                                            Text {
+                                                id: badgeText
+                                                anchors.centerIn: parent
+                                                text: groupDelegate.groupCount
+                                                font.pixelSize: 9
+                                                font.weight: Font.Bold
+                                                font.family: Appearance.font.family.numbers
+                                                color: Appearance.colors.colOnPrimary
+                                            }
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            // App name
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: groupDelegate.modelData ?? ""
+                                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                                font.weight: Font.Medium
+                                                font.family: Appearance.font.family.main
+                                                color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+                                                elide: Text.ElideRight
+                                                visible: text.length > 0
+                                            }
+
+                                            // Expand indicator
+                                            MaterialSymbol {
+                                                visible: groupDelegate.groupCount > 1
+                                                text: groupDelegate.expanded ? "expand_less" : "expand_more"
+                                                iconSize: 14
+                                                color: Appearance.colors.colOnSurfaceVariant
+                                            }
+                                        }
+
+                                        // Latest notification summary
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: groupDelegate.latestNotif?.summary ?? ""
+                                            font.pixelSize: Appearance.font.pixelSize.small
+                                            font.weight: Font.Medium
+                                            font.family: Appearance.font.family.main
+                                                color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+                                            elide: Text.ElideRight
+                                            maximumLineCount: 1
+                                        }
+
+                                        // Body (optional)
+                                        Text {
+                                            Layout.fillWidth: true
+                                            visible: lockNotificationsLoader.lockNotifShowBody && text.length > 0
+                                            text: groupDelegate.latestNotif?.body ?? ""
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            font.family: Appearance.font.family.main
+                                            color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+                                            elide: Text.ElideRight
+                                            maximumLineCount: 2
+                                            wrapMode: Text.WordWrap
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Expanded notifications
+                            Column {
+                                id: expandedCol
+                                width: parent.width - 16
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 3
+                                visible: groupDelegate.expanded
+                                clip: true
+
+                                Repeater {
+                                    model: groupDelegate.expanded ? (groupDelegate.group?.notifications?.slice(1) ?? []) : []
+
+                                    delegate: Rectangle {
+                                        id: expandedCard
+                                        required property var modelData
+                                        width: parent.width
+                                        height: expandedContent.implicitHeight + 10
+                                        radius: root._zzz ? Appearance.zzz.controlRadius : Appearance.rounding.small
+                                        color: root._zzz
+                                            ? "transparent"
+                                            : root.editorial ? Appearance.editorial.layer(2)
+                                            : ColorUtils.transparentize(Appearance.colors.colLayer1, 0.12)
+
+                                        ZzzPlate {
+                                            anchors.fill: parent
+                                            visible: root._zzz
+                                            fillColor: Appearance.colors.colLayer1
+                                            strokeColor: Appearance.zzz.hairline
+                                            strokeWidth: Appearance.zzz.hairlineThick
+                                            chamfer: Appearance.zzz.cutCorner
+                                        }
+
+                                        RowLayout {
+                                            id: expandedContent
+                                            anchors {
+                                                left: parent.left; right: parent.right
+                                                verticalCenter: parent.verticalCenter
+                                                margins: 8
+                                            }
+                                            spacing: 8
+
+                                            NotificationAppIcon {
+                                                Layout.alignment: Qt.AlignTop
+                                                Layout.preferredWidth: 22
+                                                Layout.preferredHeight: 22
+                                                appIcon: expandedCard.modelData?.appIcon ?? ""
+                                                image: root.safeLockNotificationImage(expandedCard.modelData?.image)
+                                                summary: expandedCard.modelData?.summary ?? ""
+                                                urgency: expandedCard.modelData?.urgency ?? 0
+                                            }
+
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 1
+
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    text: expandedCard.modelData?.summary ?? ""
+                                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                                    font.weight: Font.Medium
+                                                    font.family: Appearance.font.family.main
+                                                    color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 1
+                                                }
+
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    visible: lockNotificationsLoader.lockNotifShowBody && text.length > 0
+                                                    text: expandedCard.modelData?.body ?? ""
+                                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                                    font.family: Appearance.font.family.main
+                                                    color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 2
+                                                    wrapMode: Text.WordWrap
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Overflow indicator for remaining app groups
+                Text {
+                    visible: Notifications.appNameList.length > lockNotificationsLoader.lockNotifMaxCount
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "+" + (Notifications.appNameList.length - lockNotificationsLoader.lockNotifMaxCount) + " " + Translation.tr("more")
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    font.family: root.editorial ? Appearance.font.family.numbers : Appearance.font.family.main
+                    font.weight: root.editorial ? Font.DemiBold : Font.Normal
+                    font.letterSpacing: root.editorial ? 0.6 : 0
+                    color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0
+                        verticalOffset: 1
+                        radius: 4
+                        samples: 9
+                        color: Qt.rgba(0, 0, 0, 0.3)
+                    }
+                }
+            }
+        }
         
         // Bottom left: Weather widget
         Loader {
-            active: Weather.data?.temp && Weather.data.temp.length > 0
+            active: root.showWeather && Weather.data?.temp && Weather.data.temp.length > 0
+            asynchronous: true
             visible: active
             anchors {
                 left: parent.left
@@ -262,9 +1081,9 @@ MouseArea {
                     text: parent.getWeatherIconWithTime(Weather.data?.wCode ?? "113")
                     iconSize: 44
                     fill: 0
-                    color: Appearance.colors.colOnSurface
+                    color: root.editorial ? Appearance.editorial.accent : Appearance.colors.colOnSurface
                     
-                    layer.enabled: true
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                     layer.effect: DropShadow {
                         horizontalOffset: 0
                         verticalOffset: 2
@@ -281,11 +1100,11 @@ MouseArea {
                     Text {
                         text: Weather.data?.temp ?? ""
                         font.pixelSize: Math.round(26 * Appearance.fontSizeScale)
-                        font.weight: Font.Light
-                        font.family: Appearance.font.family.main
-                        color: Appearance.colors.colOnSurface
-                        
-                        layer.enabled: true
+                        font.weight: root.editorial ? Font.Medium : Font.Light
+                        font.family: root.editorial ? Appearance.font.family.numbers : Appearance.font.family.main
+                        color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnSurface
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -296,12 +1115,16 @@ MouseArea {
                     }
                     
                     Text {
-                        text: Weather.data?.city ?? ""
+                        text: Weather.visibleCity
+                        visible: Weather.showVisibleCity
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.family: Appearance.font.family.main
-                        color: Appearance.colors.colOnSurfaceVariant
-                        
-                        layer.enabled: true
+                        font.weight: root.editorial ? Font.DemiBold : Font.Normal
+                        font.letterSpacing: root.editorial ? 0.7 : 0
+                        font.capitalization: root.editorial ? Font.AllUppercase : Font.MixedCase
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -317,18 +1140,22 @@ MouseArea {
         // Bottom hint text
         Text {
             id: hintText
+            visible: root.showHintText && opacity > 0
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 40
             anchors.horizontalCenter: parent.horizontalCenter
             text: Translation.tr("Press any key or click to unlock")
-            font.pixelSize: Appearance.font.pixelSize.normal
-            font.family: Appearance.font.family.main
-            color: Appearance.colors.colOnSurfaceVariant
-            opacity: hintOpacity
+            font.pixelSize: root.editorial ? Appearance.font.pixelSize.smallest : Appearance.font.pixelSize.normal
+            font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.main
+            font.weight: root.editorial ? Font.DemiBold : Font.Normal
+            font.letterSpacing: root.editorial ? 1.2 : 0
+            font.capitalization: root.editorial ? Font.AllUppercase : Font.MixedCase
+            color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
+            opacity: root.showHintText ? hintOpacity : 0
             
             property real hintOpacity: 0.7
             
-            layer.enabled: true
+            layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
             layer.effect: DropShadow {
                 horizontalOffset: 0
                 verticalOffset: 1
@@ -378,11 +1205,34 @@ MouseArea {
             }
         }
 
+        Rectangle {
+            id: editorialLoginCard
+            visible: root.editorial
+            anchors.centerIn: parent
+            width: Math.max(392, loginContent.implicitWidth + 72)
+            height: loginContent.implicitHeight + 64
+            radius: Appearance.editorial.radius
+            color: Appearance.editorial.ink
+            border.width: 1
+            border.color: ColorUtils.applyAlpha(Appearance.editorial.paperOnInk, 0.18)
+
+            MaterialShape {
+                visible: Appearance.editorial.ornaments
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.margins: 18
+                implicitSize: 18
+                shape: MaterialShape.Shape.Flower
+                color: Appearance.editorial.paperOnInk
+                opacity: 0.72
+            }
+        }
+
         // Centered login content with staggered animation
         ColumnLayout {
             id: loginContent
             anchors.centerIn: parent
-            spacing: 16
+            spacing: root.editorial ? Math.round(12 * Appearance.editorial.spacing) : 16
             
             // Animation properties for stagger effect
             property real animProgress: root.showLoginView ? 1 : 0
@@ -397,8 +1247,8 @@ MouseArea {
             Item {
                 id: avatarContainer
                 Layout.alignment: Qt.AlignHCenter
-                width: 100
-                height: 100
+                width: root.editorial ? 78 : 100
+                height: root.editorial ? 78 : 100
                 
                 // Stagger animation
                 opacity: Math.min(1, loginContent.animProgress * 3)
@@ -406,21 +1256,27 @@ MouseArea {
                 transformOrigin: Item.Center
                 
                 Behavior on scale {
-                    NumberAnimation { duration: 350; easing.type: Easing.OutBack }
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: Appearance.animation.elementMoveEnter.duration
+                        easing.type: Appearance.animation.elementMoveEnter.type
+                        easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve
+                    }
                 }
                 
-                // Accent ring behind avatar
                 Rectangle {
                     anchors.centerIn: parent
                     width: parent.width + 8
                     height: parent.height + 8
-                    radius: width / 2
+                    radius: root._zzz ? Appearance.zzz.panelRadius : width / 2
                     color: "transparent"
-                    border.color: Appearance.colors.colPrimary
-                    border.width: 3
-                    opacity: 0.8
+                    border.color: root._zzz ? Appearance.zzz.borderColor
+                        : root.editorial ? Appearance.editorial.paperOnInk
+                        : Appearance.colors.colPrimary
+                    border.width: root._zzz ? Appearance.zzz.hairlineThick : (root.editorial ? 1 : 3)
+                    opacity: root.editorial ? 0.45 : 0.8
                     
-                    layer.enabled: Appearance.effectsEnabled
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                     layer.effect: DropShadow {
                         horizontalOffset: 0
                         verticalOffset: 4
@@ -430,79 +1286,92 @@ MouseArea {
                     }
                 }
                 
-                // Avatar circle
                 Rectangle {
                     id: avatarCircle
                     anchors.fill: parent
-                    radius: width / 2
-                    color: Appearance.colors.colPrimary
+                    radius: root._zzz ? Appearance.zzz.panelRadius : width / 2
+                    color: root._zzz ? Appearance.zzz.bg2
+                        : root.editorial ? Appearance.editorial.paper
+                        : Appearance.colors.colPrimary
                     clip: true
                     
                     Image {
                         id: avatarImage
                         anchors.fill: parent
-                        source: `file://${Directories.userAvatarPathRicersAndWeirdSystems}`
+                        source: lockAvatarResolver.resolvedSource
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        visible: status === Image.Ready
-                        
-                        layer.enabled: true
-                        layer.effect: OpacityMask {
-                            maskSource: Rectangle {
-                                width: avatarCircle.width
-                                height: avatarCircle.height
-                                radius: width / 2
-                            }
+                        cache: true
+                        smooth: true
+                        mipmap: true
+                        sourceSize.width: avatarCircle.width * 2
+                        sourceSize.height: avatarCircle.height * 2
+                        visible: false
+                        onStatusChanged: {
+                            if (status === Image.Error)
+                                lockAvatarResolver.advanceAfterError()
                         }
                     }
-                    
-                    Image {
-                        id: avatarImageFallback
-                        anchors.fill: parent
-                        source: avatarImage.status !== Image.Ready 
-                            ? `file://${Directories.userAvatarPathAccountsService}` 
-                            : ""
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        visible: status === Image.Ready && avatarImage.status !== Image.Ready
-                        
-                        layer.enabled: true
-                        layer.effect: OpacityMask {
-                            maskSource: Rectangle {
-                                width: avatarCircle.width
-                                height: avatarCircle.height
-                                radius: width / 2
-                            }
+
+                    OpacityMask {
+                        anchors.fill: avatarCircle
+                        source: avatarImage
+                        maskSource: Rectangle {
+                            width: avatarCircle.width
+                            height: avatarCircle.height
+                            radius: avatarCircle.radius
+                        }
+                        visible: avatarImage.status === Image.Ready
+                    }
+
+                    QtObject {
+                        id: lockAvatarResolver
+                        property int avatarIndex: 0
+                        readonly property string resolvedSource: Directories.avatarSourceAt(avatarIndex)
+                        readonly property string primaryWatch: Directories.userAvatarSourcePrimary
+                        onPrimaryWatchChanged: avatarIndex = 0
+
+                        function advanceAfterError(): void {
+                            const failedIndex = avatarIndex
+                            Qt.callLater(() => {
+                                if (avatarIndex !== failedIndex || avatarImage.status !== Image.Error)
+                                    return
+                                const nextIdx = failedIndex + 1
+                                if (nextIdx < Directories.userAvatarPaths.length)
+                                    avatarIndex = nextIdx
+                            })
                         }
                     }
                     
                     // Fallback initial
                     Text {
                         anchors.centerIn: parent
-                        text: SystemInfo.username.charAt(0).toUpperCase()
-                        font.pixelSize: 40
+                        text: (SystemInfo.displayName || SystemInfo.username || "?").charAt(0).toUpperCase()
+                        font.pixelSize: Math.round((root.editorial ? 30 : 40) * Appearance.fontSizeScale)
                         font.weight: Font.Medium
-                        color: Appearance.colors.colOnPrimary
-                        visible: avatarImage.status !== Image.Ready && avatarImageFallback.status !== Image.Ready
+                        font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.main
+                        color: root.editorial ? Appearance.editorial.ink : Appearance.colors.colOnPrimary
+                        visible: avatarImage.status !== Image.Ready
                     }
                 }
             }
             
-            // Username
+            // Display name
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 8
-                text: SystemInfo.username
-                font.pixelSize: Math.round(22 * Appearance.fontSizeScale)
-                font.weight: Font.Medium
-                font.family: Appearance.font.family.main
-                color: Appearance.colors.colOnSurface
+                Layout.topMargin: root.editorial ? 4 : 8
+                text: SystemInfo.displayName || SystemInfo.username
+                font.pixelSize: Math.round((root.editorial ? 28 * Appearance.editorial.titleScale : 22) * Appearance.fontSizeScale)
+                font.weight: root.editorial ? Appearance.editorial.titleWeight : Font.Medium
+                font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.main
+                font.letterSpacing: root.editorial ? Appearance.editorial.titleTracking : 0
+                color: root.editorial ? Appearance.editorial.paperOnInk : Appearance.colors.colOnSurface
                 
                 // Stagger animation (delayed)
                 opacity: Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.3))
                 transform: Translate { y: (1 - Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.3))) * 15 }
                 
-                layer.enabled: true
+                layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                 layer.effect: DropShadow {
                     horizontalOffset: 0
                     verticalOffset: 1
@@ -512,19 +1381,46 @@ MouseArea {
                 }
             }
 
-            // Password field - Material You style pill
             Rectangle {
                 id: passwordContainer
                 Layout.alignment: Qt.AlignHCenter
-                Layout.topMargin: 12
-                width: 300
-                height: 52
-                radius: height / 2
-                color: ColorUtils.transparentize(Appearance.colors.colLayer1, 0.2)
-                border.color: loginPasswordField.activeFocus 
-                    ? Appearance.colors.colPrimary 
-                    : ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.7)
-                border.width: loginPasswordField.activeFocus ? 2 : 1
+                Layout.topMargin: root.editorial ? 8 : 12
+                width: root.editorial ? 316 : 300
+                height: root.editorial ? 48 : 52
+
+                // Inside the container, not a sibling of it. As a sibling this
+                // was a child of the ColumnLayout, so anchoring it to another
+                // layout-managed item was undefined behavior — and it also
+                // claimed a layout cell of its own. It inherits the container's
+                // stagger transform here, which is what it always wanted.
+                ZzzPlate {
+                    anchors.fill: parent
+                    z: -1
+                    visible: root._zzz
+                    fillColor: loginPasswordField.activeFocus
+                        ? Appearance.colors.colLayer1Hover
+                        : Appearance.colors.colLayer1
+                    strokeColor: loginPasswordField.activeFocus
+                        ? Appearance.zzz.accent
+                        : Appearance.zzz.borderColor
+                    strokeWidth: Appearance.zzz.hairlineThick
+                    chamfer: Appearance.zzz.cutCorner
+                }
+                radius: root._zzz ? Appearance.zzz.controlRadius
+                    : root.editorial ? Appearance.rounding.small
+                    : height / 2
+                color: root._zzz
+                    ? "transparent"
+                    : root.editorial ? Appearance.editorial.paper
+                    : ColorUtils.transparentize(Appearance.colors.colLayer1, 0.2)
+                border.color: root._zzz
+                    ? (loginPasswordField.activeFocus ? Appearance.zzz.accent : Appearance.zzz.borderColor)
+                    : root.editorial
+                        ? (loginPasswordField.activeFocus ? Appearance.editorial.accent : Appearance.editorial.rule)
+                    : (loginPasswordField.activeFocus
+                        ? Appearance.colors.colPrimary
+                        : ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.7))
+                border.width: root._zzz ? 0 : (loginPasswordField.activeFocus ? (root.editorial ? 1 : 2) : 1)
                 
                 // Stagger animation (more delayed)
                 opacity: Math.min(1, Math.max(0, loginContent.animProgress * 3 - 0.5))
@@ -535,10 +1431,10 @@ MouseArea {
                 transform: Translate { x: passwordContainer.shakeOffset; y: passwordContainer.staggerY }
                 
                 Behavior on border.color {
-                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
                 
-                layer.enabled: Appearance.effectsEnabled
+                layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                 layer.effect: DropShadow {
                     horizontalOffset: 0
                     verticalOffset: 4
@@ -563,7 +1459,7 @@ MouseArea {
                             text: "fingerprint"
                             iconSize: 22
                             fill: 1
-                            color: Appearance.colors.colOnSurfaceVariant
+                            color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
                         }
                     }
                     
@@ -576,8 +1472,10 @@ MouseArea {
                         echoMode: TextInput.Password
                         inputMethodHints: Qt.ImhSensitiveData
                         font.pixelSize: Appearance.font.pixelSize.large
-                        font.family: Appearance.font.family.main
-                        color: materialShapeChars ? "transparent" : Appearance.colors.colOnSurface
+                        font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.main
+                        color: materialShapeChars ? "transparent"
+                            : root.editorial ? Appearance.editorial.ink
+                            : Appearance.colors.colOnSurface
                         selectionColor: Appearance.colors.colPrimary
                         selectedTextColor: Appearance.colors.colOnPrimary
                         
@@ -595,6 +1493,7 @@ MouseArea {
                             font: loginPasswordField.font
                             color: GlobalStates.screenUnlockFailed 
                                 ? Appearance.colors.colError 
+                                : root.editorial ? Appearance.editorial.muted
                                 : Appearance.colors.colOnSurfaceVariant
                             visible: loginPasswordField.text.length === 0
                         }
@@ -630,21 +1529,37 @@ MouseArea {
                         }
                     }
                     
-                    // Submit button
                     Rectangle {
                         id: submitButton
                         Layout.preferredWidth: 36
                         Layout.preferredHeight: 36
                         Layout.alignment: Qt.AlignVCenter
-                        radius: width / 2
-                        color: submitMouseArea.pressed 
-                            ? Appearance.colors.colPrimaryActive 
-                            : submitMouseArea.containsMouse 
-                                ? Appearance.colors.colPrimaryHover 
-                                : Appearance.colors.colPrimary
+                        radius: root._zzz ? Appearance.zzz.controlRadius
+                            : root.editorial ? Appearance.rounding.small
+                            : width / 2
+                        color: root._zzz
+                            ? "transparent"
+                            : (submitMouseArea.pressed
+                                ? Appearance.colors.colPrimaryActive
+                                : submitMouseArea.containsMouse
+                                    ? Appearance.colors.colPrimaryHover
+                                    : Appearance.colors.colPrimary)
                         
                         Behavior on color {
-                            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
+
+                        ZzzPlate {
+                            anchors.fill: parent
+                            visible: root._zzz
+                            fillColor: submitMouseArea.pressed
+                                ? Appearance.colors.colPrimaryActive
+                                : submitMouseArea.containsMouse
+                                    ? Appearance.colors.colPrimaryHover
+                                    : Appearance.zzz.sticker
+                            strokeColor: Appearance.zzz.hairlineStrong
+                            strokeWidth: Appearance.zzz.hairlineThick
+                            chamfer: Appearance.zzz.cutCorner
                         }
                         
                         MaterialSymbol {
@@ -659,7 +1574,7 @@ MouseArea {
                                 }
                             }
                             iconSize: 20
-                            color: Appearance.colors.colOnPrimary
+                            color: root._zzz ? Appearance.zzz.onSticker : Appearance.colors.colOnPrimary
                         }
                         
                         MouseArea {
@@ -719,9 +1634,9 @@ MouseArea {
                     text: Translation.tr("Touch sensor to unlock")
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.family: Appearance.font.family.main
-                    color: Appearance.colors.colOnSurfaceVariant
+                    color: root.editorial ? Appearance.editorial.paperOnInk : Appearance.colors.colOnSurfaceVariant
                     
-                    layer.enabled: true
+                    layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                     layer.effect: DropShadow {
                         horizontalOffset: 0
                         verticalOffset: 1
@@ -735,6 +1650,7 @@ MouseArea {
         
         // Bottom right: Power options
         Row {
+            visible: root.showPowerButtons
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.bottomMargin: 24
@@ -795,6 +1711,7 @@ MouseArea {
             // Battery
             Loader {
                 active: UPower.displayDevice.isLaptopBattery
+                asynchronous: true
                 visible: active
                 anchors.verticalCenter: parent.verticalCenter
                 
@@ -808,9 +1725,9 @@ MouseArea {
                         fill: 1
                         color: (Battery.isLow && !Battery.isCharging) 
                             ? Appearance.colors.colError 
-                            : Appearance.colors.colOnSurfaceVariant
+                            : (root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant)
                         
-                        layer.enabled: true
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -824,12 +1741,13 @@ MouseArea {
                         anchors.verticalCenter: parent.verticalCenter
                         text: Math.round(Battery.percentage * 100) + "%"
                         font.pixelSize: Appearance.font.pixelSize.normal
-                        font.family: Appearance.font.family.main
+                        font.family: root.editorial ? Appearance.font.family.numbers : Appearance.font.family.main
+                        font.weight: root.editorial ? Font.DemiBold : Font.Normal
                         color: (Battery.isLow && !Battery.isCharging) 
                             ? Appearance.colors.colError 
-                            : Appearance.colors.colOnSurfaceVariant
+                            : (root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant)
                         
-                        layer.enabled: true
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -844,6 +1762,7 @@ MouseArea {
             // Keyboard layout
             Loader {
                 active: typeof HyprlandXkb !== "undefined" && HyprlandXkb.currentLayoutCode.length > 0
+                asynchronous: true
                 visible: active
                 anchors.verticalCenter: parent.verticalCenter
                 
@@ -855,9 +1774,9 @@ MouseArea {
                         text: "keyboard"
                         iconSize: 18
                         fill: 1
-                        color: Appearance.colors.colOnSurfaceVariant
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
                         
-                        layer.enabled: true
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -871,10 +1790,12 @@ MouseArea {
                         anchors.verticalCenter: parent.verticalCenter
                         text: HyprlandXkb.currentLayoutCode.toUpperCase()
                         font.pixelSize: Appearance.font.pixelSize.small
-                        font.family: Appearance.font.family.main
-                        color: Appearance.colors.colOnSurfaceVariant
+                        font.family: root.editorial ? Appearance.editorial.displayFamily : Appearance.font.family.main
+                        font.weight: root.editorial ? Font.DemiBold : Font.Normal
+                        font.letterSpacing: root.editorial ? 0.8 : 0
+                        color: root.editorial ? Appearance.editorial.muted : Appearance.colors.colOnSurfaceVariant
                         
-                        layer.enabled: true
+                        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
                         layer.effect: DropShadow {
                             horizontalOffset: 0
                             verticalOffset: 1
@@ -885,29 +1806,58 @@ MouseArea {
                     }
                 }
             }
+            
+            // On-screen keyboard toggle
+            LockIconButton {
+                icon: "keyboard"
+                tooltip: Translation.tr("Virtual keyboard")
+                toggled: root.oskVisible
+                anchors.verticalCenter: parent.verticalCenter
+                onClicked: root.oskVisible = !root.oskVisible
+            }
         }
+    }
+
+    // On-screen keyboard
+    LockKeyboard {
+        id: lockKeyboard
+        visible: root.oskVisible
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 80
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(parent.width * 0.6, 640)
+
+        onKeyClicked: key => {
+            loginPasswordField.text += key
+            loginPasswordField.forceActiveFocus()
+        }
+        onBackspaceClicked: {
+            if (loginPasswordField.text.length > 0) {
+                loginPasswordField.text = loginPasswordField.text.slice(0, -1)
+            }
+            loginPasswordField.forceActiveFocus()
+        }
+        onEnterClicked: {
+            if (root.context.currentText.length > 0) {
+                root.hasAttemptedUnlock = true
+                root.context.tryUnlock(root.ctrlHeld)
+            }
+        }
+        onCloseRequested: root.oskVisible = false
     }
 
     // ===== INPUT HANDLING =====
     
     hoverEnabled: true
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton
     focus: true
     activeFocusOnTab: true
     
     onClicked: mouse => {
-        // Emergency fallback: 5 rapid right-clicks to force unlock
-        if (mouse.button === Qt.RightButton) {
-            root.emergencyClickCount++
-            emergencyClickTimer.restart()
-            if (root.emergencyClickCount >= 5) {
-                console.warn("[LockSurface] Emergency unlock triggered!")
-                root.emergencyClickCount = 0
-                GlobalStates.screenLocked = false
-            }
+        if (Brightness.asleep) {
+            Brightness.restoreAfterWake()
             return
         }
-        
         if (!root.showLoginView) {
             root.switchToLogin()
         } else {
@@ -916,6 +1866,10 @@ MouseArea {
     }
     
     onPositionChanged: mouse => {
+        if (Brightness.asleep) {
+            Brightness.restoreAfterWake()
+            return
+        }
         if (root.showLoginView) {
             root.forceFieldFocus()
         }
@@ -943,6 +1897,11 @@ MouseArea {
     }
     
     Keys.onPressed: event => {
+        if (Brightness.asleep) {
+            Brightness.restoreAfterWake()
+            event.accepted = true
+            return
+        }
         root.context.resetClearTimer()
         
         if (event.key === Qt.Key_Control) {
@@ -1002,6 +1961,19 @@ MouseArea {
         root.hasAttemptedUnlock = false
         // Force focus to receive keyboard events - use callLater to ensure component is fully ready
         Qt.callLater(() => root.forceActiveFocus())
+        // Diagnostic logging for crash investigation (#168)
+        console.info("[LockSurface] Component loaded — wallpaper:", root._wallpaperSource,
+                     "isVideo:", root.wallpaperIsVideo, "isGif:", root.wallpaperIsGif,
+                     "useSafeBlur:", root.useSafeBlurPipeline, "isNiri:", CompositorService.isNiri)
+    }
+    
+    Component.onDestruction: {
+        const message = ["[LockSurface] Component destroying — screenLocked:",
+                         GlobalStates.screenLocked, "hasAttemptedUnlock:", root.hasAttemptedUnlock]
+        if (GlobalStates.screenLocked)
+            console.warn(...message)
+        else
+            console.info(...message)
     }
     
     // Reset state when lock screen is activated
@@ -1050,24 +2022,54 @@ MouseArea {
         required property string icon
         property string tooltip: ""
         property bool toggled: false
-        
+
         signal clicked()
-        
+
         width: 44
         height: 44
-        radius: Appearance.rounding.normal
+        radius: root._zzz ? Appearance.zzz.controlRadius
+            : root.editorial ? Appearance.rounding.small
+            : Appearance.rounding.normal
+        border.width: root.editorial ? 1 : 0
+        border.color: root._zzz ? Appearance.zzz.hairlineStrong
+            : root.editorial ? Appearance.editorial.rule
+            : "transparent"
         color: {
+            if (root._zzz) {
+                return "transparent"
+            }
+            if (root.editorial) {
+                if (toggled) return Appearance.editorial.accent
+                if (lockBtnMouse.pressed) return Appearance.colors.colLayer1Active
+                if (lockBtnMouse.containsMouse) return Appearance.colors.colLayer1Hover
+                return Appearance.editorial.layer(1)
+            }
             if (toggled) return Appearance.colors.colPrimary
             if (lockBtnMouse.pressed) return ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.7)
             if (lockBtnMouse.containsMouse) return ColorUtils.transparentize(Appearance.colors.colOnSurface, 0.85)
             return ColorUtils.transparentize(Appearance.colors.colLayer1, 0.3)
         }
-        
-        Behavior on color {
-            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+
+        ZzzPlate {
+            anchors.fill: parent
+            visible: root._zzz
+            fillColor: lockBtn.toggled
+                ? Appearance.zzz.sticker
+                : lockBtnMouse.pressed
+                    ? Appearance.colors.colLayer2Active
+                    : lockBtnMouse.containsMouse
+                        ? Appearance.colors.colLayer2Hover
+                        : Appearance.colors.colLayer1
+            strokeColor: Appearance.zzz.hairlineStrong
+            strokeWidth: Appearance.zzz.hairlineThick
+            chamfer: Appearance.zzz.cutCorner
         }
         
-        layer.enabled: Appearance.effectsEnabled
+        Behavior on color {
+            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        
+        layer.enabled: Appearance.effectsEnabled && !root._zzz && !root.editorial
         layer.effect: DropShadow {
             horizontalOffset: 0
             verticalOffset: 2
@@ -1080,7 +2082,11 @@ MouseArea {
             anchors.centerIn: parent
             text: lockBtn.icon
             iconSize: 22
-            color: lockBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurface
+            color: root._zzz
+                ? (lockBtn.toggled ? Appearance.zzz.onSticker : Appearance.zzz.onColor)
+                : root.editorial
+                    ? (lockBtn.toggled ? Appearance.editorial.accentInk : Appearance.editorial.ink)
+                    : (lockBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurface)
         }
         
         MouseArea {

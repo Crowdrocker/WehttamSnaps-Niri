@@ -83,6 +83,14 @@ Item {
                 Persistent.states.booru.allowNsfw = true;
             }
         },
+        {
+            name: "toggle-tags",
+            description: Translation.tr("Toggle tags on hover"),
+            execute: () => {
+                Persistent.states.booru.showTagsOnHover = !Persistent.states.booru.showTagsOnHover
+                Booru.addSystemMessage(Persistent.states.booru.showTagsOnHover ? Translation.tr("Tags on hover enabled") : Translation.tr("Tags on hover disabled"))
+            }
+        },
     ]
 
     function handleInput(inputText) {
@@ -111,7 +119,7 @@ Item {
                     break;
                 }
             }
-            Booru.makeRequest(tagList, Persistent.states.booru.allowNsfw, Config.options.sidebar.booru.limit, pageIndex);
+            Booru.makeRequest(tagList, Persistent.states.booru.allowNsfw, Config.options?.sidebar?.booru?.limit ?? 24, pageIndex);
         }
     }
 
@@ -174,8 +182,8 @@ Item {
                 anchors.fill: parent
                 spacing: 10
                 
-                touchpadScrollFactor: Config.options.interactions.scrolling.touchpadScrollFactor * 1.4
-                mouseScrollFactor: Config.options.interactions.scrolling.mouseScrollFactor * 1.4
+                touchpadScrollFactor: (Config.options?.interactions?.scrolling?.touchpadScrollFactor ?? 0.5) * 1.4
+                mouseScrollFactor: (Config.options?.interactions?.scrolling?.mouseScrollFactor ?? 1.0) * 1.4
 
                 property int lastResponseLength: 0
                 property bool userIsScrolling: false
@@ -193,15 +201,23 @@ Item {
                 Connections {
                     target: root
                     function onResponsesChanged() {
-                        if (root.responses.length > booruResponseListView.lastResponseLength) {
-                            // Only auto-scroll if user is not actively scrolling
-                            if (!booruResponseListView.userIsScrolling && 
-                                booruResponseListView.lastResponseLength > 0 && 
-                                root.responses[booruResponseListView.lastResponseLength].provider != "system") {
-                                booruResponseListView.contentY = booruResponseListView.contentY + root.scrollOnNewResponse
-                            }
-                            booruResponseListView.lastResponseLength = root.responses.length
+                        const nextLength = root.responses.length
+                        if (nextLength === 0) {
+                            booruResponseListView.lastResponseLength = 0
+                            return
                         }
+
+                        // A bounded response list rotates its oldest item once full,
+                        // so a new page can arrive without increasing the length.
+                        if (nextLength >= booruResponseListView.lastResponseLength) {
+                            const newestResponse = root.responses[nextLength - 1]
+                            if (!booruResponseListView.userIsScrolling
+                                    && booruResponseListView.lastResponseLength > 0
+                                    && newestResponse?.provider !== "system") {
+                                booruResponseListView.contentY += root.scrollOnNewResponse
+                            }
+                        }
+                        booruResponseListView.lastResponseLength = nextLength
                     }
                 }
 
@@ -225,13 +241,14 @@ Item {
                 }
             }
 
-            PagePlaceholder {
+            MaterialPlaceholderMessage {
                 id: placeholderItem
+                anchors.fill: parent
                 z: 2
                 shown: root.responses.length === 0
-                icon: "bookmark_heart"
-                title: Translation.tr("Anime boorus")
-                description: ""
+                icon: Network.online ? "bookmark_heart" : "cloud_off"
+                text: Translation.tr("Anime boorus")
+                explanation: Network.online ? "" : Network.offlineReason
                 shape: MaterialShape.Shape.Bun
             }
 
@@ -248,10 +265,11 @@ Item {
                     bottom: parent.bottom
                     bottomMargin: 20 + (root.pullLoading ? 0 : Math.max(0, (root.normalizedPullDistance - 0.5) * 50))
                     Behavior on bottomMargin {
+                        enabled: Appearance.animationsEnabled
                         NumberAnimation {
-                            duration: 200
-                            easing.type: Easing.BezierSpline
-                            easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
+                            duration: Appearance.animation.elementMoveFast.duration
+                            easing.type: Appearance.animation.elementMoveFast.type
+                            easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
                         }
                     }
                 }
@@ -281,8 +299,12 @@ Item {
                 }
                 delegate: ApiCommandButton {
                     id: tagButton
-                    colBackground: Appearance.auroraEverywhere 
+                    colBackground: Appearance.angelEverywhere
+                        ? (tagSuggestions.selectedIndex === index ? Appearance.angel.colGlassCardHover : Appearance.angel.colGlassCard)
+                        : Appearance.auroraEverywhere
                         ? (tagSuggestions.selectedIndex === index ? Appearance.aurora.colSubSurface : "transparent")
+                        : Appearance.zzzEverywhere
+                        ? (tagSuggestions.selectedIndex === index ? Appearance.zzz.sticker : "transparent")
                         : (tagSuggestions.selectedIndex === index ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colSecondaryContainer)
                     bounce: false
                     contentItem: RowLayout {
@@ -291,7 +313,8 @@ Item {
                         StyledText {
                             Layout.fillWidth: false
                             font.pixelSize: Appearance.font.pixelSize.small
-                            color: Appearance.colors.colOnSecondaryContainer
+                            color: Appearance.zzzEverywhere && tagSuggestions.selectedIndex === index
+                                ? Appearance.zzz.onSticker : Appearance.colors.colOnSecondaryContainer
                             horizontalAlignment: Text.AlignRight
                             text: modelData.displayName ?? modelData.name
                         }
@@ -299,7 +322,8 @@ Item {
                             Layout.fillWidth: false
                             visible: modelData.count !== undefined
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: Appearance.colors.colOnSecondaryContainer
+                            color: Appearance.zzzEverywhere && tagSuggestions.selectedIndex === index
+                                ? Appearance.zzz.onSticker : Appearance.colors.colOnSecondaryContainer
                             horizontalAlignment: Text.AlignLeft
                             text: modelData.count ?? ""
                         }
@@ -341,15 +365,21 @@ Item {
             id: tagInputContainer
             property real columnSpacing: 5
             Layout.fillWidth: true
-            radius: Appearance.rounding.normal - root.padding
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
+            radius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.normal - root.padding
+            Behavior on radius {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration }
+            }
+            color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
             implicitWidth: tagInputField.implicitWidth
             implicitHeight: Math.max(inputFieldRowLayout.implicitHeight + inputFieldRowLayout.anchors.topMargin 
                 + commandButtonsRow.implicitHeight + commandButtonsRow.anchors.bottomMargin + columnSpacing, 45)
             clip: true
 
             Behavior on implicitHeight {
-                animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
             }
 
             RowLayout { // Input field and send button
@@ -365,7 +395,7 @@ Item {
                     wrapMode: TextArea.Wrap
                     Layout.fillWidth: true
                     padding: 10
-                    color: activeFocus ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
+                    color: activeFocus ? Appearance.colors.colOnSurface : Appearance.colMetadataText
                     renderType: Text.NativeRendering
                     placeholderText: Translation.tr('Enter tags, or "%1" for commands').arg(root.commandPrefix)
 
@@ -461,7 +491,7 @@ Item {
                     Layout.rightMargin: 5
                     implicitWidth: 40
                     implicitHeight: 40
-                    buttonRadius: Appearance.rounding.small
+                    buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.small
                     enabled: tagInputField.text.length > 0
                     toggled: enabled
 
@@ -479,7 +509,9 @@ Item {
                         anchors.centerIn: parent
                         horizontalAlignment: Text.AlignHCenter
                         iconSize: 22
-                        color: sendButton.enabled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer2Disabled
+                        color: sendButton.enabled
+                            ? (Appearance.zzzEverywhere ? Appearance.zzz.onSticker : Appearance.colors.colOnPrimary)
+                            : Appearance.colors.colOnLayer2Disabled
                         text: "arrow_upward"
                     }
                 }
@@ -541,7 +573,7 @@ Item {
                             Layout.leftMargin: 10
                             Layout.alignment: Qt.AlignVCenter
                             font.pixelSize: Appearance.font.pixelSize.smaller
-                            color: nsfwSwitch.enabled ? Appearance.colors.colOnLayer1 : Appearance.m3colors.m3outline
+                            color: nsfwSwitch.enabled ? Appearance.colors.colOnLayer1 : Appearance.colors.colOutline
                             text: Translation.tr("Allow NSFW")
                         }
                         StyledSwitch {
@@ -569,7 +601,8 @@ Item {
                         delegate: ApiCommandButton {
                             property string commandRepresentation: `${root.commandPrefix}${modelData.name}`
                             buttonText: commandRepresentation
-                            colBackground: Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
+                            colBackground: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                                : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
 
                             downAction: () => {
                                 if (modelData.sendDirectly) {

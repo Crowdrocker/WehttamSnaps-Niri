@@ -4,3 +4,5 @@ OSDValue 1.0 OSDValue.qml
 VolumeOSD 1.0 VolumeOSD.qml
 BrightnessOSD 1.0 BrightnessOSD.qml
 MediaOSD 1.0 MediaOSD.qml
+KeyboardLayoutOSD 1.0 KeyboardLayoutOSD.qml
+ConnectionOSD 1.0 ConnectionOSD.qml

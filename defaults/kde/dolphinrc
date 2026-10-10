@@ -1,3 +1,5 @@
+MenuBar=Disabled
+
 [DetailsMode]
 PreviewSize=32
 
@@ -5,6 +7,7 @@ PreviewSize=32
 GlobalViewProps=false
 ShowFullPath=true
 ShowStatusBar=FullWidth
+SingleClick=true
 Version=202
 
 [KFileDialog Settings]
@@ -19,3 +22,6 @@ ToolButtonStyle=IconOnly
 
 [PreviewSettings]
 Plugins=ffmpegthumbnailer,appimagethumbnail,audiothumbnail,avif,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,heif,imagethumbnail,jpegthumbnail,jxl,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,librsvg,svgthumbnail,ffmpegthumbs,gdk-pixbuf-thumbnailer,gsf-office
+
+[Toolbar mainToolBar]
+ToolButtonStyle=IconOnly

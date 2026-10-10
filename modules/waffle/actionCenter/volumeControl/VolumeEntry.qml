@@ -61,8 +61,13 @@ RowLayout {
     WSlider {
         id: volumeSlider
         Layout.fillWidth: true
+        scrollable: true
         property real modelValue: root.node?.audio.volume ?? 0
-        to: (root.node === Audio.sink) ? Audio.uiMaxSinkVolume : 1
+        to: (root.node === Audio.sink) ? 1.5 : 1
+
+        Component.onCompleted: {
+            value = modelValue
+        }
 
         Binding {
             target: volumeSlider
@@ -73,6 +78,8 @@ RowLayout {
         onMoved: {
             if (root.node === Audio.sink) {
                 Audio.setSinkVolume(value)
+            } else if (root.node === Audio.source) {
+                Audio.setSourceVolume(value)
             } else if (root.node?.audio) {
                 root.node.audio.volume = value
             }

@@ -20,46 +20,26 @@ Item {
     // Settings search integration
     property bool enableSettingsSearch: true
     property int settingsSearchOptionId: -1
-    
+
+    readonly property color rowHover: Looks.settings.tileHover
+    readonly property color rowPressed: Looks.settings.tilePressed
+    readonly property color rowTile: Looks.settings.tile
+
     signal clicked()
     
     Layout.fillWidth: true
-    implicitHeight: Math.max(48, contentRow.implicitHeight + 16)
+    Layout.leftMargin: 0
+    Layout.rightMargin: 0
+    implicitHeight: Math.max(Looks.dp(52), contentRow.implicitHeight + Looks.dp(20))
     
     // Highlight animation for search focus
-    SequentialAnimation {
-        id: highlightAnim
-        running: false
-        loops: 2
-        
-        ParallelAnimation {
-            NumberAnimation {
-                target: highlightOverlay
-                property: "opacity"
-                to: 0.15
-                duration: 150
-            }
-            NumberAnimation {
-                target: root
-                property: "scale"
-                to: 1.01
-                duration: 150
-            }
-        }
-        ParallelAnimation {
-            NumberAnimation {
-                target: highlightOverlay
-                property: "opacity"
-                to: 0
-                duration: 150
-            }
-            NumberAnimation {
-                target: root
-                property: "scale"
-                to: 1.0
-                duration: 150
-            }
-        }
+    Behavior on opacity {
+        enabled: Looks.transition?.opacity !== undefined
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+    }
+    Behavior on scale {
+        enabled: Looks.transition?.resize !== undefined
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
     
     function _findSettingsContext(): var {
@@ -143,13 +123,23 @@ Item {
     Rectangle {
         id: background
         anchors.fill: parent
-        radius: Looks.radius.medium
-        color: root.clickable && mouseArea.containsMouse 
-            ? Looks.colors.bg2Hover 
-            : "transparent"
+        anchors.leftMargin: Looks.dp(2)
+        anchors.rightMargin: Looks.dp(2)
+        radius: Looks.settings.radiusLarge
+        color: {
+            if (root.clickable && mouseArea.pressed)
+                return root.rowPressed
+            if (mouseArea.containsMouse)
+                return root.rowHover
+            return "transparent"
+        }
+        scale: root.clickable && mouseArea.pressed ? 0.985 : 1.0
         
         Behavior on color {
-            animation: Looks.transition.color.createObject(this)
+            animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+        }
+        Behavior on scale {
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.ultraFast : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
     }
     
@@ -157,39 +147,65 @@ Item {
     Rectangle {
         id: highlightOverlay
         anchors.fill: parent
-        radius: Looks.radius.medium
+        radius: Looks.settings.radiusLarge
         color: Looks.colors.accent
         opacity: 0
+    }
+
+    SequentialAnimation {
+        id: highlightAnim
+        NumberAnimation { target: highlightOverlay; property: "opacity"; to: 0.18; duration: 200; easing.type: Easing.OutCubic }
+        PauseAnimation { duration: 600 }
+        NumberAnimation { target: highlightOverlay; property: "opacity"; to: 0; duration: 400; easing.type: Easing.InCubic }
     }
     
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled: root.clickable
         hoverEnabled: true
         cursorShape: root.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: root.clicked()
+        onClicked: if (root.clickable) root.clicked()
     }
     
     RowLayout {
         id: contentRow
         anchors {
             fill: parent
-            leftMargin: 12
-            rightMargin: 12
+            leftMargin: Looks.dp(12)
+            rightMargin: Looks.dp(12)
         }
-        spacing: 12
+        spacing: Looks.dp(10)
         
-        FluentIcon {
+        Rectangle {
             visible: root.icon !== ""
-            icon: root.icon
-            implicitSize: 20
-            color: Looks.colors.fg
+            implicitWidth: Looks.dp(30)
+            implicitHeight: Looks.dp(30)
+            radius: Looks.settings.radiusLarge
+            color: mouseArea.containsMouse ? Looks.colors.selection : root.rowTile
+            border.width: 1
+            border.color: mouseArea.containsMouse
+                ? Looks.colors.accent : Looks.settings.stroke
+            Layout.alignment: Qt.AlignVCenter
+            
+            Behavior on color {
+                animation: ColorAnimation { duration: Looks.transition.enabled ? 120 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+            }
+
+            FluentIcon {
+                anchors.centerIn: parent
+                icon: root.icon
+                implicitSize: Looks.dp(16)
+                color: mouseArea.containsMouse ? Looks.colors.accent : Looks.colors.subfg
+                
+                Behavior on color {
+                    animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+                }
+            }
         }
         
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 2
+            spacing: Looks.dp(2)
             
             WText {
                 Layout.fillWidth: true
@@ -205,6 +221,7 @@ Item {
                 font.pixelSize: Looks.font.pixelSize.small
                 color: Looks.colors.subfg
                 wrapMode: Text.WordWrap
+                lineHeight: 1.2
             }
         }
         
@@ -216,8 +233,9 @@ Item {
         FluentIcon {
             visible: root.showChevron
             icon: "chevron-right"
-            implicitSize: 16
+            implicitSize: Looks.dp(14)
             color: Looks.colors.subfg
+            opacity: 0.7
         }
     }
 }

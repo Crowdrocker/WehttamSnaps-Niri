@@ -19,9 +19,10 @@ OverlayBackground {
     property var parsedCopylistLines: []
     property bool isClickthrough: false
     property real maxCopyButtonSize: 20
+    property bool noteStorageReady: false
 
     Component.onCompleted: {
-        noteFile.reload();
+        ensureNoteFile.running = true;
         updateCopyListEntries();
     }
 
@@ -181,6 +182,7 @@ OverlayBackground {
             }
 
             Item {
+                id: copyOverlay
                 anchors.fill: parent
                 visible: root.copyListEntries.length > 0
                 clip: true
@@ -201,7 +203,7 @@ OverlayBackground {
                         implicitWidth: lineHeight
                         buttonRadius: height / 2
                         y: modelData.y
-                        anchors.right: parent.right
+                        anchors.right: copyOverlay.right
                         anchors.rightMargin: 10
                         z: 5
 
@@ -226,7 +228,7 @@ OverlayBackground {
                                 anchors.centerIn: parent
                                 text: copyButton.justCopied ? "check" : "content_copy"
                                 iconSize: copyButton.iconSizeLocal
-                                color: Appearance.colors.colOnLayer1
+                                color: OverlayLook.colOnLayer1
                             }
                         }
                     }
@@ -240,7 +242,7 @@ OverlayBackground {
             Layout.margins: 16
             horizontalAlignment: Text.AlignRight
             text: saveDebounce.running ? Translation.tr("Saving...") : Translation.tr("Saved    ")
-            color: Appearance.colors.colSubtext
+            color: OverlayLook.colSubtext
         }
     }
 
@@ -258,9 +260,30 @@ OverlayBackground {
         onTriggered: updateCopylistPositions()
     }
 
+    Process {
+        id: ensureNoteFile
+        running: false
+        command: [
+            "/usr/bin/bash",
+            "-c",
+            "/usr/bin/mkdir -p -- \"$1\" && { [ -e \"$2\" ] || /usr/bin/touch -- \"$2\"; }",
+            "bash",
+            Directories.notesPath.substring(0, Directories.notesPath.lastIndexOf('/')),
+            Directories.notesPath
+        ]
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode !== 0) {
+                console.warn("[Overlay Notes] Failed to prepare note storage:", exitCode, exitStatus)
+                return
+            }
+            root.noteStorageReady = true
+            Qt.callLater(noteFile.reload)
+        }
+    }
+
     FileView {
         id: noteFile
-        path: Qt.resolvedUrl(Directories.notesPath)
+        path: root.noteStorageReady ? Qt.resolvedUrl(Directories.notesPath) : ""
         onLoaded: {
             root.content = noteFile.text();
             if (root.content !== root.content) {
@@ -277,13 +300,8 @@ OverlayBackground {
         }
         onLoadFailed: error => {
             if (error === FileViewError.FileNotFound) {
-                root.content = "";
-                noteFile.setText(root.content);
-                if (pendingReload) {
-                    pendingReload = false;
-                    Qt.callLater(root.focusAtEnd);
-                }
-                Qt.callLater(root.updateCopyListEntries);
+                root.noteStorageReady = false
+                ensureNoteFile.running = true
             } else {
                 console.log("[Overlay Notes] Error loading file: " + error);
             }

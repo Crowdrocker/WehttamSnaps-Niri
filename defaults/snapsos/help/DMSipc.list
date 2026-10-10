@@ -1,0 +1,244 @@
+## Introduction
+this menu shows you mango IPC options in the following format
+function         | example                   | description
+you can search through these.
+
+the standard formatting for DMS IPC commands is:
+dms ipc call [target] [function] [arguments]
+
+this list is grouped by target, here's a quick overview of searchable targets:
+audio | brightness | night | mpris | lock | inhibit | wallpaper | profile | theme | bar | dock | widget | plugins | outputs | desktopWidget
+spotlight | clipboard | notifications | processlist | powermenu | control-center | notepad | dash | keybinds | systemupdater | toast
+
+## Core Controls
+
+###audio
+setvolume       | dms ipc call audio setvolume 50                   | sets the volume to a specified percentage
+increment       | dms ipc call audio increment 5                    | increases the volume by x%
+decrement       | dms ipc call audio decrement 5                    | decreases the volume by x%
+mute            | dms ipc call audio mute                           | toggles your output mute
+setmic          | dms ipc call audio setmic 50                      | sets your microphone volume percentage
+micmute         | dms ipc call audio micmute                        | toggles your microphone mute
+cycleOutput     | dms ipc call audio cycleOutput                    | cycle through output Devices
+status          | dms ipc call audio status                         | get the current audio status
+
+### brightness 
+set             | dms ipc call brightness set 50 DP-1               | set the brightness percentage, optionally for a specific monitor
+increment       | dms ipc call brightness increment 5 DP-1          | increment brightness, monitor optional
+decrement       | dms ipc call brightness decrement 5 DP-1          | decrement brightness, monitor optional
+status          | dms ipc call brightness status                    | get current brightness status
+list            | dms ipc call brightness list                      | lists all devices with brightness Controls
+
+### night mode
+toggle          | dms ipc call night toggle                         | toggles night mode
+enable          | dms ipc call night enable                         | turns night mode on
+disable         | dms ipc call night disable                        | turns night mode off
+status          | dms ipc call night status                         | get the current night mode status
+temperature     | dms ipc call night temperature 5700               | without number, gets the current color temp, otherwise sets that color temp (2500-6000 kelvin)
+automation      | dms ipc call night automation                     | gets current automation mode, set with modes manual, time or location
+schedule        | dms ipc call night schedule 21:00 08:00           | sets night mode to turn on between the first and second time every day. 
+location        | dms ipc call night location lat long              | sets night mode to trigger when you are at this location (location mode)
+
+### media player control (mpris)
+list            | dms ipc call mpris list                           | list available media players
+play            | dms ipc call mpris play                           | starts playback
+pause           | dms ipc call mpris pause                          | pauses playback
+playPause       | dms ipc call mpris playPause                      | toggles playback
+previous        | dms ipc call mpris previous                       | skip to previous track/video
+next            | dms ipc call mpris next                           | skip to next track/video
+stop            | dms ipc call mpris stop                           | stop playback
+
+### lock
+lock            | dms ipc call lock lock                            | locks the screen
+demo            | dms ipc call lock demo                            | shows a "fake" lockscreen (to test)
+isLocked        | dms ipc call lock isLocked                        | check if the screen is locked 
+
+### inhibit
+toggle          | dms ipc call inhibit toggle                       | toggles inhibit (prevents automatic sleep/lock)
+enable          | dms ipc call inhibit enable                       | turns inhibit on
+disable         | dms ipc call inhibit disable                      | turns inhibit off
+
+
+## Wallpaper & Profile
+
+### wallpapers
+### if you want to set multiple wallpapers programatically, just run multiple set calls
+get             | dms ipc call wallpaper get                        | gets the current wallpaper path
+set             | dms ipc call wallapper set ~/Pictures/wallpaper.png| sets the wallpaper
+clear           | dms ipc call wallpaper clear                      | clears the wallpaper
+next            | dms ipc call wallpaper next                       | cycles to next wallpaper
+prev            | dms ipc call wallpaper prev                       | cycles to previous wallpaper
+getFor          | dms ipc call wallpaper getFor DP-1                | gets the wallpaper for a specific monitor
+SetFor          | dms ipc call wallpaper setFor DP-1 ~/wallpaper.png| sets the wallpaper for a specific monitor
+nextFor         | dms ipc call wallpaper nextFor DP-1               | cycles to next wallpaper for a specific monitor
+prevFor         | dms ipc call wallpaper prevFor DP-1               | cycles to previous wallpaper for a specific monitor
+
+### profile
+getImage        | dms ipc call profile getImage                     | gets the current profile image path
+setImage        | dms ipc call profile setImage ~/profile.png       | sets the profile image 
+clearImage      | dms ipc call profile clearImage                   | clears the profile image
+
+## Appearance Controls
+
+### theme 
+toggle          | dms ipc call theme toggle                         | toggles dark/light mode
+light           | dms ipc call theme light                          | sets theme to light mode
+dark            | dms ipc call theme dark                           | sets theme to dark mode
+getMode         | dms ipc call theme getMode                        | gets the current mode
+
+### bar
+### selectors: 'index x' - select by position x, 'id abc123' - select by ID abc123, 'name "Bar Name"' select by name Bar Name
+### default top bar is index 0
+reveal          | dms ipc call bar reveal <selector>                | reveals the bar
+hide            | dms ipc call bar hide <selector>                  | hides the bar 
+toggle          | dms ipc call bar toggle <selector>                | toggles the bar
+status          | dms ipc call bar status <selector>                | gets bar visibility
+autoHide        | dms ipc call bar autoHide <selector>              | turns on autohide for the bar
+manualHide      | dms ipc call bar manualHide <selector>            | turns off autohide for the bar
+toggleAutoHide  | dms ipc call bar toggleAutoHide <selector>        | toggles autohide for the bar
+getPosition     | dms ipc call bar getPosition <selector>           | gets the current position for the bar
+setPosition     | dms ipc call bar setPosition <selector> left      | moves the bar to the provided position
+
+### dock
+reveal          | dms ipc call dock reveal                          | reveals the dock
+hide            | dms ipc call dock hide                            | hides the dock
+toggle          | dms ipc call dock toggle                          | toggles the dock
+status          | dms ipc call dock status                          | gets dock visibility status
+autoHide        | dms ipc call dock autoHide                        | turns on autoHide
+manualHide      | dms ipc call dock manualHide                      | turns off autoHide
+toggleAutoHide  | dms ipc call dock toggleAutoHide                  | toggles autoHide
+
+### widgets
+list            | dms ipc call widget list                          | lists widgets with their IDs
+toggle          | dms ipc call widget toggle WidgetID               | toggles visibility for that widget
+openWith        | dms ipc call widget openWith launcherButton files | opens a widget in a specific mode for that widget (for example different tabs on the launcher)
+toggleWith      | dms ipc call widget toggleWith WidgetID files     | same as openWith, but toggles the menu
+openQuery       | dms ipc call widget openQuery widgetID "hi"       | opens the widget with a query pre-filled (for widgets that have a search bar)
+toggleQuery     | dms ipc call widget ToggleQuery widgetID "hi"     | same as openQuery, but toggles the menu
+status          | dms ipc call widget status WidgetID               | gets the popout visibility status of the widget
+visibility      | dms ipc call widget visibility WidgetID           | gets the widget visibility state
+reveal          | dms ipc call widget reveal WidgetID               | forces widget to be visible
+hide            | dms ipc call widget hide WidgetID                 | forces widget to be hidden
+reset           | dms ipc call widget reset WidgetID                | clears widget visibility override, returning it to default behaviour
+
+## modals
+
+### spotlight
+open            | dms ipc call spotlight open                       | opens the spotlight search (app launcher + file search + settings search)
+close           | dms ipc call spotlight close                      | closes the spotlight search
+toggle          | dms ipc call spotlight toggle                     | toggles spotlight search
+openQuery       | dms ipc call spotlight openQuery "ghostty"        | opens spotlight with the query pre-filled in the search bar
+toggleQuery     | dms ipc call spotlight toggleQuery "ghostty"      | toggles spotlight with the query pre-filled in the search bar
+
+### clipboard
+open            | dms ipc call clipboard open                       | opens clipboard
+close           | dms ipc call clipboard close                      | closes clipboard
+toggle          | dms ipc call clipboard toggle                     | toggles clipboard
+
+### notifications
+open                | dms ipc call notifications open               | opens notifications
+close               | dms ipc call notifications close              | closes notifications
+toggle              | dms ipc call notifications toggle             | toggles the notification menu
+clearAll            | dms ipc call notifications clearAll           | clears all notifications
+dismissAllPopups    | dms ipc call notifications dismissAllPopups   | dismiss all notification popups
+toggleDoNotDisturb  | dms ipc call notifications toggleDoNotDisturb | toggles Do Not Disturb
+getDoNotDisturb     | dms ipc call notifications getDoNotDisturb    | gets current do not disturb state
+
+### process list
+open                | dms ipc call processlist open                 | opens the system process manager/hardware monitor
+close               | dms ipc call processlist close                | closes the system process manager/hardware monitor
+toggle              | dms ipc call processlist toggle               | toggles the system process manager/hardware monitor
+focusOrToggle       | dms ipc call processlist focusOrToggle        | focuses the process manager if it exists and is not focused, toggles it if it does not exist or is focused.
+
+### power menu
+open                | dms ipc call powermenu open                   | opens the power menu
+close               | dms ipc call powermenu close                  | closes the power menu
+toggle              | dms ipc call powermenu toggle                 | toggles the power menu
+
+### control center
+open                | dms ipc call control-center open              | opens the control center
+close               | dms ipc call control-center close             | closes the control center
+toggle              | dms ipc call control-center toggle            | toggles the control center
+
+### notepad
+open                | dms ipc call notepad open                     | opens the notepad
+close               | dms ipc call notepad close                    | closes the notepad
+toggle              | dms ipc call notepad toggle                   | toggles the notepad
+
+### dash 
+open                | dms ipc call dash open overview               | opens the dashboard to that tab (overview, media or weather)
+close               | dms ipc call dash close                       | closes the dashboard
+toggle              | dms ipc call dash toggle overview             | toggles the dashboard to that tab (tab is optional)
+wallpaper           | dms ipc call dankdash wallpaper               | specific call to toggle the wallpaper tab.
+
+### file
+browse wallpaper    | dms ipc call file browse wallpaper            | opens wallpaper selector
+browse profile      | dms ipc call file browse profile              | opens profile image selector
+
+### welcome
+open                | dms ipc call welcome open                     | opens the DMS first-launch wizard
+doctor              | dms ipc call welcome doctor                   | opens the first-launch wizard to the diagnostics page
+page                | dms ipc call welcome page 2                   | opens the first-launch wizard to a specific page (0=welcome,1=doctor,2=complete)
+
+### keybinds
+open                | dms ipc call keybinds open mangowc            | opens keybinds menu, reading from ~/.config/mango/config.conf
+openWithPath        | dms ipc call keybinds openWithPath mangowc ~/.config/mango/binds.conf | opens the keybinds menu with a specific file to read
+close               | dms ipc call keybinds close                   | closes the keybinds menu
+toggle              | dms ipc call keybinds toggle mangowc          | toggles the keybinds menu, reading from ~/.config/mango/config.conf
+toggleWithPath      | dms ipc call keybinds toggleWithPath - -      | same as openWithPath, but uses toggle behaviour.
+
+
+## settings
+tabs                | dms ipc call settings tabs                    | lists available settings tabs
+open                | dms ipc call settings open                    | opens settings menu
+openWith            | dms ipc call settings openWith <tab>          | opens settings menu to specified tab
+close               | dms ipc call settings close                   | closes settings menu
+toggle              | dms ipc call settings toggle                  | toggles settings menu
+toggleWith          | dms ipc call settings toggleWith <tab>        | toggles settings menu to specified tab
+focusOrToggle       | dms ipc call settings focusOrToggle           | focuses settings window if unfocused, toggles if focused or inactive
+focusOrToggleWith   | dms ipc call settings focusOrToggleWith <tab> | focusOrToggle but with a specified tab
+get                 | dms ipc call settings get <key>               | get a setting, to see all settings keys: 'micro ~/.config/DankMaterialShell/settings.json'
+set                 | dms ipc call settings get <key> <value>       | set a setting to a specific value
+
+
+## outputs
+listProfiles        | dms ipc call outputs listProfiles             | lists output profiles
+current             | dms ipc call outputs current                  | lists current output profile
+setProfile          | dms ipc call outputs setProfile <name>        | sets the output profile to the specified one
+status              | dms ipc call outputs status                   | gets the current output config status
+refresh             | dms ipc call outputs refresh                  | refresh the output configuration
+
+## plugins
+list                | dms ipc call plugins list                     | lists available plugins with status
+status              | dms ipc call plugins status <name>            | gets status for a specific plugin
+reload              | dms ipc call plugins reload <name>            | hot-reload the specified plugin
+enable              | dms ipc call plugins enable <name>            | enable the plugin
+disable             | dms ipc call plugins disable <name>           | disable the plugin
+
+
+## system updater
+updatestatus        | dms ipc call systemupdater updatestatus       | triggers a system update check
+
+## desktop widgets
+list                | dms ipc call desktopWidget list                       | lists desktop widgets with ID, type, name and status
+status              | dms ipc call desktopWidget status dw_1234             | gets status for a specific widget
+enable              | dms ipc call desktopWidget enable dw_1234             | enables a widget
+disable             | dms ipc call desktopWidget disable dw_1234            | disables a widget
+toggleEnabled       | dms ipc call desktopWidget toggleEnabled <id>         | toggles a widget
+toggleoverlay       | dms ipc call desktopWidget toggleOverlay <id>         | toggles overlay mode for a widget
+setOverlay          | dms ipc call desktopWidget setOverlay <id> true       | sets overlay mode to true or false for a widget
+toggleClickThrough  | dms ipc call desktopWidget toggleClickThrough <id>    | toggles clickthrough for a widget
+setClickThrough     | dms ipc call desktopWidget setClickThrough <id> true  | sets clickthrough to true or false for a widget
+toggleSyncPosition  | dms ipc call desktopWidget toggleSyncPosition <id>    | toggles cross-monitor position sync for a widget
+setSyncPosition     | dms ipc call desktopWidget setSyncPosition <id> true  | sets cross-monitor position sync to true or false for a widget
+
+## toasts
+info                | dms ipc call toast info "message"                                     | sends an info notification (1.5s) with the provided message
+infoWith            | dms ipc call toast infoWith "message" "details" "command" "category"  | sends a customized info notification
+warn                | dms ipc call toast warn "message"                                     | sends a warn notification (3s) with the provided message
+warnWith            | dms ipc call toast warnWith "message" "details" "command" "category"  | sends a customized warn notification
+error               | dms ipc call toast error "message"                                    | sends an error notification (5s) with the provided message
+errorWith           | dms ipc call toast errorWith "message" "details" "command" "category" | sends a customized error notification (8s)
+hide                | dms ipc call toast hide                                               | hides the most recent toast
+dismiss             | dms ipc call toast dismiss <category>                                 | dismisses all toasts of a specific category
+status              | dms ipc call toast status                                             | get the current toast state

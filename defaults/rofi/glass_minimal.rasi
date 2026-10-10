@@ -1,0 +1,67 @@
+* {
+    font: "Google Sans Flex 13";
+    text-color: #202020;
+    background-color: transparent;
+    margin: 0px;
+    padding: 0px;
+    spacing: 0px;
+}
+
+window {
+    location: center;
+    // location: northwest;
+    // y-offset : 10px;
+    // x-offset : 10px;
+    width: 480;
+    border-radius: 32px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 2px;
+    border-color: #ffffff60;
+}
+
+mainbox {
+    padding: 12px;
+}
+
+inputbar {
+    background-color: transparent;
+    padding: 8px 16px;
+    spacing: 8px;
+    children: [ entry ];
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: #202020;
+    text-color: #202020;
+}
+
+listview {
+    background-color: transparent;
+    margin: 12px 0 0;
+    lines: 6;
+    columns: 1;
+    fixed-height: false;
+}
+
+element {
+    padding: 10px 16px;
+    spacing: 12px;
+    border-radius: 24px;
+    background-color: transparent;
+}
+
+element selected normal, element selected active {
+    background-color:#5962ff80;
+    text-color: #ffffff;
+}
+
+element-icon {
+    size: 1.2em;
+    vertical-align: 0.5;
+}
+
+element-text {
+    text-color: inherit;
+    vertical-align: 0.5;
+}

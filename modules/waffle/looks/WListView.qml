@@ -11,15 +11,15 @@ ListView {
     
     // Smooth transitions for list changes
     add: Transition {
-        NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 150; easing.type: Easing.OutQuad }
+        NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.OutQuad }
     }
     
     remove: Transition {
-        NumberAnimation { property: "opacity"; from: 1; to: 0; duration: 100; easing.type: Easing.InQuad }
+        NumberAnimation { property: "opacity"; from: 1; to: 0; duration: Looks.transition.enabled ? Looks.transition.duration.fast : 0; easing.type: Easing.InQuad }
     }
     
     displaced: Transition {
-        NumberAnimation { properties: "x,y"; duration: 150; easing.type: Easing.OutQuad }
+        NumberAnimation { properties: "x,y"; duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.OutQuad }
     }
     
     // Prevent flicker on model changes

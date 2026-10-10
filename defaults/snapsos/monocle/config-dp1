@@ -1,0 +1,35 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "fixed-center": "true",
+    "output": "DP-1",
+    "margin-top": 0,
+    "margin-bottom": 0,
+    "margin-left": 0,
+    "margin-right": 0,    
+    "spacing": 3,
+
+    // Load Modules
+    "include": [
+        "~/.config/snapsos/monocle/modules-dp1.json"
+    ],    
+    "modules-left": [
+        "custom/daemon",
+        "custom/window1",
+        "custom/window2",
+        "custom/window3",
+        "custom/window4",
+        "custom/window5",
+        "custom/window6",
+        "custom/window7",
+        "custom/window8",
+        "custom/window9",
+        "custom/window10",
+
+
+    ],
+    "modules-center": [
+    ],
+    "modules-right": [
+    ]
+}

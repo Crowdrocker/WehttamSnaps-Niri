@@ -1,0 +1,379 @@
+#!/bin/bash
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  sound-system — WehttamSnaps Adaptive Sound System              ║
+# ║  Switches between J.A.R.V.I.S. and iDroid based on context     ║
+# ║  github.com/Crowdrocker  |  twitch.tv/WehttamSnaps              ║
+# ╚══════════════════════════════════════════════════════════════════╝
+set -euo pipefail
+
+# ════════════════════════════════════════════════════════════════════
+#  📋 CONFIGURATION
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Change these paths if you move your sound files
+SILENT_FLAG="$HOME/.cache/wehttamsnaps/silent.active"
+SOUND_BASE="/usr/share/wehttamsnaps/sounds"
+STATE_FILE="$HOME/.cache/wehttamsnaps/sound-mode.state"
+WORKSPACE_FILE="$HOME/.cache/wehttamsnaps/current-workspace.state"
+GAMING_FLAG="$HOME/.cache/wehttamsnaps/gaming-mode.active"
+
+mkdir -p "$(dirname "$STATE_FILE")"
+mkdir -p "$SOUND_BASE"/{jarvis,idroid}
+
+# Colors for terminal output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+# ════════════════════════════════════════════════════════════════════
+#  🎯 WORKSPACE MAP (matches your workspace configuration)
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Edit this to change which workspaces trigger iDroid vs J.A.R.V.I.S.
+#  1:BROWSER  2:TERM  3:GAMING  4:STREAM  5:PHOTO
+#  6:MEDIA    7:COMMS 8:MUSIC   9:FILES  10:SYS
+get_current_mode() {
+    [[ -f "$STATE_FILE" ]] && cat "$STATE_FILE" || echo "jarvis"
+}
+
+set_mode() {
+    local mode="$1"
+    echo "$mode" > "$STATE_FILE"
+    echo -e "${CYAN}🔊 Sound mode:${NC} ${GREEN}$mode${NC}"
+}
+
+get_current_workspace() {
+    if command -v swaymsg &>/dev/null; then
+        swaymsg -t get_workspaces 2>/dev/null | \
+        python3 -c "import sys,json; ws=[w for w in json.load(sys.stdin) if w.get('focused')]; print(ws[0]['name'].split(':')[0] if ws else '1')" \
+        2>/dev/null || echo "1"
+    elif [[ -f "$WORKSPACE_FILE" ]]; then
+        cat "$WORKSPACE_FILE"
+    else
+        echo "1"
+    fi
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  🤖 AUTO-DETECT MODE
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Modify the case statement to change workspace→mode mapping
+auto_detect_mode() {
+    local workspace
+    workspace=$(get_current_workspace)
+    workspace="${workspace%%:*}"
+
+    # Gaming flag overrides everything
+    [[ -f "$GAMING_FLAG" ]] && echo "idroid" && return
+
+    case "$workspace" in
+        3|4) echo "idroid"  ;;   # GAMING, STREAM → iDroid
+        *)   echo "jarvis"  ;;   # Everything else → J.A.R.V.I.S.
+    esac
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  🔊 PLAY SOUND (CORE FUNCTION)
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: All sound names should match files in sound_list.txt (without .mp3)
+# 💡 TIP: Add new sounds to /usr/share/wehttamsnaps/sounds/{jarvis,idroid}/
+play_sound() {
+    local sound_name="$1"
+    local force_mode="${2:-}"
+
+    [[ -f "$SILENT_FLAG" ]] && return 0
+
+    local mode
+    if [[ -n "$force_mode" ]]; then
+        mode="$force_mode"
+    else
+        mode=$(auto_detect_mode)
+    fi
+
+    local sound_path="$SOUND_BASE/$mode/$sound_name.mp3"
+
+    # Fallback to other mode if clip doesn't exist
+    if [[ ! -f "$sound_path" ]]; then
+        local alt_mode
+        [[ "$mode" == "jarvis" ]] && alt_mode="idroid" || alt_mode="jarvis"
+        sound_path="$SOUND_BASE/$alt_mode/$sound_name.mp3"
+    fi
+
+    if [[ -f "$sound_path" ]]; then
+        paplay "$sound_path" &>/dev/null &
+    else
+        echo -e "${YELLOW}⚠${NC}  Sound not found: $sound_name.mp3 (tried $mode + fallback)"
+    fi
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  🎵 AUDIO CONTROLS
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Sound names match: jarvis/audio-mute.mp3, jarvis/audio-unmute.mp3, etc.
+audio_mute_toggle() {
+    wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+    if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q "MUTED"; then
+        play_sound "jarvis-audio-mute"
+    else
+        play_sound "jarvis-audio-unmute"
+    fi
+}
+
+audio_volume_up() {
+    wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
+    play_sound "jarvis-volume-up"
+}
+
+audio_volume_down() {
+    wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+    play_sound "jarvis-volume-down"
+}
+
+mic_mute_toggle() {
+    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+    if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q "MUTED"; then
+        play_sound "jarvis-mic-mute"
+    else
+        play_sound "jarvis-mic-unmute"
+    fi
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  🎮 GAMING MODE
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Uses iDroid sounds: idroid/idroid-gamemode-on.mp3, idroid/idroid-gamemode-off.mp3
+gamemode_on() {
+    touch "$GAMING_FLAG"
+    set_mode "idroid"
+    play_sound "idroid-gamemode-on" "idroid"
+    notify-send "iDroid" "Combat systems online. Gaming mode activated." \
+        -i applications-games -t 3000
+}
+
+gamemode_off() {
+    rm -f "$GAMING_FLAG"
+    set_mode "jarvis"
+    play_sound "idroid-gamemode-off" "jarvis"
+    notify-send "J.A.R.V.I.S." "Normal operation restored. Welcome back, Matthew." \
+        -i audio-speakers -t 3000
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  💻 SYSTEM EVENTS
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Match these function names to keybind calls
+system_startup()    { set_mode "jarvis"; play_sound "idroid-startup" "jarvis"; }
+system_shutdown()   { play_sound "jarvis-shutdown" "jarvis"; }
+notification()      { play_sound "jarvis-notification"; }
+screenshot_taken()  { play_sound "jarvis-screenshot"; }
+window_close()      { play_sound "jarvis-window-close"; }
+config_reload()     { play_sound "jarvis-reload" "jarvis"; }
+locking_screen()    { play_sound "jarvis-lock" "jarvis"; }
+steam_launch()      { set_mode "idroid"; play_sound "idroid-steam-launch" "idroid"; }
+photo_export()      { play_sound "jarvis-photo-export" "jarvis"; }
+streaming_on()      { play_sound "jarvis-evening" "idroid"; }
+
+workspace_switch() {
+    local workspace="$1"
+    echo "$workspace" > "$WORKSPACE_FILE"
+    local new_mode
+    new_mode=$(auto_detect_mode)
+    set_mode "$new_mode"
+    play_sound "jarvis-workspace-switch"
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  🚀 APPLICATION LAUNCHERS (NEW - Match sound_list.txt)
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIP: Add new app launchers here with matching sounds
+launch_brave()      { play_sound "jarvis-launch-brave"; }
+launch_chrome()     { play_sound "jarvis-launch-chrome"; }
+launch_firefox()    { play_sound "jarvis-launch-firefox"; }
+launch_discord()    { play_sound "jarvis-launch-discord"; }
+launch_editor()     { play_sound "jarvis-launch-editor"; }
+launch_gimp()       { play_sound "jarvis-launch-gimp"; }
+launch_kate()       { play_sound "jarvis-launch-kate"; }
+launch_obs()        { play_sound "jarvis-launch-obs"; }
+launch_spotify()    { play_sound "jarvis-launch-spotify"; }
+open_terminal()     { play_sound "jarvis-open-terminal"; }
+open_files()        { play_sound "jarvis-open-files"; }
+
+# ════════════════════════════════════════════════════════════════════
+#  🧪 TESTING & DIAGNOSTICS
+# ════════════════════════════════════════════════════════════════════
+test_all_sounds() {
+    echo -e "${CYAN}🔊 Testing all sounds...${NC}\n"
+    for mode in jarvis idroid; do
+        echo -e "${BLUE}━━━ $mode ━━━${NC}"
+        if [[ -d "$SOUND_BASE/$mode" ]]; then
+            local count=0
+            for sound in "$SOUND_BASE/$mode"/*.mp3; do
+                [[ -f "$sound" ]] || continue
+                local name; name=$(basename "$sound" .mp3)
+                echo -e "  ${GREEN}▶${NC} $name"
+                paplay "$sound"
+                sleep 0.8
+                ((count++))
+            done
+            [[ $count -eq 0 ]] && echo -e "  ${YELLOW}⚠${NC}  No sounds found"
+        else
+            echo -e "  ${RED}✗${NC} Directory not found"
+        fi
+        echo ""
+    done
+}
+
+list_sounds() {
+    echo -e "${CYAN}📁 Available sounds:${NC}\n"
+    for mode in jarvis idroid; do
+        echo -e "${BLUE}━━━ $mode ━━━${NC}"
+        if [[ -d "$SOUND_BASE/$mode" ]]; then
+            local count=0
+            for sound in "$SOUND_BASE/$mode"/*.mp3; do
+                [[ -f "$sound" ]] || continue
+                echo -e "  ${GREEN}•${NC} $(basename "$sound" .mp3)"
+                ((count++))
+            done
+            [[ $count -eq 0 ]] && echo -e "  ${YELLOW}⚠${NC}  No sounds found"
+        else
+            echo -e "  ${RED}✗${NC} $SOUND_BASE/$mode not found"
+        fi
+        echo ""
+    done
+}
+
+show_status() {
+    local current_mode; current_mode=$(get_current_mode)
+    local auto_mode;    auto_mode=$(auto_detect_mode)
+    local workspace;    workspace=$(get_current_workspace)
+    local gaming_active="No"
+    [[ -f "$GAMING_FLAG" ]] && gaming_active="${GREEN}Yes (iDroid active)${NC}"
+
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}  J.A.R.V.I.S. Sound System  ${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}Saved Mode:${NC}     $current_mode"
+    echo -e "${YELLOW}Auto-Detect:${NC}    $auto_mode"
+    echo -e "${YELLOW}Workspace:${NC}      $workspace"
+    echo -e "${YELLOW}Gaming Mode:${NC}    $(echo -e $gaming_active)"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+show_help() {
+    cat << EOF
+${CYAN}WehttamSnaps Adaptive Sound System${NC}
+${YELLOW}Usage:${NC} sound-system <command> [args]
+
+${YELLOW}🎵 Audio Controls:${NC}
+  mute              Toggle audio mute
+  volume-up         Increase volume 5%
+  volume-down       Decrease volume 5%
+  mic-mute          Toggle microphone
+
+${YELLOW}💻 System Events:${NC}
+  startup           Boot greeting
+  shutdown          Goodbye
+  notification      Alert sound
+  screenshot        Capture sound
+  window-close      Window close sound
+  config-reload     Config reloaded
+  locking-screen    Lock screen
+  steam-launch      Steam / game start
+  photo-export      Export complete
+  streaming         Streaming mode on
+
+${YELLOW}🚀 App Launchers:${NC}
+  launch-brave      Brave browser
+  launch-chrome     Chrome browser
+  launch-firefox    Firefox browser
+  launch-discord    Discord
+  launch-editor     Text editor
+  launch-gimp       GIMP
+  launch-kate       Kate editor
+  launch-obs        OBS Studio
+  launch-spotify    Spotify
+  open-terminal     Terminal
+  open-files        File manager
+
+${YELLOW}🎮 Gaming Mode:${NC}
+  gamemode-on       Activate iDroid voice
+  gamemode-off      Return to J.A.R.V.I.S.
+  gaming-toggle     Toggle gaming mode
+
+${YELLOW}📐 Workspace:${NC}
+  workspace <num>   Notify + auto-switch voice mode
+
+${YELLOW}🛠️ Utilities:${NC}
+  status            Show current mode & context
+  list              List all available sounds
+  test              Play all sounds sequentially
+  play <name> [mode]  Play specific clip
+  mode <jarvis|idroid>  Force mode override
+  help              This help
+
+${YELLOW}💡 Adding New Sounds:${NC}
+  1. Add .mp3 to /usr/share/wehttamsnaps/sounds/{jarvis,idroid}/
+  2. Name format: jarvis-<name>.mp3 or idroid-<name>.mp3
+  3. Add function in sound-system script (see App Launchers section)
+  4. Call from keybinds: spawn "sh" "-c" "sound-system <function> && <app>"
+
+${YELLOW}Workspace → Mode mapping:${NC}
+  1:BROWSER  → J.A.R.V.I.S.    5:PHOTO   → J.A.R.V.I.S.
+  2:TERM     → J.A.R.V.I.S.    6:MEDIA   → J.A.R.V.I.S.
+  3:GAMING   → iDroid           7:COMMS   → J.A.R.V.I.S.
+  4:STREAM   → iDroid           8:MUSIC   → J.A.R.V.I.S.
+  gaming-mode.active flag overrides all → iDroid
+EOF
+}
+
+# ════════════════════════════════════════════════════════════════════
+#  🎯 MAIN DISPATCHER
+# ════════════════════════════════════════════════════════════════════
+case "${1:-help}" in
+    mute)           audio_mute_toggle ;;
+    volume-up)      audio_volume_up ;;
+    volume-down)    audio_volume_down ;;
+    mic-mute)       mic_mute_toggle ;;
+    startup)        system_startup ;;
+    shutdown)       system_shutdown ;;
+    notification)   notification ;;
+    screenshot)     screenshot_taken ;;
+    window-close)   window_close ;;
+    config-reload)  config_reload ;;
+    locking-screen) locking_screen ;;
+    steam-launch)   steam_launch ;;
+    photo-export)   photo_export ;;
+    streaming)      streaming_on ;;
+    gamemode-on)    gamemode_on ;;
+    gamemode-off)   gamemode_off ;;
+    gaming-toggle)
+        [[ -f "$GAMING_FLAG" ]] && gamemode_off || gamemode_on
+        ;;
+    workspace)      workspace_switch "${2:-1}" ;;
+    mode)           set_mode "${2:-jarvis}" ;;
+    auto-mode)      set_mode "$(auto_detect_mode)" ;;
+    play)           play_sound "${2:-startup}" "${3:-}" ;;
+    # App launchers
+    launch-brave)   launch_brave ;;
+    launch-chrome)  launch_chrome ;;
+    launch-firefox) launch_firefox ;;
+    launch-discord) launch_discord ;;
+    launch-editor)  launch_editor ;;
+    launch-gimp)    launch_gimp ;;
+    launch-kate)    launch_kate ;;
+    launch-obs)     launch_obs ;;
+    launch-spotify) launch_spotify ;;
+    open-terminal)  open_terminal ;;
+    open-files)     open_files ;;
+    # Utilities
+    status)         show_status ;;
+    list)           list_sounds ;;
+    test)           test_all_sounds ;;
+    help|--help|-h) show_help ;;
+    *)
+        echo -e "${RED}✗${NC} Unknown command: $1"
+        echo "Run 'sound-system help' for usage"
+        exit 1
+        ;;
+esac

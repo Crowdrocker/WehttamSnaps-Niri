@@ -24,12 +24,14 @@ ExpandableChoiceButton {
             Layout.alignment: Qt.AlignTop
             property int strength: root.wifiNetwork?.strength ?? 0
             icon: "wifi-1"
+            filled: false
             implicitSize: 30
             color: Looks.colors.inactiveIcon
 
             FluentIcon { // Signal
                 property int strength: root.wifiNetwork?.strength ?? 0
                 icon: WIcons.wifiIconForStrength(strength)
+                filled: false
                 implicitSize: 30
 
                 FluentIcon { // Security
@@ -53,7 +55,7 @@ ExpandableChoiceButton {
             spacing: 1
 
             Behavior on Layout.topMargin {
-                animation: Looks.transition.move.createObject(this)
+                animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
             }
 
             WText { // Network name
@@ -66,12 +68,19 @@ ExpandableChoiceButton {
                 id: statusText
                 Layout.fillWidth: true
                 elide: Text.ElideRight
-                text: root.wifiNetwork?.active ? Translation.tr("Connected") : root.wifiNetwork?.isSecure ? Translation.tr("Secured") : Translation.tr("Not secured")
+                text: {
+                    if (!root.wifiNetwork?.active)
+                        return root.wifiNetwork?.isSecure ? Translation.tr("Secured") : Translation.tr("Not secured");
+                    const details = Network.accessPointDetails(root.wifiNetwork);
+                    return details.length > 0
+                        ? `${Translation.tr("Connected")} · ${details}`
+                        : Translation.tr("Connected");
+                }
                 font.pixelSize: Looks.font.pixelSize.large
                 color: Looks.colors.subfg
                 visible: root.wifiNetwork?.active || root.expanded
                 Behavior on opacity {
-                    animation: Looks.transition.opacity.createObject(this)
+                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
             }
 

@@ -1,0 +1,343 @@
+// === WORKSPACE CONFIGURATION ===
+// WehttamSnaps Niri Setup
+// GitHub: https://github.com/Crowdrocker
+//
+// 10 organized workspaces for work, photography, gaming, and content creation
+
+// === WORKSPACE DEFINITIONS ===
+
+workspace "1" {
+    name "Browser"
+    icon "🌐"
+    
+    // Workspace 1: Web browsing
+    // Apps: Brave, Firefox, Chrome
+    // Fullscreen browsers for content consumption
+}
+
+workspace "2" {
+    name "Terminal"
+    icon "💻"
+    
+    // Workspace 2: Development & files
+    // Apps: Ghostty, Thunar, Kate, VS Code, GitHub Desktop
+    // Your coding and file management hub
+}
+
+workspace "3" {
+    name "Photo"
+    icon "📷"
+    
+    // Workspace 3: Photography & photo editing
+    // Apps: GIMP, Darktable, Krita, RawTherapee, DigiKam
+    // Primary workspace for WehttamSnaps photo work
+}
+
+workspace "4" {
+    name "Design"
+    icon "🎨"
+    
+    // Workspace 4: Vector graphics & design
+    // Apps: Inkscape, design tools
+    // Logos, graphics, and creative design work
+}
+
+workspace "5" {
+    name "3D"
+    icon "🧊"
+    
+    // Workspace 5: 3D modeling & animation
+    // Apps: Blender
+    // 3D content creation for photography composites
+}
+
+workspace "6" {
+    name "Chat"
+    icon "💬"
+    
+    // Workspace 6: Communication
+    // Apps: Discord/WebCord, Telegram, Signal, Slack
+    // All messaging and social in one place
+}
+
+workspace "7" {
+    name "Media"
+    icon "🎵"
+    
+    // Workspace 7: Media playback
+    // Apps: Spotify, VLC, MPV, YouTube/Twitch webapps
+    // Music and video consumption
+}
+
+workspace "8" {
+    name "Stream"
+    icon "📺"
+    
+    // Workspace 8: Streaming & recording
+    // Apps: OBS Studio, qpwgraph audio routing
+    // Content creation for WehttamSnaps Twitch/YouTube
+}
+
+workspace "9" {
+    name "Gaming"
+    icon "🎮"
+    
+    // Workspace 9: Gaming
+    // Apps: Steam, Lutris, game launchers, ProtonUp-Qt
+    // All games fullscreen, gamemode enabled
+    // Games: Division 2, Cyberpunk 2077, Fallout 4, Watch Dogs, etc.
+}
+
+workspace "10" {
+    name "Modding"
+    icon "🔧"
+    
+    // Workspace 10: Game modding
+    // Apps: Vortex, Mod Organizer 2, Wabbajack, LOOT, xEdit
+    // Modding tools for Bethesda/Ubisoft games
+}
+
+// === WORKSPACE BEHAVIOR ===
+
+workspaces {
+    // Number of workspaces on this monitor
+    // We define 10 workspaces for comprehensive organization
+    output "DP-3" {
+        workspace-count 10
+    }
+}
+
+// === WORKSPACE SWITCHING BEHAVIOR ===
+
+// Smooth transitions between workspaces
+workspace-switch {
+    animation {
+        duration-ms 200
+        curve "ease-out-cubic"
+    }
+}
+
+// === WORKSPACE-SPECIFIC SETTINGS ===
+
+// Workspace 1 (Browser) - No special settings, just browsers
+// Already configured via window rules
+
+// Workspace 2 (Terminal) - Standard development layout
+// Ghostty/Kate side by side, Thunar accessible
+
+// Workspace 3 (Photo) - Fullscreen photo editors
+// GIMP/Darktable take full screen for maximum canvas
+workspace-rule "3" {
+    // Prefer fullscreen for photo editing apps
+    prefer-fullscreen true
+}
+
+// Workspace 4 (Design) - Fullscreen design tools
+workspace-rule "4" {
+    prefer-fullscreen true
+}
+
+// Workspace 5 (3D) - Fullscreen Blender
+workspace-rule "5" {
+    prefer-fullscreen true
+}
+
+// Workspace 6 (Chat) - Multiple columns for different chats
+// Discord, Telegram side by side
+
+// Workspace 7 (Media) - Media players and webapps
+// Spotify + YouTube/Twitch webapps
+
+// Workspace 8 (Stream) - OBS fullscreen
+workspace-rule "8" {
+    prefer-fullscreen true
+    
+    // J.A.R.V.I.S. notification when switching to streaming workspace
+    on-enter {
+        spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/jarvis-manager.sh streaming"
+    }
+}
+
+// Workspace 9 (Gaming) - All games fullscreen, no borders
+workspace-rule "9" {
+    prefer-fullscreen true
+    prefer-no-border true
+    
+    // J.A.R.V.I.S. notification when entering gaming workspace
+    on-enter {
+        spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/jarvis-manager.sh gaming"
+    }
+    
+    // Optional: Auto-enable gamemode when entering workspace 9
+    // Uncomment if you want automatic performance mode
+    // on-enter {
+    //     spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/toggle-gamemode.sh on"
+    // }
+    
+    // Optional: Restore normal mode when leaving gaming workspace
+    // on-leave {
+    //     spawn "sh" "-c" "~/.config/wehttamsnaps/scripts/toggle-gamemode.sh off"
+    // }
+}
+
+// Workspace 10 (Modding) - Mod managers visible
+// Vortex/MO2 need window controls visible
+
+// === WORKSPACE NAVIGATION TIPS ===
+//
+// Quick navigation:
+// - Mod+1 through Mod+0 to jump directly
+// - Mod+Ctrl+Left/Right to cycle through workspaces
+// - Mod+Shift+1-0 to move current window to workspace
+// - Mod+Alt+1-0 to move window and follow
+//
+// Workspace organization philosophy:
+// 1-2: Daily productivity (browser, terminal, files)
+// 3-5: Creative work (photo, design, 3D)
+// 6-7: Communication and entertainment
+// 8-10: Content creation and gaming
+
+// === EMPTY WORKSPACE BEHAVIOR ===
+
+// Automatically skip empty workspaces when cycling
+skip-empty-workspaces true
+
+// Keep at least one workspace available
+minimum-workspaces 1
+
+// === WORKSPACE NAMING ===
+
+// Show workspace names in bar/overlay
+show-workspace-names true
+
+// Use icons in addition to names (for Noctalia bar)
+show-workspace-icons true
+
+// === WORKSPACE PERSISTENCE ===
+
+// Remember workspace layouts between sessions
+// This is handled by Niri's state management automatically
+
+// === MULTI-MONITOR NOTES ===
+// 
+// Currently configured for single monitor (DP-3)
+// If you add a second monitor later:
+// 1. Add output configuration in 00-base.kdl
+// 2. Define workspace-count for new monitor
+// 3. Consider dedicated workspaces per monitor
+//
+// Example for future dual-monitor setup:
+// output "DP-3" {
+//     workspace-count 6  // Main monitor: productivity & creative
+// }
+// output "HDMI-A-1" {
+//     workspace-count 4  // Secondary: gaming, streaming, chat, media
+// }
+
+// === WORKSPACE QUICK REFERENCE ===
+//
+// 1  🌐 Browser    - Brave/Firefox fullscreen
+// 2  💻 Terminal   - Ghostty, Thunar, Kate, dev tools
+// 3  📷 Photo      - GIMP, Darktable, Krita (WehttamSnaps primary)
+// 4  🎨 Design     - Inkscape, vector graphics
+// 5  🧊 3D         - Blender for composites
+// 6  💬 Chat       - Discord, Telegram, social
+// 7  🎵 Media      - Spotify, VLC, YouTube/Twitch
+// 8  📺 Stream     - OBS, audio routing (content creation)
+// 9  🎮 Gaming     - Steam, games fullscreen + gamemode
+// 10 🔧 Modding    - Vortex, MO2, Wabbajack, LOOT
+
+// === GAMING WORKSPACE OPTIMIZATION ===
+//
+// Workspace 9 is optimized for gaming performance:
+// - Fullscreen windows (no compositor overhead on decorations)
+// - No borders (cleaner visuals)
+// - J.A.R.V.I.S. audio cue when entering
+// - Ready for gamemode toggle script
+// - All 16 games pre-configured with launch options
+//
+// Your gaming library:
+// - Call of Duty HQ
+// - Cyberpunk 2077 (fullscreen, borderless)
+// - Fallout 4 (fullscreen, borderless)
+// - FarCry 5
+// - Ghost Recon Breakpoint
+// - Marvel's Avengers
+// - Need for Speed Payback
+// - Rise of the Tomb Raider
+// - Shadow of the Tomb Raider
+// - The First Descendant
+// - Tom Clancy's The Division 1 & 2 (fullscreen, borderless)
+// - Warframe
+// - Watch Dogs 1, 2, & Legion
+
+// === PHOTOGRAPHY WORKSPACE OPTIMIZATION ===
+//
+// Workspace 3 is your primary WehttamSnaps workspace:
+// - Fullscreen photo editors (maximum canvas)
+// - Quick access: Mod+3 or Mod+Shift+P
+// - DigiKam for photo management/organization
+// - Darktable for RAW processing
+// - GIMP for final edits and composites
+// - Krita for digital painting/touch-ups
+//
+// Workflow suggestion:
+// 1. Import photos via DigiKam
+// 2. RAW processing in Darktable
+// 3. Composites/edits in GIMP
+// 4. Final touches in Krita
+// 5. Export for WehttamSnaps Twitch/YouTube/Instagram
+
+// === STREAMING WORKSPACE OPTIMIZATION ===
+//
+// Workspace 8 for WehttamSnaps content:
+// - OBS Studio fullscreen for scene management
+// - qpwgraph accessible for audio routing
+// - PipeWire virtual sinks for separate audio channels
+// - J.A.R.V.I.S. "streaming systems online" audio cue
+//
+// Audio routing setup (via qpwgraph):
+// - Game audio → Virtual Sink 1 → OBS + Headphones
+// - Browser audio → Virtual Sink 2 → OBS + Headphones
+// - Discord/chat → Virtual Sink 3 → OBS + Headphones
+// - Spotify → Virtual Sink 4 → Headphones only (or OBS)
+// - Microphone → OBS + processed through EasyEffects
+//
+// See docs/AUDIO-ROUTING.md for detailed setup
+
+// === MODDING WORKSPACE TIPS ===
+//
+// Workspace 10 for game mods:
+// - Vortex for automatic mod management
+// - MO2 for manual/advanced modding (Bethesda games)
+// - Wabbajack for modlist installation
+// - LOOT for load order optimization
+// - xEdit (SSEEdit/FO4Edit) for conflict resolution
+//
+// Window rules ensure mod managers have proper size and controls
+// All windows maintain decorations for drag-and-drop functionality
+
+// === WORKSPACE WALLPAPERS (FUTURE) ===
+//
+// Optional: Set per-workspace wallpapers via Noctalia
+// Example workflow:
+// - Workspace 3 (Photo): Your best photography work
+// - Workspace 8 (Stream): WehttamSnaps branding
+// - Workspace 9 (Gaming): Game artwork
+//
+// Matugen will generate colors from workspace wallpapers
+// for consistent theming across all apps
+
+// === WORKFLOW RECOMMENDATIONS ===
+//
+// Daily routine suggestion:
+// 1. Start on Workspace 2 (Terminal) - check system, fastfetch
+// 2. Workspace 1 (Browser) - email, social media, research
+// 3. Workspace 3 (Photo) - WehttamSnaps photo editing work
+// 4. Workspace 8 (Stream) - Set up OBS for stream/recording
+// 5. Workspace 9 (Gaming) - Game capture or personal gaming
+// 6. Workspace 6 (Chat) - Discord community engagement
+// 7. Workspace 7 (Media) - Background music while working
+//
+// Keep workspaces organized to maintain flow and reduce
+// context switching overhead

@@ -1,17 +1,21 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+import QtMultimedia
 import Qt5Compat.GraphicalEffects
 import Quickshell.Services.UPower
 import Quickshell.Services.Mpris
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.lock
 import qs.modules.waffle.looks
+import qs.modules.background.widgets.clock as BackgroundClock
 import Quickshell
+import Quickshell.Widgets
 
 MouseArea {
     id: root
@@ -24,14 +28,7 @@ MouseArea {
     
     // Track if we've attempted unlock at least once (to prevent shake on load)
     property bool hasAttemptedUnlock: false
-    
-    // Emergency fallback - 5 rapid right-clicks to force unlock (safety net)
-    property int emergencyClickCount: 0
-    Timer {
-        id: emergencyClickTimer
-        interval: 1000
-        onTriggered: root.emergencyClickCount = 0
-    }
+    property bool oskVisible: false
     
     // Windows 11 Lock Screen Design Tokens (from Looks.qml)
     readonly property color textColor: Looks.colors.fg
@@ -42,6 +39,18 @@ MouseArea {
     readonly property bool blurEnabled: Config.options?.lock?.blur?.enable ?? true
 
     readonly property bool effectsSafe: !CompositorService.isNiri
+    readonly property bool enableAnimation: Config.options?.lock?.enableAnimation ?? false
+
+    // Widget visibility
+    readonly property bool showWeather: Config.options?.lock?.widgets?.weather ?? true
+    readonly property bool showMedia: Config.options?.lock?.widgets?.media ?? true
+    readonly property bool showPowerButtons: Config.options?.lock?.widgets?.powerButtons ?? true
+    readonly property bool showHintText: Config.options?.lock?.widgets?.hintText ?? true
+
+    function safeLockNotificationImage(source): string {
+        const value = String(source ?? "")
+        return value.startsWith("image://qsimage/") ? "" : value
+    }
     
     // Smoke material (Windows 11 - dimming overlay)
     readonly property color smokeColor: ColorUtils.transparentize(Looks.colors.bg0Opaque, 0.5)
@@ -57,19 +66,51 @@ MouseArea {
     }
 
     // Resolve wallpaper path: waffle-specific if configured, otherwise main
-    readonly property string _wallpaperPath: {
+    readonly property string _wallpaperSource: {
         const wBg = Config.options?.waffles?.background
         if (wBg?.useMainWallpaper ?? true) return Config.options?.background?.wallpaperPath ?? ""
         return wBg?.wallpaperPath ?? Config.options?.background?.wallpaperPath ?? ""
     }
+    
+    // Detect if it's a video or gif and use thumbnail
+    readonly property string _wallpaperPath: {
+        const path = _wallpaperSource;
+        if (!path) return "";
+        
+        const lowerPath = path.toLowerCase();
+        const isVideo = lowerPath.endsWith(".mp4") || lowerPath.endsWith(".webm") || lowerPath.endsWith(".mkv") || lowerPath.endsWith(".avi") || lowerPath.endsWith(".mov");
+        const isGif = lowerPath.endsWith(".gif");
+        
+        if (isVideo || isGif) {
+            // Use waffle's own thumbnail if available, otherwise fall back to main thumbnail
+            const waffleThumbnail = Config.options?.waffles?.background?.thumbnailPath ?? "";
+            const mainThumbnail = Config.options?.background?.thumbnailPath ?? "";
+            return waffleThumbnail || mainThumbnail || path;
+        }
+        return path;
+    }
+    
+    readonly property bool wallpaperIsVideo: {
+        const lowerPath = _wallpaperSource.toLowerCase();
+        return lowerPath.endsWith(".mp4") || lowerPath.endsWith(".webm") || lowerPath.endsWith(".mkv") || lowerPath.endsWith(".avi") || lowerPath.endsWith(".mov");
+    }
+    
+    readonly property bool wallpaperIsGif: {
+        return _wallpaperSource.toLowerCase().endsWith(".gif");
+    }
 
     // Background wallpaper with Acrylic blur effect
+    // Static Image (for non-animated wallpapers)
     Image {
         id: backgroundWallpaper
         anchors.fill: parent
-        source: root._wallpaperPath
+        source: root._wallpaperPath && !root.wallpaperIsGif ? root._wallpaperPath : ""
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
+        cache: false // Don't retain in QPixmapCache after lock surface destroys (#163)
+        // A lock surface is no QsWindow: the item's own screen gives the scale.
+        sourceSize: Qt.size(Math.ceil(root.width * Screen.devicePixelRatio), Math.ceil(root.height * Screen.devicePixelRatio))
+        visible: !root.wallpaperIsGif
         
         layer.enabled: root.blurEnabled && root.effectsSafe
         layer.effect: FastBlur {
@@ -85,6 +126,89 @@ MouseArea {
         }
     }
     
+    // Animated GIF support — shows first frame when enableAnimation is false
+    AnimatedImage {
+        id: gifBackgroundWallpaper
+        anchors.fill: parent
+        source: root.wallpaperIsGif ? root._wallpaperSource : ""
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: false // Don't retain in QPixmapCache after lock surface destroys (#163)
+        visible: root.wallpaperIsGif
+        playing: visible && root.enableAnimation
+        
+        layer.enabled: root.blurEnabled && root.effectsSafe
+        layer.effect: FastBlur {
+            radius: root.blurRadius
+        }
+        
+        // Slight zoom to hide blur edges
+        transform: Scale {
+            origin.x: gifBackgroundWallpaper.width / 2
+            origin.y: gifBackgroundWallpaper.height / 2
+            xScale: root.blurEnabled ? 1.1 : 1
+            yScale: root.blurEnabled ? 1.1 : 1
+        }
+    }
+    
+    // Video wallpaper — shows first frame (paused) when enableAnimation is false
+    Video {
+        id: videoWallpaper
+        anchors.fill: parent
+        visible: root.wallpaperIsVideo
+        source: {
+            if (!root.wallpaperIsVideo || !root._wallpaperSource) return "";
+            const path = root._wallpaperSource;
+            return path.startsWith("file://") ? path : ("file://" + path);
+        }
+        fillMode: VideoOutput.PreserveAspectCrop
+        loops: MediaPlayer.Infinite
+        muted: true
+        autoPlay: true
+
+        readonly property bool shouldPlay: root.enableAnimation
+
+        function pauseAndShowFirstFrame() {
+            pause()
+            seek(0)
+        }
+
+        onPlaybackStateChanged: {
+            if (playbackState === MediaPlayer.PlayingState && !shouldPlay)
+                pauseAndShowFirstFrame()
+            if (playbackState === MediaPlayer.StoppedState && visible && shouldPlay)
+                play()
+        }
+
+        onShouldPlayChanged: {
+            if (visible && root.wallpaperIsVideo) {
+                if (shouldPlay) play()
+                else pauseAndShowFirstFrame()
+            }
+        }
+        
+        onVisibleChanged: {
+            if (visible && root.wallpaperIsVideo) {
+                if (shouldPlay) play()
+                else pauseAndShowFirstFrame()
+            } else {
+                pause()
+            }
+        }
+        
+        layer.enabled: root.blurEnabled && root.effectsSafe
+        layer.effect: FastBlur {
+            radius: root.blurRadius
+        }
+        
+        transform: Scale {
+            origin.x: videoWallpaper.width / 2
+            origin.y: videoWallpaper.height / 2
+            xScale: root.blurEnabled ? 1.1 : 1
+            yScale: root.blurEnabled ? 1.1 : 1
+        }
+    }
+    
     // Smoke overlay for login view (Windows 11 modal dimming - always black per Fluent spec)
     Rectangle {
         id: smokeOverlay
@@ -92,7 +216,19 @@ MouseArea {
         color: root.smokeColor
         opacity: root.showLoginView ? 1 : 0
         Behavior on opacity {
-            animation: Looks.transition.enter.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
+        }
+    }
+
+    // Wallpaper dim overlay
+    Rectangle {
+        anchors.fill: parent
+        color: "#000000"
+        opacity: (Config.options?.lock?.dim?.enable ?? false) ? (Config.options?.lock?.dim?.opacity ?? 0.3) : 0
+        z: 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
         }
     }
 
@@ -103,79 +239,300 @@ MouseArea {
         opacity: root.showLoginView ? 0 : 1
         visible: opacity > 0
         scale: root.showLoginView ? 0.95 : 1
-        
+
         Behavior on opacity {
-            animation: Looks.transition.enter.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
         }
         Behavior on scale {
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
             }
         }
         
-        // Clock - Windows 11 style (centered, large)
-        ColumnLayout {
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -60
-            spacing: 4
-            
-            // Time - Windows 11 uses Segoe UI Variable Display with Light weight
-            Text {
-                id: clockText
-                Layout.alignment: Qt.AlignHCenter
-                text: Qt.formatTime(new Date(), "hh:mm")
-                font.pixelSize: root.clockFontSize
-                font.weight: Looks.font.weight.thin  // Light weight like Windows 11
-                font.family: Looks.font.family.ui
-                color: root.textColor
-                // Drop shadow for readability on any wallpaper
-                layer.enabled: root.effectsSafe
-                layer.effect: DropShadow {
-                    horizontalOffset: 0
-                    verticalOffset: 2
-                    radius: 8
-                    samples: 17
-                    color: root.textShadowColor
+        // Config-driven clock properties
+        readonly property string clockStyle: Config.options?.lock?.clock?.style ?? "default"
+        readonly property string clockPosition: Config.options?.lock?.clock?.position ?? "center"
+        readonly property bool statusEnabled: Config.options?.lock?.status?.enable ?? true
+
+        // Status row - compact indicators at top
+        Loader {
+            active: lockView.statusEnabled
+            anchors {
+                top: parent.top
+                topMargin: 24
+                horizontalCenter: parent.horizontalCenter
+            }
+
+            sourceComponent: Row {
+                spacing: 16
+
+                // WiFi
+                Row {
+                    spacing: 4
+                    visible: Network.ethernet || Network.wifiEnabled
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Network.materialSymbol ?? "signal_wifi_off"
+                        iconSize: 16
+                        color: root.textColor
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Network.ethernet ? Translation.tr("Ethernet") : (Network.networkName ?? "")
+                        visible: text.length > 0 && text.length < 16
+                        font.pixelSize: Looks.font.pixelSize.small
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+                    }
                 }
-                
-                Timer {
-                    interval: 1000
-                    running: true
-                    repeat: true
-                    onTriggered: clockText.text = Qt.formatTime(new Date(), "hh:mm")
+
+                // Bluetooth
+                MaterialSymbol {
+                    visible: BluetoothStatus.enabled
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: BluetoothStatus.connected ? "bluetooth_connected" : "bluetooth"
+                    iconSize: 16
+                    color: root.textColor
+
+                    layer.enabled: root.effectsSafe
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                        color: root.textShadowColor
+                    }
+                }
+
+                // Volume
+                Row {
+                    spacing: 4
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Audio.value <= 0 ? "volume_off"
+                            : Audio.value < 0.33 ? "volume_mute"
+                            : Audio.value < 0.66 ? "volume_down"
+                            : "volume_up"
+                        iconSize: 16
+                        color: root.textColor
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Math.round(Audio.value * 100) + "%"
+                        font.pixelSize: Looks.font.pixelSize.small
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+                    }
+                }
+
+                // Battery
+                Row {
+                    spacing: 4
+                    visible: UPower.displayDevice?.isPresent ?? false
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: {
+                            const pct = UPower.displayDevice?.percentage ?? 0
+                            const charging = UPower.displayDevice?.state === UPowerDeviceState.Charging
+                            if (charging) return "battery_charging_full"
+                            if (pct <= 10) return "battery_alert"
+                            if (pct <= 30) return "battery_2_bar"
+                            if (pct <= 60) return "battery_4_bar"
+                            if (pct <= 80) return "battery_5_bar"
+                            return "battery_full"
+                        }
+                        iconSize: 16
+                        color: {
+                            const pct = UPower.displayDevice?.percentage ?? 0
+                            return pct <= 15 ? Looks.colors.danger : root.textColor
+                        }
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Math.round(UPower.displayDevice?.percentage ?? 0) + "%"
+                        font.pixelSize: Looks.font.pixelSize.small
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+                    }
                 }
             }
-            
-            // Date - Windows 11 format: "Tuesday, October 5"
-            Text {
-                id: dateText
-                Layout.alignment: Qt.AlignHCenter
-                text: Qt.formatDate(new Date(), "dddd, MMMM d")
-                font.pixelSize: root.dateFontSize
-                font.weight: Looks.font.weight.regular
-                font.family: Looks.font.family.ui
-                color: root.textColor
-                layer.enabled: root.effectsSafe
-                layer.effect: DropShadow {
-                    horizontalOffset: 0
-                    verticalOffset: 1
-                    radius: 4
-                    samples: 9
-                    color: root.textShadowColor
+        }
+
+        // Clock container - position-aware
+        Item {
+            id: wClockContainer
+            width: wClockContent.implicitWidth
+            height: wClockContent.implicitHeight
+
+            states: [
+                State {
+                    name: "center"; when: lockView.clockPosition === "center"
+                    AnchorChanges {
+                        target: wClockContainer
+                        anchors.horizontalCenter: lockView.horizontalCenter
+                        anchors.verticalCenter: lockView.verticalCenter
+                    }
+                    PropertyChanges { target: wClockContainer; anchors.verticalCenterOffset: -60 }
+                },
+                State {
+                    name: "topLeft"; when: lockView.clockPosition === "topLeft"
+                    AnchorChanges {
+                        target: wClockContainer
+                        anchors.left: lockView.left
+                        anchors.top: lockView.top
+                    }
+                    PropertyChanges { target: wClockContainer; anchors.leftMargin: 48; anchors.topMargin: 80 }
+                },
+                State {
+                    name: "bottomLeft"; when: lockView.clockPosition === "bottomLeft"
+                    AnchorChanges {
+                        target: wClockContainer
+                        anchors.left: lockView.left
+                        anchors.bottom: lockView.bottom
+                    }
+                    PropertyChanges { target: wClockContainer; anchors.leftMargin: 48; anchors.bottomMargin: 140 }
                 }
-                
-                Timer {
-                    interval: 60000  // Update every minute
-                    running: true
-                    repeat: true
-                    onTriggered: dateText.text = Qt.formatDate(new Date(), "dddd, MMMM d")
+            ]
+
+            // Default digital clock
+            ColumnLayout {
+                id: wClockContent
+                visible: lockView.clockStyle !== "analog"
+                spacing: 4
+
+                Text {
+                    id: clockText
+                    Layout.alignment: lockView.clockPosition === "center" ? Qt.AlignHCenter : Qt.AlignLeft
+                    text: DateTime.time
+                    font.pixelSize: lockView.clockStyle === "minimal" ? Math.round(72 * Looks.fontScale) : root.clockFontSize
+                    font.weight: Looks.font.weight.thin
+                    font.family: Looks.font.family.ui
+                    color: root.textColor
+
+                    layer.enabled: root.effectsSafe
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0
+                        verticalOffset: 2
+                        radius: 8
+                        samples: 17
+                        color: root.textShadowColor
+                    }
+                }
+
+                Text {
+                    id: dateText
+                    Layout.alignment: lockView.clockPosition === "center" ? Qt.AlignHCenter : Qt.AlignLeft
+                    text: Qt.formatDate(new Date(), "dddd, MMMM d")
+                    font.pixelSize: lockView.clockStyle === "minimal" ? Math.round(14 * Looks.fontScale) : root.dateFontSize
+                    font.weight: Looks.font.weight.regular
+                    font.family: Looks.font.family.ui
+                    color: root.textColor
+                    layer.enabled: root.effectsSafe
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0
+                        verticalOffset: 1
+                        radius: 4
+                        samples: 9
+                        color: root.textShadowColor
+                    }
+
+                    Timer {
+                        interval: 60000
+                        running: true
+                        repeat: true
+                        onTriggered: dateText.text = Qt.formatDate(new Date(), "dddd, MMMM d")
+                    }
+                }
+            }
+
+            // Analog clock - CookieClock from background widgets
+            Loader {
+                active: lockView.clockStyle === "analog"
+                anchors.centerIn: parent
+
+                sourceComponent: Item {
+                    id: wAnalogRoot
+                    width: wCookieClock.implicitSize + wDateAnalog.implicitHeight + 20
+                    height: width
+
+                    BackgroundClock.CookieClock {
+                        id: wCookieClock
+                        implicitSize: Math.round(230 * Looks.fontScale)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+
+                    Text {
+                        id: wDateAnalog
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: wCookieClock.bottom
+                            topMargin: 16
+                        }
+                        text: Qt.formatDate(new Date(), "dddd, MMMM d")
+                        font.pixelSize: Math.round(14 * Looks.fontScale)
+                        font.weight: Looks.font.weight.regular
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+
+                        layer.enabled: root.effectsSafe
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0; verticalOffset: 1; radius: 4; samples: 9
+                            color: root.textShadowColor
+                        }
+
+                        Timer {
+                            interval: 60000; running: true; repeat: true
+                            onTriggered: wDateAnalog.text = Qt.formatDate(new Date(), "dddd, MMMM d")
+                        }
+                    }
                 }
             }
         }
         
         // Bottom left widgets row (Weather + Media)
         RowLayout {
+            id: bottomWidgetsRow
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.bottomMargin: 48
@@ -184,7 +541,7 @@ MouseArea {
             
             // Weather widget - Windows 11 style
             Loader {
-                active: Weather.data?.temp && Weather.data.temp.length > 0
+                active: root.showWeather && Weather.data?.temp && Weather.data.temp.length > 0
                 visible: active
                 
                 sourceComponent: Row {
@@ -231,7 +588,8 @@ MouseArea {
                         }
                         
                         Text {
-                            text: Weather.data?.city ?? ""
+                            text: Weather.visibleCity
+                            visible: Weather.showVisibleCity
                             font.pixelSize: Looks.font.pixelSize.small
                             font.family: Looks.font.family.ui
                             color: Looks.colors.subfg
@@ -250,9 +608,10 @@ MouseArea {
             
             // Media player widget - Windows 11 style (only show if music is playing or paused)
             Loader {
-                active: root.activePlayer !== null && 
+                active: root.showMedia &&
+                        root.activePlayer !== null && 
                         root.activePlayer.playbackState !== MprisPlaybackState.Stopped &&
-                        (root.activePlayer.trackTitle?.length > 0 ?? false)
+                        (MprisController.titleOf(root.activePlayer)?.length > 0 ?? false)
                 visible: active
                 
                 sourceComponent: Rectangle {
@@ -265,7 +624,10 @@ MouseArea {
                     border.width: 1
                     
                     readonly property MprisPlayer player: root.activePlayer
-                    
+                    readonly property string effectiveArtUrl: MprisController.isYtMusicActive ? YtMusic.currentThumbnail : (MprisController.artUrlOf(player) ?? "")
+                    readonly property string effectiveTitle: MprisController.isYtMusicActive ? YtMusic.currentTitle : (MprisController.titleOf(player) ?? "")
+                    readonly property string effectiveArtist: MprisController.isYtMusicActive ? YtMusic.currentArtist : (MprisController.artistOf(player) ?? "")
+
                     layer.enabled: root.effectsSafe
                     layer.effect: DropShadow {
                         horizontalOffset: 0
@@ -300,11 +662,13 @@ MouseArea {
                             }
                             
                             Image {
+                                id: mediaArtImage
                                 anchors.fill: parent
-                                source: mediaWidget.player?.trackArtUrl ?? ""
+                                source: MediaArtwork.displaySource
                                 fillMode: Image.PreserveAspectCrop
                                 asynchronous: true
-                                visible: status === Image.Ready
+                                cache: false
+                                visible: MediaArtwork.ready && status === Image.Ready
                             }
                             
                             FluentIcon {
@@ -312,7 +676,7 @@ MouseArea {
                                 icon: "music-note-2"
                                 implicitSize: 24
                                 color: Looks.colors.subfg
-                                visible: !mediaWidget.player?.trackArtUrl
+                                visible: !MediaArtwork.ready || mediaArtImage.status !== Image.Ready
                             }
                         }
                         
@@ -324,7 +688,7 @@ MouseArea {
                             
                             Text {
                                 Layout.fillWidth: true
-                                text: StringUtils.cleanMusicTitle(mediaWidget.player?.trackTitle ?? "")
+                                text: StringUtils.cleanMusicTitle(MprisController.titleOf(mediaWidget.player) ?? "")
                                 font.pixelSize: Looks.font.pixelSize.large
                                 font.weight: Looks.font.weight.regular
                                 font.family: Looks.font.family.ui
@@ -334,7 +698,7 @@ MouseArea {
                             
                             Text {
                                 Layout.fillWidth: true
-                                text: mediaWidget.player?.trackArtist ?? ""
+                                text: MprisController.artistOf(mediaWidget.player) ?? ""
                                 font.pixelSize: Looks.font.pixelSize.normal
                                 font.family: Looks.font.family.ui
                                 color: Looks.colors.subfg
@@ -350,21 +714,359 @@ MouseArea {
                             
                             WaffleLockMediaButton {
                                 icon: "previous"
-                                onClicked: mediaWidget.player?.previous()
+                                enabled: MprisController.canGoPrevious
+                                onClicked: MprisController.previous()
                             }
                             
                             WaffleLockMediaButton {
                                 icon: mediaWidget.player?.isPlaying ? "pause" : "play"
-                                filled: true
                                 size: 40
-                                onClicked: mediaWidget.player?.togglePlaying()
+                                onClicked: MprisController.togglePlaying()
                             }
                             
                             WaffleLockMediaButton {
                                 icon: "next"
-                                onClicked: mediaWidget.player?.next()
+                                enabled: MprisController.canGoNext
+                                onClicked: MprisController.next()
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        // Lock screen notifications - grouped by app, read-only
+        Loader {
+            id: waffleLockNotificationsLoader
+            readonly property bool lockNotifEnabled: Config.options?.lock?.notifications?.enable ?? false
+            readonly property int lockNotifMaxCount: Config.options?.lock?.notifications?.maxCount ?? 3
+            readonly property bool lockNotifShowBody: Config.options?.lock?.notifications?.showBody ?? true
+            readonly property string lockNotifPosition: {
+                const pos = Config.options?.lock?.notifications?.position ?? "auto"
+                return pos === "auto" ? "right" : pos
+            }
+            active: lockNotifEnabled && Notifications.list.length > 0
+
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: 100
+            }
+            width: Math.min(340, parent.width * 0.3)
+
+            states: [
+                State {
+                    name: "center"; when: waffleLockNotificationsLoader.lockNotifPosition === "center"
+                    AnchorChanges {
+                        target: waffleLockNotificationsLoader
+                        anchors.horizontalCenter: lockView.horizontalCenter
+                    }
+                },
+                State {
+                    name: "left"; when: waffleLockNotificationsLoader.lockNotifPosition === "left"
+                    AnchorChanges {
+                        target: waffleLockNotificationsLoader
+                        anchors.left: lockView.left
+                    }
+                    PropertyChanges { target: waffleLockNotificationsLoader; anchors.leftMargin: 48 }
+                },
+                State {
+                    name: "right"; when: waffleLockNotificationsLoader.lockNotifPosition === "right"
+                    AnchorChanges {
+                        target: waffleLockNotificationsLoader
+                        anchors.right: lockView.right
+                    }
+                    PropertyChanges { target: waffleLockNotificationsLoader; anchors.rightMargin: 48 }
+                }
+            ]
+
+            sourceComponent: Column {
+                spacing: 6
+                clip: true
+
+                Repeater {
+                    model: {
+                        const apps = Notifications.appNameList
+                        const max = waffleLockNotificationsLoader.lockNotifMaxCount
+                        return apps.length > max ? apps.slice(0, max) : apps
+                    }
+
+                    delegate: Item {
+                        id: wGroupDelegate
+                        required property var modelData
+                        readonly property var group: Notifications.groupsByAppName[modelData] ?? null
+                        readonly property var latestNotif: group?.notifications?.[0] ?? null
+                        readonly property int groupCount: group?.notifications?.length ?? 0
+                        property bool expanded: false
+
+                        width: parent.width
+                        height: wGroupCol.implicitHeight
+                        visible: latestNotif !== null
+
+                        Column {
+                            id: wGroupCol
+                            width: parent.width
+                            spacing: 3
+
+                            // Main card — clickable to expand
+                            Rectangle {
+                                id: wGroupCard
+                                width: parent.width
+                                height: wGroupContent.implicitHeight + 14
+                                radius: Looks.radius.large
+                                color: wGroupMouse.containsMouse
+                                    ? ColorUtils.transparentize(Looks.colors.bg1Hover, 0.06)
+                                    : ColorUtils.transparentize(Looks.colors.bg1Base, 0.06)
+                                border.color: ColorUtils.transparentize(Looks.colors.bg1Border, 0.5)
+                                border.width: 1
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: Looks.transition.enabled ? Looks.transition.duration.chromeHover : 0
+                                        easing.type: Easing.BezierSpline
+                                        easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
+                                    }
+                                }
+
+                                layer.enabled: root.effectsSafe
+                                layer.effect: DropShadow {
+                                    horizontalOffset: 0
+                                    verticalOffset: 2
+                                    radius: 8
+                                    samples: 17
+                                    color: Looks.colors.shadow
+                                }
+
+                                MouseArea {
+                                    id: wGroupMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: wGroupDelegate.groupCount > 1 ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onClicked: {
+                                        if (wGroupDelegate.groupCount > 1) wGroupDelegate.expanded = !wGroupDelegate.expanded
+                                    }
+                                }
+
+                                RowLayout {
+                                    id: wGroupContent
+                                    anchors {
+                                        left: parent.left; right: parent.right
+                                        verticalCenter: parent.verticalCenter
+                                        margins: 10
+                                    }
+                                    spacing: 10
+
+                                    // App icon
+                                    Item {
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: 28
+                                        Layout.preferredHeight: 28
+
+                                        Rectangle {
+                                            anchors.fill: parent
+                                            radius: Looks.radius.medium
+                                            color: "transparent"
+                                            clip: true
+
+                                            IconImage {
+                                                id: wGroupAppIcon
+                                                anchors.fill: parent
+                                                implicitSize: 28
+                                                asynchronous: true
+                                                source: {
+                                                    const img = root.safeLockNotificationImage(wGroupDelegate.latestNotif?.image)
+                                                    const icon = wGroupDelegate.latestNotif?.appIcon ?? ""
+                                                    if (img && img !== "") return img
+                                                    if (icon && icon !== "") return Quickshell.iconPath(icon, "image-missing")
+                                                    return Quickshell.iconPath("preferences-desktop-notification", "image-missing")
+                                                }
+                                            }
+
+                                            FluentIcon {
+                                                anchors.centerIn: parent
+                                                icon: "alert"
+                                                implicitSize: 16
+                                                color: Looks.colors.accentFg
+                                                visible: wGroupAppIcon.status === Image.Error || wGroupAppIcon.status === Image.Null
+                                            }
+                                        }
+
+                                        // Count badge
+                                        Rectangle {
+                                            visible: wGroupDelegate.groupCount > 1
+                                            anchors {
+                                                right: parent.right
+                                                top: parent.top
+                                                rightMargin: -3
+                                                topMargin: -3
+                                            }
+                                            width: Math.max(14, wBadgeText.implicitWidth + 6)
+                                            height: 14
+                                            radius: 7
+                                            color: Looks.colors.accent
+                                            z: 1
+
+                                            Text {
+                                                id: wBadgeText
+                                                anchors.centerIn: parent
+                                                text: wGroupDelegate.groupCount
+                                                font.pixelSize: 8
+                                                font.weight: Font.Bold
+                                                font.family: Looks.font.family.ui
+                                                color: Looks.colors.accentFg
+                                            }
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 1
+
+                                        RowLayout {
+                                            Layout.fillWidth: true
+
+                                            // App name
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: wGroupDelegate.modelData ?? ""
+                                                font.pixelSize: Looks.font.pixelSize.tiny
+                                                font.weight: Looks.font.weight.regular
+                                                font.family: Looks.font.family.ui
+                                                color: Looks.colors.subfg
+                                                elide: Text.ElideRight
+                                                visible: text.length > 0
+                                            }
+
+                                            // Expand indicator
+                                            FluentIcon {
+                                                visible: wGroupDelegate.groupCount > 1
+                                                icon: wGroupDelegate.expanded ? "chevron-up" : "chevron-down"
+                                                implicitSize: 12
+                                                color: Looks.colors.subfg
+                                            }
+                                        }
+
+                                        // Latest notification summary
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: wGroupDelegate.latestNotif?.summary ?? ""
+                                            font.pixelSize: Looks.font.pixelSize.small
+                                            font.weight: Looks.font.weight.regular
+                                            font.family: Looks.font.family.ui
+                                            color: root.textColor
+                                            elide: Text.ElideRight
+                                            maximumLineCount: 1
+                                        }
+
+                                        // Body (optional)
+                                        Text {
+                                            Layout.fillWidth: true
+                                            visible: waffleLockNotificationsLoader.lockNotifShowBody && text.length > 0
+                                            text: wGroupDelegate.latestNotif?.body ?? ""
+                                            font.pixelSize: Looks.font.pixelSize.tiny
+                                            font.family: Looks.font.family.ui
+                                            color: Looks.colors.subfg
+                                            elide: Text.ElideRight
+                                            maximumLineCount: 2
+                                            wrapMode: Text.WordWrap
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Expanded notifications
+                            Column {
+                                width: parent.width - 12
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 2
+                                visible: wGroupDelegate.expanded
+                                clip: true
+
+                                Repeater {
+                                    model: wGroupDelegate.expanded ? (wGroupDelegate.group?.notifications?.slice(1) ?? []) : []
+
+                                    delegate: Rectangle {
+                                        id: wExpandedCard
+                                        required property var modelData
+                                        width: parent.width
+                                        height: wExpandedContent.implicitHeight + 10
+                                        radius: Looks.radius.medium
+                                        color: ColorUtils.transparentize(Looks.colors.bg1Base, 0.1)
+                                        border.color: ColorUtils.transparentize(Looks.colors.bg1Border, 0.6)
+                                        border.width: 1
+
+                                        RowLayout {
+                                            id: wExpandedContent
+                                            anchors {
+                                                left: parent.left; right: parent.right
+                                                verticalCenter: parent.verticalCenter
+                                                margins: 8
+                                            }
+                                            spacing: 8
+
+                                            IconImage {
+                                                Layout.alignment: Qt.AlignTop
+                                                Layout.preferredWidth: 20
+                                                Layout.preferredHeight: 20
+                                                implicitSize: 20
+                                                asynchronous: true
+                                                source: {
+                                                    const icon = wExpandedCard.modelData?.appIcon ?? ""
+                                                    if (icon && icon !== "") return Quickshell.iconPath(icon, "image-missing")
+                                                    return Quickshell.iconPath("preferences-desktop-notification", "image-missing")
+                                                }
+                                            }
+
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 1
+
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    text: wExpandedCard.modelData?.summary ?? ""
+                                                    font.pixelSize: Looks.font.pixelSize.tiny
+                                                    font.weight: Looks.font.weight.regular
+                                                    font.family: Looks.font.family.ui
+                                                    color: root.textColor
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 1
+                                                }
+
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    visible: waffleLockNotificationsLoader.lockNotifShowBody && text.length > 0
+                                                    text: wExpandedCard.modelData?.body ?? ""
+                                                    font.pixelSize: Looks.font.pixelSize.tiny
+                                                    font.family: Looks.font.family.ui
+                                                    color: Looks.colors.subfg
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 2
+                                                    wrapMode: Text.WordWrap
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Overflow indicator for remaining app groups
+                Text {
+                    visible: Notifications.appNameList.length > waffleLockNotificationsLoader.lockNotifMaxCount
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "+" + (Notifications.appNameList.length - waffleLockNotificationsLoader.lockNotifMaxCount) + " " + Translation.tr("more")
+                    font.pixelSize: Looks.font.pixelSize.tiny
+                    font.family: Looks.font.family.ui
+                    color: Looks.colors.subfg
+
+                    layer.enabled: root.effectsSafe
+                    layer.effect: DropShadow {
+                        horizontalOffset: 0
+                        verticalOffset: 1
+                        radius: 4
+                        samples: 9
+                        color: Looks.colors.shadow
                     }
                 }
             }
@@ -373,6 +1075,7 @@ MouseArea {
         // Bottom hint - Windows 11 style pill
         Rectangle {
             id: hintContainer
+            visible: root.showHintText && opacity > 0
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 48
             anchors.horizontalCenter: parent.horizontalCenter
@@ -382,7 +1085,7 @@ MouseArea {
             color: ColorUtils.transparentize(Looks.colors.bg1Base, 0.2)
             border.color: Looks.colors.bg1Border
             border.width: 1
-            opacity: hintOpacity
+            opacity: root.showHintText ? hintOpacity : 0
             
             property real hintOpacity: 1
             
@@ -424,7 +1127,7 @@ MouseArea {
             }
             
             Behavior on hintOpacity {
-                animation: Looks.transition.opacity.createObject(this)
+                animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
             }
         }
     }
@@ -438,12 +1141,13 @@ MouseArea {
         scale: root.showLoginView ? 1 : 1.05
         
         Behavior on opacity {
-            animation: Looks.transition.enter.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
         }
         Behavior on scale {
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
             }
         }
 
@@ -495,11 +1199,19 @@ MouseArea {
                     Image {
                         id: avatarImage
                         anchors.fill: parent
-                        // Try .face first, then AccountsService
-                        source: `file://${Directories.userAvatarPathRicersAndWeirdSystems}`
+                        source: waffleLockAvatarResolver.resolvedSource
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        visible: status === Image.Ready || avatarImageFallback.status === Image.Ready
+                        cache: true
+                        smooth: true
+                        mipmap: true
+                        sourceSize.width: avatarCircle.width * 2
+                        sourceSize.height: avatarCircle.height * 2
+                        visible: status === Image.Ready
+                        onStatusChanged: {
+                            if (status === Image.Error)
+                                waffleLockAvatarResolver.advanceAfterError()
+                        }
                         
                         layer.enabled: root.effectsSafe
                         layer.effect: OpacityMask {
@@ -510,46 +1222,44 @@ MouseArea {
                             }
                         }
                     }
-                    
-                    // Fallback to AccountsService path
-                    Image {
-                        id: avatarImageFallback
-                        anchors.fill: parent
-                        source: avatarImage.status !== Image.Ready 
-                            ? `file://${Directories.userAvatarPathAccountsService}` 
-                            : ""
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        visible: status === Image.Ready && avatarImage.status !== Image.Ready
-                        
-                        layer.enabled: root.effectsSafe
-                        layer.effect: OpacityMask {
-                            maskSource: Rectangle {
-                                width: avatarCircle.width
-                                height: avatarCircle.height
-                                radius: width / 2
-                            }
+
+                    QtObject {
+                        id: waffleLockAvatarResolver
+                        property int avatarIndex: 0
+                        readonly property string resolvedSource: Directories.avatarSourceAt(avatarIndex)
+                        readonly property string primaryWatch: Directories.userAvatarSourcePrimary
+                        onPrimaryWatchChanged: avatarIndex = 0
+
+                        function advanceAfterError(): void {
+                            const failedIndex = avatarIndex
+                            Qt.callLater(() => {
+                                if (avatarIndex !== failedIndex || avatarImage.status !== Image.Error)
+                                    return
+                                const nextIdx = failedIndex + 1
+                                if (nextIdx < Directories.userAvatarPaths.length)
+                                    avatarIndex = nextIdx
+                            })
                         }
                     }
                     
                     // Fallback: initial letter
                     Text {
                         anchors.centerIn: parent
-                        text: SystemInfo.username.charAt(0).toUpperCase()
+                        text: (SystemInfo.displayName || SystemInfo.username || "?").charAt(0).toUpperCase()
                         font.pixelSize: 48 * Looks.fontScale
                         font.weight: Looks.font.weight.regular
                         font.family: Looks.font.family.ui
                         color: Looks.colors.accentFg
-                        visible: avatarImage.status !== Image.Ready && avatarImageFallback.status !== Image.Ready
+                        visible: avatarImage.status !== Image.Ready
                     }
                 }
             }
             
-            // Username
+            // Display name
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 8
-                text: SystemInfo.username
+                text: SystemInfo.displayName || SystemInfo.username
                 font.pixelSize: 24 * Looks.fontScale
                 font.weight: Looks.font.weight.regular
                 font.family: Looks.font.family.ui
@@ -579,10 +1289,10 @@ MouseArea {
                 border.width: passwordField.activeFocus ? 2 : 1
                 
                 Behavior on border.color {
-                    animation: Looks.transition.color.createObject(this)
+                    animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
                 Behavior on border.width {
-                    animation: Looks.transition.resize.createObject(this)
+                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
                 
                 // Bottom accent line when focused (Windows 11 style)
@@ -595,7 +1305,7 @@ MouseArea {
                     color: Looks.colors.accent
                     
                     Behavior on width {
-                        animation: Looks.transition.resize.createObject(this)
+                        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                     }
                 }
                 
@@ -688,7 +1398,7 @@ MouseArea {
                                 : Looks.colors.accent
                         
                         Behavior on color {
-                            animation: Looks.transition.color.createObject(this)
+                            animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                         }
                         
                         FluentIcon {
@@ -784,6 +1494,7 @@ MouseArea {
         
         // Bottom right: Power options
         RowLayout {
+            visible: root.showPowerButtons
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.bottomMargin: 24
@@ -935,13 +1646,66 @@ MouseArea {
                     }
                 }
             }
+            
+            // On-screen keyboard toggle
+            WaffleLockButton {
+                icon: "keyboard"
+                tooltip: Translation.tr("Virtual keyboard")
+                toggled: root.oskVisible
+                anchors.verticalCenter: parent.verticalCenter
+                onClicked: root.oskVisible = !root.oskVisible
+            }
         }
+    }
+
+    // On-screen keyboard
+    LockKeyboard {
+        id: lockKeyboard
+        visible: root.oskVisible
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 80
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(parent.width * 0.6, 640)
+
+        // Waffle theme overrides
+        themeBgColor: ColorUtils.transparentize(Looks.colors.bg1Base, 0.15)
+        themeKeySurfaceColor: ColorUtils.transparentize(Looks.colors.bg2Base, 0.3)
+        themeTextColor: root.textColor
+        themeSubtextColor: ColorUtils.transparentize(root.textColor, 0.4)
+        themeAccentColor: Looks.colors.accent
+        themeAccentActiveColor: Qt.darker(Looks.colors.accent, 1.15)
+        themeAccentTextColor: Looks.colors.accentFg
+        themeRounding: Looks.radius.large
+        themeKeyRounding: Looks.radius.medium
+        themeAnimDuration: Looks.transition.enabled ? 70 : 0
+        themeFontSize: Looks.font.pixelSize.normal
+        themeFontSizeLarge: Looks.font.pixelSize.large
+        themeFontSizeSmall: Looks.font.pixelSize.small
+        themeFontFamily: Looks.font.family.ui
+
+        onKeyClicked: key => {
+            passwordField.text += key
+            passwordField.forceActiveFocus()
+        }
+        onBackspaceClicked: {
+            if (passwordField.text.length > 0) {
+                passwordField.text = passwordField.text.slice(0, -1)
+            }
+            passwordField.forceActiveFocus()
+        }
+        onEnterClicked: {
+            if (root.context.currentText.length > 0) {
+                root.hasAttemptedUnlock = true
+                root.context.tryUnlock(root.ctrlHeld)
+            }
+        }
+        onCloseRequested: root.oskVisible = false
     }
 
     // ===== INPUT HANDLING =====
     
     hoverEnabled: true
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton
     focus: true
     activeFocusOnTab: true
     
@@ -967,18 +1731,10 @@ MouseArea {
     }
     
     onClicked: mouse => {
-        // Emergency fallback: 5 rapid right-clicks to force unlock
-        if (mouse.button === Qt.RightButton) {
-            root.emergencyClickCount++
-            emergencyClickTimer.restart()
-            if (root.emergencyClickCount >= 5) {
-                console.warn("[WaffleLockSurface] Emergency unlock triggered!")
-                root.emergencyClickCount = 0
-                GlobalStates.screenLocked = false
-            }
+        if (Brightness.asleep) {
+            Brightness.restoreAfterWake()
             return
         }
-        
         if (!root.showLoginView) {
             root.switchToLogin()
         } else {
@@ -987,12 +1743,21 @@ MouseArea {
     }
     
     onPositionChanged: mouse => {
+        if (Brightness.asleep) {
+            Brightness.restoreAfterWake()
+            return
+        }
         if (root.showLoginView) {
             root.forceFieldFocus()
         }
     }
     
     Keys.onPressed: event => {
+        if (Brightness.asleep) {
+            Brightness.restoreAfterWake()
+            event.accepted = true
+            return
+        }
         root.context.resetClearTimer()
         
         if (event.key === Qt.Key_Control) {
@@ -1115,7 +1880,7 @@ MouseArea {
         border.width: 1
         
         Behavior on color {
-            animation: Looks.transition.color.createObject(this)
+            animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
         
         FluentIcon {
@@ -1164,7 +1929,7 @@ MouseArea {
         }
         
         Behavior on color {
-            animation: Looks.transition.color.createObject(this)
+            animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
         
         FluentIcon {

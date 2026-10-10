@@ -1,0 +1,119 @@
+tldr
+
+## Core Navigation and File Operations ##
+ls
+cd
+ls (eza)
+cd (zoxide)
+pwd
+mkdir
+touch
+rm
+rmdir
+mv
+cp
+ln
+file
+find
+
+## File Viewing and Manipulation ##
+cat
+less
+bat
+head
+tail
+echo
+tee
+micro
+nano
+
+## Text Processing and Piping ##
+grep
+sed
+cut
+sort
+comm
+diff
+cmp
+awk
+uniq
+
+## System Information and Monitoring ##
+fastfetch
+uname
+whoami
+uptime
+free
+df
+ps
+top
+btop
+dmesg
+vmstat
+journalctl
+systemctl
+
+## Package and Software Management ##
+pacman
+yay
+git
+curl
+wget
+tar
+zip
+unzip
+
+## Networking and Remote Operations ##
+ssh
+ip
+ss
+ping
+nc
+scp
+wget
+curl
+
+## Permissions and User Management ##
+sudo
+chmod
+chown
+chroot
+useradd
+passwd
+id
+groups
+usermod
+umask
+
+## Process Management ##
+pgrep
+pkill
+killall
+bg
+fg
+jobs
+
+## Advanced System Tools ##
+dd
+mount
+umount
+fdisk
+gdisk
+fsck
+blkid
+lsblk
+whereis
+whatis
+
+## Utility and Convenience ##
+alias
+export
+clear
+history
+type
+env
+man
+which
+locate
+fzf
+

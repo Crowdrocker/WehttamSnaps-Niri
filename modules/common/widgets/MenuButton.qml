@@ -4,7 +4,7 @@ import QtQuick
 RippleButton {
     id: root
 
-    buttonRadius: 0
+    buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : 0
     implicitHeight: 36
     implicitWidth: buttonTextWidget.implicitWidth + 14 * 2
 
@@ -16,10 +16,11 @@ RippleButton {
         text: root.buttonText
         horizontalAlignment: Text.AlignLeft
         font.pixelSize: Appearance.font.pixelSize.small
-        color: root.enabled ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3outline
+        color: root.enabled ? Appearance.colors.colOnSurface : Appearance.colors.colOutline
 
         Behavior on color {
-            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            enabled: Appearance.animationsEnabled
+            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
         }
     }
 

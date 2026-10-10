@@ -1,0 +1,3 @@
+[templates.wayshellbars]
+input_path = '~/.config/snapsos/wayshell/colors.css'
+output_path = '~/.config/snapsos/wayshell/configs/colors.css'

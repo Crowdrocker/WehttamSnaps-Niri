@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import Quickshell
 import qs.modules.common
+import qs.services
 
 Item {
     id: root
@@ -10,9 +11,10 @@ Item {
     property int implicitSize: 100
     property real amplitude: implicitSize / 50
     property int renderPoints: 360
-    property color color: Appearance.m3colors.m3primary
+    property color color: Appearance.colors.colPrimary
     property alias strokeWidth: shapePath.strokeWidth
     property bool constantlyRotate: false
+    property bool powerActive: WidgetPowerManager.widgetsActive
 
     implicitWidth: implicitSize
     implicitHeight: implicitSize
@@ -20,7 +22,8 @@ Item {
     property real shapeRotation: 0
 
     Loader {
-        active: constantlyRotate
+        // Only load FrameAnimation when actively rotating AND power is on
+        active: constantlyRotate && root.powerActive
         sourceComponent: FrameAnimation {
             running: true
             onTriggered: {
@@ -30,7 +33,7 @@ Item {
     }
 
     Behavior on sides {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
     }
 
     Shape {

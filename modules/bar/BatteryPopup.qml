@@ -46,12 +46,11 @@ StyledPopup {
                 let power = Battery.energyRate;
                 return !(Battery.chargeState == 4 || timeValue <= 0 || power <= 0.01);
             }
-            visible: rowVisible
+            visible: opacity > 0
             opacity: rowVisible ? 1 : 0
             Behavior on opacity {
-                NumberAnimation {
-                    duration: 500
-                }
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
             }
 
             MaterialSymbol {
@@ -89,12 +88,11 @@ StyledPopup {
             Layout.fillWidth: true
 
             property bool rowVisible: !(Battery.chargeState != 4 && Battery.energyRate == 0)
-            visible: rowVisible
+            visible: opacity > 0
             opacity: rowVisible ? 1 : 0
             Behavior on opacity {
-                NumberAnimation {
-                    duration: 500
-                }
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
             }
 
             MaterialSymbol {

@@ -1,0 +1,167 @@
+// Modified from https://github.com/fastfetch-cli/fastfetch/discussions/2133
+
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+
+    "display": {
+        "separator": "▌",
+        "key": {
+            "width": 18
+        },
+        "bar": {
+            "border": null,
+            "char": {
+                "elapsed": "█",
+                "total": "░"
+            },
+            "width": 35
+        }
+    },
+    "modules": [
+        {
+            "type": "custom",
+            "format": "{#@196}╔════════════════════════════════════════════════════════╗"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}███╗   ██╗███████╗██████╗ ██╗   ██╗  {#@220}EVA-00 SYSTEM     {#@196}║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}████╗  ██║██╔════╝██╔══██╗██║   ██║  {#@220}MAGI INTERFACE   {#@196} ║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}██╔██╗ ██║█████╗  ██████╔╝██║   ██║                    {#@196}║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}██║╚██╗██║██╔══╝  ██╔══██╗╚██╗ ██╔╝  {#@208}CLASSIFIED       {#@196} ║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}██║ ╚████║███████╗██║  ██║ ╚████╔╝   {#@208}ACCESS ONLY      {#@196} ║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝  ╚═══╝                     {#@196} ║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}╚════════════════════════════════════════════════════════╝"
+        },
+        {
+            "type": "custom",
+            "format": "{#@208}╔══●{#@166}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●══╗"
+        },
+        {
+            "type": "custom",
+            "format": "{#@208}║ {#@46}00101{#@208} ●{#@166}────{#@208}● NERVE CONNECTION INTERFACE ●{#@166}────{#@208}● {#@46}00102{#@196}   ║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@208}╚══●{#@166}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●══╝"
+        },
+        {
+            "type": "custom",
+            "format": "{#@208}▰{#@166}▰{#@208}▰{#@166}▰{#@208} BORDER LINE {#@166}▰{#@208}▰{#@166}▰{#@208}▰ {#@46}[{#@220}SYSTEM CONFIG{#@46}]"
+        },
+        {
+            "type": "os",
+            "key": "{#@46}│ OS          "
+        },
+        {
+            "type": "kernel",
+            "key": "{#@46}│ KERNEL      "
+        },
+        {
+            "type": "uptime",
+            "key": "{#@46}│ UPTIME      "
+        },
+        {
+            "type": "custom",
+            "format": "{#@208}▰{#@166}▰{#@208}▰{#@166}▰{#@208}▰ ABSOLUTE {#@166}▰{#@208}▰{#@166}▰{#@208}▰{#@166}▰ {#@196}[{#@220}FIRST CHILD{#@196}] {#@51}REI AYANAMI"
+        },
+        {
+            "type": "users",
+            "key": "{#@46}│ DESIGNATION ",
+            "format": "{name}, since {login-time}",
+            "myselfOnly": true
+        },
+        {
+            "type": "localip",
+            "key": "{#@46}│ NEURAL-LINK ",
+            "format": "{ipv4}"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}▰{#@208}▰{#@196}▰{#@208}▰{#@196}▰ DANGER {#@208}▰{#@196}▰{#@208}▰{#@196}▰{#@208}▰ {#@220}[{#@196}UNIT-00{#@220}] {#@51}CORE STATUS"
+        },
+        {
+            "type": "cpu",
+            "key": "{#@220}│ CPU-CORE    ",
+            "format": "{name}"
+        },
+        {
+            "type": "cpu",
+            "key": "{#@220}│ SYNC-RATE   ",
+            "format": "{cores-physical}C / {cores-logical}T"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}▰{#@208}▰{#@196}▰{#@208}▰{#@196} WARNING {#@208}▰{#@196}▰{#@208}▰{#@196}▰ {#@220}[{#@51}LCL{#@220}] {#@208}[{#@51}A.T. FIELD{#@208}]"
+        },
+        {
+            "type": "memory",
+            "key": "{#@208}{#@166}{#@208}{#@220}│ LCL-LEVEL   ",
+            "format": "{used} / {total} (RAM)"
+        },
+        {
+            "type": "memory",
+            "key": "{#@208}{#@166}{#@208}{#@220}│ A.T.FIELD   ",
+            "percent": {
+                "type": [
+                    "bar",
+                    "hide-others"
+                ]
+            }
+        },
+        {
+            "type": "disk",
+            "folders": "/",
+            "key": "{#@208}{#@166}{#@208}{#@220}│ ENTRY-PLUG  ",
+            "format": "{size-used} / {size-total} (DISK)"
+        },
+        {
+            "type": "disk",
+            "folders": "/",
+            "key": "{#@208}{#@166}{#@208}{#@220}│ PLUG-DEPTH  ",
+            "percent": {
+                "type": [
+                    "bar",
+                    "hide-others"
+                ]
+            }
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}╔═════════════════════════════════════════════════════════╗"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}║ {#@46}[SYSTEMS NOMINAL] {#@208}MAGI: {#@46} ONLINE {#@208} STATUS: {#@46} OK {#@196}           ║"
+        },
+        {
+            "type": "custom",
+            "format": "{#@196}╚═════════════════════════════════════════════════════════╝"
+        },
+        {
+            "type": "custom",
+            "format": "{#@46}          PILOT REI AYANAMI - READY FOR DEPLOYMENT"
+        },
+        {
+            "type": "custom",
+            "format": "{#@208}            綾波レイ  (I am not a doll. I am me.)"
+        }
+    ]
+}

@@ -1,13 +1,16 @@
 # Quickshell and Qt6 dependencies for iNiR
-# Based on illogical-impulse-quickshell-git from end-4
+# Based on upstream packaging patterns from end-4
 
 pkgname=inir-quickshell
 pkgver=1.0
 pkgrel=1
-pkgdesc='illogical-impulse on Niri - Quickshell and Qt6 Dependencies'
+pkgdesc='iNiR - Quickshell and Qt6 dependency bundle'
 arch=(any)
-license=(MIT)
+license=('GPL-3.0-only')
 depends=(
+  # Quickshell - NOW IN OFFICIAL REPOS (extra)! No compilation needed!
+  quickshell
+  
   # Core Qt6
   qt6-declarative
   qt6-base
@@ -18,12 +21,8 @@ depends=(
   qt6-5compat
   qt6-imageformats
   qt6-multimedia
-  qt6-positioning
-  qt6-quicktimeline
-  qt6-sensors
   qt6-tools
   qt6-translations
-  qt6-virtualkeyboard
   
   # System libs for Quickshell
   jemalloc
@@ -38,13 +37,11 @@ depends=(
   kdialog
   syntax-highlighting
   
-  # Qt theming
+  # Qt theming (kvantum is in inir-fonts, qt6ct configures Qt without Plasma)
   qt6ct
-  kde-gtk-config
-  breeze
+  breeze-icons  # lightweight icon theme (no Plasma deps)
 )
 
-# AUR dependencies (installed separately)
-# quickshell-git
-# google-breakpad
+# AUR dependencies (installed separately, minimal compilation)
 # qt6-avif-image-plugin
+# NOTE: quickshell is now in official repos (extra) - no AUR needed!

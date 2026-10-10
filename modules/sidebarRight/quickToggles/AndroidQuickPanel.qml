@@ -17,20 +17,19 @@ AbstractQuickPanel {
     // Sizes
     implicitHeight: contentItem.implicitHeight + root.padding * 2
     Behavior on implicitHeight {
-        animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
     }
     property real spacing: 6
     property real padding: 6
     readonly property real baseCellWidth: {
-        // This is the wrong calculation, but it looks correct in reality???
-        // (theoretically spacing should be multiplied by 1 column less)
-        const availableWidth = root.width - (root.padding * 2) - (root.spacing * (root.columns))
+        const availableWidth = (scrollView?.availableWidth ?? root.width) - (root.padding * 2) - (root.spacing * (root.columns - 1))
         return availableWidth / root.columns
     }
     readonly property real baseCellHeight: 56
 
     // Toggles
-    readonly property list<string> availableToggleTypes: ["network", "bluetooth", "idleInhibitor", "easyEffects", "nightLight", "darkMode", "cloudflareWarp", "gameMode", "screenSnip", "colorPicker", "onScreenKeyboard", "mic", "audio", "notifications", "powerProfile", "musicRecognition", "voiceSearch", "antiFlashbang"]
+    readonly property list<string> availableToggleTypes: ["network", "hotspot", "bluetooth", "idleInhibitor", "easyEffects", "nightLight", "darkMode", "cloudflareWarp", "gameMode", "screenSnip", "colorPicker", "onScreenKeyboard", "mic", "audio", "notifications", "powerProfile", "musicRecognition", "voiceSearch", "antiFlashbang"]
     readonly property int columns: Config.options?.sidebar?.quickToggles?.android?.columns ?? 4
     readonly property list<var> toggles: Config.ready ? (Config.options?.sidebar?.quickToggles?.android?.toggles ?? []) : []
     readonly property list<var> toggleRows: toggleRowsForList(toggles)
@@ -78,18 +77,20 @@ AbstractQuickPanel {
 
             Column {
                 id: usedRows
-                width: parent.width
+                width: scrollView.availableWidth
                 spacing: root.spacing
 
                 Repeater {
                     id: usedRowsRepeater
-                    model: ScriptModel {
-                        values: Array(root.toggleRows.length)
-                    }
+                    // Plain array Repeater on purpose: ScriptModel + DelegateChooser
+                    // reuse kept stale delegates when rows shifted (pinned toggles
+                    // stayed in the unused list, clicks acted on the wrong one).
+                    // Rows are few; a full rebuild per change is deterministic.
+                    model: root.toggleRows
                     delegate: ButtonGroup {
                         id: toggleRow
                         required property int index
-                        property var modelData: root.toggleRows[index]
+                        required property var modelData
                         property int startingIndex: {
                             const rows = root.toggleRows;
                             let sum = 0;
@@ -101,10 +102,7 @@ AbstractQuickPanel {
                         spacing: root.spacing
 
                         Repeater {
-                            model: ScriptModel {
-                                values: toggleRow?.modelData ?? []
-                                objectProp: "type"
-                            }
+                            model: toggleRow.modelData ?? []
                             delegate: AndroidToggleDelegateChooser {
                                 startingIndex: toggleRow.startingIndex
                                 editMode: root.editMode
@@ -114,6 +112,7 @@ AbstractQuickPanel {
                                 onOpenAudioOutputDialog: root.openAudioOutputDialog()
                                 onOpenAudioInputDialog: root.openAudioInputDialog()
                                 onOpenBluetoothDialog: root.openBluetoothDialog()
+                                onOpenHotspotDialog: root.openHotspotDialog()
                                 onOpenNightLightDialog: root.openNightLightDialog()
                                 onOpenWifiDialog: root.openWifiDialog()
                             }
@@ -133,7 +132,8 @@ AbstractQuickPanel {
             }
             sourceComponent: Rectangle {
                 implicitHeight: 1
-                color: Appearance.colors.colOutlineVariant
+                color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                    : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colOutlineVariant
             }
         }
 
@@ -144,20 +144,16 @@ AbstractQuickPanel {
                 spacing: root.spacing
 
                 Repeater {
-                    model: ScriptModel {
-                        values: Array(root.unusedToggleRows.length)
-                    }
+                    // See the used-rows comment: deterministic rebuild, no reuse.
+                    model: root.unusedToggleRows
                     delegate: ButtonGroup {
                         id: unusedToggleRow
                         required property int index
-                        property var modelData: root.unusedToggleRows[index]
+                        required property var modelData
                         spacing: root.spacing
 
                         Repeater {
-                            model: ScriptModel {
-                                values: unusedToggleRow?.modelData ?? []
-                                objectProp: "type"
-                            }
+                            model: unusedToggleRow.modelData ?? []
                             delegate: AndroidToggleDelegateChooser {
                                 startingIndex: -1
                                 editMode: root.editMode

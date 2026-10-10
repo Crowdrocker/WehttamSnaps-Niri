@@ -16,13 +16,29 @@ Singleton {
         // dummy to force init
     }
 
+    // Defer conflict checks to avoid process spawns during the critical shell startup window
+    Timer {
+        id: conflictCheckDelay
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            pidofTraysProc.running = true
+            pidofNotifsProc.running = true
+        }
+    }
+
     Connections {
         target: Config
         function onReadyChanged() {
             if (Config.ready) {
-                pidofTraysProc.running = true
-                pidofNotifsProc.running = true
+                conflictCheckDelay.restart()
             }
+        }
+    }
+
+    Component.onCompleted: {
+        if (Config.ready) {
+            conflictCheckDelay.restart()
         }
     }
 

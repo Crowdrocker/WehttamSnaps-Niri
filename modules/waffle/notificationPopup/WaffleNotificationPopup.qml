@@ -3,7 +3,6 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import qs
 import qs.services
 import qs.modules.common
@@ -19,42 +18,79 @@ Scope {
     readonly property string position: Config.options?.notifications?.position ?? "bottomRight"
     readonly property bool isTop: position.startsWith("top")
     readonly property bool isLeft: position.endsWith("Left")
+    readonly property var targetScreens: {
+        const screens = Quickshell.screens
+        const list = Config.options?.notifications?.screenList ?? []
+        if (!list || list.length === 0)
+            return screens
+        const matched = screens.filter(screen => {
+            const screenName = screen?.name ?? ""
+            return screenName.length > 0 && list.includes(screenName)
+        })
+        return matched.length > 0 ? matched : screens
+    }
 
-    PanelWindow {
-        id: panelWindow
-        // Hide during GameMode to avoid input interference
-        visible: (Notifications.popupList.length > 0) && !GlobalStates.screenLocked && !GlobalStates.waffleNotificationCenterOpen && !GameMode.active
+    Loader {
+        id: popupLoader
+        property bool resident: Notifications.popupList.length > 0
+        active: resident
 
-        screen: CompositorService.isNiri
-            ? Quickshell.screens.find(s => s.name === NiriService.currentOutput) ?? Quickshell.screens[0]
-            : Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
-
-        WlrLayershell.namespace: "quickshell:wNotificationPopup"
-        WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-        exclusiveZone: 0
-        
-        // Only capture input on actual notification area
-        mask: Region {
-            item: listview
+        Connections {
+            target: Notifications
+            function onPopupListChanged() {
+                if (Notifications.popupList.length > 0) {
+                    popupCloseGrace.stop()
+                    popupLoader.resident = true
+                } else {
+                    popupCloseGrace.restart()
+                }
+            }
         }
 
-        anchors {
-            top: root.isTop
-            bottom: !root.isTop
-            left: root.isLeft
-            right: !root.isLeft
+        Timer {
+            id: popupCloseGrace
+            interval: 450
+            onTriggered: popupLoader.resident = Notifications.popupList.length > 0
         }
 
-        color: "transparent"
-        implicitWidth: 380
-        implicitHeight: Math.min(listview.contentHeight + 16, (screen?.height ?? 800) * 0.7)
+        sourceComponent: Variants {
+            model: root.targetScreens
 
-        WNotificationListView {
-            id: listview
-            anchors {
-                fill: parent
-                margins: 8
+            PanelWindow {
+                id: panelWindow
+                required property var modelData
+                screen: modelData
+                visible: (Notifications.popupList.length > 0) && !GlobalStates.screenLocked && !GlobalStates.waffleNotificationCenterOpen && !(GameMode.active && GameMode.suppressNotifications)
+
+                WlrLayershell.namespace: "quickshell:wNotificationPopup"
+                WlrLayershell.layer: WlrLayer.Overlay
+                WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+                exclusiveZone: 0
+
+                // Only capture input on actual notification area
+                mask: Region {
+                    item: listview
+                }
+
+                anchors {
+                    top: root.isTop
+                    bottom: !root.isTop
+                    left: root.isLeft
+                    right: !root.isLeft
+                }
+
+                color: "transparent"
+
+                implicitWidth: 380
+                implicitHeight: Math.min(listview.contentHeight + 16, (screen?.height ?? 800) * 0.7)
+
+                WNotificationListView {
+                    id: listview
+                    anchors {
+                        fill: parent
+                        margins: 8
+                    }
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ Singleton {
         { identifier: "floatingImage", materialSymbol: "imagesmode" },
         { identifier: "recorder", materialSymbol: "screen_record" },
         { identifier: "resources", materialSymbol: "browse_activity" },
+        { identifier: "gamePerformance", materialSymbol: "monitor_heart" },
         { identifier: "notes", materialSymbol: "note_stack" },
         { identifier: "discord", materialSymbol: "forum" },
         { identifier: "volumeMixer", materialSymbol: "volume_up" },
@@ -18,9 +19,23 @@ Singleton {
     ]
     
     readonly property bool hasPinnedWidgets: root.pinnedWidgetIdentifiers.length > 0
+    readonly property bool nativeDialogOpen:
+        Object.keys(root._nativeDialogs).length > 0
 
     property list<string> pinnedWidgetIdentifiers: []
     property list<var> clickableWidgets: []
+    property var _nativeDialogs: ({})
+
+    function setNativeDialogVisible(dialogKey: string, visible: bool): void {
+        const key = String(dialogKey ?? "").trim()
+        if (!key) return
+        const next = Object.assign({}, root._nativeDialogs)
+        if (visible)
+            next[key] = true
+        else
+            delete next[key]
+        root._nativeDialogs = next
+    }
 
     function pin(identifier: string, pin = true) {
         if (pin) {

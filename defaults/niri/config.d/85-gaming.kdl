@@ -1,0 +1,22 @@
+// ╭────────────────────────────── GAMING RULES ──────────────────────────────╮
+
+// 1. Force Games and Micro-Compositors to open in Exclusive Fullscreen
+window-rule {
+    match app-id="^gamescope$"
+    match title="^The Division 2$"
+
+    open-fullscreen true
+    default-column-width { proportion 1.0; }
+}
+
+// 2. Keep Game Launchers and Popups Clean
+window-rule {
+    match app-id="^steam$"
+    match title="^Steam$"
+    match title="^Ubisoft Connect$"
+    match title="^Wine tool$"
+
+    default-column-width { proportion 0.8; }
+}
+
+// ╰──────────────────────────────────────────────────────────────────────────╯

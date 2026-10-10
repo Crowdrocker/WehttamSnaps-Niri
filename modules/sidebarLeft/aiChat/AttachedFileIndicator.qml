@@ -57,7 +57,8 @@ Rectangle {
     property real horizontalPadding: 10
     property real verticalPadding: 10
     radius: Appearance.rounding.small - anchors.margins
-    color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
+    color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+        : Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
     implicitHeight: visible ? (contentItem.implicitHeight + verticalPadding * 2) : 0
 
     ColumnLayout {
@@ -101,8 +102,9 @@ Rectangle {
             RippleButton {
                 visible: root.canRemove
                 Layout.alignment: Qt.AlignTop
-                buttonRadius: Appearance.rounding.full
-                colBackground: Appearance.inirEverywhere ? Appearance.inir.colLayer1 
+                buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.full
+                colBackground: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                    : Appearance.inirEverywhere ? Appearance.inir.colLayer1 
                     : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer2
                 implicitHeight: 28
                 implicitWidth: 28
@@ -111,7 +113,7 @@ Rectangle {
                     text: "close"
                     horizontalAlignment: Text.AlignHCenter
                     iconSize: Appearance.font.pixelSize.larger
-                    color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colOnSurfaceVariant
+                    color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colSecondaryActionIcon
                 }
 
                 onClicked: root.remove()

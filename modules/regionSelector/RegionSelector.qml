@@ -21,8 +21,8 @@ Scope {
         GlobalStates.regionSelectorOpen = false
     }
 
-    property var action: RegionSelection.SnipAction.Copy
-    property var selectionMode: RegionSelection.SelectionMode.RectCorners
+    readonly property var action: GlobalStates.regionSelectorAction
+    readonly property var selectionMode: GlobalStates.regionSelectorMode
     
     Variants {
         model: Quickshell.screens
@@ -40,88 +40,11 @@ Scope {
         }
     }
 
-    function screenshot() {
-        root.action = RegionSelection.SnipAction.Copy
-        root.selectionMode = RegionSelection.SelectionMode.RectCorners
-        GlobalStates.regionSelectorOpen = true
-    }
-
-    function search() {
-        root.action = RegionSelection.SnipAction.Search
-        if (Config.options?.search?.imageSearch?.useCircleSelection ?? false) {
-            root.selectionMode = RegionSelection.SelectionMode.Circle
-        } else {
-            root.selectionMode = RegionSelection.SelectionMode.RectCorners
-        }
-        GlobalStates.regionSelectorOpen = true
-    }
-
-    function ocr() {
-        root.action = RegionSelection.SnipAction.CharRecognition
-        root.selectionMode = RegionSelection.SelectionMode.RectCorners
-        GlobalStates.regionSelectorOpen = true
-    }
-
-    function record() {
-        root.action = RegionSelection.SnipAction.Record
-        root.selectionMode = RegionSelection.SelectionMode.RectCorners
-        GlobalStates.regionSelectorOpen = true
-    }
-
-    function recordWithSound() {
-        root.action = RegionSelection.SnipAction.RecordWithSound
-        root.selectionMode = RegionSelection.SelectionMode.RectCorners
-        GlobalStates.regionSelectorOpen = true
-    }
-
-    IpcHandler {
-        target: "region"
-
-        function screenshot(): void {
-            root.screenshot()
-        }
-        function search(): void {
-            root.search()
-        }
-        function ocr(): void {
-            root.ocr()
-        }
-        function record(): void {
-            root.record()
-        }
-        function recordWithSound(): void {
-            root.recordWithSound()
-        }
-    }
-
+    // Native annotation editor (Edit action). Lives in this Scope so it survives
+    // the selection overlay dismissing.
     Loader {
-        active: CompositorService.isHyprland
-        sourceComponent: Item {
-            GlobalShortcut {
-                name: "regionScreenshot"
-                description: "Takes a screenshot of the selected region"
-                onPressed: root.screenshot()
-            }
-            GlobalShortcut {
-                name: "regionSearch"
-                description: "Searches the selected region"
-                onPressed: root.search()
-            }
-            GlobalShortcut {
-                name: "regionOcr"
-                description: "Recognizes text in the selected region"
-                onPressed: root.ocr()
-            }
-            GlobalShortcut {
-                name: "regionRecord"
-                description: "Records the selected region"
-                onPressed: root.record()
-            }
-            GlobalShortcut {
-                name: "regionRecordWithSound"
-                description: "Records the selected region with sound"
-                onPressed: root.recordWithSound()
-            }
-        }
+        active: GlobalStates.annotationEditorOpen
+        sourceComponent: AnnotationEditor {}
     }
+
 }

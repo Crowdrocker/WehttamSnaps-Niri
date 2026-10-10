@@ -1,0 +1,168 @@
+[SNAPS-OS Tips]: did you know? you can use SUPER+K to open the keybinds list
+[SNAPS-OS Tips]: Did you know? You can use SUPER+P to pin a window across workspaces
+[SNAPS-OS Tips]: Did you know? You can use SUPER+L to lock your session quickly
+[SNAPS-OS Tips]: Did you know? You can use SUPER+SPACE to open the application launcher
+[SNAPS-OS Tips]: Did you know? You can use SUPER+V to toggle the clipboard
+[SNAPS-OS Tips]: Did you know? You can use SUPER+I to toggle sleep inhibit mode
+[SNAPS-OS Tips]: Did you know? You can use SUPER+D to toggle the dock visibility
+[SNAPS-OS Tips]: Did you know? You can use SUPER+X to open the process list
+[SNAPS-OS Tips]: Did you know? You can use SUPER+N to open your notifications
+[SNAPS-OS Tips]: Did you know? You can use SUPER+S to toggle your settings menu
+[SNAPS-OS Tips]: Did you know? You can use SUPER+M to show the mangoWM config editor
+[SNAPS-OS Tips]: Did you know? You can use SUPER+Y to install packages via the GUI
+[SNAPS-OS Tips]: Did you know? You can use SUPER+SHIFT+Y to install AUR packages
+[SNAPS-OS Tips]: Did you know? You can use SUPER+R to reload your configuration
+[SNAPS-OS Tips]: Did you know? You can use SUPER+SHIFT+Q to exit mangoWM
+[SNAPS-OS Tips]: Did you know? You can use SUPER+T to float or unfloat the active window
+[SNAPS-OS Tips]: Did you know? You can use SUPER+F to fullscreen the active window
+[SNAPS-OS Tips]: Did you know? You can use SUPER+Q to close the active window
+[SNAPS-OS Tips]: Did you know? You can use SUPER+left/right/up/down to focus windows
+[SNAPS-OS Tips]: Did you know? You can use SUPER+Ctrl+left/right/up/down to swap panes
+[SNAPS-OS Tips]: Did you know? You can use SUPER+Alt+left/right/up/down to resize windows
+[SNAPS-OS Tips]: Did you know? You can use SUPER+SHIFT+[1-9] to move windows to specific workspaces
+[SNAPS-OS Tips]: Did you know? You can use SUPER+[1-9] to focus specific workspaces
+[SNAPS-OS Tips]: Did you know? You can use SUPER+SHIFT+up/down to exchange stack direction
+[SNAPS-OS Tips]: Did you know? You can use Alt+Arrow keys in Ghostty to split panes
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+R in Ghostty to reload the configuration
+[SNAPS-OS Tips]: Did you know? You can use zoxide's 'cd' integration to jump between directories you've visited before using partial names with fzf
+[SNAPS-OS Tips]: Did you know? You can use 'pacgui' to launch the graphical package installer
+[SNAPS-OS Tips]: Did you know? You can use 'aurgui' to launch the AUR installation interface
+[SNAPS-OS Tips]: Did you know? You can use 'find' to search files with a beautiful preview via fzf and bat
+[SNAPS-OS Tips]: Did you know? You can use 'microfind' to quickly search for and open a file in micro using fzf
+[SNAPS-OS Tips]: Did you know? You can use 'lt' to view a directory in a tree-like format
+[SNAPS-OS Tips]: Did you know? You can use 'l.' to show only hidden dotfiles in your current directory
+[SDG‌-OS Tips]: Did you know? You can use '..' or '...' to navigate up directory levels quickly
+[SNAPS-OS Tips]: Did you know? You can use 'update' to run a full system upgrade with sudo pacman -Syu
+[SNAPS-OS Tips]: Did you know? You can use 'gitpkg' to quickly count installed -git packages
+[SNAPS-OS Tips]: Did you know? You can use 'please' as a shortcut for 'sudo'
+[SNAPS-OS Tips]: Did you know? You can use 'jctl' to view the most recent system errors via journalctl
+[SNAPS-OS Tips]: Did you know? Most file types like .json, .md, and .toml open directly in micro whn they're called in the terminal without any command
+[SNAPS-OS Tips]: Did you know? common image files like .png, .jpg and .webp open directly in satty when they're called in the terminal without any command
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Ss package" to search for a package in the official repos
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Si package" to see detailed info about a package
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qdt" to list orphaned packages (no longer required)
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Rns package" to remove a package and its dependencies
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Syu --needed" to upgrade only packages with updates available
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qe" to list explicitly installed packages
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qn" to list native packages (not from AUR)
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qm" to list packages installed from AUR
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Ql package" to list all files installed by a package
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qo /path/to/file" to find which package owns a file
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Scc" to clean all cached packages (use with caution)
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Fy" to sync the file database for searching files
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Fs filename" to search for a file in all packages
+[SNAPS-OS Tips]: Did you know? You can use "pacman -U /path/to/package.pkg.tar.zst" to install a local package
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Sw package" to download a package without installing it
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Sc" to clean old package versions from the cache
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qk package" to check for missing files in a package
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qkk package" to check for extra files in a package
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qii package" to see extended info about an installed package
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Qs keyword" to search for installed packages matching a keyword
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --asdeps package" to install a package as a dependency
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --overwrite='*' package" to force overwrite conflicting files
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --needed package" to install a package only if not already installed
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --noconfirm package" to skip confirmation prompts
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Rc package" to remove a package and its reverse dependencies
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Sy archlinux-keyring" to update the Arch Linux keyring if pacman fails
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Syy" to force a refresh of the package database
+[SNAPS-OS Tips]: Did you know? You can use "pacman -Syyu" to force a full sync and upgrade (use with caution)
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --dbonly" to update the package database without upgrading
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --debug" to enable debug output for troubleshooting
+[SNAPS-OS Tips]: Did you know? You can use "pacman -S --overwrite='filepath'" to resolve file conflicts during installation
+[SNAPS-OS Tips]: Did you know? You can use "man command" to read the manual page for any command
+[SNAPS-OS Tips]: Did you know? You can use "tldr command" to see practical examples for a command
+[SNAPS-OS Tips]: Did you know? You can use "btop" to view and manage system processes interactively
+[SNAPS-OS Tips]: Did you know? You can use "journalctl -xe" to view system logs with details
+[SNAPS-OS Tips]: Did you know? You can use "df -h" to check disk space usage in a human-readable format
+[SNAPS-OS Tips]: Did you know? You can use "du -sh *" to check the size of files and directories in the current folder
+[SNAPS-OS Tips]: Did you know? You can use "ncdu" to analyze disk usage interactively
+[SNAPS-OS Tips]: Did you know? You can use "systemctl status" to check the status of system services
+[SNAPS-OS Tips]: Did you know? You can use "systemctl enable --now service" to enable and start a service immediately
+[SNAPS-OS Tips]: Did you know? You can use "systemctl disable --now service" to disable and stop a service immediately
+[SNAPS-OS Tips]: Did you know? You can use "uptime" to see how long the system has been running
+[SNAPS-OS Tips]: Did you know? You can use "uname -a" to see detailed system information
+[SNAPS-OS Tips]: Did you know? You can use "lscpu" to see detailed CPU information
+[SNAPS-OS Tips]: Did you know? You can use "lsblk" to list all block devices (disks and partitions)
+[SNAPS-OS Tips]: Did you know? You can use "free -h" to check memory usage in a human-readable format
+[SNAPS-OS Tips]: Did you know? You can use "dmesg" to view kernel ring buffer messages for debugging
+[SNAPS-OS Tips]: Did you know? You can use "strace command" to trace system calls and signals for a command
+[SNAPS-OS Tips]: Did you know? You can use "lsof" to list open files and processes using them
+[SNAPS-OS Tips]: Did you know? You can use "ss -tulnp" to list all listening ports and associated processes
+[SNAPS-OS Tips]: Did you know? You can use "ip a" to list all network interfaces and their details
+[SNAPS-OS Tips]: Did you know? You can use "ping example.com" to test network connectivity to a host
+[SNAPS-OS Tips]: Did you know? You can use "mtr example.com" to combine ping and traceroute for network diagnostics
+[SNAPS-OS Tips]: Did you know? You can use "curl ifconfig.me" to quickly check your public IP address
+[SNAPS-OS Tips]: Did you know? You can use "tar -czvf archive.tar.gz /path" to create a compressed tar archive
+[SNAPS-OS Tips]: Did you know? You can use "scp file user@host:/path" to securely copy files over SSH
+[SNAPS-OS Tips]: Did you know? You can use "rsync -avz source/ destination/" to sync directories efficiently
+[SNAPS-OS Tips]: Did you know? You can use "chmod +x script" to make a script executable
+[SNAPS-OS Tips]: Did you know? You can use "chown user:group file" to change the owner and group of a file
+[SNAPS-OS Tips]: Did you know? You can use "grep -r 'pattern' /path" to search for a text pattern in files
+[SNAPS-OS Tips]: Did you know? You can use "sed -i 's/old/new/g' file" to replace text in a file
+[SNAPS-OS Tips]: Did you know? You can use "awk '{print $1}' file" to print the first column of a file
+[SNAPS-OS Tips]: Did you know? You can use "xargs" to build and execute commands from standard input
+[SNAPS-OS Tips]: Did you know? You can use "cd foo" to jump to a directory containing "foo" in its name with zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd foo bar" to jump to a directory containing both "foo" and "bar" with zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd -" to jump back to the previous directory with zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd ~" to jump to your home directory with zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd /" to jump to the root directory with zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd .." to jump up one directory level with zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd -- list" to see your most frequently visited directories in zoxide
+[SNAPS-OS Tips]: Did you know? You can use "cd -- purge" to remove directories no longer on your filesystem from zoxide's database
+[SNAPS-OS Tips]: Did you know? You can use "cd -- query foo" to see all directories matching "foo" without jumping
+[SNAPS-OS Tips]: Did you know? You can use "!!" to repeat the last command in zsh
+[SNAPS-OS Tips]: Did you know? You can use "!$" to reference the last argument of the previous command in zsh
+[SNAPS-OS Tips]: Did you know? You can use "cd -" to switch to the previous directory in zsh
+[SNAPS-OS Tips]: Did you know? You can use "ls ./*.txt" to list all .txt files in the current directory in zsh
+[SNAPS-OS Tips]: Did you know? You can use "=command" (e.g., "=ls") to see the full path of a command in zsh
+[SNAPS-OS Tips]: Did you know? You can use "alt+." to insert the last argument of the previous command in zsh
+[SNAPS-OS Tips]: Did you know? You can use "alt+?" to search backward in zsh's history
+[SNAPS-OS Tips]: Did you know? You can use "fc" to edit and re-run the last command in zsh
+[SNAPS-OS Tips]: Did you know? You can use "history -i" to incrementally search your command history in zsh
+[SNAPS-OS Tips]: Did you know? you can use the command "cmdhist" to interactively search through past commands and send them back to the terminal input
+[SNAPS-OS Tips]: Did you know? You can use "print -z" to add a command to the buffer without executing it in zsh
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Shift+T to open a new tab in ghostty
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Shift+W to close the current tab in ghostty
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Shift+F to search for text in ghostty's scrollback
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Shift+C and Ctrl+Shift+V for copy/paste in ghostty
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Shift+P to open ghostty's command palette
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Shift++ and Ctrl+Shift+- to increase/decrease font size in ghostty
+[SNAPS-OS Tips]: Did you know? You can use "ls" to list files and directories in the current folder
+[SNAPS-OS Tips]: Did you know? You can use "pwd" to print the current working directory
+[SNAPS-OS Tips]: Did you know? You can use "mkdir" to create a new directory
+[SNAPS-OS Tips]: Did you know? You can use "cd" to change directories
+[SNAPS-OS Tips]: Did you know? You can use "rmdir" to delete empty directories
+[SNAPS-OS Tips]: Did you know? You can use "cat" to display file contents
+[SNAPS-OS Tips]: Did you know? You can use "cp" to copy files or directories
+[SNAPS-OS Tips]: did you know? you can use ** followed by the TAB key in your command line to fzf for the argument.
+[SNAPS-OS Tips]: Did you know? You can use "mv" to move or rename files
+[SNAPS-OS Tips]: Did you know? You can use "rm" to delete files permanently
+[SNAPS-OS Tips]: Did you know? You can use "uname" to display system information
+[SNAPS-OS Tips]: Did you know? You can use "locate" to find files using a database
+[SNAPS-OS Tips]: Did you know? You can use "touch" to create empty files
+[SNAPS-OS Tips]: Did you know? You can use "ln" to create links between files
+[SNAPS-OS Tips]: Did you know? You can use "clear" to clear the terminal screen
+[SNAPS-OS Tips]: Did you know? You can use "ps" to display running processes
+[SNAPS-OS Tips]: Did you know? You can use "man" to display command manuals
+[SNAPS-OS Tips]: Did you know? You can use "grep" to search text patterns in files
+[SNAPS-OS Tips]: Did you know? You can use "echo" to display text in the terminal
+[SNAPS-OS Tips]: Did you know? You can use "wget" to download files from the internet
+[SNAPS-OS Tips]: Did you know? You can use "whoami" to display the current user
+[SNAPS-OS Tips]: Did you know? You can use "sort" to sort file contents
+[SNAPS-OS Tips]: Did you know? You can use "cal" to display the calendar
+[SNAPS-OS Tips]: Did you know? You can use "whereis" to locate command files
+[SNAPS-OS Tips]: Did you know? You can use "df" to display disk space usage
+[SNAPS-OS Tips]: Did you know? You can use "wc" to count words, lines, and characters in a file
+[SNAPS-OS Tips]: Did you know? You can use Tab to auto-complete commands and filenames in the terminal
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+C to stop a running command in the terminal
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+Z to suspend a running command and return to the shell
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+D to exit the current shell session
+[SNAPS-OS Tips]: Did you know? You can use Ctrl+L to clear the terminal screen (same as `clear`)
+[SNAPS-OS Tips]: Did you know? You can use Up/Down Arrow to navigate through command history
+[SNAPS-OS Tips]: Did you know? You can use "sudo !!" to re-run the last command with sudo
+[SNAPS-OS Tips]: Did you know? You can use "!! | grep "pattern"" to search the output of the last command
+[SNAPS-OS Tips]: Did you know? You can use "> file.txt" to redirect command output to a file
+[SNAPS-OS Tips]: Did you know? You can use ">> file.txt" to append command output to a file
+[SNAPS-OS Tips]: Did you know? You can use "|" to pipe the output of one command to another (e.g., `ls | grep "file"`)
+[SNAPS-OS Tips]: Did you know? You can open the overview by moving your mouse to the top left corner of the screen.
+

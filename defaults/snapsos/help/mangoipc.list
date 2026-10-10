@@ -1,0 +1,19 @@
+## Introduction
+this menu shows you mango IPC options in the following format
+command         | example                   | description
+you can search through these.
+
+mmsg get version                | mmsg get version                  | gets the current version of mangoWM in json
+mmsg get keymode                | mmsg get keymode                  | returns the current active keyboard mode in json 
+mmsg get keyboardlayout         | mmsg get keyboardlayout           | returns the current XKB layout in json
+mmsg get monitor                | mmsg get monitor DP-1             | get information about a specific monitor in json
+mmsg get focusing-client        | mmsg get focusing-client          | get all details of the current active window in json
+mmsg get client                 | mmsg get client 12                | gives all details for the window with the provided ID in json
+mmsg get tag                    | mmsg get tag DP-1 1               | gets the status details of a specific tag on a specific monitor in json
+mmsg get tags                   | mmsg get tags DP-1                | gets details on all tags on a specific monitor in json
+mmsg get all-clients            | mmsg get all-clients              | gets details for all clients in json
+mmsg get all-monitors           | mmsg get all-monitors             | gets details for all monitors in json
+mmsg get all-tags               | mmsg get all-tags                 | gets details for all tags in json
+mmsg get last_open_surface      | mmsg get last_open_surface DP-1   | gets the last open surface on a monitor (will generally be DMS)
+mmsg watch                      | mmsg watch monitor                | constant stream that updates whenever the information updates, for use in daemons, works like mmsg get
+mmsg dispatch                   | mmsg dispatch <dispatcher> <args> | runs any keybind dispatcher, see the dispatcher list. 

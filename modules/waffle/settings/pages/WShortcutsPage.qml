@@ -4,6 +4,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.waffle.looks
@@ -11,7 +12,7 @@ import qs.modules.waffle.settings
 
 WSettingsPage {
     id: root
-    settingsPageIndex: 8
+    settingsPageIndex: 9
     pageTitle: Translation.tr("Shortcuts")
     pageIcon: "keyboard"
     pageDescription: Translation.tr("Keyboard shortcuts from Niri config")
@@ -35,7 +36,7 @@ WSettingsPage {
             spacing: 12
             
             FluentIcon {
-                icon: NiriKeybinds.loaded ? "checkmark-circle" : "info"
+                icon: NiriKeybinds.loaded ? "checkmark" : "info"
                 implicitSize: 20
                 color: NiriKeybinds.loaded ? Looks.colors.accent : Looks.colors.subfg
             }
@@ -63,27 +64,10 @@ WSettingsPage {
         }
     }
     
-    // Not Niri warning
-    WSettingsCard {
+    WSettingsInfoBar {
         visible: !CompositorService.isNiri
-        
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-            
-            FluentIcon {
-                icon: "warning"
-                implicitSize: 24
-                color: Looks.colors.accent
-            }
-            
-            WText {
-                Layout.fillWidth: true
-                text: Translation.tr("Shortcuts are only available when running on Niri compositor.")
-                wrapMode: Text.WordWrap
-                color: Looks.colors.subfg
-            }
-        }
+        severity: WSettingsInfoBar.Severity.Warning
+        message: Translation.tr("Shortcuts are only available when running on Niri compositor.")
     }
     
     // Categories
@@ -97,7 +81,7 @@ WSettingsPage {
             
             readonly property var categoryKeybinds: modelData.children?.[0]?.keybinds ?? []
             
-            title: modelData.name
+            title: root.displayCategoryName(modelData.name)
             icon: root.getCategoryIcon(modelData.name)
             
             // Register each keybind for search
@@ -118,25 +102,31 @@ WSettingsPage {
                     // Search registration
                     settingsPageIndex: root.settingsPageIndex
                     settingsPageName: root.pageTitle
-                    settingsSection: categoryCard.modelData.name
+                    settingsSection: root.displayCategoryName(categoryCard.modelData.name)
                 }
             }
         }
+    }
+
+    function displayCategoryName(name: string): string {
+        if (name === "ii Shell")
+            return Translation.tr("iNiR Shell")
+        return name
     }
     
     function getCategoryIcon(name: string): string {
         const icons = {
             "System": "power",
             "ii Shell": "wand",
-            "Window Switcher": "arrow-swap",
+            "Window Switcher": "arrow-sync",
             "Screenshots": "screenshot",
             "Applications": "apps",
-            "Window Management": "window",
-            "Focus": "target",
-            "Move Windows": "arrow-move",
-            "Workspaces": "grid",
+            "Window Management": "desktop",
+            "Focus": "arrow-enter-left",
+            "Move Windows": "arrow-right",
+            "Workspaces": "apps",
             "Media": "speaker-2-filled",
-            "Brightness": "brightness-high",
+            "Brightness": "weather-sunny",
             "Other": "options"
         }
         return icons[name] ?? "keyboard"

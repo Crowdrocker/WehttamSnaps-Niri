@@ -121,7 +121,7 @@ Item {
             radius: cancelButton.background.radius + 4
             color: "transparent"
             border.width: 2
-            border.color: "#ffffff"
+            border.color: "white"  // forced-dark context (scrimmed wallpaper)
         }
     }
 }

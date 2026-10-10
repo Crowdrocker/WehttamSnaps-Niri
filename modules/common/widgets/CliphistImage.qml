@@ -1,6 +1,7 @@
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
+import qs.services.deferred
 import qs.modules.common.functions
 import Qt5Compat.GraphicalEffects
 import QtQuick
@@ -47,25 +48,41 @@ Rectangle {
     implicitHeight: imageHeight * scale
     implicitWidth: imageWidth * scale
 
+    // Lazy decode: only start when visible (avoids mass-spawning processes)
+    property bool _decoded: false
+    onVisibleChanged: {
+        if (visible && !_decoded && root.entry) {
+            _decoded = true;
+            decodeImageProcess.running = true;
+        }
+    }
     Component.onCompleted: {
-        decodeImageProcess.running = true;
+        if (visible && root.entry) {
+            _decoded = true;
+            decodeImageProcess.running = true;
+        }
     }
 
     Process {
         id: decodeImageProcess
-        command: ["/usr/bin/bash", "-c", `[ -f '${imageDecodeFilePath}' ] || echo '${StringUtils.shellSingleQuoteEscape(root.entry)}' | ${Cliphist.cliphistBinary} decode > '${imageDecodeFilePath}'`]
+        // Multiple clipboard surfaces can render the same entry concurrently.
+        // Decode through a per-process temporary file and publish it atomically;
+        // the shared session cache is cleaned once by Directories on shell start.
+        command: ["/usr/bin/bash", "-c", `
+            if [ -s '${imageDecodeFilePath}' ]; then
+                exit 0
+            fi
+            _tmp='${imageDecodeFilePath}'.$$
+            if echo '${StringUtils.shellSingleQuoteEscape(root.entry)}' | ${Cliphist.cliphistBinary} decode > "$_tmp" && [ -s "$_tmp" ]; then
+                /usr/bin/mv -f "$_tmp" '${imageDecodeFilePath}'
+            else
+                /usr/bin/rm -f "$_tmp"
+                exit 1
+            fi
+        `]
         onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0) {
-                root.source = imageDecodeFilePath;
-            } else {
-                console.error("[CliphistImage] Failed to decode image for entry:", root.entry);
-                root.source = "";
-            }
+            root.source = exitCode === 0 ? imageDecodeFilePath : ""
         }
-    }
-
-    Component.onDestruction: {
-        Quickshell.execDetached(["/usr/bin/bash", "-c", `[ -f '${imageDecodeFilePath}' ] && /usr/bin/rm -f '${imageDecodeFilePath}'`]);
     }
 
     layer.enabled: true
@@ -99,7 +116,8 @@ Rectangle {
         sourceComponent: GaussianBlur {
             source: image
             radius: 35
-            samples: radius * 2 + 1
+            // See #159 — cap samples to bound fragment shader cost
+            samples: Math.min(33, radius * 2 + 1)
 
             Rectangle {
                 anchors.fill: parent

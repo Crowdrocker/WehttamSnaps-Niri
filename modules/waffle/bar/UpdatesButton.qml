@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.waffle.looks
@@ -18,12 +19,7 @@ BarIconButton {
     iconMonochrome: true
     tooltipText: Translation.tr("Updates available: %1 packages").arg(Updates.count)
 
-    function runUpdate(): void {
-        const cmd = Config.options?.apps?.update ?? "foot -e sudo pacman -Syu"
-        ShellExec.execCmd(cmd)
-    }
-
-    onClicked: runUpdate()
+    onClicked: PackageSearch.runConfiguredUpdate()
 
     altAction: () => {
         menu.active = true
@@ -64,7 +60,7 @@ BarIconButton {
                 }
                 onClicked: {
                     menu.close()
-                    root.runUpdate()
+                    PackageSearch.runConfiguredUpdate()
                 }
             }
 
@@ -106,7 +102,7 @@ BarIconButton {
                 }
                 onClicked: {
                     menu.close()
-                    Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"])
+                    Quickshell.execDetached([Quickshell.shellPath("scripts/inir"), "settings"])
                 }
             }
         }

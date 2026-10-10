@@ -1,0 +1,25 @@
+{
+    "layer": "overlay",
+    "exclusive": true,
+    "position": "top",
+    "margin-top": -2,
+    "margin-bottom": -30,
+
+    "spacing": 2,
+    "include": [
+        "~/.config/snapsos/wayshell/configs/screenshot-modules"
+    ],
+    "modules-left": [
+    ],
+    "modules-center": [
+        "custom/ss-monitor",
+        "custom/ss-zone",
+        "custom/ss-all",
+        "custom/ss-window",
+        "custom/ss-obs",
+        "custom/ss-mode",
+        "custom/ss-settings"
+    ],
+    "modules-right": [
+    ]
+}

@@ -7,6 +7,7 @@ import Qt5Compat.GraphicalEffects
 import qs
 import qs.services
 import qs.modules.common
+import qs.modules.iris.style
 import qs.modules.common.widgets
 import qs.modules.ii.overlay
 
@@ -15,25 +16,35 @@ StyledOverlayWidget {
     minimumWidth: 300
     minimumHeight: 200
 
-    Component.onCompleted: ResourceUsage.ensureRunning()
+    property QtObject resourceMonitor: ResourceUsageMonitor { target: root }
     property list<var> resources: [
         {
             "icon": "planner_review",
             "name": Translation.tr("CPU"),
             "history": ResourceUsage.cpuUsageHistory,
-            "maxAvailableString": ResourceUsage.maxAvailableCpuString
+            "maxAvailableString": ResourceUsage.maxAvailableCpuString,
+            "detailString": Translation.tr("Temp: %1°C").arg(ResourceUsage.cpuTemp)
+        },
+        {
+            "icon": "memory_alt",
+            "name": Translation.tr("GPU"),
+            "history": ResourceUsage.gpuUsageHistory,
+            "maxAvailableString": ResourceUsage.maxAvailableGpuString,
+            "detailString": Translation.tr("Temp: %1°C").arg(ResourceUsage.gpuTemp)
         },
         {
             "icon": "memory",
             "name": Translation.tr("RAM"),
             "history": ResourceUsage.memoryUsageHistory,
-            "maxAvailableString": ResourceUsage.maxAvailableMemoryString
+            "maxAvailableString": ResourceUsage.maxAvailableMemoryString,
+            "detailString": Translation.tr("Used: %1 GB").arg((ResourceUsage.memoryUsed / (1024 * 1024)).toFixed(1))
         },
         {
             "icon": "swap_horiz",
             "name": Translation.tr("Swap"),
             "history": ResourceUsage.swapUsageHistory,
-            "maxAvailableString": ResourceUsage.maxAvailableSwapString
+            "maxAvailableString": ResourceUsage.maxAvailableSwapString,
+            "detailString": Translation.tr("Used: %1 GB").arg((ResourceUsage.swapUsed / (1024 * 1024)).toFixed(1))
         },
     ]
 
@@ -49,8 +60,16 @@ StyledOverlayWidget {
             }
             spacing: 8
 
+            OverlaySegments {
+                visible: OverlayLook.iris
+                Layout.fillWidth: true
+                segments: root.resources.map(resource => ({ label: resource.name, glyph: resource.icon }))
+                currentIndex: tabBar.currentIndex
+                onActivated: index => tabBar.currentIndex = index
+            }
             SecondaryTabBar {
                 id: tabBar
+                visible: !OverlayLook.iris
 
                 currentIndex: Persistent.states.overlay.resources.tabIndex
                 onCurrentIndexChanged: {
@@ -72,6 +91,7 @@ StyledOverlayWidget {
                 Layout.margins: 8
                 history: root.resources[tabBar.currentIndex]?.history ?? []
                 maxAvailableString: root.resources[tabBar.currentIndex]?.maxAvailableString ?? "--"
+                detailString: root.resources[tabBar.currentIndex]?.detailString ?? ""
             }
         }
     }
@@ -80,6 +100,7 @@ StyledOverlayWidget {
         id: resourceSummary
         required property list<real> history
         required property string maxAvailableString
+        required property string detailString
         Layout.fillWidth: true
         Layout.fillHeight: true
         spacing: 12
@@ -87,9 +108,10 @@ StyledOverlayWidget {
         ColumnLayout {
             spacing: 2
             StyledText {
-                text: (resourceSummary.history[resourceSummary.history.length - 1] * 100).toFixed(1) + "%"
+                readonly property real latest: Number(resourceSummary.history[resourceSummary.history.length - 1])
+                text: Number.isFinite(latest) ? (latest * 100).toFixed(1) + "%" : "--"
                 font {
-                    family: Appearance.font.family.numbers
+                    family: OverlayLook.fontNumbers
                     variableAxes: Appearance.font.variableAxes.numbers
                     pixelSize: Appearance.font.pixelSize.huge
                 }
@@ -101,7 +123,13 @@ StyledOverlayWidget {
                     // variableAxes: Appearance.font.variableAxes.numbers
                     pixelSize: Appearance.font.pixelSize.smallie
                 }
-                color: Appearance.colors.colSubtext
+                color: OverlayLook.colSubtext
+            }
+            StyledText {
+                text: resourceSummary.detailString
+                font.pixelSize: Appearance.font.pixelSize.smallie
+                color: OverlayLook.colSubtext
+                visible: text.length > 0
             }
             Item {
                 Layout.fillHeight: true
@@ -111,8 +139,11 @@ StyledOverlayWidget {
             id: graphBg
             Layout.fillWidth: true
             Layout.fillHeight: true
-            radius: Appearance.rounding.small
-            color: Appearance.colors.colSecondaryContainer
+            radius: OverlayLook.roundingSmall
+            // ZZZ: a recessed carbon plate for the graph; the bright signal is for
+            // the plotted line, not the track behind it.
+            color: Appearance.zzzEverywhere ? Appearance.zzz.bg3 : OverlayLook.colRecessed
+            Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
             layer.enabled: true
             layer.effect: OpacityMask {
                 maskSource: Rectangle {
@@ -123,6 +154,7 @@ StyledOverlayWidget {
             }
             Graph {
                 anchors.fill: parent
+                Binding on color { when: OverlayLook.iris; value: IrisStyle.accent }
                 values: root.resources[tabBar.currentIndex]?.history ?? []
                 points: ResourceUsage.historyLength
                 alignment: Graph.Alignment.Right

@@ -1,5 +1,6 @@
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -16,16 +17,22 @@ Item {
     property bool showSeparator: true
     property bool showOverflowMenu: true
     property var activeMenu: null
+    onActiveMenuChanged: updateOverflowAutoClose()
 
     Timer {
         id: overflowAutoCloseTimer
-        interval: 700
+        interval: 1500
         repeat: false
         onTriggered: root.trayOverflowOpen = false
     }
 
     function updateOverflowAutoClose(): void {
         if (!root.trayOverflowOpen) {
+            overflowAutoCloseTimer.stop();
+            return;
+        }
+        // Never auto-close while a context menu is open from an overflow item
+        if (root.activeMenu !== null) {
             overflowAutoCloseTimer.stop();
             return;
         }
@@ -49,7 +56,7 @@ Item {
         const id = (i.id || "").toLowerCase();
         const title = (i.title || "").toLowerCase();
         const isSpotify = id.indexOf("spotify") !== -1 || title.indexOf("spotify") !== -1;
-        return Config.options.bar.tray.pinnedItems.includes(i.id)
+        return (Config.options?.bar?.tray?.pinnedItems ?? []).includes(i.id)
                 && (!smartTray || i.status !== Status.Passive || isSpotify);
     })
     property list<var> itemsNotInUserList: SystemTray.items.values.filter(i => {
@@ -57,11 +64,11 @@ Item {
         const id = (i.id || "").toLowerCase();
         const title = (i.title || "").toLowerCase();
         const isSpotify = id.indexOf("spotify") !== -1 || title.indexOf("spotify") !== -1;
-        return !Config.options.bar.tray.pinnedItems.includes(i.id)
+        return !(Config.options?.bar?.tray?.pinnedItems ?? []).includes(i.id)
                 && (!smartTray || i.status !== Status.Passive || isSpotify);
     })
 
-    property bool invertPins: Config.options.bar.tray.invertPinnedItems
+    property bool invertPins: Config.options?.bar?.tray?.invertPinnedItems ?? false
     property list<var> pinnedItems: invertPins ? itemsNotInUserList : itemsInUserList
     property list<var> unpinnedItems: invertPins ? itemsInUserList : itemsNotInUserList
     onUnpinnedItemsChanged: {
@@ -90,10 +97,15 @@ Item {
         active: (root.trayOverflowOpen && overflowPopup.QsWindow?.window !== null) || root.activeMenu !== null
         windows: [overflowPopup.QsWindow?.window, root.activeMenu]
         onCleared: {
-            root.trayOverflowOpen = false;
             if (root.activeMenu) {
                 root.activeMenu.close();
                 root.activeMenu = null;
+            }
+            // If still hovering the overflow area, keep it open and let the timer handle it
+            if (trayOverflowButton.hovered || overflowPopup.popupHovered) {
+                root.updateOverflowAutoClose();
+            } else {
+                root.trayOverflowOpen = false;
             }
         }
     }
@@ -120,14 +132,17 @@ Item {
             background.implicitWidth: 24
             background.implicitHeight: 24
             background.anchors.centerIn: this
-            colBackgroundToggled: Appearance.inirEverywhere ? Appearance.inir.colSelection 
-                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface 
+            colBackgroundToggled: Appearance.zzzEverywhere ? Appearance.zzz.sticker
+                : Appearance.inirEverywhere ? Appearance.inir.colSelection
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface
                 : Appearance.colors.colSecondaryContainer
-            colBackgroundToggledHover: Appearance.inirEverywhere ? Appearance.inir.colSelectionHover 
-                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurfaceHover 
+            colBackgroundToggledHover: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryHover
+                : Appearance.inirEverywhere ? Appearance.inir.colSelectionHover
+                : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurfaceHover
                 : Appearance.colors.colSecondaryContainerHover
-            colRippleToggled: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive 
-                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive 
+            colRippleToggled: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryActive
+                : Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive
+                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive
                 : Appearance.colors.colSecondaryContainerActive
 
             contentItem: MaterialSymbol {
@@ -135,10 +150,12 @@ Item {
                 iconSize: Appearance.font.pixelSize.larger
                 text: "expand_more"
                 horizontalAlignment: Text.AlignHCenter
-                color: root.trayOverflowOpen ? (Appearance.inirEverywhere ? Appearance.inir.colOnSelection : Appearance.colors.colOnSecondaryContainer) : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2)
+                color: root.trayOverflowOpen
+                    ? (Appearance.zzzEverywhere ? Appearance.zzz.onSticker : Appearance.angelEverywhere ? Appearance.angel.colOnPrimary : Appearance.inirEverywhere ? Appearance.inir.colOnSelection : Appearance.colors.colOnSecondaryContainer)
+                    : (Appearance.zzzEverywhere ? Appearance.zzz.ink : Appearance.angelEverywhere ? Appearance.angel.colText : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2)
                 rotation: (root.trayOverflowOpen ? 180 : 0) - (90 * root.vertical) + (180 * root.invertSide)
                 Behavior on rotation {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
             }
 
@@ -198,7 +215,9 @@ Item {
         StyledText {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             font.pixelSize: Appearance.font.pixelSize.larger
-            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+            color: Appearance.angelEverywhere ? Appearance.angel.colTextSecondary
+                : Appearance.regaliaEverywhere ? Appearance.regalia.onMuted
+                : Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
             text: "•"
             visible: root.showSeparator && SystemTray.items.values.length > 0
         }

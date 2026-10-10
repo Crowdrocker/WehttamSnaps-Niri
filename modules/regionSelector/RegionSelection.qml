@@ -1,23 +1,25 @@
 pragma ComponentBehavior: Bound
+import qs
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.widgets
 import qs.modules.waffle.regionSelector as WaffleRegion
+import qs.modules.iris.regionSelector as IrisRegion
+import qs.modules.iris.style
 import qs.services
 import QtQuick
 import QtQuick.Controls
-// import Qt.labs.synchronizer // Removed: causes event loop crashes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
 PanelWindow {
     id: root
-    visible: false
+    visible: true
     color: "transparent"
     WlrLayershell.namespace: "quickshell:regionSelector"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
     exclusionMode: ExclusionMode.Ignore
     anchors {
         left: true
@@ -26,7 +28,6 @@ PanelWindow {
         bottom: true
     }
 
-    // TODO: Ask: sidebar AI; Ocr: tesseract
     enum SnipAction { Copy, Edit, Search, CharRecognition, Record, RecordWithSound } 
     enum SelectionMode { RectCorners, Circle }
     property var action: RegionSelection.SnipAction.Copy
@@ -36,19 +37,62 @@ PanelWindow {
     readonly property bool useNiri: CompositorService.isNiri
 
     property string screenshotDir: Directories.screenshotTemp
-    property string imageSearchEngineBaseUrl: Config.options?.search?.imageSearch?.imageSearchEngineBaseUrl ?? "https://lens.google.com/uploadbyurl?url="
-    property string fileUploadApiEndpoint: Config.options?.search?.imageSearch?.fileUploadApiEndpoint ?? "https://0x0.st"
-    property color overlayColor: "#88111111"
-    property color brightText: Appearance.m3colors.darkmode ? Appearance.colors.colOnLayer0 : Appearance.colors.colLayer0
-    property color brightSecondary: Appearance.m3colors.darkmode ? Appearance.colors.colSecondary : Appearance.colors.colOnSecondary
-    property color brightTertiary: Appearance.m3colors.darkmode ? Appearance.colors.colTertiary : Qt.lighter(Appearance.colors.colPrimary)
-    property color selectionBorderColor: ColorUtils.mix(brightText, brightSecondary, 0.5)
-    property color selectionFillColor: "#33ffffff"
+    readonly property string screenshotNameFormat: Config.options?.regionSelector?.screenshotNameFormat || "ss-%Y%m%d-%H%M%S"
+    property string imageSearchEngineBaseUrl: Config.options?.search?.imageSearch?.imageSearchEngineBaseUrl ?? "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIVSP&sbisrc=UrlPaste&q=imgurl:"
+    property string fileUploadApiEndpoint: Config.options?.search?.imageSearch?.fileUploadApiFallback ?? "https://litterbox.catbox.moe/resources/internals/api.php"
+    property string fileUploadApiFallback: Config.options?.search?.imageSearch?.fileUploadApiFallback2 ?? "https://catbox.moe/user/api.php"
+    property string fileUploadApiFallback2: Config.options?.search?.imageSearch?.fileUploadApiEndpoint ?? "https://0x0.st"
+    readonly property string effectiveImageSearchEngineBaseUrl: {
+        const configured = imageSearchEngineBaseUrl ?? ""
+        // Google and Yandex endpoints no longer work well, fallback to Bing
+        if (configured === ""
+                || configured === "https://lens.google.com/uploadbyurl?url="
+                || configured === "https://www.google.com/searchbyimage?image_url="
+                || configured === "https://yandex.com/images/search?rpt=imageview&url=") {
+            return "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIVSP&sbisrc=UrlPaste&q=imgurl:"
+        }
+        return configured
+    }
+
+    readonly property bool useIris: Config.options?.panelFamily === "iris"
+    // The toolbar rests against a screen edge the shell may already own.
+    readonly property var shellInsets: ShellLayoutController.desktopInsets(root.screen?.name ?? "")
+
+    // Tri-style color support
+    property color overlayColor: root.useIris ? IrisStyle.veilStrong
+        : Appearance.angelEverywhere ? ColorUtils.applyAlpha(Appearance.colors.colScrim, 0.33)
+        : Appearance.inirEverywhere ? ColorUtils.applyAlpha(Appearance.colors.colScrim, 0.53)
+        : Appearance.auroraEverywhere ? ColorUtils.applyAlpha(Appearance.colors.colScrim, 0.4) : ColorUtils.applyAlpha(Appearance.colors.colScrim, 0.53)
+    property color brightText: root.useIris ? IrisStyle.onMedia
+        : Appearance.inirEverywhere ? Appearance.inir.colText
+        : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer0
+        : (Appearance.m3colors.darkmode ? Appearance.colors.colOnLayer0 : Appearance.colors.colLayer0)
+    property color brightSecondary: root.useIris ? IrisStyle.onMediaSecondary
+        : Appearance.inirEverywhere ? Appearance.inir.colTextSecondary
+        : Appearance.auroraEverywhere ? Appearance.aurora.colTextSecondary
+        : (Appearance.m3colors.darkmode ? Appearance.colors.colSecondary : Appearance.colors.colOnSecondary)
+    property color brightTertiary: root.useIris ? IrisStyle.accent
+        : Appearance.zzzEverywhere ? Appearance.zzz.accent
+        : Appearance.inirEverywhere ? Appearance.inir.colPrimary
+        : Appearance.auroraEverywhere ? Appearance.colors.colPrimary
+        : (Appearance.m3colors.darkmode ? Appearance.colors.colTertiary : Qt.lighter(Appearance.colors.colPrimary))
+    property color selectionBorderColor: root.useIris ? IrisStyle.onMedia
+        : Appearance.zzzEverywhere ? Appearance.zzz.accent
+        : Appearance.inirEverywhere ? Appearance.inir.colBorder
+        : Appearance.auroraEverywhere ? Appearance.aurora.colPopupBorder
+        : ColorUtils.mix(brightText, brightSecondary, 0.5)
+    property color selectionFillColor: root.useIris ? IrisStyle.onMediaFill
+        : Appearance.zzzEverywhere ? ColorUtils.transparentize(Appearance.zzz.accent, 0.86)
+        : Appearance.inirEverywhere ? ColorUtils.transparentize(Appearance.inir.colPrimary, 0.8)
+        : Appearance.auroraEverywhere ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.8)
+        : ColorUtils.applyAlpha(Appearance.colors.colOnLayer0, 0.2)
     property color windowBorderColor: brightSecondary
     property color windowFillColor: ColorUtils.transparentize(windowBorderColor, 0.85)
     property color imageBorderColor: brightTertiary
     property color imageFillColor: ColorUtils.transparentize(imageBorderColor, 0.85)
-    property color onBorderColor: "#ff000000"
+    property color onBorderColor: root.useIris ? IrisStyle.onMedia
+        : Appearance.inirEverywhere ? Appearance.inir.colText
+        : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer0 : Appearance.colors.colScrim
     readonly property var windows: useNiri
         ? (NiriService.windows || [])
         : [...HyprlandData.windowList].sort((a, b) => {
@@ -71,6 +115,7 @@ PanelWindow {
         ? (NiriService.focusedWorkspaceIndex ?? 0)
         : (hyprlandMonitor && hyprlandMonitor.activeWorkspace ? hyprlandMonitor.activeWorkspace.id : 0)
     property string screenshotPath: `${root.screenshotDir}/image-${screen.name}`
+    property bool screenshotReady: false
     property real dragStartX: 0
     property real dragStartY: 0
     property real draggingX: 0
@@ -232,11 +277,22 @@ PanelWindow {
     property real regionX: Math.min(dragStartX, draggingX)
     property real regionY: Math.min(dragStartY, draggingY)
 
+    Component.onCompleted: {
+        root.screenshotReady = false
+        screenshotProc.running = true
+    }
+
     Process {
         id: screenshotProc
-        running: true
+        running: false
         command: ["/usr/bin/bash", "-c", `/usr/bin/mkdir -p '${StringUtils.shellSingleQuoteEscape(root.screenshotDir)}' && /usr/bin/grim -o '${StringUtils.shellSingleQuoteEscape(root.screen.name)}' '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}'`]
         onExited: (exitCode, exitStatus) => {
+            if (exitCode !== 0) {
+                root.screenshotReady = false
+                Quickshell.execDetached(["/usr/bin/notify-send", "Region search failed", "grim failed to capture the screen" , "-a", "Region Selector", "-t", "4000"])
+            } else {
+                root.screenshotReady = true
+            }
             if (root.enableContentRegions) imageDetectionProcess.running = true;
             root.preparationDone = !checkRecordingProc.running;
         }
@@ -256,17 +312,16 @@ PanelWindow {
     onPreparationDoneChanged: {
         if (!preparationDone) return;
         if (root.isRecording && root.recordingShouldStop) {
-            Quickshell.execDetached([Directories.recordScriptPath]);
+            Quickshell.execDetached([Directories.recordScriptPath, "--stop"]);
             root.dismiss();
             return;
         }
-        // Small delay to ensure screenshot is written to disk
         Qt.callLater(() => { root.visible = true; });
     }
 
     Process {
         id: imageDetectionProcess
-        command: ["/usr/bin/bash", "-c", `${Directories.scriptPath}/images/find-regions-venv.sh ` 
+        command: ["/usr/bin/bash", "-c", `${Directories.scriptsPath}/images/find-regions-venv.sh ` 
             + `--image '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' ` 
             + `--max-width ${Math.round(root.screen.width * root.falsePositivePreventionRatio)} ` 
             + `--max-height ${Math.round(root.screen.height * root.falsePositivePreventionRatio)} `]
@@ -282,7 +337,6 @@ PanelWindow {
                         );
                     }
                 } catch (e) {
-                    console.warn("[RegionSelection] Failed to parse image dimensions:", e)
                     imageRegions = []
                 }
             }
@@ -290,53 +344,77 @@ PanelWindow {
     }
 
     function snip() {
-        // Validity check
         if (root.regionWidth <= 0 || root.regionHeight <= 0) {
-            console.warn("[Region Selector] Invalid region size, skipping snip.");
             root.dismiss();
             return;
         }
 
-        // Clamp region to screen bounds
         root.regionX = Math.max(0, Math.min(root.regionX, root.screen.width - root.regionWidth));
         root.regionY = Math.max(0, Math.min(root.regionY, root.screen.height - root.regionHeight));
         root.regionWidth = Math.max(0, Math.min(root.regionWidth, root.screen.width - root.regionX));
         root.regionHeight = Math.max(0, Math.min(root.regionHeight, root.screen.height - root.regionY));
 
-        // Adjust action
-        if (root.action === RegionSelection.SnipAction.Copy || root.action === RegionSelection.SnipAction.Edit) {
-            root.action = root.mouseButton === Qt.RightButton ? RegionSelection.SnipAction.Edit : RegionSelection.SnipAction.Copy;
+        // Honor the toolbar's explicit action. Right-click while in plain
+        // screenshot (Copy) mode stays a shortcut to annotate instead.
+        if (root.action === RegionSelection.SnipAction.Copy && root.mouseButton === Qt.RightButton) {
+            root.action = RegionSelection.SnipAction.Edit;
         }
 
-        // Set command for action
         const rx = Math.round(root.regionX * root.monitorScale);
         const ry = Math.round(root.regionY * root.monitorScale);
         const rw = Math.round(root.regionWidth * root.monitorScale);
         const rh = Math.round(root.regionHeight * root.monitorScale);
-        const cropBase = `magick ${StringUtils.shellSingleQuoteEscape(root.screenshotPath)} `
+        const cropBase = `magick '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' `
             + `-crop ${rw}x${rh}+${rx}+${ry}`
         const cropToStdout = `${cropBase} -`
         const cropInPlace = `${cropBase} '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}'`
         const cleanup = `/usr/bin/rm '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}'`
         const slurpRegion = `${rx},${ry} ${rw}x${rh}`
+        const screenshotSaveDir = StringUtils.shellSingleQuoteEscape(Directories.screenshotsPath)
         const uploadAndGetUrl = (filePath) => {
-            // 0x0.st returns the URL directly, no JSON parsing needed
-            return `/usr/bin/curl -sF file=@'${StringUtils.shellSingleQuoteEscape(filePath)}' ${root.fileUploadApiEndpoint}`
+            const escaped = StringUtils.shellSingleQuoteEscape(filePath)
+            const primary = `/usr/bin/curl -s --max-time 15 -F reqtype=fileupload -F time=1h -F fileToUpload=@'${escaped}' '${root.fileUploadApiEndpoint}'`
+            const fallback1 = `/usr/bin/curl -s --max-time 15 -F reqtype=fileupload -F fileToUpload=@'${escaped}' '${root.fileUploadApiFallback}'`
+            const fallback2 = `/usr/bin/curl -sf --max-time 10 -F file=@'${escaped}' '${root.fileUploadApiFallback2}'`
+            // Try primary, then fallback1, then fallback2 if all fail or return empty/non-URL response
+            return `url=$(${primary} 2>/dev/null); if [[ -z "$url" || "$url" != http* ]]; then url=$(${fallback1}); fi; if [[ -z "$url" || "$url" != http* ]]; then url=$(${fallback2}); fi; echo "$url"`
         }
         const annotationCommand = `${(Config.options?.regionSelector?.annotation?.useSatty ?? false) ? "satty" : "swappy"} -f -`;
+        const clipboardCopy = StringUtils.shellSingleQuoteEscape(Quickshell.shellPath("scripts/clipboard-copy.sh"));
         switch (root.action) {
             case RegionSelection.SnipAction.Copy:
-                snipProc.command = ["/usr/bin/bash", "-c", `${cropToStdout} | /usr/bin/wl-copy && ${cleanup} && /usr/bin/notify-send "Screenshot copied" "${rw}x${rh} region copied to clipboard" -a "Screenshot" -i camera-photo -t 3000`]
+                snipProc.command = ["/usr/bin/bash", "-c", `_dir='${screenshotSaveDir}' && mkdir -p "$_dir" && _ss="$_dir/$(date +'${StringUtils.shellSingleQuoteEscape(root.screenshotNameFormat)}').png" && ${cropToStdout} | tee "$_ss" | '${clipboardCopy}' && printf '%s' "$_ss" | '${clipboardCopy}' --primary && ${cleanup} && /usr/bin/notify-send "Screenshot copied" "${rw}x${rh} saved to $_ss" -a "Screenshot" -i camera-photo -t 3000`]
                 break;
             case RegionSelection.SnipAction.Edit:
+                if (Config.options?.regionSelector?.annotation?.useNativeEditor ?? true) {
+                    editCropProc.editFile = `${root.screenshotDir}/edit-${root.screen.name}.png`;
+                    editCropProc.editScreenName = root.screen.name;
+                    editCropProc.command = ["/usr/bin/bash", "-c", `${cropBase} '${StringUtils.shellSingleQuoteEscape(editCropProc.editFile)}' && ${cleanup}`];
+                    editCropProc.running = true;
+                    return; // editCropProc.onExited opens the native editor and dismisses
+                }
                 snipProc.command = ["/usr/bin/bash", "-c", `${cropToStdout} | ${annotationCommand} && ${cleanup}`]
                 break;
             case RegionSelection.SnipAction.Search:
-                snipProc.command = ["/usr/bin/bash", "-c", `${cropInPlace} && /usr/bin/xdg-open "${root.imageSearchEngineBaseUrl}$(${uploadAndGetUrl(root.screenshotPath)})" && ${cleanup}`]
+                snipProc.command = ["/usr/bin/bash", "-c", `${cropInPlace} && uploaded_url="$(${uploadAndGetUrl(root.screenshotPath)})"; if [[ -n "$uploaded_url" && "$uploaded_url" == http* ]]; then /usr/bin/xdg-open "${root.effectiveImageSearchEngineBaseUrl}$uploaded_url"; else /usr/bin/notify-send "Image search failed" "Could not upload the image for reverse search" -a "Image Search" -i image; fi; ${cleanup}`]
                 break;
-            case RegionSelection.SnipAction.CharRecognition:
-                snipProc.command = ["/usr/bin/bash", "-c", `${cropInPlace} && /usr/bin/tesseract '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' stdout -l $(/usr/bin/tesseract --list-langs | /usr/bin/awk 'NR>1{print $1}' | /usr/bin/tr '\\n' '+' | /usr/bin/sed 's/\\+$/\\n/') | /usr/bin/wl-copy && ${cleanup} && /usr/bin/notify-send "Text recognized" "OCR text copied to clipboard" -a "OCR" -i edit-find -t 3000`]
+            case RegionSelection.SnipAction.CharRecognition: {
+                const ocrLanguage = String(Config.options?.regionSelector?.ocrLanguage ?? "auto");
+                const ocrRunner = StringUtils.shellSingleQuoteEscape(Quickshell.shellPath("scripts/ocr-runner.sh"));
+                const japaneseLookup = Config.options?.regionSelector?.japaneseLookup?.enabled ?? true;
+                if (japaneseLookup && (ocrLanguage === "jpn" || ocrLanguage === "jpn_vert" || ocrLanguage.startsWith("jpn+"))) {
+                    japaneseOcrProc.lookupX = root.regionX;
+                    japaneseOcrProc.lookupY = root.regionY;
+                    japaneseOcrProc.lookupWidth = root.regionWidth;
+                    japaneseOcrProc.lookupHeight = root.regionHeight;
+                    japaneseOcrProc.command = ["/usr/bin/bash", "-c", `${cropInPlace} && '${ocrRunner}' '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' '${StringUtils.shellSingleQuoteEscape(ocrLanguage)}'; _ocr_status=$?; ${cleanup}; exit $_ocr_status`];
+                    root.visible = false;
+                    japaneseOcrProc.running = true;
+                    return;
+                }
+                snipProc.command = ["/usr/bin/bash", "-c", `${cropInPlace} && { '${ocrRunner}' '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' '${StringUtils.shellSingleQuoteEscape(ocrLanguage)}' | tee >('${clipboardCopy}' --primary) | '${clipboardCopy}'; _ocr_status=\${PIPESTATUS[0]}; ${cleanup}; if (( _ocr_status == 0 )); then /usr/bin/notify-send "Text recognized" "OCR text copied to clipboard" -a "OCR" -i edit-find -t 3000; else /usr/bin/notify-send "OCR failed" "The selected OCR language is unavailable or recognition failed" -a "OCR" -i dialog-error -t 4000; exit \$_ocr_status; fi; }`];
                 break;
+            }
             case RegionSelection.SnipAction.Record:
                 snipProc.command = ["/usr/bin/bash", "-c", `${Directories.recordScriptPath} --region '${slurpRegion}'`]
                 break;
@@ -344,18 +422,82 @@ PanelWindow {
                 snipProc.command = ["/usr/bin/bash", "-c", `${Directories.recordScriptPath} --region '${slurpRegion}' --sound`]
                 break;
             default:
-                console.warn("[Region Selector] Unknown snip action, skipping snip.");
                 root.dismiss();
                 return;
         }
 
         // Image post-processing
         snipProc.startDetached();
+        if (root.action === RegionSelection.SnipAction.Record
+                || root.action === RegionSelection.SnipAction.RecordWithSound)
+            RecorderStatus.scheduleQuickCheck();
         root.dismiss();
+    }
+
+    // Capture the whole screen with the current action (no region drawing).
+    function snipFullscreen() {
+        root.dragStartX = 0;
+        root.dragStartY = 0;
+        root.draggingX = root.screen.width;
+        root.draggingY = root.screen.height;
+        root.snip();
     }
 
     Process {
         id: snipProc
+    }
+
+    Process {
+        id: japaneseOcrProc
+        property real lookupX: 0
+        property real lookupY: 0
+        property real lookupWidth: 0
+        property real lookupHeight: 0
+        property string recognizedText: ""
+        stdout: StdioCollector {
+            id: japaneseOcrOut
+            onStreamFinished: {
+                const recognized = (japaneseOcrOut.text ?? "").trim();
+                japaneseOcrProc.recognizedText = recognized;
+                if (recognized.length > 0) {
+                    const clipboardCopy = Quickshell.shellPath("scripts/clipboard-copy.sh");
+                    Quickshell.execDetached([clipboardCopy, recognized]);
+                    Quickshell.execDetached([clipboardCopy, "--primary", recognized]);
+                    JapaneseDictionary.lookupText(recognized, root.screen.name, japaneseOcrProc.lookupX, japaneseOcrProc.lookupY, japaneseOcrProc.lookupWidth, japaneseOcrProc.lookupHeight);
+                }
+            }
+        }
+        stderr: StdioCollector { id: japaneseOcrErr }
+        onExited: (exitCode) => {
+            if (exitCode === 0 && japaneseOcrProc.recognizedText.length > 0) {
+                Quickshell.execDetached(["notify-send", "Japanese OCR", "Text recognized; opening dictionary", "-a", "iNiR", "-t", "1800"]);
+            } else if (exitCode === 0) {
+                Quickshell.execDetached(["notify-send", "OCR", "No text was recognized in the selected region", "-a", "iNiR", "-t", "3500"]);
+            } else {
+                const detail = (japaneseOcrErr.text ?? "").trim();
+                const message = detail.length > 0 ? detail : Translation.tr("Japanese text recognition failed");
+                Quickshell.execDetached(["notify-send", "OCR failed", message, "-a", "iNiR", "-t", "5000"]);
+            }
+            root.dismiss();
+        }
+    }
+
+    // Crops the selected region to a temp file for the native annotation editor,
+    // then opens it. Lives until exit (we dismiss only after it fires).
+    Process {
+        id: editCropProc
+        property string editFile: ""
+        property string editScreenName: ""
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0) {
+                GlobalStates.annotationEditorPath = editCropProc.editFile;
+                GlobalStates.annotationEditorScreenName = editCropProc.editScreenName;
+                GlobalStates.annotationEditorOpen = true;
+            } else {
+                Quickshell.execDetached(["/usr/bin/notify-send", "Edit failed", "Could not prepare the region for editing", "-a", "Screenshot", "-t", "3000"]);
+            }
+            root.dismiss();
+        }
     }
 
     Rectangle {
@@ -364,7 +506,7 @@ PanelWindow {
 
         Image {
             anchors.fill: parent
-            source: root.visible ? `file://${root.screenshotPath}` : ""
+            source: root.visible && root.screenshotReady ? `file://${root.screenshotPath}` : ""
             fillMode: Image.PreserveAspectFit
             cache: false
         }
@@ -517,8 +659,11 @@ PanelWindow {
                 opacity: 0
                 
                 readonly property bool useWaffle: Config.options?.panelFamily === "waffle"
-                
-                // Position: waffle = top center, material = bottom center
+
+                // Position: waffle = top center, material and iRiS = bottom center
+                readonly property real restTopMargin: 16 + (root.shellInsets.top ?? 0)
+                readonly property real restBottomMargin: 8 + (root.shellInsets.bottom ?? 0)
+
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     top: useWaffle ? parent.top : undefined
@@ -526,32 +671,57 @@ PanelWindow {
                     topMargin: useWaffle ? -height : 0
                     bottomMargin: useWaffle ? 0 : -height
                 }
-                
+
                 Connections {
                     target: root
                     function onVisibleChanged() {
                         if (!visible) return;
                         if (regionSelectionControls.useWaffle) {
-                            regionSelectionControls.anchors.topMargin = 16;
+                            regionSelectionControls.anchors.topMargin = regionSelectionControls.restTopMargin;
                         } else {
-                            regionSelectionControls.anchors.bottomMargin = 8;
+                            regionSelectionControls.anchors.bottomMargin = regionSelectionControls.restBottomMargin;
                         }
                         regionSelectionControls.opacity = 1;
                     }
                 }
+                onRestBottomMarginChanged: {
+                    if (root.visible && !regionSelectionControls.useWaffle)
+                        regionSelectionControls.anchors.bottomMargin = regionSelectionControls.restBottomMargin;
+                }
+                onRestTopMarginChanged: {
+                    if (root.visible && regionSelectionControls.useWaffle)
+                        regionSelectionControls.anchors.topMargin = regionSelectionControls.restTopMargin;
+                }
                 Behavior on opacity {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
                 Behavior on anchors.topMargin {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
                 Behavior on anchors.bottomMargin {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
 
                 Loader {
                     id: controlsLoader
-                    sourceComponent: regionSelectionControls.useWaffle ? waffleControls : materialControls
+                    sourceComponent: regionSelectionControls.useWaffle ? waffleControls
+                        : root.useIris ? irisControls : materialControls
+                }
+
+                Component {
+                    id: irisControls
+                    IrisRegion.IrisOptionsToolbar {
+                        action: root.action
+                        selectionMode: root.selectionMode
+                        onActionChanged: root.action = action
+                        onSelectionModeChanged: root.selectionMode = selectionMode
+                        onDismiss: root.dismiss()
+                        onFullscreenRequested: root.snipFullscreen()
+                        onColorPickerRequested: {
+                            root.dismiss();
+                            ShellExec.execDetachedArgs(["/usr/bin/bash", "-c", "sleep 0.3; /usr/bin/hyprpicker -a"], "Pick color");
+                        }
+                    }
                 }
 
                 // Material ii controls
@@ -566,6 +736,12 @@ PanelWindow {
                             onActionChanged: root.action = action
                             onSelectionModeChanged: root.selectionMode = selectionMode
                             onDismiss: root.dismiss();
+                            onFullscreenRequested: root.snipFullscreen()
+                            onColorPickerRequested: {
+                                // Dismiss first so hyprpicker grabs the live desktop, not this overlay.
+                                root.dismiss();
+                                ShellExec.execDetachedArgs(["/usr/bin/bash", "-c", "sleep 0.3; /usr/bin/hyprpicker -a"], "Pick color");
+                            }
                         }
                         Item {
                             anchors.verticalCenter: parent.verticalCenter
@@ -601,6 +777,11 @@ PanelWindow {
                         onActionChanged: root.action = action
                         onSelectionModeChanged: root.selectionMode = selectionMode
                         onDismiss: root.dismiss()
+                        onFullscreenRequested: root.snipFullscreen()
+                        onColorPickerRequested: {
+                            root.dismiss();
+                            ShellExec.execDetachedArgs(["/usr/bin/bash", "-c", "sleep 0.3; /usr/bin/hyprpicker -a"], "Pick color");
+                        }
                     }
                 }
             }

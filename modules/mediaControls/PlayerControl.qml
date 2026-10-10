@@ -1,439 +1,555 @@
 pragma ComponentBehavior: Bound
-import qs.modules.common
-import qs.modules.common.models
-import qs.modules.common.widgets
-import qs.services
-import qs.modules.common.functions
-import Qt5Compat.GraphicalEffects as GE
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
+import QtQuick.Effects
+import Qt5Compat.GraphicalEffects as GE
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import qs.modules.common
+import qs.modules.common.widgets
+import qs.modules.common.functions
+import qs.modules.common.models
+import qs.modules.mediaControls.components
+import qs.services
+import qs.services.deferred
+import "root:"
 
-Item { // Player instance
+Item {
     id: root
     required property MprisPlayer player
-    property var artUrl: player?.trackArtUrl
+    required property list<real> visualizerPoints
+    property string outputName: ""
+    property real radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal : Appearance.rounding.large
+    // Track-change slide direction: +1 next/forward (new content enters from the
+    // right), -1 previous (enters from the left). Set by the prev/next handlers
+    // before the track advances so the cross-slide reads as directed.
+    property int slideDirection: 1
+    
+    // Use centralized YtMusic detection from MprisController
+    readonly property bool isYtMusicPlayer: {
+        if (!player) return false
+        // Direct match with YtMusic.mpvPlayer
+        if (YtMusic.mpvPlayer && player === YtMusic.mpvPlayer) return true
+        // Use MprisController's detection for consistency
+        return MprisController._isYtMusicMpv(player)
+    }
+    
+    function doTogglePlaying(): void {
+        if (isYtMusicPlayer) {
+            YtMusic.togglePlaying()
+        } else {
+            player?.togglePlaying()
+        }
+    }
+    
+    function doPrevious(): void {
+        root.slideDirection = -1
+        MprisController.previousForPlayer(root.player)
+    }
+    
+    function doNext(): void {
+        root.slideDirection = 1
+        MprisController.nextForPlayer(root.player)
+    }
+    
+    // Screen position for aurora glass effect
+    property real screenX: 0
+    property real screenY: 0
+
+    readonly property string effectiveArtUrl: isYtMusicPlayer ? YtMusic.currentThumbnail : MprisController.effectiveArtUrl(player)
+    readonly property string effectiveTitle: isYtMusicPlayer ? YtMusic.currentTitle : (MprisController.titleOf(player) ?? "")
+    readonly property string effectiveArtist: isYtMusicPlayer ? YtMusic.currentArtist : (MprisController.artistOf(player) ?? "")
+    // Only the artwork identity may trigger cover motion. Title/artist often
+    // arrive before the real art URL and caused the same cover to slide twice.
+    readonly property string mediaTransitionKey: (root.effectiveArtUrl ?? "").split("?")[0].split("#")[0]
     property string artDownloadLocation: Directories.coverArt
-    property string artFileName: Qt.md5(artUrl)
-    property string artFilePath: `${artDownloadLocation}/${artFileName}`
-    property color artDominantColor: ColorUtils.mix((colorQuantizer?.colors[0] ?? Appearance.colors.colPrimary), Appearance.colors.colPrimaryContainer, 0.8) || Appearance.m3colors.m3secondaryContainer
-    property bool downloaded: false
-    property int _downloadRetryCount: 0
-    readonly property int _maxRetries: 3
-    property list<real> visualizerPoints: []
-    property real maxVisualizerValue: 1000 // Max value in the data points
-    property int visualizerSmoothing: 2 // Number of points to average for smoothing
-    property real radius
-
-    property string displayedArtFilePath: root.downloaded ? Qt.resolvedUrl(artFilePath) : ""
-
-    // Inir colors
-    readonly property color jiraColText: Appearance.inir.colText
-    readonly property color jiraColTextSecondary: Appearance.inir.colTextSecondary
-    readonly property color jiraColPrimary: Appearance.inir.colPrimary
-    readonly property color jiraColLayer1: Appearance.inir.colLayer1
-    readonly property color jiraColLayer2: Appearance.inir.colLayer2
+    readonly property string resolverDisplaySource: artworkResolver.displaySource
+    readonly property bool downloaded: root.displayedArtFilePath !== ""
+    property string displayedArtFilePath: ""
+    readonly property bool effectiveCanGoPrevious: isYtMusicPlayer ? YtMusic.canGoPrevious : MprisController.canGoPreviousForPlayer(root.player)
+    readonly property bool effectiveCanGoNext: isYtMusicPlayer ? YtMusic.canGoNext : MprisController.canGoNextForPlayer(root.player)
 
     function checkAndDownloadArt() {
-        if (!artUrl || artUrl.length === 0) {
-            downloaded = false
-            _downloadRetryCount = 0
-            return
-        }
-        artExistsChecker.running = true
+        artworkResolver.refresh()
     }
 
-    function retryDownload() {
-        if (_downloadRetryCount < _maxRetries && artUrl) {
-            _downloadRetryCount++
-            retryTimer.start()
+    Connections {
+        target: root.player
+        function onTrackArtUrlChanged() {
+            if (!root.isYtMusicPlayer)
+                root.checkAndDownloadArt()
         }
+        function onTrackTitleChanged() {
+            Qt.callLater(root.checkAndDownloadArt)
+        }
+        function onTrackArtistChanged() {
+            Qt.callLater(root.checkAndDownloadArt)
+        }
+        function onTrackAlbumChanged() {
+            Qt.callLater(root.checkAndDownloadArt)
+        }
+    }
+
+    onResolverDisplaySourceChanged: {
+        const src = root.resolverDisplaySource
+        if (src && src.length > 0) {
+            clearArtTimer.stop()
+            root.displayedArtFilePath = src
+        } else {
+            clearArtTimer.restart()
+        }
+    }
+
+    MediaArtworkResolver {
+        id: artworkResolver
+        sourceUrl: root.effectiveArtUrl
+        title: root.effectiveTitle
+        artist: root.effectiveArtist
+        album: root.player?.trackAlbum ?? ""
+        cacheDirectory: root.artDownloadLocation
     }
 
     Timer {
-        id: retryTimer
-        interval: 1000 * root._downloadRetryCount
-        repeat: false
+        id: clearArtTimer
+        interval: 1600
         onTriggered: {
-            if (root.artUrl && !root.downloaded) {
-                coverArtDownloader.targetFile = root.artUrl
-                coverArtDownloader.artFilePath = root.artFilePath
-                coverArtDownloader.running = true
-            }
+            if (!root.resolverDisplaySource || root.resolverDisplaySource.length === 0)
+                root.displayedArtFilePath = ""
         }
     }
 
-    component TrackChangeButton: RippleButton {
-        implicitWidth: 24
-        implicitHeight: 24
-
-        property var iconName
-        colBackground: "transparent"
-        colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover : blendedColors.colSecondaryContainerHover
-        colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active : blendedColors.colSecondaryContainerActive
-        buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
-
-        contentItem: MaterialSymbol {
-            iconSize: Appearance.font.pixelSize.huge
-            fill: 1
-            horizontalAlignment: Text.AlignHCenter
-            color: Appearance.inirEverywhere ? root.jiraColText : blendedColors.colOnSecondaryContainer
-            text: iconName
-
-            Behavior on color {
-                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-            }
-        }
+    Component.onCompleted: {
+        if (root.resolverDisplaySource && root.resolverDisplaySource.length > 0)
+            root.displayedArtFilePath = root.resolverDisplaySource
     }
 
-    Timer { // Force update for revision
-        running: root.player?.playbackState == MprisPlaybackState.Playing
-        interval: Config.options?.resources?.updateInterval ?? 3000
+    Timer {
+        running: root.player?.playbackState === MprisPlaybackState.Playing
+        interval: 1000
         repeat: true
-        onTriggered: {
-            root.player?.positionChanged()
-        }
-    }
-
-    onArtFilePathChanged: {
-        _downloadRetryCount = 0
-        checkAndDownloadArt()
-    }
-
-    // Re-check cover art when becoming visible
-    onVisibleChanged: {
-        if (visible && artFilePath) {
-            checkAndDownloadArt()
-        }
-    }
-
-    Process { // Check if cover art exists
-        id: artExistsChecker
-        command: ["/usr/bin/test", "-f", root.artFilePath]
-        onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0) {
-                root.downloaded = true
-                root._downloadRetryCount = 0
-            } else {
-                root.downloaded = false
-                coverArtDownloader.targetFile = root.artUrl
-                coverArtDownloader.artFilePath = root.artFilePath
-                coverArtDownloader.running = true
-            }
-        }
-    }
-
-    Process { // Cover art downloader
-        id: coverArtDownloader
-        property string targetFile: root.artUrl
-        property string artFilePath: root.artFilePath
-        command: ["/usr/bin/bash", "-c", `
-            if [ -f '${artFilePath}' ]; then
-                exit 0
-            fi
-            mkdir -p '${root.artDownloadLocation}'
-            tmp='${artFilePath}.tmp'
-            /usr/bin/curl -sSL --connect-timeout 10 --max-time 30 '${targetFile}' -o "$tmp" && \
-            [ -s "$tmp" ] && /usr/bin/mv -f "$tmp" '${artFilePath}' || { rm -f "$tmp"; exit 1; }
-        `]
-        onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0) {
-                root.downloaded = true
-                root._downloadRetryCount = 0
-            } else {
-                root.downloaded = false
-                root.retryDownload()
-            }
-        }
+        onTriggered: root.player?.positionChanged()
     }
 
     ColorQuantizer {
         id: colorQuantizer
         source: root.displayedArtFilePath
-        depth: 0 // 2^0 = 1 color
-        rescaleSize: 1 // Rescale to 1x1 pixel for faster processing
+        depth: 0
+        rescaleSize: 1
     }
 
-    property QtObject blendedColors: AdaptedMaterialScheme {
-        color: artDominantColor
-    }
+    property color artDominantColor: ColorUtils.mix(
+        colorQuantizer?.colors[0] ?? Appearance.colors.colPrimary,
+        Appearance.colors.colPrimaryContainer, 0.7
+    )
 
-    StyledRectangularShadow {
-        target: background
-        visible: !Appearance.inirEverywhere
-    }
-    Rectangle { // Background
-        id: background
-        anchors.fill: parent
-        anchors.margins: Appearance.sizes.elevationMargin
-        color: Appearance.inirEverywhere ? root.jiraColLayer1 : ColorUtils.applyAlpha(blendedColors.colLayer0, 1)
-        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : root.radius
-        border.width: Appearance.inirEverywhere ? 1 : 0
-        border.color: Appearance.inir.colBorder
+    property QtObject artColors: AdaptedMaterialScheme { color: root.artDominantColor }
+    readonly property QtObject blendedColors: Appearance.editorialEverywhere && Appearance.colors
+        ? Appearance.colors : root.artColors
+
+    // Inir fixed colors
+    readonly property color inirText: Appearance.inir.colText
+    readonly property color inirTextSecondary: Appearance.inir.colTextSecondary
+    readonly property color inirPrimary: Appearance.inir.colPrimary
+    readonly property color inirLayer1: Appearance.inir.colLayer1
+    readonly property color inirLayer2: Appearance.inir.colLayer2
+
+    StyledRectangularShadow { target: card; visible: Appearance.angelEverywhere || (!Appearance.inirEverywhere && !Appearance.auroraEverywhere) }
+
+    Rectangle {
+        id: card
+        anchors.centerIn: parent
+        width: parent.width - Appearance.sizes.elevationMargin
+        height: parent.height - Appearance.sizes.elevationMargin
+        radius: Appearance.zzzEverywhere ? Appearance.zzz.panelRadius
+             : Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+             : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : root.radius
+        Behavior on radius {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        color: Appearance.zzzEverywhere ? Appearance.zzz.bg0
+             : Appearance.angelEverywhere ? "transparent"
+             : Appearance.inirEverywhere ? root.inirLayer1
+             : Appearance.auroraEverywhere ? "transparent"
+             : (blendedColors?.colLayer0 ?? Appearance.colors.colLayer0)
+        Behavior on color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        border.width: Appearance.zzzEverywhere ? Appearance.zzz.borderThick
+                    : (Appearance.angelEverywhere || Appearance.inirEverywhere || Appearance.auroraEverywhere) ? 1 : 0
+        Behavior on border.width {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        border.color: Appearance.zzzEverywhere ? Appearance.zzz.hairlineStrong
+                    : Appearance.angelEverywhere ? Appearance.angel.colBorder
+                    : Appearance.inirEverywhere ? Appearance.inir.colBorder
+                    : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder
+                    : "transparent"
+        Behavior on border.color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        clip: true
 
         layer.enabled: true
         layer.effect: GE.OpacityMask {
-            maskSource: Rectangle {
-                width: background.width
-                height: background.height
-                radius: background.radius
+            maskSource: Rectangle { width: card.width; height: card.height; radius: card.radius }
+        }
+
+        // Aurora glass wallpaper blur
+        Image {
+            id: auroraWallpaper
+            x: -root.screenX - (card.x + (root.width - card.width) / 2)
+            y: -root.screenY - (card.y + (root.height - card.height) / 2)
+            width: Quickshell.screens[0]?.width ?? 1920
+            height: Quickshell.screens[0]?.height ?? 1080
+            visible: Appearance.auroraEverywhere && !Appearance.inirEverywhere
+            source: visible ? Wallpapers.effectiveWallpaperUrl : ""
+            fillMode: Image.PreserveAspectCrop
+            cache: true
+            sourceSize.width: Quickshell.screens[0]?.width ?? 1920
+            sourceSize.height: Quickshell.screens[0]?.height ?? 1080
+            smooth: true
+            mipmap: true
+            asynchronous: true
+
+            layer.enabled: Appearance.effectsEnabled && Appearance.auroraEverywhere && !Appearance.inirEverywhere
+            layer.effect: MultiEffect {
+                source: auroraWallpaper
+                anchors.fill: source
+                saturation: Appearance.angelEverywhere
+                    ? Appearance.angel.blurSaturation
+                    : (Appearance.effectsEnabled ? 0.2 : 0)
+                blurEnabled: Appearance.effectsEnabled
+                blurMax: 64
+                blur: Appearance.effectsEnabled ? 1 : 0
             }
         }
 
-        Image {
-            id: blurredArt
+        // Aurora tint overlay
+        Rectangle {
+            anchors.fill: parent
+            visible: Appearance.auroraEverywhere && !Appearance.inirEverywhere
+            color: Appearance.angelEverywhere
+                ? ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0Base, Appearance.angel.overlayOpacity)
+                : ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0Base, Appearance.aurora.popupTransparentize)
+        }
+
+        // Card-level art wash follows the loaded art without sliding. Only the
+        // visible cover moves, so a track change has one clear motion.
+        MediaCrossSlideImage {
+            id: bgArt
             anchors.fill: parent
             source: root.displayedArtFilePath
-            sourceSize.width: background.width
-            sourceSize.height: background.height
-            fillMode: Image.PreserveAspectCrop
-            cache: false
-            antialiasing: true
-            asynchronous: true
-            opacity: Appearance.inirEverywhere ? 0.15 : 1
+            transitionKey: "player-card-wash"
+            downloaded: root.downloaded
+            slideDirection: root.slideDirection
+            animateChanges: false
+            artRadius: card.radius
+            placeholderColor: Appearance.zzzEverywhere ? Appearance.zzz.bg0
+                : Appearance.inirEverywhere ? root.inirLayer1
+                : (blendedColors?.colLayer0 ?? Appearance.colors.colLayer0)
+            iconColor: "transparent"
+            opacity: Appearance.zzzEverywhere ? 0.20
+                : Appearance.inirEverywhere ? 0.15
+                : (Appearance.auroraEverywhere ? 0.2 : 0.5)
+            visible: !Appearance.editorialEverywhere && root.displayedArtFilePath !== ""
+            effectEnabled: Appearance.effectsEnabled
+            blurEnabled: true
+            blur: Appearance.inirEverywhere ? 0.3 : 0.15
+            blurMax: 16
+            saturation: Appearance.zzzEverywhere ? 0.14 : (Appearance.inirEverywhere ? 0.1 : 0.3)
+        }
 
-            layer.enabled: Appearance.effectsEnabled
-            layer.effect: StyledBlurEffect {
-                source: blurredArt
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                visible: !Appearance.inirEverywhere
-                color: ColorUtils.transparentize(blendedColors.colLayer0, 0.3)
-                radius: root.radius
+        // Gradient overlay for Material only — a material-tinted wash that
+        // clashes with the flat ZZZ console plate, so exclude it there.
+        Rectangle {
+            anchors.fill: parent
+            visible: !Appearance.editorialEverywhere && !Appearance.zzzEverywhere && !Appearance.inirEverywhere && !Appearance.auroraEverywhere
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 0.35; color: ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.3) }
+                GradientStop { position: 1.0; color: ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.15) }
             }
         }
 
+        // Visualizer at bottom
         WaveVisualizer {
-            id: visualizerCanvas
-            anchors.fill: parent
-            live: root.player?.isPlaying
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 35
+            live: root.player?.isPlaying ?? false
             points: root.visualizerPoints
-            maxVisualizerValue: root.maxVisualizerValue
-            smoothing: root.visualizerSmoothing
-            color: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
+            maxVisualizerValue: 1000
+            smoothing: 2
+            color: ColorUtils.transparentize(
+                Appearance.zzzEverywhere ? Appearance.zzz.metricFill
+                    : Appearance.inirEverywhere ? root.inirPrimary : (blendedColors?.colPrimary ?? Appearance.colors.colPrimary),
+                0.6
+            )
         }
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 13
-            spacing: 15
+            anchors.margins: 12
+            spacing: 12
 
-            Rectangle { // Art background
-                id: artBackground
-                Layout.fillHeight: true
-                implicitWidth: height
-                radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.verysmall
-                color: Appearance.inirEverywhere ? root.jiraColLayer2 : ColorUtils.transparentize(blendedColors.colLayer1, 0.5)
-
-                layer.enabled: true
-                layer.effect: GE.OpacityMask {
-                    maskSource: Rectangle {
-                        width: artBackground.width
-                        height: artBackground.height
-                        radius: artBackground.radius
-                    }
-                }
-
-                StyledImage { // Art image
-                    id: mediaArt
-                    property int size: parent.height
-                    anchors.fill: parent
-
-                    fillMode: Image.PreserveAspectCrop
-                    cache: false
-                    antialiasing: true
-
-                    width: size
-                    height: size
-                    sourceSize.width: size
-                    sourceSize.height: size
-                    
-                    layer.enabled: Appearance.effectsEnabled
-                    layer.effect: MultiEffect {
-                        blurEnabled: true
-                        blur: artBackground.transitioning ? 1 : 0
-                        blurMax: 32
-                        Behavior on blur {
-                            enabled: Appearance.animationsEnabled
-                            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
-                        }
-                    }
-                }
-                
-                property bool transitioning: false
-                property string pendingSource: ""
-                
-                Timer {
-                    id: artBlurInTimer
-                    interval: 150
-                    onTriggered: {
-                        mediaArt.source = artBackground.pendingSource
-                        artBlurOutTimer.start()
-                    }
-                }
-                
-                Timer {
-                    id: artBlurOutTimer
-                    interval: 50
-                    onTriggered: artBackground.transitioning = false
-                }
-                
-                Connections {
-                    target: root
-                    function onDisplayedArtFilePathChanged() {
-                        if (!root.displayedArtFilePath) return
-                        if (!mediaArt.source.toString()) {
-                            mediaArt.source = root.displayedArtFilePath
-                            return
-                        }
-                        artBackground.pendingSource = root.displayedArtFilePath
-                        artBackground.transitioning = true
-                        artBlurInTimer.start()
-                    }
-                }
+            // Cover art — direction-aware cross-slide (one leaves, one enters)
+            MediaCrossSlideImage {
+                id: coverArtContainer
+                Layout.preferredWidth: card.height - 24
+                Layout.preferredHeight: card.height - 24
+                artRadius: Appearance.zzzEverywhere ? Appearance.zzz.roundNormal
+                    : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                    : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+                source: root.displayedArtFilePath
+                transitionKey: root.mediaTransitionKey
+                downloaded: root.downloaded
+                slideDirection: root.slideDirection
+                placeholderColor: Appearance.zzzEverywhere ? Appearance.zzz.bg2
+                    : Appearance.inirEverywhere ? root.inirLayer2
+                    : (blendedColors?.colLayer1 ?? Appearance.colors.colLayer1)
+                iconColor: Appearance.zzzEverywhere ? Appearance.zzz.inkMuted
+                    : Appearance.inirEverywhere ? root.inirTextSecondary
+                    : (blendedColors?.colSubtext ?? Appearance.colors.colSubtext)
+                iconSize: 32
             }
 
-            ColumnLayout { // Info & controls
+            // Info & controls
+            ColumnLayout {
+                Layout.fillWidth: true
                 Layout.fillHeight: true
-                spacing: 2
+                spacing: 4
 
-                StyledText {
-                    id: trackTitle
+                // Title + equalizer entry point
+                RowLayout {
                     Layout.fillWidth: true
-                    Layout.rightMargin: playPauseButton.size + 8
-                    font.pixelSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? root.jiraColText : blendedColors.colOnLayer0
-                    elide: Text.ElideRight
-                    text: StringUtils.cleanMusicTitle(root.player?.trackTitle) || "Untitled"
-                    animateChange: true
-                    animationDistanceX: 6
-                    animationDistanceY: 0
-                }
-                StyledText {
-                    id: trackArtist
-                    Layout.fillWidth: true
-                    Layout.rightMargin: playPauseButton.size + 8
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.inirEverywhere ? root.jiraColTextSecondary : blendedColors.colSubtext
-                    elide: Text.ElideRight
-                    text: root.player?.trackArtist
-                    animateChange: true
-                    animationDistanceX: 6
-                    animationDistanceY: 0
-                }
-                Item { Layout.fillHeight: true }
-                Item {
-                    Layout.fillWidth: true
-                    implicitHeight: trackTime.implicitHeight + sliderRow.implicitHeight
+                    spacing: 6
 
                     StyledText {
-                        id: trackTime
-                        anchors.bottom: sliderRow.top
-                        anchors.bottomMargin: 5
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.rightMargin: playPauseButton.size + 8
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: Appearance.inirEverywhere ? root.jiraColTextSecondary : blendedColors.colSubtext
+                        Layout.fillWidth: true
+                        text: StringUtils.cleanMusicTitle(root.isYtMusicPlayer ? YtMusic.currentTitle : MprisController.titleOf(root.player)) || "—"
+                        font.pixelSize: Appearance.font.pixelSize.large
+                        font.weight: Appearance.zzzEverywhere ? Font.Black : Font.Medium
+                        font.italic: Appearance.zzzEverywhere
+                        color: Appearance.zzzEverywhere ? Appearance.zzz.ink
+                            : Appearance.inirEverywhere ? root.inirText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                        Behavior on color {
+                            enabled: Appearance.animationsEnabled
+                            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                         elide: Text.ElideRight
-                        text: `${StringUtils.friendlyTimeForSeconds(root.player?.position)} / ${StringUtils.friendlyTimeForSeconds(root.player?.length)}`
+                        animateChange: true
+                        animationDistanceX: root.slideDirection * 8
+                        animationDistanceY: 0
                     }
-                    RowLayout {
-                        id: sliderRow
-                        anchors {
-                            bottom: parent.bottom
-                            left: parent.left
-                            right: parent.right
-                        }
-                        TrackChangeButton {
-                            iconName: "skip_previous"
-                            downAction: () => root.player?.previous()
-                        }
-                        Item {
-                            id: progressBarContainer
-                            Layout.fillWidth: true
-                            implicitHeight: Math.max(sliderLoader.implicitHeight, progressBarLoader.implicitHeight)
 
-                            Loader {
-                                id: sliderLoader
-                                anchors.fill: parent
-                                active: root.player?.canSeek ?? false
-                                sourceComponent: StyledSlider { 
-                                    configuration: StyledSlider.Configuration.Wavy
-                                    highlightColor: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
-                                    trackColor: Appearance.inirEverywhere ? root.jiraColLayer2 : blendedColors.colSecondaryContainer
-                                    handleColor: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
-                                    value: root.player?.position / root.player?.length
-                                    onMoved: {
-                                        root.player.position = value * root.player.length;
-                                    }
+                    RippleButton {
+                        implicitWidth: 30
+                        implicitHeight: 30
+                        visible: EasyEffects.available
+                            && (Config.options?.panelFamily ?? "ii") === "ii"
+                            && (Config.options?.enabledPanels ?? []).includes("iiEqualizer")
+                        buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.full
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.zzzEverywhere ? Appearance.zzz.paperAlt
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                            : Appearance.colors.colLayer1Hover
+                        colRipple: Appearance.zzzEverywhere ? ColorUtils.applyAlpha(Appearance.zzz.accent, 0.28)
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
+                            : Appearance.colors.colLayer1Active
+                        onClicked: {
+                            GlobalStates.mediaControlsOpen = false
+                            GlobalStates.openEqualizer(root.outputName)
+                        }
+                        contentItem: MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "graphic_eq"
+                            iconSize: 19
+                            fill: 1
+                            color: Appearance.regaliaEverywhere ? Appearance.regalia.hardwarePrimary
+                                : Appearance.zzzEverywhere ? Appearance.zzz.accent
+                                : Appearance.angelEverywhere ? Appearance.angel.colPrimary
+                                : Appearance.inirEverywhere ? Appearance.inir.colPrimary
+                                : Appearance.colors.colPrimary
+                        }
+                        StyledToolTip { text: Translation.tr("Equalizer") }
+                    }
+                }
+
+                // Artist
+                StyledText {
+                    Layout.fillWidth: true
+                    text: root.isYtMusicPlayer ? YtMusic.currentArtist : (MprisController.artistOf(root.player) || "")
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.inkMuted
+                        : Appearance.inirEverywhere ? root.inirTextSecondary : (blendedColors?.colSubtext ?? Appearance.colors.colSubtext)
+                    Behavior on color {
+                        enabled: Appearance.animationsEnabled
+                        ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                    }
+                    elide: Text.ElideRight
+                    visible: text !== ""
+                    animateChange: true
+                    animationDistanceX: root.slideDirection * 8
+                    animationDistanceY: 0
+                }
+
+                Item { Layout.fillHeight: true }
+
+                // Progress bar
+                PlayerProgress {
+                    Layout.fillWidth: true
+                    implicitHeight: 16
+                    position: MprisController.positionOf(root.player)
+                    length: MprisController.lengthOf(root.player)
+                    canSeek: root.player?.canSeek ?? false
+                    isPlaying: root.player?.isPlaying ?? false
+                    highlightColor: Appearance.zzzEverywhere ? Appearance.zzz.metricFill
+                        : Appearance.inirEverywhere ? root.inirPrimary
+                        : Appearance.auroraEverywhere ? Appearance.colors.colPrimary
+                        : (blendedColors?.colPrimary ?? Appearance.colors.colPrimary)
+                    trackColor: Appearance.zzzEverywhere ? Appearance.zzz.metricTrack
+                        : Appearance.inirEverywhere ? root.inirLayer2
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface
+                        : (blendedColors?.colSecondaryContainer ?? Appearance.colors.colSecondaryContainer)
+                    onSeekRequested: seconds => MprisController.seek(root.player, seconds)
+                }
+
+                // Time + controls
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 4
+
+                    StyledText {
+                        text: StringUtils.friendlyTimeForSeconds(MprisController.positionOf(root.player))
+                        font.pixelSize: Appearance.font.pixelSize.smallest
+                        font.family: Appearance.font.family.numbers
+                        color: Appearance.zzzEverywhere ? Appearance.zzz.ink
+                            : Appearance.inirEverywhere ? root.inirText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                        Behavior on color {
+                            enabled: Appearance.animationsEnabled
+                            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    RippleButton {
+                        implicitWidth: 32; implicitHeight: 32
+                        enabled: root.effectiveCanGoPrevious
+                        buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.zzzEverywhere ? Appearance.zzz.paperAlt
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                            : ColorUtils.transparentize(blendedColors?.colLayer1 ?? Appearance.colors.colLayer1, 0.5)
+                        colRipple: Appearance.zzzEverywhere ? ColorUtils.applyAlpha(Appearance.zzz.accent, 0.28)
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive
+                            : (blendedColors?.colLayer1Active ?? Appearance.colors.colLayer1Active)
+                        onClicked: root.doPrevious()
+                        contentItem: Item {
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "skip_previous"; iconSize: 22; fill: 1
+                                color: Appearance.zzzEverywhere ? Appearance.zzz.ink
+                                    : Appearance.inirEverywhere ? root.inirText
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer0
+                                    : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                                Behavior on color {
+                                    enabled: Appearance.animationsEnabled
+                                    ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                                 }
                             }
-
-                            Loader {
-                                id: progressBarLoader
-                                anchors {
-                                    verticalCenter: parent.verticalCenter
-                                    left: parent.left
-                                    right: parent.right
-                                }
-                                active: !(root.player?.canSeek ?? false)
-                                sourceComponent: StyledProgressBar { 
-                                    wavy: root.player?.isPlaying
-                                    highlightColor: Appearance.inirEverywhere ? root.jiraColPrimary : blendedColors.colPrimary
-                                    trackColor: Appearance.inirEverywhere ? root.jiraColLayer2 : blendedColors.colSecondaryContainer
-                                    value: root.player?.position / root.player?.length
-                                }
-                            }
-
-                            
                         }
-                        TrackChangeButton {
-                            iconName: "skip_next"
-                            downAction: () => root.player?.next()
-                        }
+                        StyledToolTip { text: Translation.tr("Previous") }
                     }
 
                     RippleButton {
                         id: playPauseButton
-                        anchors.right: parent.right
-                        anchors.bottom: sliderRow.top
-                        anchors.bottomMargin: 5
-                        property real size: 44
-                        implicitWidth: size
-                        implicitHeight: size
-                        downAction: () => root.player?.togglePlaying();
+                        implicitWidth: 40; implicitHeight: 40
+                        buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.zzzEverywhere ? Appearance.zzz.paperAlt
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                            : Appearance.colors.colLayer1Hover
+                        colRipple: Appearance.zzzEverywhere ? ColorUtils.applyAlpha(Appearance.zzz.accent, 0.28)
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive
+                            : Appearance.colors.colLayer1Active
+                        onClicked: root.doTogglePlaying()
 
-                        buttonRadius: Appearance.inirEverywhere 
-                            ? Appearance.inir.roundingSmall 
-                            : (root.player?.isPlaying ? Appearance?.rounding.normal : size / 2)
-                        colBackground: Appearance.inirEverywhere 
-                            ? "transparent" 
-                            : (root.player?.isPlaying ? blendedColors.colPrimary : blendedColors.colSecondaryContainer)
-                        colBackgroundHover: Appearance.inirEverywhere 
-                            ? Appearance.inir.colLayer2Hover 
-                            : (root.player?.isPlaying ? blendedColors.colPrimaryHover : blendedColors.colSecondaryContainerHover)
-                        colRipple: Appearance.inirEverywhere 
-                            ? Appearance.inir.colLayer2Active 
-                            : (root.player?.isPlaying ? blendedColors.colPrimaryActive : blendedColors.colSecondaryContainerActive)
-
-                        contentItem: MaterialSymbol {
-                            iconSize: Appearance.font.pixelSize.huge
-                            fill: 1
-                            horizontalAlignment: Text.AlignHCenter
-                            color: Appearance.inirEverywhere 
-                                ? root.jiraColPrimary 
-                                : (root.player?.isPlaying ? blendedColors.colOnPrimary : blendedColors.colOnSecondaryContainer)
-                            text: root.player?.isPlaying ? "pause" : "play_arrow"
-
-                            Behavior on color {
-                                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                        contentItem: Item {
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: root.player?.isPlaying ? "pause" : "play_arrow"
+                                iconSize: 24; fill: 1
+                                color: Appearance.zzzEverywhere ? Appearance.zzz.accent
+                                    : Appearance.inirEverywhere ? root.inirPrimary
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer0
+                                    : Appearance.colors.colOnLayer1
+                                Behavior on color {
+                                    enabled: Appearance.animationsEnabled
+                                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                }
                             }
+                        }
+                        StyledToolTip { text: root.player?.isPlaying ? Translation.tr("Pause") : Translation.tr("Play") }
+                    }
+
+                    RippleButton {
+                        implicitWidth: 32; implicitHeight: 32
+                        enabled: root.effectiveCanGoNext
+                        buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.zzzEverywhere ? Appearance.zzz.paperAlt
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                            : ColorUtils.transparentize(blendedColors?.colLayer1 ?? Appearance.colors.colLayer1, 0.5)
+                        colRipple: Appearance.zzzEverywhere ? ColorUtils.applyAlpha(Appearance.zzz.accent, 0.28)
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive
+                            : (blendedColors?.colLayer1Active ?? Appearance.colors.colLayer1Active)
+                        onClicked: root.doNext()
+                        contentItem: Item {
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "skip_next"; iconSize: 22; fill: 1
+                                color: Appearance.zzzEverywhere ? Appearance.zzz.ink
+                                    : Appearance.inirEverywhere ? root.inirText
+                                    : Appearance.auroraEverywhere ? Appearance.colors.colOnLayer0
+                                    : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                                Behavior on color {
+                                    enabled: Appearance.animationsEnabled
+                                    ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                }
+                            }
+                        }
+                        StyledToolTip { text: Translation.tr("Next") }
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    StyledText {
+                        text: StringUtils.friendlyTimeForSeconds(MprisController.lengthOf(root.player))
+                        font.pixelSize: Appearance.font.pixelSize.smallest
+                        font.family: Appearance.font.family.numbers
+                        color: Appearance.zzzEverywhere ? Appearance.zzz.ink
+                            : Appearance.inirEverywhere ? root.inirText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                        Behavior on color {
+                            enabled: Appearance.animationsEnabled
+                            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
                     }
                 }

@@ -110,7 +110,7 @@ Item {
                     color: Looks.colors.danger
 
                     SequentialAnimation on opacity {
-                        running: root.isCritical && Looks.transition.enabled
+                        running: root.isCritical && root.visible && Looks.transition.enabled
                         loops: Animation.Infinite
                         NumberAnimation { to: 0.4; duration: 800; easing.type: Easing.InOutQuad }
                         NumberAnimation { to: 1; duration: 800; easing.type: Easing.InOutQuad }

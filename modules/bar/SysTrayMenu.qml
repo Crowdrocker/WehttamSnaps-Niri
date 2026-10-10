@@ -1,3 +1,4 @@
+import qs
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -12,6 +13,8 @@ PopupWindow {
     required property QsMenuHandle trayItemMenuHandle
     property real popupBackgroundMargin: 0
     property bool anchorHovered: false  // Set by parent to indicate if anchor is hovered
+    property bool closing: false
+    property bool registeredContextMenu: false
 
     signal menuClosed
     signal menuOpened(qsWindow: var) // Correct type is QsWindow, but QML does not like that
@@ -35,23 +38,49 @@ PopupWindow {
     }
 
     function open() {
+        root.closing = false;
         root.visible = true;
-        if (CompositorService.isNiri) clickOutsideBackdrop.visible = true;
+        popupBackground.shown = true;
+        if (!root.registeredContextMenu) {
+            GlobalStates.activeContextMenuCount++;
+            root.registeredContextMenu = true;
+        }
         root.menuOpened(root);
     }
 
-    function close() {
-        clickOutsideBackdrop.visible = false;
+    function finalizeClose() {
         root.visible = false;
+        popupBackground.shown = false;
+        root.closing = false;
+        if (root.registeredContextMenu) {
+            GlobalStates.activeContextMenuCount = Math.max(0, GlobalStates.activeContextMenuCount - 1);
+            root.registeredContextMenu = false;
+        }
         while (stackView.depth > 1)
             stackView.pop();
         root.menuClosed();
     }
 
+    Component.onDestruction: {
+        if (root.registeredContextMenu)
+            GlobalStates.activeContextMenuCount = Math.max(0, GlobalStates.activeContextMenuCount - 1);
+    }
+
+    function close() {
+        if (root.closing) return;
+        if (!Appearance.animationsEnabled) {
+            finalizeClose();
+            return;
+        }
+        root.closing = true;
+        popupBackground.shown = false;
+        closeAnimTimer.restart();
+    }
+
     // Fullscreen transparent backdrop for Niri to detect clicks outside
     PanelWindow {
         id: clickOutsideBackdrop
-        visible: false
+        visible: root.visible && CompositorService.isNiri
         color: "transparent"
         exclusiveZone: 0
         WlrLayershell.layer: WlrLayer.Top
@@ -70,9 +99,15 @@ PopupWindow {
     
     Timer {
         id: closeTimer
-        interval: 300
+        interval: 450
         running: root.visible && !hoverHandler.hovered && !root.anchorHovered
         onTriggered: root.close()
+    }
+
+    Timer {
+        id: closeAnimTimer
+        interval: Math.max(Appearance.animation.elementMoveExit.duration, Appearance.animation.elementResize.duration)
+        onTriggered: root.finalizeClose()
     }
 
     MouseArea {
@@ -91,36 +126,86 @@ PopupWindow {
         Rectangle {
             id: popupBackground
             readonly property real padding: 3
+            property bool shown: false
             anchors {
-                left: parent.left
-                right: parent.right
-                verticalCenter: Config.options.bar.vertical ? parent.verticalCenter : undefined
-                top: Config.options.bar.vertical ? undefined : Config.options.bar.bottom ? undefined : parent.top
-                bottom: Config.options.bar.vertical ? undefined : Config.options.bar.bottom ? parent.bottom : undefined
+                left: (Config.options?.bar?.vertical ?? false)
+                    ? ((Config.options?.bar?.bottom ?? false) ? undefined : parent.left)
+                    : parent.left
+                right: (Config.options?.bar?.vertical ?? false)
+                    ? ((Config.options?.bar?.bottom ?? false) ? parent.right : undefined)
+                    : parent.right
+                top: (Config.options?.bar?.vertical ?? false) ? parent.top
+                    : (Config.options?.bar?.bottom ?? false) ? undefined : parent.top
+                bottom: (Config.options?.bar?.vertical ?? false) ? parent.bottom
+                    : (Config.options?.bar?.bottom ?? false) ? parent.bottom : undefined
                 margins: root.padding
             }
 
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer1 
+            color: Appearance.zzzEverywhere ? Appearance.zzz.bg1
+                : Appearance.angelEverywhere ? Appearance.angel.colGlassPopup
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer1
                 : Appearance.colors.colLayer0
-            radius: Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.windowRounding
-            border.width: 1
-            border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+            radius: Appearance.zzzEverywhere ? Appearance.zzz.cornerRadius
+                : Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                : Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.windowRounding
+            Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+            Behavior on radius { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve } }
+            border.width: Appearance.zzzEverywhere ? 0 : 1
+            border.color: Appearance.zzzEverywhere ? "transparent"
+                : Appearance.angelEverywhere ? Appearance.angel.colBorder
+                : Appearance.inirEverywhere ? Appearance.inir.colBorder
                 : Appearance.colors.colLayer0Border
+            Behavior on border.width {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
+            Behavior on border.color {
+                enabled: Appearance.animationsEnabled
+                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+            }
             clip: true
-
-            opacity: 0
-            Component.onCompleted: opacity = 1
+            opacity: Appearance.motion.popupReveal.enableFade ? (shown ? 1 : 0) : 1
+            scale: shown ? 1
+                : (Appearance.motion.popupReveal.enableScale
+                    ? Appearance.motion.popupReveal.closedScale
+                    : 1)
+            transformOrigin: (Config.options?.bar?.bottom ?? false) ? Item.Bottom : Item.Top
             implicitWidth: stackView.implicitWidth + popupBackground.padding * 2
             implicitHeight: stackView.implicitHeight + popupBackground.padding * 2
 
             Behavior on opacity {
-                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation {
+                    duration: root.closing
+                        ? Appearance.animation.elementMoveExit.duration
+                        : Appearance.animation.elementMoveEnter.duration
+                    easing.type: root.closing
+                        ? Appearance.animation.elementMoveExit.type
+                        : Appearance.animation.elementMoveEnter.type
+                    easing.bezierCurve: root.closing
+                        ? Appearance.animation.elementMoveExit.bezierCurve
+                        : Appearance.motion.popupReveal.enterBezierCurve
+                }
+            }
+            Behavior on scale {
+                enabled: Appearance.animationsEnabled
+                animation: NumberAnimation {
+                    duration: root.closing
+                        ? Appearance.animation.elementMoveExit.duration
+                        : Appearance.animation.elementMoveEnter.duration
+                    easing.type: root.closing
+                        ? Appearance.animation.elementMoveExit.type
+                        : Appearance.animation.elementMoveEnter.type
+                    easing.bezierCurve: root.closing
+                        ? Appearance.animation.elementMoveExit.bezierCurve
+                        : Appearance.motion.popupReveal.enterBezierCurve
+                }
             }
             Behavior on implicitHeight {
-                animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+                animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
             }
             Behavior on implicitWidth {
-                animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+                animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
             }
 
             StackView {
@@ -158,7 +243,8 @@ PopupWindow {
         opacity: shown ? 1 : 0
 
         Behavior on opacity {
-            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            enabled: Appearance.animationsEnabled
+            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
         }
 
         Component.onCompleted: shown = true
@@ -202,9 +288,20 @@ PopupWindow {
                     StyledText {
                         Layout.fillWidth: true
                         text: Translation.tr("Back")
-                    }
-                }
             }
+
+            // ZZZ: chamfered hairline stroke following the cut-corner outline.
+            ZzzPlate {
+                anchors.fill: parent
+                visible: Appearance.zzzEverywhere
+                fillColor: "transparent"
+                strokeColor: Appearance.zzz.hairline
+                strokeWidth: 1
+                chamfer: Appearance.zzz.cutCorner
+                chamferBottomRight: !Appearance.zzz.round
+            }
+        }
+    }
         }
 
         Repeater {

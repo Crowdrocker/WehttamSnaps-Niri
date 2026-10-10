@@ -1,138 +1,57 @@
+pragma ComponentBehavior: Bound
+
 import qs
-import qs.services
 import qs.modules.common
-import qs.modules.common.widgets
+import qs.modules.sidebar
+import qs.modules.sidebarLeft
 import QtQuick
-import Quickshell.Io
 import Quickshell
-import Quickshell.Wayland
-import Quickshell.Hyprland
 
 Scope {
     id: root
-    property int sidebarWidth: Appearance.sizes.sidebarWidth
 
-    PanelWindow {
-        id: sidebarRoot
-        visible: GlobalStates.sidebarLeftOpen
+    readonly property var targetScreens: {
+        const list = Config.options?.sidebar?.screenList ?? []
+        const screens = Quickshell.screens
+        if (!list || list.length === 0)
+            return screens
+        const matched = screens.filter(screen => {
+            const screenName = screen?.name ?? ""
+            return screenName.length > 0 && list.includes(screenName)
+        })
+        return matched.length > 0 ? matched : screens
+    }
 
-        function hide() {
-            GlobalStates.sidebarLeftOpen = false
-        }
+    Variants {
+        model: root.targetScreens
 
-        exclusiveZone: 0
-        implicitWidth: screen?.width ?? 1920
-        WlrLayershell.namespace: "quickshell:sidebarLeft"
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-        color: "transparent"
-
-        anchors {
-            top: true
-            left: true
-            bottom: true
-            right: true
-        }
-
-        CompositorFocusGrab {
-            id: grab
-            windows: [ sidebarRoot ]
-            active: CompositorService.isHyprland && sidebarRoot.visible
-            onCleared: () => {
-                if (!active) sidebarRoot.hide()
-            }
-        }
-
-        MouseArea {
-            id: backdropClickArea
-            anchors.fill: parent
-            onClicked: mouse => {
-                const localPos = mapToItem(sidebarContentLoader, mouse.x, mouse.y)
-                if (localPos.x < 0 || localPos.x > sidebarContentLoader.width
-                        || localPos.y < 0 || localPos.y > sidebarContentLoader.height) {
-                    sidebarRoot.hide()
-                }
-            }
-        }
-
-        Loader {
-            id: sidebarContentLoader
-            active: GlobalStates.sidebarLeftOpen || (Config?.options?.sidebar?.keepLeftSidebarLoaded ?? true)
-            anchors {
-                top: parent.top
-                left: parent.left
-                bottom: parent.bottom
-                margins: Appearance.sizes.hyprlandGapsOut
-                rightMargin: Appearance.sizes.elevationMargin
-            }
-            width: sidebarWidth - Appearance.sizes.hyprlandGapsOut - Appearance.sizes.elevationMargin
-            height: parent.height - Appearance.sizes.hyprlandGapsOut * 2
-
-            // Simple slide animation using transform (GPU-accelerated)
-            property bool animating: false
-            transform: Translate {
-                x: GlobalStates.sidebarLeftOpen ? 0 : -30
-                Behavior on x {
-                    enabled: Appearance.animationsEnabled
-                    NumberAnimation {
-                        duration: 150
-                        easing.type: Easing.OutCubic
-                        onRunningChanged: sidebarContentLoader.animating = running
-                    }
-                }
-            }
-            opacity: GlobalStates.sidebarLeftOpen ? 1 : 0
-            Behavior on opacity {
-                enabled: Appearance.animationsEnabled
-                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-            }
-
-            focus: GlobalStates.sidebarLeftOpen
-            Keys.onPressed: (event) => {
-                if (event.key === Qt.Key_Escape) {
-                    sidebarRoot.hide();
-                }
-            }
-
-            sourceComponent: SidebarLeftContent {
-                screenWidth: sidebarRoot.screen?.width ?? 1920
-                screenHeight: sidebarRoot.screen?.height ?? 1080
-            }
+        SidebarHost {
+            required property var modelData
+            edge: "left"
+            screen: modelData
         }
     }
 
-    IpcHandler {
-        target: "sidebarLeft"
-
-        function toggle(): void {
-            GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-        }
-
-        function close(): void {
-            GlobalStates.sidebarLeftOpen = false;
-        }
-
-        function open(): void {
-            GlobalStates.sidebarLeftOpen = true;
-        }
-    }
-
+    // Detached AI chat remains process-global and is owned by one wrapper only.
     Loader {
-        active: CompositorService.isHyprland
-        sourceComponent: Item {
-            GlobalShortcut {
-                name: "sidebarLeftToggle"
-                description: "Toggles left sidebar on press"
-                onPressed: GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen
+        active: GlobalStates.aiChatDetached
+        sourceComponent: FloatingWindow {
+            id: aiChatWindow
+            visible: true
+            title: "iNiR AI Chat"
+            implicitWidth: 520
+            implicitHeight: 780
+            minimumSize: Qt.size(380, 400)
+            color: Appearance.colors.colLayer0
+
+            onVisibleChanged: {
+                if (!visible)
+                    GlobalStates.aiChatDetached = false
             }
-            GlobalShortcut {
-                name: "sidebarLeftOpen"
-                description: "Opens left sidebar on press"
-                onPressed: GlobalStates.sidebarLeftOpen = true
-            }
-            GlobalShortcut {
-                name: "sidebarLeftClose"
-                description: "Closes left sidebar on press"
-                onPressed: GlobalStates.sidebarLeftOpen = false
+
+            AiChat {
+                anchors.fill: parent
+                anchors.margins: 8
             }
         }
     }

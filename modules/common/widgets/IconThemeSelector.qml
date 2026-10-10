@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -73,12 +74,13 @@ Item {
                 id: searchField
                 Layout.fillWidth: true
                 placeholderText: Translation.tr("Search...")
+                renderType: Text.NativeRendering
                 font.pixelSize: Appearance.font.pixelSize.small
                 background: Rectangle {
                     color: Appearance.colors.colLayer1
                     radius: Appearance.rounding.small
                 }
-                color: Appearance.m3colors.m3onSurface
+                color: Appearance.colors.colOnSurface
                 placeholderTextColor: Appearance.colors.colSubtext
             }
             
@@ -97,7 +99,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     text: Translation.tr("Same as system")
                     font.pixelSize: Appearance.font.pixelSize.small
-                    color: !root.currentTheme ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
+                    color: !root.currentTheme ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnSurface
                 }
 
                 onClicked: {
@@ -135,9 +137,9 @@ Item {
                         text: modelData
                         font.pixelSize: Appearance.font.pixelSize.small
                         elide: Text.ElideRight
-                        color: modelData === root.currentTheme 
-                            ? Appearance.m3colors.m3onPrimaryContainer 
-                            : Appearance.m3colors.m3onSurface
+                        color: modelData === root.currentTheme
+                            ? Appearance.colors.colOnPrimaryContainer
+                            : Appearance.colors.colOnSurface
                     }
 
                     onClicked: {

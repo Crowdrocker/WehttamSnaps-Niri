@@ -10,6 +10,7 @@ import qs.modules.common.models.quickToggles
 import qs.modules.common.widgets
 import qs.modules.waffle.looks
 import qs.modules.waffle.actionCenter.bluetooth
+import qs.modules.waffle.actionCenter.hotspot
 import qs.modules.waffle.actionCenter.nightLight
 import qs.modules.waffle.actionCenter.volumeControl
 import qs.modules.waffle.actionCenter.wifi
@@ -51,6 +52,13 @@ DelegateChooser {
         }
     }
     DelegateChoice {
+        roleValue: "vpn"
+        ActionCenterToggleButton {
+            toggleModel: VpnToggle {}
+            icon: "shield-lock"
+        }
+    }
+    DelegateChoice {
         roleValue: "cloudflareWarp"
         ActionCenterToggleButton {
             toggleModel: CloudflareWarpToggle {}
@@ -83,6 +91,16 @@ DelegateChooser {
         ActionCenterToggleButton {
             toggleModel: GameModeToggle {}
             icon: "games"
+        }
+    }
+    DelegateChoice {
+        roleValue: "hotspot"
+        ActionCenterToggleButton {
+            toggleModel: HotspotToggle {}
+            icon: "wifi-tethering"
+            menu: Component {
+                HotspotControl {}
+            }
         }
     }
     DelegateChoice {

@@ -1,0 +1,351 @@
+
+{
+
+
+    // Test Button
+    "custom/daemon": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "daemon is running, click to refresh",
+        "on-click": "~/.config/snapsos/monocle/indexer.sh DP-1",
+        "exec": "~/.config/snapsos/monocle/indexer.sh DP-1",
+        "max-length": 20,
+        "interval": 1
+
+    },
+
+    "custom/window1": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 1: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 1 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 1 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+    "custom/window2": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 2: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 2 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 2 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window3": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 3: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 3 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 3 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window4": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 4: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 4 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 4 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window5": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 5: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 5 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 5 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window6": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 6: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 6 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 6 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window7": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 7: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 7 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 7 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window8": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 8: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 8 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 8 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window9": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 9: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 9 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 9 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/window10": {
+        "tooltip": true,
+        "format":"{text}",
+        "tooltip-format": "window 10: {text}",
+        "on-click": "~/.config/snapsos/monocle/focuswindow.sh 10 DP-1",
+        "exec": "~/.config/snapsos/monocle/fetchwindow.sh 10 DP-1",
+        "max-length": 20,
+        "interval": 1.5
+
+    },
+
+    "custom/test-button2": {
+        "tooltip": true,
+        "format":"oooh",
+        "tooltip-format": "this is a button",
+        "on-click": "ydotool key 125:1 16:1 125:0 16:0"
+
+    },
+
+    "custom/button-fuzzel": {
+        "tooltip": true,
+        "format":"run",
+        "tooltip-format": "application start menu",
+        "on-click": "fuzzel"
+
+    },
+    "custom/button-term": {
+        "tooltip": true,
+        "format":"shell",
+        "tooltip-format": "launch terminal",
+        "on-click": "alacritty"
+
+    },
+
+    "custom/button-files": {
+        "tooltip": true,
+        "format":"files",
+        "tooltip-format": "launch files",
+        "on-click": "nautilus"
+
+    },
+
+    "custom/button-next": {
+        "tooltip": true,
+        "format":"next",
+        "tooltip-format": "next window",
+        "on-click": "ydotool key 56:1 15:1 56:0 15:0"
+
+    },
+
+    "custom/button-prev": {
+        "tooltip": true,
+        "format": "prev",
+        "tooltip-format": "previous window",
+        "on-click": "ydotool key 56:1 42:1 15:1 56:0 42:0 15:0"
+
+    },
+
+    "custom/button-fit": {
+        "tooltip": true,
+        "format":"fit",
+        "tooltip-format": "fit cluster to viewport",
+        "on-click": "ydotool key 125:1 42:1 50:1 125:0 42:0 50:0"
+
+    },
+
+    "custom/button-zoomin": {
+        "tooltip": true,
+        "format":"+",
+        "tooltip-format": "zoom in",
+        "on-click": "ydotool key 125:1 13:1 125:0 13:0"
+
+    },
+
+    "custom/button-zoomout": {
+        "tooltip": true,
+        "format":"-",
+        "tooltip-format": "zoom out",
+        "on-click": "ydotool key 125:1 12:1 125:0 12:0"
+
+    },
+
+
+
+     // Keyboard State
+    "keyboard-state": {
+        "numlock": true,
+        "capslock": true,
+        "format": "{name} {icon}",
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
+    },
+
+    // System tray
+    "tray": {
+        // "icon-size": 21,
+        "spacing": 10
+    },
+
+    // Clock
+    "clock": {
+        // "timezone": "Europe/Amsterdam",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+
+    // System
+    "custom/system": {
+        "format": "",
+        "tooltip": false
+    },
+
+    // CPU
+    "cpu": {
+        "format": "/ C {usage}% ",
+        "on-click": "alacritty -e btop"
+    },
+
+    // Memory
+    "memory": {
+        "format": "/ M {}% ",
+        "on-click": "alacritty -e btop"
+    },
+
+    // Harddisc space used
+    "disk": {
+        "interval": 30,
+        "format": "D {percentage_used}% ",
+        "path": "/",
+        "on-click": "alacritty -e btop"
+    }, 
+
+    "hyprland/language": {
+        "format": "/ K {short}"
+    },
+
+    // Group Hardware
+    "group/hardware": {
+        "orientation": "inherit",
+        "drawer": {
+            "transition-duration": 300,
+            "children-class": "not-memory",
+            "transition-left-to-right": false
+        },        
+        "modules": [
+            "custom/system",
+            "disk",
+            "cpu",
+            "memory",
+            "hyprland/language"
+        ]
+    },
+    
+  // Network
+  "network": {
+    "format": "{ifname}",
+    "format-wifi": " {essid}({signalStrength}%)",
+    "format-ethernet": " {ifname}",
+    "format-disconnected": "Disconnected ⚠",
+    "tooltip-format": " {ifname} via {gwaddri}",
+    "tooltip-format-wifi": "  {ifname} @ {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%\nFreq: {frequency}MHz\nUp: {bandwidthUpBits} Down: {bandwidthDownBits}",
+    "tooltip-format-ethernet": " {ifname}\nIP: {ipaddr}\n up: {bandwidthUpBits} down: {bandwidthDownBits}",
+    "tooltip-format-disconnected": "Disconnected",
+    "max-length": 50,
+    "on-click": "nm-connection-editor"
+  },
+
+    // Battery
+    "battery": {
+        "states": {
+            // "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon}   {capacity}%",
+        "format-charging": "  {capacity}%",
+        "format-plugged": "  {capacity}%",
+        "format-alt": "{icon}  {time}",
+        // "format-good": "", // An empty format will hide the module
+        // "format-full": "",
+        "format-icons": [" ", " ", " ", " ", " "]
+    },
+
+    // Pulseaudio
+    "pulseaudio": {
+        // "scroll-step": 1, // %, can be a float
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", " ", " "]
+        },
+        "on-click": "pavucontrol"
+    },
+
+    // Bluetooth
+    "bluetooth": {
+        "format-disabled": "",
+        "format-off": "",
+        "interval": 30,
+        "on-click": "blueman-manager",
+        "format-no-controller": ""
+    },
+
+    // Other
+    "user": {
+        "format": "{user}",
+        "interval": 60,
+        "icon": false
+    },
+
+    // Idle Inhibator
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "tooltip": true,
+        "format-icons":{
+            "activated": "",
+            "deactivated": ""
+        },
+        "on-click-right": "hyprlock"        
+    }
+
+
+
+
+}

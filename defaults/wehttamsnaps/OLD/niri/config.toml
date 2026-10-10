@@ -1,0 +1,224 @@
+# ┌─ Niri Config for Crowdrocker ──────────────────────────────────────────────┐
+# │ Inspired by Omarchy/Jakoolit aesthetics with gaming/modding workflow       │
+# └────────────────────────────────────────────────────────────────────────────┘
+
+
+#################################################################
+# NIRISYSTEM — Gaming + Modding + Jarvis Stark-Tech (Theme C)
+#################################################################
+
+[layout]
+gaps = { inner = 8, outer = 8 }
+smart_gaps = true
+smart_gaps_exclusive = false
+
+default_column_width = { Fraction = 0.6 }
+
+#################################################################
+# WINDOW STYLE — Borders, Colors
+#################################################################
+
+[window]
+border_size = 2
+border_size_unfocused = 2
+
+# Jarvis Stark-Tech — Deep charcoal with cyan highlights
+border = "0x1c1c1c"
+border_unfocused = "0x111111"
+
+#################################################################
+# WINDOW RULES — Modding Tools, Steam Apps, Wine tools
+#################################################################
+
+### Mod Organizer (MO2) ###
+[[window.rule]]
+match_title = ".*Mod Organizer.*"
+floating = true
+size = { width = 1280, height = 720 }
+center = true
+
+### Vortex Mod Manager ###
+[[window.rule]]
+match_title = ".*Vortex.*"
+floating = true
+size = { width = 1280, height = 720 }
+center = true
+
+### SteamTinkerLaunch ###
+[[window.rule]]
+match_title = ".*SteamTinkerLaunch.*"
+floating = true
+size = { width = 1024, height = 768 }
+center = true
+
+### xEdit (FO4Edit, SSEEdit, etc.) ###
+[[window.rule]]
+match_title = ".*xEdit.*"
+floating = true
+center = true
+
+### ENB / Reshade tools ###
+[[window.rule]]
+match_title = ".*ENB.*"
+floating = true
+center = true
+
+### Wine system tray — Don’t focus ###
+[[window.rule]]
+match_title = "Wine System Tray"
+nofocus = true
+
+### Steam per-game IDs always float ###
+[[window.rule]]
+match_class = "steam_app_.*"
+floating = true
+
+### Emulators ###
+[[window.rule]]
+match_class = "dolphin-emu"
+floating = true
+
+[[window.rule]]
+match_class = "Ryujinx"
+floating = true
+
+[[window.rule]]
+match_class = "yuzu"
+floating = true
+
+### Game launchers ###
+[[window.rule]]
+match_class = "heroic"
+floating = true
+
+[[window.rule]]
+match_class = "Lutris"
+floating = true
+
+#################################################################
+# Window Behavior
+#################################################################
+
+[window.insert_position]
+focus = true
+
+[focus]
+follow_mouse = false
+new_window = "focus"
+raise_on_focus = false
+
+#################################################################
+# KEYBINDINGS — Hypr muscle memory + Niri scroll resizing
+#################################################################
+
+[bindings]
+
+# Terminal
+[["mod+Return"]]
+spawn = "ghostty"
+
+# Close window
+[["mod+Shift+Q"]]
+close_window = true
+
+[["mod+W"]]
+close_window = true
+
+# Toggle floating
+[["mod+Space"]]
+toggle_floating = true
+
+# Exit WM
+[["mod+Shift+E"]]
+quit = true
+
+# Screenshot
+[["mod+Shift+S"]]
+spawn = "gnome-screenshot -i"
+
+# Run launcher (replace with rofi/wofi of choice)
+[["mod+R"]]
+spawn = "rofi -show run"
+
+### Column navigation ###
+[["mod+H"]]
+focus_column_left = true
+
+[["mod+L"]]
+focus_column_right = true
+
+[["mod+J"]]
+focus_window_down = true
+
+[["mod+K"]]
+focus_window_up = true
+
+### Move columns ###
+[["mod+MouseScrollUp"]]
+move_column_left = true
+
+[["mod+MouseScrollDown"]]
+move_column_right = true
+
+### Resize columns (Niri signature) ###
+[["mod+Ctrl+MouseScrollUp"]]
+resize_column_wider = true
+
+[["mod+Ctrl+MouseScrollDown"]]
+resize_column_narrower = true
+
+### Swap columns ###
+[["mod+Shift+H"]]
+swap_column_left = true
+
+[["mod+Shift+L"]]
+swap_column_right = true
+
+### Brightness / Volume ###
+[["XF86MonBrightnessUp"]]
+spawn = "brightnessctl set +10%"
+
+[["XF86MonBrightnessDown"]]
+spawn = "brightnessctl set 10%-"
+
+[["XF86AudioRaiseVolume"]]
+spawn = "pactl set-sink-volume @DEFAULT_SINK@ +5%"
+
+[["XF86AudioLowerVolume"]]
+spawn = "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+
+#################################################################
+# NOCTALIA-SHELL + GTK THEME
+#################################################################
+
+[spawn_on_start]
+
+
+# Launch Noctalia-shell replacing Waybar
+spawn-at-startup "qs" "-c" "noctalia-shell"
+
+# Optional:
+ "dunst"
+# "mako"
+
+#################################################################
+# OUTPUT CONFIG
+#################################################################
+
+[output]
+prefer_no_scaled = true
+
+#################################################################
+# ANIMATIONS
+#################################################################
+
+[animation]
+ease_in_out_cubic = true
+
+#################################################################
+# COLUMN LAYOUT DEFAULTS
+#################################################################
+
+[layout.column]
+width = { Fraction = 0.6 }
+max_width = 1600

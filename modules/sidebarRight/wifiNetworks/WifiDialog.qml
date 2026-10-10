@@ -10,29 +10,39 @@ import Quickshell
 
 WindowDialog {
     id: root
-    backgroundHeight: 600
+    backgroundHeight: 450
 
     WindowDialogTitle {
         text: Translation.tr("Connect to Wi-Fi")
     }
     WindowDialogSeparator {
-        visible: !Network.wifiScanning
+        opacity: !Network.wifiScanning ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
     }
     StyledIndeterminateProgressBar {
-        visible: Network.wifiScanning
+        opacity: Network.wifiScanning ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
         Layout.fillWidth: true
         Layout.topMargin: -8
         Layout.bottomMargin: -8
-        Layout.leftMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
-        Layout.rightMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        Layout.leftMargin: -(Appearance.angelEverywhere ? Appearance.angel.roundingNormal : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        Layout.rightMargin: -(Appearance.angelEverywhere ? Appearance.angel.roundingNormal : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
     }
     StyledListView {
         Layout.fillHeight: true
         Layout.fillWidth: true
         Layout.topMargin: -15
         Layout.bottomMargin: -16
-        Layout.leftMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
-        Layout.rightMargin: -(Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        Layout.leftMargin: -(Appearance.angelEverywhere ? Appearance.angel.roundingNormal : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
+        Layout.rightMargin: -(Appearance.angelEverywhere ? Appearance.angel.roundingNormal : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.large)
         leftMargin: 8
         rightMargin: 8
         topMargin: 8
@@ -61,14 +71,35 @@ WindowDialog {
                 rightMargin: 8
             }
         }
+
+        // Empty state: no networks and not scanning
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 6
+            visible: Network.wifiNetworks.length === 0 && !Network.wifiScanning
+
+            MascotImage {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: 100
+                Layout.preferredHeight: 100
+                pose: "network-offline"
+                surface: "wifi"
+                fallbackSurface: "emptyStates"
+            }
+            StyledText {
+                Layout.alignment: Qt.AlignHCenter
+                text: Translation.tr("No networks found")
+                font.pixelSize: Appearance.font.pixelSize.small
+                color: Appearance.colMetadataText
+            }
+        }
     }
     WindowDialogSeparator {}
     WindowDialogButtonRow {
         DialogButton {
             buttonText: Translation.tr("Details")
             onClicked: {
-                const cmd = Network.ethernet ? (Config.options?.apps?.networkEthernet ?? "nm-connection-editor") : (Config.options?.apps?.network ?? "nm-connection-editor")
-                ShellExec.execCmd(cmd);
+                AppLauncher.launchNetworkSettings(Network.ethernet)
                 GlobalStates.sidebarRightOpen = false;
             }
         }

@@ -1,0 +1,15 @@
+Scroller - horizontal | mmsg dispatch setlayout,scroller
+Scroller - vertical | mmsg dispatch setlayout,vertical_scroller
+Tile/master - left | mmsg dispatch setlayout,tile
+Tile/master - top | mmsg dispatch setlayout,vertical_tile
+Tile/master - center | mmsg dispatch setlayout,center_tile
+Tile/master - right | mmsg dispatch setlayout,right_tile
+Grid - horizontal | mmsg dispatch setlayout,grid
+Grid - vertical | mmsg dispatch setlayout,vertical_grid
+Deck - horizontal | mmsg dispatch setlayout,deck
+Deck - vertical | mmsg dispatch setlayout,vertical_deck
+Fair - horizontal | mmsg dispatch setlayout,fair
+Fair - vertical | mmsg dispatch setlayout,vertical_fair
+Monocle | mmsg dispatch setlayout,monocle
+Dwindle | mmsg dispatch setlayout,dwindle
+

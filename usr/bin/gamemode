@@ -1,0 +1,38 @@
+#!/bin/bash
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# WEHTTAMSNAPS IDROID GAMING PROTOCOL v2.0 (GPU OPTIMIZED)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 1. Voice & Mode Switch
+jarvis mode idroid
+jarvis gamemode-on
+
+# 2. Set the Cyberpunk Cyan Focus Ring (#00FFFF)
+niri msg action set-focus-ring-color "#00FFFF"
+
+# 3. GPU PERFORMANCE BOOST (RX 580)
+# Sets the power profile to 'high' for better clock stability
+if [ -f /sys/class/drm/card0/device/power_dpm_force_performance_level ]; then
+    echo "high" | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level > /dev/null
+fi
+
+# 4. Jump to Workspace 6 & Launch Apps
+niri msg action focus-workspace 6
+steam &
+discord &
+
+# 5. UI Feedback
+notify-send "iDroid" "Tactical environment active. RX 580 Power Profile: HIGH."
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# MODDING ENVIRONMENT INITIALIZATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 1. Ensure MO2 paths are mapped
+export MO2_ROOT="$HOME/Games/Modding/MO2"
+
+# 2. Set environment variables for Uncharted/Tomb Raider installers
+export WINEPREFIX="$HOME/.wine/modding_tools"
+
+# 3. Notification for Modding Ready
+notify-send "iDroid" "Modding tools initialized for Fallout 4 and Cyberpunk."

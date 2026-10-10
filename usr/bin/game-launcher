@@ -1,0 +1,713 @@
+#!/usr/bin/env python3
+"""
+╔══════════════════════════════════════════════════════════════════╗
+║   WehttamSnaps — Game Launcher                                   ║
+║   Author  : Matthew (GitHub: Crowdrocker)                        ║
+║   Twitch  : twitch.tv/WehttamSnaps                               ║
+║   YouTube : youtube.com/@WehttamSnaps                            ║
+║                                                                  ║
+║   Self-contained game launcher — merges Steam + Lutris into      ║
+║   a single cyberpunk Rofi grid with cover art.                   ║
+║                                                                  ║
+║   Sources:                                                       ║
+║     • Steam  — ACF scanner + appcache covers + CDN fallback      ║
+║     • Lutris — SQLite DB reader + local coverart                 ║
+║     • Manual — ~/.config/wehttamsnaps/games.conf                 ║
+║                                                                  ║
+║   Usage:                                                         ║
+║     game-launcher.py                  open rofi launcher         ║
+║     game-launcher.py --scan           pre-fetch all covers       ║
+║     game-launcher.py --list           print all games            ║
+║     game-launcher.py --list-steam     Steam games only           ║
+║     game-launcher.py --list-lutris    Lutris games only          ║
+║     game-launcher.py --clear-cache    clear cover cache          ║
+║     game-launcher.py --json           dump merged JSON           ║
+║                                                                  ║
+║   Rofi theme : ~/.config/rofi/themes/wehttamsnaps-games.rasi     ║
+║   Cover cache: ~/.cache/wehttamsnaps/covers/                     ║
+║   Manual list: ~/.config/wehttamsnaps/games.conf                 ║
+║                                                                  ║
+║   Based on HyDE gamelauncher (steam.py / lutris.py / catalog.py) ║
+║   Extended and rebranded for WehttamSnaps.                       ║
+╚══════════════════════════════════════════════════════════════════╝
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import sqlite3
+import subprocess
+import sys
+import urllib.request
+import urllib.error
+from collections import defaultdict
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+
+# ══════════════════════════════════════════════════════════════════
+# PATHS & CONSTANTS
+# ══════════════════════════════════════════════════════════════════
+
+HOME          = Path.home()
+XDG_DATA      = Path(os.environ.get("XDG_DATA_HOME",  str(HOME / ".local/share")))
+XDG_CACHE     = Path(os.environ.get("XDG_CACHE_HOME", str(HOME / ".cache")))
+XDG_CONFIG    = Path(os.environ.get("XDG_CONFIG_HOME",str(HOME / ".config")))
+
+COVER_CACHE   = XDG_CACHE  / "wehttamsnaps" / "covers"
+GAMES_CONF    = XDG_CONFIG / "wehttamsnaps" / "games.conf"
+ROFI_THEME    = XDG_CONFIG / "rofi/themes/wehttamsnaps-games.rasi"
+SOUND_CMD     = "/usr/local/bin/sound-system"
+LOG_FILE      = XDG_CACHE  / "wehttamsnaps" / "game-launcher.log"
+
+# Steam CDN — portrait library cover (best for card grid)
+STEAM_COVER_URL   = "https://steamcdn-a.akamaihd.net/steam/apps/{appid}/library_600x900_2x.jpg"
+STEAM_HEADER_URL  = "https://cdn.cloudflare.steamstatic.com/steam/apps/{appid}/header.jpg"
+
+# Rofi grid settings
+ROFI_COLUMNS  = 6
+ROFI_LINES    = 3
+ROFI_WIDTH    = 1100
+ICON_SIZE     = 148
+
+# ── Exclude patterns (Proton, runtimes, tools) ──────────────────
+EXCLUDE_RE = re.compile(
+    r"(?i)\b(proton|steam[\s_]runtime|steamworks|steam[\s_]linux|"
+    r"directx|vcredist|dotnet|microsoft[\s_]|redistributable|"
+    r"creation[\s_]kit|sdk|dedicated[\s_]server)\b"
+)
+
+
+# ══════════════════════════════════════════════════════════════════
+# LOGGING
+# ══════════════════════════════════════════════════════════════════
+
+def _log(msg: str) -> None:
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOG_FILE, "a") as f:
+        import datetime
+        f.write(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}\n")
+
+
+# ══════════════════════════════════════════════════════════════════
+# COVER ART
+# ══════════════════════════════════════════════════════════════════
+
+def _fetch_url(url: str, dst: Path) -> bool:
+    """Download url → dst. Returns True on success."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "WehttamSnaps/1.0"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            if resp.status == 200:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_bytes(resp.read())
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def get_steam_cover(appid: int) -> Optional[Path]:
+    """Return a local path to cover art for a Steam AppID, fetching if needed."""
+    dst = COVER_CACHE / f"steam_{appid}.jpg"
+    if dst.exists():
+        return dst
+
+    # Try portrait cover first, fall back to header
+    for url in [
+        STEAM_COVER_URL.format(appid=appid),
+        STEAM_HEADER_URL.format(appid=appid),
+    ]:
+        if _fetch_url(url, dst):
+            _log(f"Downloaded cover: steam/{appid}")
+            return dst
+
+    return None
+
+
+# ══════════════════════════════════════════════════════════════════
+# STEAM BACKEND
+# ══════════════════════════════════════════════════════════════════
+
+def _find_steam_roots() -> List[Path]:
+    """Return a deduplicated list of steamapps/ directories."""
+    candidates: List[Path] = [
+        XDG_DATA / "Steam",
+        HOME / ".steam/steam",
+        HOME / ".var/app/com.valvesoftware.Steam/.local/share/Steam",
+    ]
+
+    # Parse libraryfolders.vdf for extra libraries
+    vdf_locations = [
+        HOME / ".local/share/Steam/steamapps/libraryfolders.vdf",
+        HOME / ".steam/steam/steamapps/libraryfolders.vdf",
+        HOME / ".var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/libraryfolders.vdf",
+    ]
+    for vdf in vdf_locations:
+        if not vdf.exists():
+            continue
+        try:
+            txt = vdf.read_text(errors="ignore")
+            for m in re.finditer(r'"path"\s*"([^"]+)"', txt):
+                raw = m.group(1).replace("\\\\", "/")
+                p = Path(os.path.expanduser(raw))
+                candidates.append(p)
+        except Exception:
+            pass
+
+    # Also check LINUXDRIVE explicitly
+    linuxdrive = Path("/run/media/wehttamsnaps/LINUXDRIVE/SteamLibrary")
+    candidates.append(linuxdrive)
+
+    seen: set = set()
+    out: List[Path] = []
+    for c in candidates:
+        sa = c / "steamapps"
+        try:
+            resolved = sa.resolve()
+        except Exception:
+            continue
+        if resolved in seen or not sa.exists():
+            continue
+        seen.add(resolved)
+        out.append(sa)
+
+    return out
+
+
+def _parse_acf(path: Path) -> Tuple[Optional[int], Optional[str]]:
+    """Parse a Steam appmanifest_*.acf and return (appid, name)."""
+    try:
+        txt = path.read_text(errors="ignore")
+        m_id   = re.search(r'"appid"\s*"(\d+)"', txt)
+        m_name = re.search(r'"name"\s*"([^"]+)"', txt)
+        appid  = int(m_id.group(1))   if m_id   else None
+        name   = m_name.group(1)      if m_name else None
+        return appid, name
+    except Exception:
+        return None, None
+
+
+def _local_steam_cover(appid: int, steamapps: Path) -> Optional[Path]:
+    """Check Steam's local appcache for existing cover art."""
+    candidates = [
+        steamapps.parent / "appcache/librarycache" / str(appid) / "library_600x900.jpg",
+        steamapps.parent / "appcache/librarycache" / str(appid) / "header.jpg",
+        steamapps.parent / "appcache/librarycache" / f"{appid}_library_600x900.jpg",
+        steamapps.parent / "appcache/librarycache" / f"{appid}.jpg",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return None
+
+
+def scan_steam(fetch_covers: bool = False) -> List[Dict]:
+    """Return list of Steam game dicts."""
+    roots = _find_steam_roots()
+    games: List[Dict] = []
+    seen_ids: set = set()
+
+    for sa in roots:
+        for acf in sa.glob("appmanifest_*.acf"):
+            appid, name = _parse_acf(acf)
+            if not appid or not name:
+                continue
+            if appid in seen_ids:
+                continue
+            if EXCLUDE_RE.search(name):
+                continue
+
+            seen_ids.add(appid)
+
+            # Cover art — local appcache first, then cache dir, then CDN
+            cover: Optional[Path] = (
+                _local_steam_cover(appid, sa)
+                or (COVER_CACHE / f"steam_{appid}.jpg" if (COVER_CACHE / f"steam_{appid}.jpg").exists() else None)
+            )
+            if cover is None and fetch_covers:
+                cover = get_steam_cover(appid)
+
+            games.append({
+                "backend":     "steam",
+                "id":          appid,
+                "name":        name,
+                "slug":        name.lower().replace(" ", "-"),
+                "cover":       str(cover) if cover else None,
+                "run_command": f"xdg-open steam://rungameid/{appid}",
+            })
+
+    return sorted(games, key=lambda g: g["name"].lower())
+
+
+# ══════════════════════════════════════════════════════════════════
+# LUTRIS BACKEND
+# ══════════════════════════════════════════════════════════════════
+
+_LUTRIS_DB_LOCATIONS: List[Path] = [
+    XDG_DATA / "lutris/pga.db",
+    XDG_DATA / "lutris/lutris.db",
+    XDG_DATA / "lutris/db.sqlite",
+    HOME / ".var/app/net.lutris.Lutris/data/lutris/pga.db",
+    HOME / ".var/app/net.lutris.Lutris/data/lutris/lutris.db",
+    HOME / "snap/lutris/current/.local/share/lutris/pga.db",
+]
+
+
+def _find_lutris_db() -> Optional[Path]:
+    found = [p for p in _LUTRIS_DB_LOCATIONS if p.exists()]
+    if not found:
+        # Recursive search as fallback
+        for base in [XDG_DATA / "lutris", HOME / ".var/app/net.lutris.Lutris/data"]:
+            if base.exists():
+                found.extend(base.rglob("*.db"))
+    if not found:
+        return None
+    # Prefer most recently modified
+    return max(found, key=lambda p: p.stat().st_mtime)
+
+
+def _lutris_cover(slug: str) -> Optional[Path]:
+    candidates = [
+        XDG_DATA / "lutris/coverart" / f"{slug}.jpg",
+        XDG_DATA / "lutris/coverart" / f"{slug}.png",
+        HOME / ".var/app/net.lutris.Lutris/data/lutris/coverart" / f"{slug}.jpg",
+        HOME / ".var/app/net.lutris.Lutris/data/lutris/coverart" / f"{slug}.png",
+        XDG_CACHE / "lutris/coverart" / f"{slug}.jpg",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return None
+
+
+def _read_lutris_db(db: Path) -> List[Dict]:
+    """Read installed games from Lutris SQLite database."""
+    uri = f"file:{db}?mode=ro"
+    games: List[Dict] = []
+
+    try:
+        conn = sqlite3.connect(uri, uri=True)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        # Try the most common schema first
+        try:
+            cur.execute(
+                "SELECT id, name, slug, runner, IFNULL(icon,'') as icon "
+                "FROM games WHERE installed=1"
+            )
+        except sqlite3.OperationalError:
+            try:
+                cur.execute(
+                    "SELECT id, name, slug, runner, IFNULL(icon,'') as icon FROM games"
+                )
+            except sqlite3.OperationalError:
+                conn.close()
+                return []
+
+        for row in cur.fetchall():
+            slug = row["slug"] or ""
+            name = row["name"] or ""
+            if not name:
+                continue
+
+            cover = _lutris_cover(slug)
+            games.append({
+                "backend":     "lutris",
+                "id":          row["id"],
+                "name":        name,
+                "slug":        slug,
+                "runner":      row["runner"] or "",
+                "cover":       str(cover) if cover else None,
+                "run_command": f'xdg-open "lutris:rungameid/{row["id"]}"',
+            })
+
+        conn.close()
+    except Exception as e:
+        _log(f"Lutris DB error: {e}")
+
+    return sorted(games, key=lambda g: g["name"].lower())
+
+
+def scan_lutris() -> List[Dict]:
+    db = _find_lutris_db()
+    if not db:
+        _log("Lutris DB not found — skipping")
+        return []
+    _log(f"Lutris DB: {db}")
+    return _read_lutris_db(db)
+
+
+# ══════════════════════════════════════════════════════════════════
+# MANUAL GAME LIST  (~/.config/wehttamsnaps/games.conf)
+# ══════════════════════════════════════════════════════════════════
+
+def scan_manual() -> List[Dict]:
+    """
+    Read manual game list. Format per line:
+        Name|STEAM_APP_ID|optional/cover/path.jpg
+    Lines starting with # or blank are skipped.
+    """
+    if not GAMES_CONF.exists():
+        return []
+
+    games: List[Dict] = []
+    for raw in GAMES_CONF.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 2:
+            continue
+
+        name   = parts[0]
+        appid_s = parts[1]
+        cover_s = parts[2] if len(parts) > 2 else ""
+
+        try:
+            appid = int(appid_s)
+        except ValueError:
+            continue
+        if appid <= 0:
+            continue
+
+        cover: Optional[Path] = None
+        if cover_s:
+            p = Path(os.path.expanduser(cover_s))
+            if p.exists():
+                cover = p
+        if cover is None:
+            cached = COVER_CACHE / f"steam_{appid}.jpg"
+            if cached.exists():
+                cover = cached
+
+        games.append({
+            "backend":     "steam",
+            "id":          appid,
+            "name":        name,
+            "slug":        name.lower().replace(" ", "-"),
+            "cover":       str(cover) if cover else None,
+            "run_command": f"xdg-open steam://rungameid/{appid}",
+            "_manual":     True,
+        })
+
+    return games
+
+
+# ══════════════════════════════════════════════════════════════════
+# CATALOG — MERGE ALL SOURCES
+# ══════════════════════════════════════════════════════════════════
+
+def build_catalog(
+    fetch_covers: bool = False,
+    include_steam: bool = True,
+    include_lutris: bool = True,
+    include_manual: bool = True,
+) -> List[Dict]:
+    """
+    Merge Steam + Lutris + manual list.
+    Deduplicate by (backend, id).
+    When a game appears in both Steam scan AND manual list, Steam scan wins.
+    When a name exists in both Steam and Lutris, show both with backend label.
+    """
+    entries: List[Dict] = []
+
+    if include_steam:
+        entries.extend(scan_steam(fetch_covers=fetch_covers))
+
+    if include_lutris:
+        entries.extend(scan_lutris())
+
+    if include_manual:
+        # Only add manual entries whose AppID isn't already in Steam results
+        steam_ids = {e["id"] for e in entries if e["backend"] == "steam"}
+        for g in scan_manual():
+            if g["id"] not in steam_ids:
+                entries.append(g)
+
+    # Deduplicate by (backend, id)
+    seen: set = set()
+    deduped: List[Dict] = []
+    for e in entries:
+        key = (e["backend"], e["id"])
+        if key not in seen:
+            seen.add(key)
+            deduped.append(e)
+
+    # Tag duplicates that share a name across backends → show backend label
+    name_counts: Dict[str, int] = defaultdict(int)
+    for e in deduped:
+        name_counts[e["name"].lower()] += 1
+
+    for e in deduped:
+        if name_counts[e["name"].lower()] > 1:
+            e["display_name"] = f"{e['name']}  [{e['backend']}]"
+        else:
+            e["display_name"] = e["name"]
+
+    return sorted(deduped, key=lambda g: g["name"].lower())
+
+
+# ══════════════════════════════════════════════════════════════════
+# ROFI INTERFACE
+# ══════════════════════════════════════════════════════════════════
+
+def _rofi_line(entry: Dict) -> str:
+    """
+    Build a rofi dmenu line for one game entry.
+    Format: display_name\0icon\x1f/path/to/cover.jpg
+    """
+    name = entry.get("display_name") or entry["name"]
+    cover = entry.get("cover")
+    if cover:
+        return f"{name}\0icon\x1f{cover}"
+    return name
+
+
+def _build_rofi_input(catalog: List[Dict]) -> str:
+    return "\n".join(_rofi_line(e) for e in catalog)
+
+
+def _name_to_entry(selected: str, catalog: List[Dict]) -> Optional[Dict]:
+    """Map a selected rofi display name back to its catalog entry."""
+    # Strip rofi's null-byte icon annotation if present
+    clean = selected.split("\0")[0].strip()
+    for e in catalog:
+        if e.get("display_name", e["name"]) == clean or e["name"] == clean:
+            return e
+    # Fuzzy fallback — find closest match
+    for e in catalog:
+        if clean.lower() in e["name"].lower() or e["name"].lower() in clean.lower():
+            return e
+    return None
+
+
+def launch_rofi(catalog: List[Dict]) -> None:
+    count = len(catalog)
+    mesg  = f"iDROID GAME LIBRARY  ·  {count} GAMES  ·  WEHTTAMSNAPS"
+
+    theme = str(ROFI_THEME) if ROFI_THEME.exists() else str(
+        Path.home() / ".config/rofi/themes/wehttamsnaps.rasi"
+    )
+
+    rofi_input = _build_rofi_input(catalog)
+
+    cmd = [
+        "rofi", "-dmenu",
+        "-i",
+        "-p", "game ❯",
+        "-mesg", mesg,
+        "-show-icons",
+        "-icon-size", str(ICON_SIZE),
+        "-eh", "2",
+        "-no-custom",
+        "-theme", theme,
+    ]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            input=rofi_input,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        print("rofi not found — install: paru -S rofi-wayland", file=sys.stderr)
+        sys.exit(1)
+
+    selected = result.stdout.strip()
+    if not selected:
+        sys.exit(0)
+
+    entry = _name_to_entry(selected, catalog)
+    if not entry:
+        _log(f"No entry found for selection: {selected}")
+        sys.exit(1)
+
+    _launch(entry)
+
+
+def _launch(entry: Dict) -> None:
+    name    = entry["name"]
+    backend = entry["backend"]
+    cmd     = entry["run_command"]
+
+    _log(f"Launching: {name} [{backend}]  →  {cmd}")
+
+    # iDroid launch sound
+    if shutil.which(SOUND_CMD) or Path(SOUND_CMD).exists():
+        subprocess.Popen(
+            [SOUND_CMD, "steam-launch"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    # Notify with cover art if available
+    cover = entry.get("cover")
+    try:
+        notify_cmd = ["notify-send", "-t", "3000", "iDROID", f"Launching: {name}"]
+        if cover:
+            notify_cmd += ["-i", cover]
+        subprocess.Popen(notify_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+    # Fire the run command
+    subprocess.Popen(
+        cmd,
+        shell=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════
+# PREFETCH ALL COVERS
+# ══════════════════════════════════════════════════════════════════
+
+def prefetch_all_covers(catalog: List[Dict]) -> None:
+    steam_entries = [e for e in catalog if e["backend"] == "steam"]
+    total = len(steam_entries)
+    print(f"\033[36mFetching cover art for {total} Steam games...\033[0m\n")
+
+    for i, entry in enumerate(steam_entries, 1):
+        appid = entry["id"]
+        name  = entry["name"]
+        dst   = COVER_CACHE / f"steam_{appid}.jpg"
+
+        if dst.exists():
+            print(f"  [{i:>2}/{total}] {name[:45]:<45} \033[36mcached\033[0m")
+            entry["cover"] = str(dst)
+            continue
+
+        print(f"  [{i:>2}/{total}] {name[:45]:<45} ", end="", flush=True)
+        cover = get_steam_cover(appid)
+        if cover:
+            print("\033[32m✓\033[0m")
+            entry["cover"] = str(cover)
+        else:
+            print("\033[33m—\033[0m")
+
+    print(f"\n\033[32m✓ Cover art cache complete\033[0m")
+    print(f"  Location: {COVER_CACHE}\n")
+
+
+# ══════════════════════════════════════════════════════════════════
+# CLI — LIST / JSON / CLEAR
+# ══════════════════════════════════════════════════════════════════
+
+def print_list(catalog: List[Dict], backend_filter: Optional[str] = None) -> None:
+    entries = [e for e in catalog if not backend_filter or e["backend"] == backend_filter]
+    print(f"\n\033[36m{'ID':<12} {'Backend':<8} {'Cover':<6} Name\033[0m")
+    print("─" * 70)
+    for e in entries:
+        has_cover = "✓" if e.get("cover") else "—"
+        print(f"  {str(e['id']):<10} {e['backend']:<8} {has_cover:<6} {e['name']}")
+    print(f"\n  Total: {len(entries)}\n")
+
+
+# ══════════════════════════════════════════════════════════════════
+# MAIN
+# ══════════════════════════════════════════════════════════════════
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="game-launcher.py",
+        description="WehttamSnaps — Rofi Game Launcher (Steam + Lutris + Manual)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  game-launcher.py                  open the launcher
+  game-launcher.py --scan           pre-fetch all cover art
+  game-launcher.py --list           list all detected games
+  game-launcher.py --list-steam     Steam games only
+  game-launcher.py --list-lutris    Lutris games only
+  game-launcher.py --json           dump full JSON catalog
+  game-launcher.py --clear-cache    delete cover art cache
+        """,
+    )
+
+    parser.add_argument("--scan",         action="store_true", help="Pre-fetch all cover art and exit")
+    parser.add_argument("--list",         action="store_true", help="List all games and exit")
+    parser.add_argument("--list-steam",   action="store_true", help="List Steam games only")
+    parser.add_argument("--list-lutris",  action="store_true", help="List Lutris games only")
+    parser.add_argument("--json",         action="store_true", help="Dump merged catalog as JSON")
+    parser.add_argument("--clear-cache",  action="store_true", help="Clear cover art cache")
+    parser.add_argument("--no-steam",     action="store_true", help="Exclude Steam games")
+    parser.add_argument("--no-lutris",    action="store_true", help="Exclude Lutris games")
+    parser.add_argument("--no-manual",    action="store_true", help="Exclude manual games.conf")
+
+    args = parser.parse_args(argv)
+
+    # ── Clear cache ──────────────────────────────────────────────
+    if args.clear_cache:
+        if COVER_CACHE.exists():
+            shutil.rmtree(COVER_CACHE)
+            print(f"\033[32m✓ Cache cleared: {COVER_CACHE}\033[0m")
+        else:
+            print("Cache already empty.")
+        return 0
+
+    # ── Build catalog ────────────────────────────────────────────
+    fetch = args.scan
+    catalog = build_catalog(
+        fetch_covers   = fetch,
+        include_steam  = not args.no_steam,
+        include_lutris = not args.no_lutris,
+        include_manual = not args.no_manual,
+    )
+
+    # ── Scan mode ────────────────────────────────────────────────
+    if args.scan:
+        prefetch_all_covers(catalog)
+        return 0
+
+    # ── List modes ───────────────────────────────────────────────
+    if args.list:
+        print_list(catalog)
+        return 0
+
+    if args.list_steam:
+        print_list(catalog, backend_filter="steam")
+        return 0
+
+    if args.list_lutris:
+        print_list(catalog, backend_filter="lutris")
+        return 0
+
+    # ── JSON dump ────────────────────────────────────────────────
+    if args.json:
+        # Remove internal keys before printing
+        clean = [{k: v for k, v in e.items() if not k.startswith("_")} for e in catalog]
+        print(json.dumps(clean, indent=2))
+        return 0
+
+    # ── Launch rofi ──────────────────────────────────────────────
+    launch_rofi(catalog)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)
+    except Exception as exc:
+        print(f"\033[31mFatal error: {exc}\033[0m", file=sys.stderr)
+        _log(f"Fatal: {exc}")
+        sys.exit(1)
+
+# ══════════════════════════════════════════════════════════════════
+# EXCLUDE_RE
+# ══════════════════════════════════════════════════════════════════
+
+EXCLUDE_RE = re.compile(
+    r"(?i)\b(proton|steam[\s_]runtime|steamworks|steam[\s_]linux|"
+    r"directx|vcredist|dotnet|microsoft[\s_]|redistributable|"
+    r"creation[\s_]kit|sdk|dedicated[\s_]server|dsx)\b"
+)

@@ -1,0 +1,198 @@
+// === BASE CONFIGURATION ===
+// Core Niri settings for WehttamSnaps setup
+// GitHub: https://github.com/Crowdrocker
+
+// === INPUT CONFIGURATION ===
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+        
+        repeat-delay 300
+        repeat-rate 50
+        
+        track-layout "global"
+    }
+    
+    touchpad {
+        tap
+        dwt
+        natural-scroll
+        accel-profile "adaptive"
+    }
+    
+    mouse {
+        accel-profile "flat"
+        accel-speed 0.0
+    }
+    
+    // Disable touchpad while typing
+    disable-while-typing
+}
+
+// === OUTPUT CONFIGURATION ===
+// Dell XPS 8700 - Single 1080p 60Hz monitor
+output "DP-3" {
+    mode "1920x1080@60.000"
+    position x=0 y=0
+    scale 1.0
+    
+    // AMD RX 580 optimization
+    vrr "auto"
+    
+    // Color settings
+    temperature 6500
+}
+
+// === LAYOUT CONFIGURATION ===
+layout {
+    // Niri's signature scrollable tiling
+    gaps 8
+    center-focused-column "on-overflow"
+    
+    // Window behavior
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+    
+    default-column-width { proportion 0.5; }
+    
+    // Focus follows mouse for quick navigation
+    focus-ring {
+        width 3
+        active-color "#89b4fa"  // Catppuccin blue
+        inactive-color "#45475a"  // Catppuccin surface0
+    }
+    
+    border {
+        width 2
+        active-color "#89b4fa"
+        inactive-color "#313244"  // Catppuccin surface1
+    }
+    
+    // Struts for Noctalia bar (adjust if using top bar)
+    struts {
+        top 0
+        bottom 48
+    }
+}
+
+// === CURSOR CONFIGURATION ===
+cursor {
+    theme "Bibata-Modern-Ice"
+    size 24
+    
+    // Hide cursor after inactivity
+    hide-after-secs 3.0
+    hide-when-typing
+}
+
+// === ENVIRONMENT VARIABLES ===
+environment {
+    // Qt/GTK theming
+    QT_QPA_PLATFORM "wayland"
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    
+    // GTK
+    GDK_BACKEND "wayland"
+    
+    // Mozilla
+    MOZ_ENABLE_WAYLAND "1"
+    
+    // AMD GPU optimization
+    RADV_PERFTEST "gpl"
+    mesa_glthread "true"
+    
+    // Electron apps
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    
+    // XDG
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+}
+
+// === GENERAL SETTINGS ===
+prefer-no-csd
+
+// Window animations
+animations {
+    // Smooth animations for work mode
+    // Gaming mode will disable these via script
+    slowdown 1.0
+    
+    window-open {
+        duration-ms 200
+        curve "ease-out-cubic"
+    }
+    
+    window-close {
+        duration-ms 150
+        curve "ease-in-cubic"
+    }
+    
+    horizontal-view-movement {
+        duration-ms 250
+        curve "ease-out-cubic"
+    }
+    
+    workspace-switch {
+        duration-ms 200
+        curve "ease-out-quad"
+    }
+    
+    window-resize {
+        duration-ms 150
+        curve "ease-out-cubic"
+    }
+}
+
+// === SCREENSHOT DIRECTORY ===
+screenshot-path "~/Pictures/Screenshots/Screenshot_%Y-%m-%d_%H-%M-%S.png"
+
+// === HOTKEY OVERLAY ===
+hotkey-overlay {
+    skip-at-startup
+}
+
+// === SPAWN AT STARTUP ===
+spawn-at-startup "qs" "-c" "noctalia-shell"
+
+// PipeWire/Audio
+spawn-at-startup "wireplumber"
+
+// Clipboard manager
+spawn-at-startup "cliphist" "listen"
+
+// J.A.R.V.I.S. startup sound
+spawn-at-startup "sh" "-c" "sleep 2 && ~/.config/wehttamsnaps/scripts/jarvis-manager.sh startup"
+
+// Welcome app (first-run only)
+spawn-at-startup "sh" "-c" "~/.config/wehttamsnaps/scripts/welcome-check.sh"
+
+// Authentication agent
+spawn-at-startup "hyprpolkitagent"
+
+// Network manager
+spawn-at-startup "nm-applet" "--indicator"
+
+// Bluetooth (if available)
+spawn-at-startup "blueman-applet"
+
+// Notification daemon (if not using Noctalia's built-in)
+// spawn-at-startup "mako"
+
+// Idle management
+spawn-at-startup "sh" "-c" "swayidle -w timeout 600 'swaylock' timeout 900 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock'"
+
+// === DEBUG ===
+debug {
+    // Enable for troubleshooting
+    render-drm-device "/dev/dri/card1"  // Adjust for your AMD GPU
+    
+    // Uncomment for FPS counter
+    // fps-overlay
+}

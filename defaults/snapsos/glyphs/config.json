@@ -1,0 +1,16 @@
+{
+  "recording": {
+    "sections": 4
+  },
+  "appearance": {
+    "ink_width": 3.0,
+    "background_rgba": [0.0, 0.0, 0.0, 0.06],
+    "dictionary_grid_cols": 8,
+    "carousel": {
+      "enabled": true,
+      "height": 70
+    },
+    "exec_prefix": "mmsg dispatch spawn_shell,",
+    "term_exec": ["ghostty", "-e"]
+  }
+}

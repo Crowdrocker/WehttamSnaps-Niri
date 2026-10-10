@@ -1,4 +1,5 @@
 import qs.modules.common
+import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Controls.Material
 import QtQuick.Controls
@@ -6,15 +7,14 @@ import QtQuick.Controls
 /**
  * Material 3 styled TextArea (filled style)
  * https://m3.material.io/components/text-fields/overview
- * Note: We don't use NativeRendering because it makes the small placeholder text look weird
  */
 TextArea {
     id: root
     Material.theme: Material.System
-    Material.accent: Appearance.m3colors.m3primary
-    Material.primary: Appearance.m3colors.m3primary
-    Material.background: Appearance.m3colors.m3surface
-    Material.foreground: Appearance.m3colors.m3onSurface
+    Material.accent: Appearance.regaliaEverywhere ? "transparent" : Appearance.colors.colPrimary
+    Material.primary: Appearance.colors.colPrimary
+    Material.background: Appearance.regaliaEverywhere ? "transparent" : Appearance.colors.colLayer1
+    Material.foreground: Appearance.regaliaEverywhere ? Appearance.regalia.onColor : Appearance.colors.colOnSurface
     Material.containerStyle: Material.Filled
     renderType: Text.QtRendering
 
@@ -61,6 +61,8 @@ TextArea {
             return;
         if (typeof SettingsSearchRegistry === "undefined")
             return;
+        if (!SettingsSearchRegistry.dynamicRegistrationEnabled)
+            return;
 
         var ctx = _findSettingsContext();
         var page = ctx.page;
@@ -84,36 +86,66 @@ TextArea {
         }
     }
 
-    selectedTextColor: Appearance.m3colors.m3onSecondaryContainer
-    selectionColor: Appearance.colors.colSecondaryContainer
-    placeholderTextColor: Appearance.m3colors.m3outline
+    selectedTextColor: Appearance.regaliaEverywhere ? Appearance.regalia.primaryPlateInk : Appearance.colors.colOnSecondaryContainer
+    selectionColor: Appearance.regaliaEverywhere ? Appearance.regalia.primaryPlate : Appearance.colors.colSecondaryContainer
+    placeholderTextColor: Appearance.regaliaEverywhere ? Appearance.regalia.onMuted : Appearance.colors.colOnLayer1
 
-    background: Rectangle {
+    background: Item {
         implicitHeight: 56
-        color: Appearance.m3colors.m3surface
-        topLeftRadius: 4
-        topRightRadius: 4
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            height: 1
-            color: root.focus ? Appearance.m3colors.m3primary : 
-                root.hovered ? Appearance.m3colors.m3outline : Appearance.m3colors.m3outlineVariant
 
-            Behavior on color {
-                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+        RegaliaControlFace {
+            anchors.fill: parent
+            visible: Appearance.regaliaEverywhere
+            fillColor: root.activeFocus
+                ? Appearance.regalia.controlPlateHover
+                : Appearance.regalia.controlPlate
+            radius: Appearance.regalia.roundSmall
+            hovered: root.hovered && !root.activeFocus
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            visible: !Appearance.regaliaEverywhere
+            color: Appearance.editorialEverywhere
+                ? (root.activeFocus ? Appearance.editorial.inputFocus : root.hovered ? Appearance.editorial.inputHover : Appearance.editorial.input)
+                : Appearance.colors.colLayer1
+            topLeftRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : 4
+            topRightRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : 4
+            bottomLeftRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : 0
+            bottomRightRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : 0
+            border.width: Appearance.editorialEverywhere ? (root.activeFocus ? 2 : 1) : 0
+            border.color: Appearance.editorialEverywhere
+                ? (root.activeFocus ? Appearance.editorial.focusRing : root.hovered ? Appearance.editorial.edge : Appearance.editorial.rule) : "transparent"
+            Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration } }
+            Behavior on border.color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration } }
+
+            Rectangle {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                visible: !Appearance.editorialEverywhere
+                height: 1
+                color: root.focus ? Appearance.colors.colPrimary :
+                    root.hovered ? Appearance.colors.colOutline : Appearance.colors.colOutlineVariant
+
+                Behavior on color {
+                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                }
             }
         }
     }
 
     font {
         family: Appearance.font.family.main
-        pixelSize: Appearance?.font.pixelSize.small ?? 15
-        hintingPreference: Font.PreferFullHinting
+        pixelSize: Appearance?.font.pixelSize.normal ?? 16
+        hintingPreference: Font.PreferNoHinting
         variableAxes: Appearance.font.variableAxes.main
     }
     wrapMode: TextEdit.Wrap
+
+    TextInputContextMenu {
+        target: root
+    }
 }

@@ -26,7 +26,7 @@ BarIconButton {
         root.iconScale = 1
     }
     Behavior on iconScale {
-        animation: Looks.transition.enter.createObject(this)
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
     }
 
     onClicked: {
@@ -63,7 +63,7 @@ BarIconButton {
         anchors.centerIn: parent
         width: 16
         height: 16
-        source: TrayService.getSafeIcon(root.item)
+        source: root.item?.icon ?? ""
     }
 
     // Tinted icon (same style as WAppIcon)
@@ -78,7 +78,7 @@ BarIconButton {
                 id: tintedIcon
                 visible: false
                 anchors.fill: parent
-                source: TrayService.getSafeIcon(root.item)
+                source: root.item?.icon ?? ""
             }
             Desaturate {
                 id: desaturatedIcon
@@ -102,7 +102,7 @@ BarIconButton {
     }
 
     BarToolTip {
-        extraVisibleCondition: root.shouldShowTooltip && !root.Drag.active
+        barExtraVisibleCondition: root.shouldShowTooltip && !root.Drag.active
         text: TrayService.getTooltipForItem(root.item)
     }
 }

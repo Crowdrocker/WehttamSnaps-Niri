@@ -7,12 +7,26 @@ import QtQuick.Layouts
 
 Item {
     id: root
+    property bool compactMode: false
+    property bool centerMode: true
     property int currentTab: Persistent.states?.timer?.tab ?? 0
     property var tabButtonList: [
         {"name": Translation.tr("Pomodoro"), "icon": "search_activity"},
         {"name": Translation.tr("Timer"), "icon": "hourglass_empty"},
         {"name": Translation.tr("Stopwatch"), "icon": "timer"}
     ]
+
+    // Style tokens
+    readonly property color colText: Appearance.angelEverywhere ? Appearance.angel.colText
+        : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
+    readonly property color colTextSecondary: Appearance.angelEverywhere ? Appearance.angel.colTextSecondary
+        : Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+    readonly property color colPrimary: Appearance.angelEverywhere ? Appearance.angel.colPrimary
+        : Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+    readonly property color colBorder: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+        : Appearance.inirEverywhere ? Appearance.inir.colBorder 
+        : Appearance.auroraEverywhere ? "transparent"
+        : Appearance.colors.colOutlineVariant
 
     Keys.onPressed: (event) => {
         if ((event.key === Qt.Key_PageDown || event.key === Qt.Key_PageUp) && event.modifiers === Qt.NoModifier) {
@@ -126,28 +140,28 @@ Item {
                 radius: height / 2
 
                 Behavior on x {
-                    enabled: tabIndicator.enableIndicatorAnimation
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: tabIndicator.enableIndicatorAnimation && Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
                 Behavior on implicitWidth {
-                    enabled: tabIndicator.enableIndicatorAnimation
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: tabIndicator.enableIndicatorAnimation && Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
             }
         }
 
-        Rectangle {
+        Rectangle { // No full-width grey track — only the colored active indicator reads.
             Layout.fillWidth: true
             height: 1
-            color: Appearance.colors.colOutlineVariant
+            color: "transparent"
         }
 
         SwipeView {
             id: swipeView
-            Layout.topMargin: 10
+            Layout.topMargin: 6
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 10
+            spacing: 6
             clip: true
             currentIndex: currentTab
             onCurrentIndexChanged: {
@@ -158,9 +172,18 @@ Item {
                 }
             }
 
-            PomodoroTimer {}
-            CountdownTimer {}
-            Stopwatch {}
+            PomodoroTimer {
+                compactMode: root.compactMode
+                centerMode: root.centerMode
+            }
+            CountdownTimer {
+                compactMode: root.compactMode
+                centerMode: root.centerMode
+            }
+            Stopwatch {
+                compactMode: root.compactMode
+                centerMode: root.centerMode
+            }
         }
     }
 }

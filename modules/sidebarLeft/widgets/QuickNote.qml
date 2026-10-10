@@ -25,18 +25,14 @@ Item {
         }
     }
 
-    StyledRectangularShadow { target: card; visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere }
-
     Rectangle {
         id: card
         anchors.fill: parent
         implicitHeight: col.implicitHeight + 16
-        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
-        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
-             : Appearance.auroraEverywhere ? "transparent" 
-             : Appearance.colors.colLayer1
-        border.width: Appearance.inirEverywhere ? 1 : (Appearance.auroraEverywhere ? 0 : 1)
-        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer0Border
+        radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+            : Appearance.inirEverywhere ? Appearance.inir.roundingNormal
+            : Appearance.rounding.normal
+        color: "transparent"
 
         ColumnLayout {
             id: col
@@ -68,9 +64,9 @@ Item {
                     buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                     colBackground: "transparent"
                     colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
-                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer2Hover
                     colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
-                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer2Active
                     opacity: Notepad.text.trim() !== "" ? 1 : 0
                     visible: opacity > 0
                     onClicked: Notepad.setTextValue("")
@@ -83,7 +79,7 @@ Item {
                     contentItem: Item {
                         MaterialSymbol {
                             anchors.centerIn: parent
-                            text: "delete_outline"
+                            text: "delete"
                             iconSize: 14
                             color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
                         }
@@ -99,7 +95,7 @@ Item {
                 radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
                 color: Appearance.inirEverywhere 
                     ? (root.editing ? Appearance.inir.colLayer2Hover : Appearance.inir.colLayer2)
-                    : (root.editing ? Appearance.colors.colLayer2Hover : Appearance.colors.colLayer2)
+                    : (root.editing ? Appearance.colLayer2Hover : Appearance.colors.colLayer2)
                 border.width: Appearance.inirEverywhere ? 1 : (root.editing ? 2 : 0)
                 border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colPrimary
 
@@ -119,6 +115,7 @@ Item {
                         width: parent.width
                         text: root.editing ? root.draft : Notepad.text
                         placeholderText: Translation.tr("Type something...")
+                        renderType: Text.NativeRendering
                         wrapMode: TextEdit.Wrap
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.family: Appearance.font.family.main
@@ -169,7 +166,7 @@ Item {
                 StyledText {
                     text: root.draft.length > 0 ? `${root.draft.length} ${Translation.tr("chars")}` : Translation.tr("Ctrl+Enter to save")
                     font.pixelSize: Appearance.font.pixelSize.smallest
-                    color: Appearance.colors.colOutline
+                    color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colOutline
                 }
 
                 Item { Layout.fillWidth: true }
@@ -177,10 +174,12 @@ Item {
                 // Cancel button
                 RippleButton {
                     implicitWidth: 24; implicitHeight: 24
-                    buttonRadius: Appearance.rounding.small
+                    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
                     colBackground: "transparent"
-                    colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
-                    colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
+                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer2Hover
+                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer2Active
                     onClicked: {
                         root.draft = Notepad.text
                         root.editing = false
@@ -192,7 +191,7 @@ Item {
                             anchors.centerIn: parent
                             text: "close"
                             iconSize: 14
-                            color: Appearance.colors.colSubtext
+                            color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
                         }
                     }
 
@@ -203,10 +202,10 @@ Item {
                 RippleButton {
                     implicitWidth: saveRow.implicitWidth + 12
                     implicitHeight: 24
-                    buttonRadius: Appearance.rounding.small
-                    colBackground: Appearance.colors.colPrimary
-                    colBackgroundHover: Appearance.colors.colPrimaryHover
-                    colRipple: Appearance.colors.colPrimaryActive
+                    buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+                    colBackground: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colPrimaryHover : Appearance.colors.colPrimaryHover
+                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryActive
                     onClicked: {
                         Notepad.setTextValue(root.draft)
                         root.editing = false
@@ -221,13 +220,13 @@ Item {
                         MaterialSymbol {
                             text: "check"
                             iconSize: 12
-                            color: Appearance.colors.colOnPrimary
+                            color: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.colors.colOnPrimary
                         }
 
                         StyledText {
                             text: Translation.tr("Save")
                             font.pixelSize: Appearance.font.pixelSize.smallest
-                            color: Appearance.colors.colOnPrimary
+                            color: Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.colors.colOnPrimary
                         }
                     }
                 }

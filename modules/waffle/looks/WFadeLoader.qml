@@ -14,6 +14,6 @@ Loader {
 
     Behavior on opacity {
         id: opacityBehavior
-        animation: Looks.transition.opacity.createObject(null)
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
 }

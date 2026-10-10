@@ -1,0 +1,47 @@
+[General]
+Days Meta Infos=30
+Last Session=EDITING
+PinnedDocuments=
+Quickopen Filter Mode=0
+Quickopen List Mode=true
+Save Meta Infos=true
+Session Manager Sort Column=0
+Session Manager Sort Order=0
+Show Full Path in Title=false
+Show Menu Bar=true
+Show Status Bar=true
+Show Tab Bar=true
+Show Url Nav Bar=true
+
+[KFileDialog Settings]
+detailViewIconSize=22
+
+[KTextEditor Renderer]
+Animate Bracket Matching=false
+Auto Color Theme Selection=true
+Color Theme=Breeze Light
+Line Height Multiplier=1
+Show Indentation Lines=false
+Show Whole Bracket Expression=false
+Text Font=DejaVu LGC Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
+Text Font Features=
+Word Wrap Marker=false
+
+[MainWindow]
+1920x1080 screen: Window-Maximized=true
+2 screens: Height=908
+2 screens: Width=1890
+
+[UiSettings]
+ColorScheme=EventMatugen
+
+[filetree]
+editShade=183,220,246
+listMode=false
+middleClickToClose=false
+shadingEnabled=true
+showCloseButton=false
+showFullPathOnRoots=false
+showToolbar=true
+sortRole=0
+viewShade=211,190,222

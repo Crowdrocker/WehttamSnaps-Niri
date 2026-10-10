@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
-import Qt.labs.synchronizer
 import Quickshell
 import qs.services
 import qs.modules.common
@@ -24,30 +23,41 @@ RowLayout {
     BarIconButton {
         id: overflowButton
 
-        visible: (TrayService.unpinnedItems.length > 0 || root.dragging) && !GameMode.active
+        visible: (TrayService.unpinnedItems.length > 0 || root.dragging)
         checked: root.overflowOpen
 
         iconName: "chevron-down"
         iconMonochrome: true
         iconRotation: ((Config.options?.waffles?.bar?.bottom ?? false) ? 180 : 0) + (root.overflowOpen ? 180 : 0)
         Behavior on iconRotation {
-            animation: Looks.transition.rotate.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
 
         onClicked: {
-            root.overflowOpen = !root.overflowOpen;
+            if (!root.overflowOpen) {
+                trayOverflowLayout.active = true;
+                root.overflowOpen = true;
+            } else {
+                trayOverflowLayout.close();
+                root.overflowOpen = false;
+            }
         }
 
         TrayOverflowMenu {
             id: trayOverflowLayout
-            trayParent: root
-            Synchronizer on active {
-                property alias source: root.overflowOpen
+            property var trayRoot: root  // Explicit reference to parent Tray
+            trayParent: trayRoot
+            
+            onActiveChanged: {
+                // Sync state back to parent when popup closes
+                if (!active && trayRoot) {
+                    trayRoot.overflowOpen = false;
+                }
             }
         }
 
         BarToolTip {
-            extraVisibleCondition: overflowButton.shouldShowTooltip
+            barExtraVisibleCondition: overflowButton.shouldShowTooltip && !root.overflowOpen
             text: Translation.tr("Show hidden icons")
         }
 
@@ -66,7 +76,7 @@ RowLayout {
     }
 
     Repeater {
-        model: GameMode.active ? null : trayModel
+        model: trayModel
         delegate: TrayButton {
             id: trayButton
             required property var modelData
@@ -112,7 +122,7 @@ RowLayout {
 
             BarToolTip {
                 id: pinTooltip
-                extraVisibleCondition: trayButton.Drag.active && pinDropArea.containsDrag && pinDropArea.willPin
+                barExtraVisibleCondition: trayButton.Drag.active && pinDropArea.containsDrag && pinDropArea.willPin
                 horizontalPadding: 6
                 verticalPadding: 6
                 realContentItem: FluentIcon {

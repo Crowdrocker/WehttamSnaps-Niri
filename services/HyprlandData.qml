@@ -21,10 +21,15 @@ Singleton {
     property var activeWorkspace: null
     property var monitors: []
     property var layers: ({})
+    property bool _windowListRefreshQueued: false
 
     function updateWindowList() {
         if (!CompositorService.isHyprland)
             return;
+        if (getClients.running) {
+            root._windowListRefreshQueued = true;
+            return;
+        }
         getClients.running = true;
     }
 
@@ -72,7 +77,7 @@ Singleton {
     }
 
     Connections {
-        target: Hyprland
+        target: CompositorService.isHyprland ? Hyprland : null
         enabled: CompositorService.isHyprland
 
         function onRawEvent(event) {
@@ -83,7 +88,13 @@ Singleton {
 
     Process {
         id: getClients
-        command: ["hyprctl", "clients", "-j"]
+        command: ["/usr/bin/hyprctl", "clients", "-j"]
+        onExited: {
+            if (root._windowListRefreshQueued) {
+                root._windowListRefreshQueued = false;
+                root.updateWindowList();
+            }
+        }
         stdout: StdioCollector {
             id: clientsCollector
             onStreamFinished: {
@@ -106,7 +117,7 @@ Singleton {
 
     Process {
         id: getMonitors
-        command: ["hyprctl", "monitors", "-j"]
+        command: ["/usr/bin/hyprctl", "monitors", "-j"]
         stdout: StdioCollector {
             id: monitorsCollector
             onStreamFinished: {
@@ -122,7 +133,7 @@ Singleton {
 
     Process {
         id: getLayers
-        command: ["hyprctl", "layers", "-j"]
+        command: ["/usr/bin/hyprctl", "layers", "-j"]
         stdout: StdioCollector {
             id: layersCollector
             onStreamFinished: {
@@ -138,7 +149,7 @@ Singleton {
 
     Process {
         id: getWorkspaces
-        command: ["hyprctl", "workspaces", "-j"]
+        command: ["/usr/bin/hyprctl", "workspaces", "-j"]
         stdout: StdioCollector {
             id: workspacesCollector
             onStreamFinished: {
@@ -161,7 +172,7 @@ Singleton {
 
     Process {
         id: getActiveWorkspace
-        command: ["hyprctl", "activeworkspace", "-j"]
+        command: ["/usr/bin/hyprctl", "activeworkspace", "-j"]
         stdout: StdioCollector {
             id: activeWorkspaceCollector
             onStreamFinished: {

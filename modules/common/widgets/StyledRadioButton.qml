@@ -13,8 +13,8 @@ RadioButton {
     padding: 4
     implicitHeight: contentItem.implicitHeight + padding * 2
     property string description
-    property color activeColor: Appearance?.colors.colPrimary ?? "#685496"
-    property color inactiveColor: Appearance?.m3colors.m3onSurfaceVariant ?? "#45464F"
+    property color activeColor: Appearance.colors.colPrimary
+    property color inactiveColor: Appearance.colors.colOnSurfaceVariant
 
     PointingHandInteraction {}
 
@@ -28,30 +28,43 @@ RadioButton {
             id: radio
             Layout.fillWidth: false
             Layout.alignment: Qt.AlignVCenter
-            width: 20
-            height: 20
-            radius: Appearance?.rounding.full
+            width: Appearance.regaliaEverywhere ? 24 : 20
+            height: width
+            radius: Appearance.regaliaEverywhere ? Appearance.regalia.roundVerySmall : Appearance?.rounding.full
             border.color: checked ? root.activeColor : root.inactiveColor
-            border.width: 2
+            border.width: Appearance.regaliaEverywhere ? 0 : 2
             color: "transparent"
+
+            RegaliaControlFace {
+                anchors.fill: parent
+                visible: Appearance.regaliaEverywhere
+                fillColor: root.checked ? Appearance.regalia.primaryPlate : Appearance.regalia.controlPlate
+                radius: radio.radius
+                hovered: root.hovered
+                pressed: root.down
+                selected: root.checked
+                focused: root.visualFocus
+            }
 
             // Checked indicator
             Rectangle {
                 anchors.centerIn: parent
-                width: checked ? 10 : 4
-                height: checked ? 10 : 4
-                radius: Appearance?.rounding.full
-                color: Appearance?.colors.colPrimary
+                width: Appearance.regaliaEverywhere ? 8 : (checked ? 10 : 4)
+                height: width
+                radius: Appearance.regaliaEverywhere ? 2 : Appearance?.rounding.full
+                color: Appearance.regaliaEverywhere ? Appearance.regalia.hardwarePrimary : Appearance?.colors.colPrimary
                 opacity: checked ? 1 : 0
 
                 Behavior on opacity {
-                    animation: Appearance?.animation.elementMoveFast.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
                 Behavior on width {
-                    animation: Appearance?.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled && !Appearance.regaliaEverywhere
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
                 Behavior on height {
-                    animation: Appearance?.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled && !Appearance.regaliaEverywhere
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
 
             }
@@ -59,20 +72,21 @@ RadioButton {
             // Hover
             Rectangle {
                 anchors.centerIn: parent
+                visible: !Appearance.regaliaEverywhere
                 width: root.hovered ? 40 : 20
                 height: root.hovered ? 40 : 20
                 radius: Appearance?.rounding.full
-                color: Appearance?.m3colors.m3onSurface
+                color: Appearance.colors.colOnSurface
                 opacity: root.hovered ? 0.1 : 0
 
                 Behavior on opacity {
-                    animation: Appearance?.animation.elementMoveFast.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                 }
                 Behavior on width {
-                    animation: Appearance?.animation.elementMove.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
                 Behavior on height {
-                    animation: Appearance?.animation.elementMove.numberAnimation.createObject(this)
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
             }
         }
@@ -82,7 +96,7 @@ RadioButton {
             Layout.alignment: Qt.AlignVCenter
             Layout.fillWidth: true
             wrapMode: Text.Wrap
-            color: Appearance?.m3colors.m3onSurface
+            color: Appearance.colors.colOnSurface
         }
     }
 }

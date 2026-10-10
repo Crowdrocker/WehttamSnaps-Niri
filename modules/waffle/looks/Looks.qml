@@ -12,31 +12,95 @@ Singleton {
     property QtObject lightColors
     property QtObject colors
     property QtObject radius
+    property QtObject settings
     property QtObject font
     property QtObject transition
     property string iconsPath: `${Directories.assetsPath}/icons/fluent`
     property bool dark: Appearance.m3colors.darkmode
-    property bool auroraEverywhere: (Config.options?.appearance?.globalStyle ?? "material") === "aurora"
-    property bool useMaterial: (Config.options?.waffles?.theming?.useMaterialColors ?? false) || root.auroraEverywhere
-    
+    property bool auroraEverywhere: {
+        const style = Config.options?.appearance?.globalStyle ?? "material"
+        return style === "aurora" || style === "angel"
+    }
+    readonly property bool cookieEverywhere: Appearance.cookieEverywhere
+    readonly property bool editorialEverywhere: Appearance.editorialEverywhere
+    property bool useMaterial: root.editorialEverywhere || (Config.options?.waffles?.theming?.useMaterialColors ?? false)
+    // Glass mode: aurora/angel active (not iNiR which has its own aesthetic)
+    readonly property bool glassActive: root.auroraEverywhere && !Appearance.inirEverywhere
+
+    readonly property bool effectsEnabled: Appearance.effectsEnabled
+    readonly property bool gameModeActive: Appearance._gameModeActive
+    readonly property bool gameModeMinimal: Appearance.gameModeMinimal
+
     // Font family - reactive property at root level for proper binding updates
     readonly property string fontFamily: {
+        if (root.editorialEverywhere) return Appearance.font.family.main
         const f = Config.options?.waffles?.theming?.font?.family;
         return (f && f.length > 0) ? f : "Noto Sans";
     }
-    // Font scale - reactive property
-    readonly property real fontScale: Config.options?.waffles?.theming?.font?.scale ?? 1.0
+    // Font scale - reactive property.
+    // Combines the waffle-specific font fine-tuner (waffles.theming.font.scale)
+    // with the global UI scale (appearance.typography.sizeScale) so the
+    // "Display scaling" slider in Interface settings also affects waffle fonts.
+    readonly property real fontScale: (Config.options?.waffles?.theming?.font?.scale ?? 1.0) * Appearance.fontSizeScale
 
     readonly property bool transparencyEnabled: Config.options?.appearance?.transparency?.enable ?? false
-    property real backgroundTransparency: root.auroraEverywhere ? (Appearance.backgroundTransparency ?? 0) : (transparencyEnabled ? 0.13 : 0)
-    property real panelBackgroundTransparency: root.auroraEverywhere ? (Appearance.backgroundTransparency ?? 0) : (transparencyEnabled ? 0.12 : 0)
+    // When glass mode is active, ensure surfaces have enough transparency
+    // so the glass/blur effect is visible beneath the dark base colors
+    property real backgroundTransparency: root.auroraEverywhere
+        ? Math.max(Appearance.backgroundTransparency ?? 0, root.glassActive ? 0.12 : 0)
+        : (transparencyEnabled ? 0.13 : 0)
+    property real panelBackgroundTransparency: root.auroraEverywhere
+        ? Math.max(Appearance.backgroundTransparency ?? 0, root.glassActive ? 0.10 : 0)
+        : (transparencyEnabled ? 0.12 : 0)
     property real panelLayerTransparency: root.auroraEverywhere ? (Appearance.aurora.popupSurfaceTransparentize ?? 0.5) : (root.dark ? 0.6 : 0.5)
-    property real contentTransparency: root.auroraEverywhere ? (Appearance.contentTransparency ?? 0) : (root.dark ? 0.87 : 0.5)
+    property real contentTransparency: root.auroraEverywhere
+        ? Math.max(Appearance.contentTransparency ?? 0, root.glassActive ? 0.15 : 0)
+        : (root.dark ? 0.87 : 0.5)
+    function clamp(value, minimum, maximum) {
+        return Math.max(minimum, Math.min(maximum, value))
+    }
+    function screenScale(screen, minimum, maximum) {
+        minimum = minimum ?? 0.92
+        maximum = maximum ?? 1.08
+        const width = screen?.width ?? 1920
+        const height = screen?.height ?? 1080
+        const shortSide = Math.min(width, height)
+        return root.clamp(shortSide / 1080, minimum, maximum)
+    }
+    function barScale(screen, minimum, maximum) {
+        minimum = minimum ?? 0.9
+        maximum = maximum ?? 1.18
+        const width = screen?.width ?? 1920
+        const height = screen?.height ?? 1080
+        return root.clamp(Math.min(width / 1920, height / 1080), minimum, maximum)
+    }
+    function scaled(value, screen, minimum, maximum) {
+        minimum = minimum ?? 0.92
+        maximum = maximum ?? 1.08
+        return Math.round(value * root.screenScale(screen, minimum, maximum) * root.fontScale)
+    }
+    function scaledBar(value, screen, minimum, maximum) {
+        minimum = minimum ?? 0.9
+        maximum = maximum ?? 1.18
+        return Math.round(value * root.barScale(screen, minimum, maximum) * root.fontScale)
+    }
+    function dp(value) {
+        return Math.round(value * root.fontScale)
+    }
+    function effectiveDuration(value) {
+        return Appearance.calcEffectiveDuration(value)
+    }
     function applyBackgroundTransparency(col) {
         return ColorUtils.applyAlpha(col, 1 - root.backgroundTransparency)
     }
     function applyContentTransparency(col) {
         return ColorUtils.applyAlpha(col, 1 - root.contentTransparency)
+    }
+    function ensureMinOpacity(col, minAlpha) {
+        const c = Qt.color(col)
+        if (!c || c.valid === false)
+            return col
+        return Qt.rgba(c.r, c.g, c.b, Math.max(c.a, minAlpha))
     }
     lightColors: QtObject {
         id: lightColors
@@ -101,58 +165,120 @@ Singleton {
         property color shadow: ColorUtils.transparentize('#161616', 0.62)
         property color ambientShadow: ColorUtils.transparentize("#000000", 0.75)
         
-        // Material-aware colors - use Appearance colors when useMaterial is true
-        property color bgPanelFooterBase: root.useMaterial 
-            ? Appearance.colors.colLayer0 
+        // Material-aware colors - 3 paths:
+        // 1. useMaterial=true → Material-derived from Appearance.colors.*
+        //    (when glassActive, glass-aware surfaces from angel/aurora palette)
+        // 2. !useMaterial + glassActive + dark → Win11 *Base colors (dark greys: #2C2C2C, #313131)
+        //    with backgroundTransparency. The overlay colors (#a8a8a8, #8a8a8a) are Win11 Mica
+        //    tints designed for 13% opacity — at glass opacity levels they look blindingly bright.
+        // 3. !useMaterial + (!glass || !dark) → original Win11 colors at intended transparency
+        property color bgPanelFooterBase: root.useMaterial
+            ? Appearance.colors.colLayer0
             : ColorUtils.transparentize(root.dark ? root.darkColors.bgPanelFooter : root.lightColors.bgPanelFooter, root.panelBackgroundTransparency)
-        property color bgPanelFooter: root.useMaterial 
-            ? Appearance.colors.colLayer1 
+        property color bgPanelFooter: root.useMaterial
+            ? Appearance.colors.colLayer1
             : ColorUtils.transparentize(root.dark ? root.darkColors.bgPanelFooter : root.lightColors.bgPanelFooter, root.panelLayerTransparency)
-        property color bgPanelBody: root.useMaterial 
-            ? Appearance.colors.colLayer2 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bgPanelBody : root.lightColors.bgPanelBody, root.panelLayerTransparency)
-        property color bgPanelSeparator: root.useMaterial 
-            ? Appearance.colors.colOutlineVariant 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bgPanelSeparator : root.lightColors.bgPanelSeparator, root.backgroundTransparency)
-        property color bg0Opaque: root.useMaterial 
-            ? Appearance.m3colors.m3background 
+        // bgPanelBody is only used inside WPane-backed panels (BodyRectangle),
+        // so making it transparent when glass+material lets GlassBackground show through
+        property color bgPanelBody: root.glassActive && root.useMaterial
+            ? "transparent"
+            : root.useMaterial
+                ? Appearance.colors.colLayer2
+                : ColorUtils.transparentize(
+                    root.glassActive && root.dark ? root.darkColors.bg2Base : (root.dark ? root.darkColors.bgPanelBody : root.lightColors.bgPanelBody),
+                    root.panelLayerTransparency)
+        property color bgPanelSeparator: root.glassActive && root.useMaterial
+            ? (Appearance.angelEverywhere ? Appearance.angel.colBorderSubtle ?? "transparent" : Appearance.colors.colBorderSubtle ?? "transparent")
+            : root.useMaterial
+                ? Appearance.colors.colOutlineVariant
+                : ColorUtils.transparentize(
+                    root.glassActive && root.dark ? root.darkColors.bg0Border : (root.dark ? root.darkColors.bgPanelSeparator : root.lightColors.bgPanelSeparator),
+                    root.backgroundTransparency)
+        property color bg0Opaque: root.editorialEverywhere ? Appearance.editorial.paper : root.useMaterial
+            ? Appearance.m3colors.m3background
             : (root.dark ? root.darkColors.bg0 : root.lightColors.bg0)
-        property color bg0: root.useMaterial 
+        property color bg0: root.useMaterial
             ? Appearance.colors.colLayer0 
             : ColorUtils.transparentize(bg0Opaque, root.backgroundTransparency)
-        property color bg0Border: root.useMaterial 
-            ? Appearance.colors.colLayer0Border 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg0Border : root.lightColors.bg0Border, root.backgroundTransparency)
+        property color bg0Border: root.glassActive && root.useMaterial
+            ? (Appearance.angelEverywhere ? Appearance.angel.colBorderSubtle ?? "transparent" : Appearance.colors.colBorderSubtle ?? "transparent")
+            : root.useMaterial 
+                ? Appearance.colors.colLayer0Border 
+                : ColorUtils.transparentize(root.dark ? root.darkColors.bg0Border : root.lightColors.bg0Border, root.backgroundTransparency)
         property color bg1Base: root.useMaterial 
             ? Appearance.colors.colLayer1 
             : ColorUtils.transparentize(root.dark ? root.darkColors.bg1Base : root.lightColors.bg1Base, root.backgroundTransparency)
         property color bg1: root.useMaterial 
             ? Appearance.colors.colLayer1 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg1 : root.lightColors.bg1, root.contentTransparency)
+            : ColorUtils.transparentize(
+                root.glassActive && root.dark ? root.darkColors.bg1Base : (root.dark ? root.darkColors.bg1 : root.lightColors.bg1),
+                root.glassActive ? root.backgroundTransparency : root.contentTransparency)
         property color bg1Hover: root.useMaterial 
             ? Appearance.colors.colLayer1Hover 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg1Hover : root.lightColors.bg1Hover, root.contentTransparency)
+            : ColorUtils.transparentize(
+                root.glassActive && root.dark ? Qt.lighter(root.darkColors.bg1Base, 1.3) : (root.dark ? root.darkColors.bg1Hover : root.lightColors.bg1Hover),
+                root.glassActive ? root.backgroundTransparency : root.contentTransparency)
         property color bg1Active: root.useMaterial 
             ? Appearance.colors.colLayer1Active 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg1Active : root.lightColors.bg1Active, root.contentTransparency)
-        property color bg1Border: root.useMaterial 
-            ? Appearance.colors.colOutlineVariant 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg1Border : root.lightColors.bg1Border, root.contentTransparency)
+            : ColorUtils.transparentize(
+                root.glassActive && root.dark ? Qt.darker(root.darkColors.bg1Base, 1.15) : (root.dark ? root.darkColors.bg1Active : root.lightColors.bg1Active),
+                root.glassActive ? root.backgroundTransparency : root.contentTransparency)
+        property color bg1Border: root.glassActive && root.useMaterial
+            ? (Appearance.angelEverywhere ? Appearance.angel.colBorderSubtle ?? "transparent" : Appearance.colors.colBorderSubtle ?? "transparent")
+            : root.useMaterial 
+                ? Appearance.colors.colOutlineVariant 
+                : ColorUtils.transparentize(
+                    root.glassActive && root.dark ? root.darkColors.bg0Border : (root.dark ? root.darkColors.bg1Border : root.lightColors.bg1Border),
+                    root.glassActive ? root.backgroundTransparency : root.contentTransparency)
         property color bg2Base: root.useMaterial 
             ? Appearance.colors.colLayer2 
             : ColorUtils.transparentize(root.dark ? root.darkColors.bg2Base : root.lightColors.bg2Base, root.backgroundTransparency)
         property color bg2: root.useMaterial 
             ? Appearance.colors.colLayer2 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg2 : root.lightColors.bg2, root.contentTransparency)
+            : ColorUtils.transparentize(
+                root.glassActive && root.dark ? root.darkColors.bg2Base : (root.dark ? root.darkColors.bg2 : root.lightColors.bg2),
+                root.glassActive ? root.backgroundTransparency : root.contentTransparency)
         property color bg2Hover: root.useMaterial 
             ? Appearance.colors.colLayer2Hover 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg2Hover : root.lightColors.bg2Hover, root.contentTransparency)
+            : ColorUtils.transparentize(
+                root.glassActive && root.dark ? Qt.lighter(root.darkColors.bg2Base, 1.3) : (root.dark ? root.darkColors.bg2Hover : root.lightColors.bg2Hover),
+                root.glassActive ? root.backgroundTransparency : root.contentTransparency)
         property color bg2Active: root.useMaterial 
             ? Appearance.colors.colLayer2Active 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg2Active : root.lightColors.bg2Active, root.contentTransparency)
-        property color bg2Border: root.useMaterial 
-            ? Appearance.colors.colOutlineVariant 
-            : ColorUtils.transparentize(root.dark ? root.darkColors.bg2Border : root.lightColors.bg2Border, root.contentTransparency)
+            : ColorUtils.transparentize(
+                root.glassActive && root.dark ? Qt.darker(root.darkColors.bg2Base, 1.15) : (root.dark ? root.darkColors.bg2Active : root.lightColors.bg2Active),
+                root.glassActive ? root.backgroundTransparency : root.contentTransparency)
+        property color bg2Border: root.glassActive && root.useMaterial
+            ? (Appearance.angelEverywhere ? Appearance.angel.colBorderSubtle ?? "transparent" : Appearance.colors.colBorderSubtle ?? "transparent")
+            : root.useMaterial 
+                ? Appearance.colors.colOutlineVariant 
+                : ColorUtils.transparentize(
+                    root.glassActive && root.dark ? root.darkColors.bg0Border : (root.dark ? root.darkColors.bg2Border : root.lightColors.bg2Border),
+                    root.glassActive ? root.backgroundTransparency : root.contentTransparency)
+        property color interactiveSurface: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassCard : Appearance.aurora.colSubSurface, 0.72)
+            : bg1
+        property color interactiveSurfaceHover: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover : Appearance.aurora.colSubSurfaceHover, 0.78)
+            : bg2Hover
+        property color interactiveSurfaceActive: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive : Appearance.aurora.colSubSurfaceActive, 0.84)
+            : bg2Active
+        property color popupSurface: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassPopup : Appearance.aurora.colPopupSurface, 0.85)
+            : bg2
+        property color popupSurfaceHover: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassPopupHover : Appearance.aurora.colPopupSurfaceHover, 0.88)
+            : bg2Hover
+        property color popupSurfaceActive: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassPopupActive : Appearance.aurora.colPopupSurfaceActive, 0.92)
+            : bg2Active
+        property color tooltipSurface: root.glassActive && root.useMaterial
+            ? root.ensureMinOpacity(Appearance.angelEverywhere ? Appearance.angel.colGlassTooltip : Appearance.aurora.colTooltipSurface, 0.90)
+            : bg2
+        property color tooltipBorder: root.glassActive && root.useMaterial
+            ? (Appearance.angelEverywhere ? Appearance.angel.colBorderSubtle : Appearance.aurora.colTooltipBorder)
+            : bg2Border
         property color subfg: root.useMaterial 
             ? Appearance.colors.colSubtext 
             : (root.dark ? root.darkColors.subfg : root.lightColors.subfg)
@@ -168,13 +294,13 @@ Singleton {
         property color controlBgInactive: root.useMaterial 
             ? Appearance.colors.colSecondaryContainer 
             : (root.dark ? root.darkColors.controlBgInactive : root.lightColors.controlBgInactive)
-        property color controlBg: root.useMaterial 
+        property color controlBg: root.editorialEverywhere ? Appearance.editorial.accent : root.useMaterial
             ? Appearance.colors.colSecondary 
             : (root.dark ? root.darkColors.controlBg : root.lightColors.controlBg)
         property color controlBgHover: root.useMaterial 
             ? Appearance.colors.colSecondaryHover 
             : (root.dark ? root.darkColors.controlBgHover : root.lightColors.controlBgHover)
-        property color controlFg: root.useMaterial 
+        property color controlFg: root.editorialEverywhere ? Appearance.editorial.accentInk : root.useMaterial
             ? Appearance.colors.colOnSecondary 
             : (root.dark ? root.darkColors.controlFg : root.lightColors.controlFg)
         property color inputBg: root.useMaterial 
@@ -183,9 +309,9 @@ Singleton {
         property color link: root.useMaterial 
             ? Appearance.colors.colPrimary 
             : (root.dark ? root.darkColors.link : root.lightColors.link)
-        property color danger: "#C42B1C"
-        property color dangerActive: "#B62D1F"
-        property color warning: "#FF9900"
+        property color danger: Appearance.m3colors.m3error ?? "#C42B1C"
+        property color dangerActive: Qt.darker(danger, 1.1)
+        property color warning: Appearance.m3colors.m3tertiary ?? "#FF9900"
         property color accent: Appearance.colors.colPrimary
         property color accentHover: Appearance.colors.colPrimaryHover
         property color accentActive: Appearance.colors.colPrimaryActive
@@ -200,10 +326,26 @@ Singleton {
     radius: QtObject {
         id: radius
         property int none: 0
-        property int small: 2
-        property int medium: 4
-        property int large: 8
-        property int xLarge: 12
+        property int small: root.dp(2)
+        property int medium: root.dp(4)
+        property int large: root.editorialEverywhere ? root.dp(Appearance.editorial.radius) : root.dp(8)
+        property int xLarge: root.dp(12)
+    }
+
+    settings: QtObject {
+        property int radiusSmall: root.dp(4)
+        property int radiusMedium: root.dp(7)
+        property int radiusLarge: root.dp(9)
+        property int radiusXLarge: root.dp(12)
+        property int panelPadding: root.dp(16)
+        readonly property color ink: root.dark
+            ? ColorUtils.mix("#FFFFFF", colors.fg, 0.55)
+            : ColorUtils.mix("#000000", colors.fg, 0.35)
+        readonly property color stroke: ColorUtils.applyAlpha(ink, root.dark ? 0.15 : 0.11)
+        readonly property color strokeStrong: ColorUtils.applyAlpha(ink, root.dark ? 0.25 : 0.19)
+        readonly property color tile: ColorUtils.applyAlpha(ink, root.dark ? 0.065 : 0.045)
+        readonly property color tileHover: ColorUtils.applyAlpha(ink, root.dark ? 0.125 : 0.075)
+        readonly property color tilePressed: ColorUtils.applyAlpha(ink, root.dark ? 0.19 : 0.115)
     }
 
     font: QtObject {
@@ -211,6 +353,7 @@ Singleton {
         property QtObject family: QtObject {
             // Delegates to root.fontFamily for reactive updates
             readonly property string ui: root.fontFamily
+            readonly property string monospace: "JetBrainsMono Nerd Font"
         }
         property QtObject variableAxes: QtObject {
             property var ui: ({
@@ -276,6 +419,11 @@ Singleton {
             readonly property int panel: 250         // Slightly faster panels
             readonly property int overlay: 300
             readonly property int page: 350          // Page transitions
+            readonly property int chromeHover: 90
+            readonly property int chromePress: 120
+            readonly property int chromeRelease: 170
+            readonly property int chromeMove: 170
+            readonly property int chromePanel: 220
         }
 
         // === Basic transitions (improved) ===

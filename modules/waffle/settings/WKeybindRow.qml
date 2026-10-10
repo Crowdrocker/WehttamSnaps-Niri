@@ -22,22 +22,16 @@ Item {
     property int settingsSearchOptionId: -1
     
     Layout.fillWidth: true
-    implicitHeight: 40
+    implicitHeight: Math.max(Looks.dp(40), keybindRow.implicitHeight + Looks.dp(8))
     
     // Highlight animation for search focus
-    SequentialAnimation {
-        id: highlightAnim
-        running: false
-        loops: 2
-        
-        ParallelAnimation {
-            NumberAnimation { target: highlightOverlay; property: "opacity"; to: 0.15; duration: 150 }
-            NumberAnimation { target: root; property: "scale"; to: 1.01; duration: 150 }
-        }
-        ParallelAnimation {
-            NumberAnimation { target: highlightOverlay; property: "opacity"; to: 0; duration: 150 }
-            NumberAnimation { target: root; property: "scale"; to: 1.0; duration: 150 }
-        }
+    Behavior on opacity {
+        enabled: Looks.transition?.opacity !== undefined
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+    }
+    Behavior on scale {
+        enabled: Looks.transition?.resize !== undefined
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
     
     function focusFromSettingsSearch(): void {
@@ -97,7 +91,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: Looks.radius.medium
-        color: rowMouse.containsMouse ? Looks.colors.bg2Hover : "transparent"
+        color: rowMouse.containsMouse ? Looks.settings.tileHover : "transparent"
     }
     
     Rectangle {
@@ -116,34 +110,35 @@ Item {
     }
     
     RowLayout {
+        id: keybindRow
         anchors.fill: parent
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
-        spacing: 12
-        
+        anchors.leftMargin: Looks.dp(12)
+        anchors.rightMargin: Looks.dp(12)
+        spacing: Looks.dp(12)
+
         // Keys
         Row {
-            Layout.preferredWidth: 180
-            Layout.minimumWidth: 120
-            spacing: 4
+            Layout.preferredWidth: Looks.dp(180)
+            Layout.minimumWidth: Looks.dp(120)
+            spacing: Looks.dp(4)
             
             Repeater {
                 model: root.mods
                 delegate: Rectangle {
                     required property var modelData
-                    implicitWidth: Math.max(keyText.implicitWidth + 10, 26)
-                    implicitHeight: 24
+                    implicitWidth: Math.max(keyText.implicitWidth + Looks.dp(10), Looks.dp(26))
+                    implicitHeight: Math.max(Looks.dp(24), keyText.implicitHeight + Looks.dp(4))
                     radius: Looks.radius.small
                     color: Looks.colors.bg2
                     border.width: 1
-                    border.color: Looks.colors.bg2Border
+                    border.color: Looks.settings.stroke
                     
                     WText {
                         id: keyText
                         anchors.centerIn: parent
                         text: root.keySubstitutions[modelData] ?? modelData
                         font.pixelSize: Looks.font.pixelSize.small
-                        font.family: Looks.font.family.mono
+                        font.family: Looks.font.family.monospace
                     }
                 }
             }
@@ -158,19 +153,19 @@ Item {
             
             Rectangle {
                 visible: root.keyName.length > 0
-                implicitWidth: Math.max(mainKeyText.implicitWidth + 10, 26)
-                implicitHeight: 24
+                implicitWidth: Math.max(mainKeyText.implicitWidth + Looks.dp(10), Looks.dp(26))
+                implicitHeight: Math.max(Looks.dp(24), mainKeyText.implicitHeight + Looks.dp(4))
                 radius: Looks.radius.small
                 color: Looks.colors.bg2
                 border.width: 1
-                border.color: Looks.colors.bg2Border
+                border.color: Looks.settings.stroke
                 
                 WText {
                     id: mainKeyText
                     anchors.centerIn: parent
                     text: root.keySubstitutions[root.keyName] ?? root.keyName
                     font.pixelSize: Looks.font.pixelSize.small
-                    font.family: Looks.font.family.mono
+                    font.family: Looks.font.family.monospace
                 }
             }
         }
@@ -190,10 +185,10 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
+        anchors.leftMargin: Looks.dp(12)
+        anchors.rightMargin: Looks.dp(12)
         height: 1
-        color: Looks.colors.bg2Border
+        color: Looks.settings.stroke
         opacity: 0.5
     }
 }

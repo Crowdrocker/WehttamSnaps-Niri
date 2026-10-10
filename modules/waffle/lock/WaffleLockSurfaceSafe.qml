@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
+import QtMultimedia
 import Quickshell.Services.UPower
 import Quickshell.Services.Mpris
 import qs
@@ -11,7 +12,9 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.lock
 import qs.modules.waffle.looks
+import qs.modules.background.widgets.clock as BackgroundClock
 import Quickshell
+import Quickshell.Widgets
 
 MouseArea {
     id: root
@@ -23,14 +26,7 @@ MouseArea {
     readonly property bool requirePasswordToPower: Config.options?.lock?.security?.requirePasswordToPower ?? true
 
     property bool hasAttemptedUnlock: false
-
-     // Emergency fallback (safety net)
-     property int emergencyClickCount: 0
-     Timer {
-         id: emergencyClickTimer
-         interval: 1000
-         onTriggered: root.emergencyClickCount = 0
-     }
+    property bool oskVisible: false
 
     readonly property color textColor: Looks.colors.fg
     readonly property color textShadowColor: Looks.colors.shadow
@@ -41,6 +37,11 @@ MouseArea {
     readonly property real blurAmount: 0.8
     readonly property real blurMax: Config.options?.lock?.blur?.radius ?? 64
 
+    function safeLockNotificationImage(source): string {
+        const value = String(source ?? "")
+        return value.startsWith("image://qsimage/") ? "" : value
+    }
+
     readonly property color smokeColor: ColorUtils.transparentize(Looks.colors.bg0Opaque, 0.5)
 
     readonly property MprisPlayer activePlayer: MprisController.activePlayer
@@ -50,6 +51,19 @@ MouseArea {
         if (wBg?.useMainWallpaper ?? true) return Config.options?.background?.wallpaperPath ?? ""
         return wBg?.wallpaperPath ?? Config.options?.background?.wallpaperPath ?? ""
     }
+    readonly property bool enableAnimation: Config.options?.lock?.enableAnimation ?? false
+
+    // Widget visibility
+    readonly property bool showWeather: Config.options?.lock?.widgets?.weather ?? true
+    readonly property bool showMedia: Config.options?.lock?.widgets?.media ?? true
+    readonly property bool showPowerButtons: Config.options?.lock?.widgets?.powerButtons ?? true
+    readonly property bool showHintText: Config.options?.lock?.widgets?.hintText ?? true
+
+    readonly property bool wallpaperIsVideo: {
+        const lp = _wallpaperPath.toLowerCase();
+        return lp.endsWith(".mp4") || lp.endsWith(".webm") || lp.endsWith(".mkv") || lp.endsWith(".avi") || lp.endsWith(".mov");
+    }
+    readonly property bool wallpaperIsGif: _wallpaperPath.toLowerCase().endsWith(".gif")
 
     // Safe base background
     Rectangle {
@@ -58,21 +72,77 @@ MouseArea {
         z: -2
     }
 
-     // Wallpaper (no blur, no effects)
+     // Wallpaper (piped through MultiEffect for blur)
      Image {
          id: backgroundWallpaperSource
          anchors.fill: parent
-         source: root._wallpaperPath
+         source: (!root.wallpaperIsGif && !root.wallpaperIsVideo) ? root._wallpaperPath : ""
          fillMode: Image.PreserveAspectCrop
          asynchronous: true
+         cache: false // Don't retain in QPixmapCache after lock surface destroys (#163)
+         // A lock surface is no QsWindow: the item's own screen gives the scale.
+         sourceSize: Qt.size(Math.ceil(root.width * Screen.devicePixelRatio), Math.ceil(root.height * Screen.devicePixelRatio))
          visible: false
          z: -2
+     }
+
+     // Animated GIF wallpaper — first frame when animation disabled
+     AnimatedImage {
+         id: gifWallpaperSource
+         anchors.fill: parent
+         source: root.wallpaperIsGif ? root._wallpaperPath : ""
+         fillMode: Image.PreserveAspectCrop
+         asynchronous: true
+         cache: false
+         playing: visible && root.enableAnimation
+         visible: false
+         z: -2
+     }
+
+     // Video wallpaper — first frame (paused) when animation disabled
+     Video {
+         id: videoWallpaperSource
+         anchors.fill: parent
+         visible: false
+         z: -2
+         source: {
+             if (!root.wallpaperIsVideo || !root._wallpaperPath) return "";
+             const path = root._wallpaperPath;
+             return path.startsWith("file://") ? path : ("file://" + path);
+         }
+         fillMode: VideoOutput.PreserveAspectCrop
+         loops: MediaPlayer.Infinite
+         muted: true
+         autoPlay: true
+
+         readonly property bool shouldPlay: root.enableAnimation
+
+         function pauseAndShowFirstFrame() {
+             pause()
+             seek(0)
+         }
+
+         onPlaybackStateChanged: {
+             if (playbackState === MediaPlayer.PlayingState && !shouldPlay)
+                 pauseAndShowFirstFrame()
+             if (playbackState === MediaPlayer.StoppedState && visible && shouldPlay)
+                 play()
+         }
+
+         onShouldPlayChanged: {
+             if (root.wallpaperIsVideo) {
+                 if (shouldPlay) play()
+                 else pauseAndShowFirstFrame()
+             }
+         }
      }
 
      MultiEffect {
          id: backgroundWallpaper
          anchors.fill: parent
-         source: backgroundWallpaperSource
+         source: root.wallpaperIsGif ? gifWallpaperSource
+               : root.wallpaperIsVideo ? videoWallpaperSource
+               : backgroundWallpaperSource
          visible: true
          z: -1
 
@@ -88,7 +158,7 @@ MouseArea {
         color: ColorUtils.transparentize(Looks.colors.bg0Opaque, 0.65)
         opacity: root.showLoginView ? 0.75 : 0.25
         Behavior on opacity {
-            animation: Looks.transition.opacity.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
     }
 
@@ -98,7 +168,19 @@ MouseArea {
         color: root.smokeColor
         opacity: root.showLoginView ? 1 : 0
         Behavior on opacity {
-            animation: Looks.transition.enter.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
+        }
+    }
+
+    // Wallpaper dim overlay
+    Rectangle {
+        anchors.fill: parent
+        color: "#000000"
+        opacity: (Config.options?.lock?.dim?.enable ?? false) ? (Config.options?.lock?.dim?.opacity ?? 0.3) : 0
+        z: 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
         }
     }
 
@@ -111,12 +193,13 @@ MouseArea {
         scale: root.showLoginView ? 0.95 : 1
 
         Behavior on opacity {
-            animation: Looks.transition.enter.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
         }
         Behavior on scale {
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
             }
         }
 
@@ -129,7 +212,7 @@ MouseArea {
             spacing: 24
 
             Loader {
-                active: (Weather.data?.temp?.length ?? 0) > 0
+                active: root.showWeather && (Weather.data?.temp?.length ?? 0) > 0
                 visible: active
 
                 sourceComponent: Row {
@@ -158,7 +241,8 @@ MouseArea {
                         }
 
                         Text {
-                            text: Weather.data?.city ?? ""
+                            text: Weather.visibleCity
+                            visible: Weather.showVisibleCity
                             font.pixelSize: Looks.font.pixelSize.small
                             font.family: Looks.font.family.ui
                             color: Looks.colors.subfg
@@ -168,9 +252,10 @@ MouseArea {
             }
 
             Loader {
-                active: root.activePlayer !== null &&
+                active: root.showMedia &&
+                        root.activePlayer !== null &&
                         root.activePlayer.playbackState !== MprisPlaybackState.Stopped &&
-                        (root.activePlayer.trackTitle?.length > 0 ?? false)
+                        (MprisController.titleOf(root.activePlayer)?.length > 0 ?? false)
                 visible: active
 
                 sourceComponent: Rectangle {
@@ -183,6 +268,9 @@ MouseArea {
                     border.width: 1
 
                     readonly property MprisPlayer player: root.activePlayer
+                    readonly property string effectiveArtUrl: MprisController.isYtMusicActive ? YtMusic.currentThumbnail : (MprisController.artUrlOf(player) ?? "")
+                    readonly property string effectiveTitle: MprisController.isYtMusicActive ? YtMusic.currentTitle : (MprisController.titleOf(player) ?? "")
+                    readonly property string effectiveArtist: MprisController.isYtMusicActive ? YtMusic.currentArtist : (MprisController.artistOf(player) ?? "")
 
                     RowLayout {
                         id: mediaRow
@@ -199,11 +287,13 @@ MouseArea {
                             clip: true
 
                             Image {
+                                id: mediaArtImage
                                 anchors.fill: parent
-                                source: mediaWidget.player?.trackArtUrl ?? ""
+                                source: MediaArtwork.displaySource
                                 fillMode: Image.PreserveAspectCrop
                                 asynchronous: true
-                                visible: status === Image.Ready
+                                cache: false
+                                visible: MediaArtwork.ready && status === Image.Ready
                             }
 
                             FluentIcon {
@@ -211,7 +301,7 @@ MouseArea {
                                 icon: "music-note-2"
                                 implicitSize: 24
                                 color: Looks.colors.subfg
-                                visible: !(mediaWidget.player?.trackArtUrl?.length > 0)
+                                visible: !MediaArtwork.ready || mediaArtImage.status !== Image.Ready
                             }
                         }
 
@@ -222,7 +312,7 @@ MouseArea {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: StringUtils.cleanMusicTitle(mediaWidget.player?.trackTitle ?? "")
+                                text: StringUtils.cleanMusicTitle(MprisController.titleOf(mediaWidget.player) ?? "")
                                 font.pixelSize: Looks.font.pixelSize.large
                                 font.weight: Looks.font.weight.regular
                                 font.family: Looks.font.family.ui
@@ -232,7 +322,7 @@ MouseArea {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: mediaWidget.player?.trackArtist ?? ""
+                                text: MprisController.artistOf(mediaWidget.player) ?? ""
                                 font.pixelSize: Looks.font.pixelSize.normal
                                 font.family: Looks.font.family.ui
                                 color: Looks.colors.subfg
@@ -247,19 +337,20 @@ MouseArea {
 
                             WaffleLockMediaButton {
                                 icon: "previous"
-                                onClicked: mediaWidget.player?.previous()
+                                enabled: MprisController.canGoPrevious
+                                onClicked: MprisController.previous()
                             }
 
                             WaffleLockMediaButton {
                                 icon: mediaWidget.player?.isPlaying ? "pause" : "play"
-                                filled: true
                                 size: 40
-                                onClicked: mediaWidget.player?.togglePlaying()
+                                onClicked: MprisController.togglePlaying()
                             }
 
                             WaffleLockMediaButton {
                                 icon: "next"
-                                onClicked: mediaWidget.player?.next()
+                                enabled: MprisController.canGoNext
+                                onClicked: MprisController.next()
                             }
                         }
                     }
@@ -267,42 +358,524 @@ MouseArea {
             }
         }
 
-        ColumnLayout {
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -60
-            spacing: 4
+        // Config-driven clock properties
+        readonly property string clockStyle: Config.options?.lock?.clock?.style ?? "default"
+        readonly property string clockPosition: Config.options?.lock?.clock?.position ?? "center"
+        readonly property bool statusEnabled: Config.options?.lock?.status?.enable ?? true
 
-            Text {
-                id: clockText
-                Layout.alignment: Qt.AlignHCenter
-                text: Qt.formatTime(new Date(), "hh:mm")
-                font.pixelSize: root.clockFontSize
-                font.weight: Looks.font.weight.thin
-                font.family: Looks.font.family.ui
-                color: root.textColor
+        // Status row
+        Loader {
+            active: lockView.statusEnabled
+            anchors {
+                top: parent.top
+                topMargin: 24
+                horizontalCenter: parent.horizontalCenter
+            }
 
-                Timer {
-                    interval: 1000
-                    running: true
-                    repeat: true
-                    onTriggered: clockText.text = Qt.formatTime(new Date(), "hh:mm")
+            sourceComponent: Row {
+                spacing: 16
+
+                Row {
+                    spacing: 4
+                    visible: Network.ethernet || Network.wifiEnabled
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Network.materialSymbol ?? "signal_wifi_off"
+                        iconSize: 16
+                        color: root.textColor
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Network.ethernet ? Translation.tr("Ethernet") : (Network.networkName ?? "")
+                        visible: text.length > 0 && text.length < 16
+                        font.pixelSize: Looks.font.pixelSize.small
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+                    }
+                }
+
+                MaterialSymbol {
+                    visible: BluetoothStatus.enabled
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: BluetoothStatus.connected ? "bluetooth_connected" : "bluetooth"
+                    iconSize: 16
+                    color: root.textColor
+                }
+
+                Row {
+                    spacing: 4
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Audio.value <= 0 ? "volume_off"
+                            : Audio.value < 0.33 ? "volume_mute"
+                            : Audio.value < 0.66 ? "volume_down"
+                            : "volume_up"
+                        iconSize: 16
+                        color: root.textColor
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Math.round(Audio.value * 100) + "%"
+                        font.pixelSize: Looks.font.pixelSize.small
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+                    }
+                }
+
+                Row {
+                    spacing: 4
+                    visible: UPower.displayDevice?.isPresent ?? false
+
+                    MaterialSymbol {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: {
+                            const pct = UPower.displayDevice?.percentage ?? 0
+                            const charging = UPower.displayDevice?.state === UPowerDeviceState.Charging
+                            if (charging) return "battery_charging_full"
+                            if (pct <= 10) return "battery_alert"
+                            if (pct <= 30) return "battery_2_bar"
+                            if (pct <= 60) return "battery_4_bar"
+                            if (pct <= 80) return "battery_5_bar"
+                            return "battery_full"
+                        }
+                        iconSize: 16
+                        color: {
+                            const pct = UPower.displayDevice?.percentage ?? 0
+                            return pct <= 15 ? Looks.colors.danger : root.textColor
+                        }
+                    }
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: Math.round(UPower.displayDevice?.percentage ?? 0) + "%"
+                        font.pixelSize: Looks.font.pixelSize.small
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+                    }
+                }
+            }
+        }
+
+        // Clock container - position-aware
+        Item {
+            id: sClockContainer
+            width: sClockContent.implicitWidth
+            height: sClockContent.implicitHeight
+
+            states: [
+                State {
+                    name: "center"; when: lockView.clockPosition === "center"
+                    AnchorChanges {
+                        target: sClockContainer
+                        anchors.horizontalCenter: lockView.horizontalCenter
+                        anchors.verticalCenter: lockView.verticalCenter
+                    }
+                    PropertyChanges { target: sClockContainer; anchors.verticalCenterOffset: -60 }
+                },
+                State {
+                    name: "topLeft"; when: lockView.clockPosition === "topLeft"
+                    AnchorChanges {
+                        target: sClockContainer
+                        anchors.left: lockView.left
+                        anchors.top: lockView.top
+                    }
+                    PropertyChanges { target: sClockContainer; anchors.leftMargin: 48; anchors.topMargin: 80 }
+                },
+                State {
+                    name: "bottomLeft"; when: lockView.clockPosition === "bottomLeft"
+                    AnchorChanges {
+                        target: sClockContainer
+                        anchors.left: lockView.left
+                        anchors.bottom: lockView.bottom
+                    }
+                    PropertyChanges { target: sClockContainer; anchors.leftMargin: 48; anchors.bottomMargin: 140 }
+                }
+            ]
+
+            ColumnLayout {
+                id: sClockContent
+                visible: lockView.clockStyle !== "analog"
+                spacing: 4
+
+                Text {
+                    id: clockText
+                    Layout.alignment: lockView.clockPosition === "center" ? Qt.AlignHCenter : Qt.AlignLeft
+                    text: DateTime.time
+                    font.pixelSize: lockView.clockStyle === "minimal" ? Math.round(72 * Looks.fontScale) : root.clockFontSize
+                    font.weight: Looks.font.weight.thin
+                    font.family: Looks.font.family.ui
+                    color: root.textColor
+                }
+
+                Text {
+                    id: dateText
+                    Layout.alignment: lockView.clockPosition === "center" ? Qt.AlignHCenter : Qt.AlignLeft
+                    text: Qt.formatDate(new Date(), "dddd, MMMM d")
+                    font.pixelSize: lockView.clockStyle === "minimal" ? Math.round(14 * Looks.fontScale) : root.dateFontSize
+                    font.weight: Looks.font.weight.regular
+                    font.family: Looks.font.family.ui
+                    color: root.textColor
+
+                    Timer {
+                        interval: 60000; running: true; repeat: true
+                        onTriggered: dateText.text = Qt.formatDate(new Date(), "dddd, MMMM d")
+                    }
                 }
             }
 
-            Text {
-                id: dateText
-                Layout.alignment: Qt.AlignHCenter
-                text: Qt.formatDate(new Date(), "dddd, MMMM d")
-                font.pixelSize: root.dateFontSize
-                font.weight: Looks.font.weight.regular
-                font.family: Looks.font.family.ui
-                color: root.textColor
+            // Analog clock - CookieClock from background widgets (no DropShadow - safe variant)
+            Loader {
+                active: lockView.clockStyle === "analog"
+                anchors.centerIn: parent
 
-                Timer {
-                    interval: 60000
-                    running: true
-                    repeat: true
-                    onTriggered: dateText.text = Qt.formatDate(new Date(), "dddd, MMMM d")
+                sourceComponent: Item {
+                    id: sAnalogRoot
+                    width: sCookieClock.implicitSize + sDateAnalog.implicitHeight + 20
+                    height: width
+
+                    BackgroundClock.CookieClock {
+                        id: sCookieClock
+                        implicitSize: Math.round(230 * Looks.fontScale)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+
+                    Text {
+                        id: sDateAnalog
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: sCookieClock.bottom
+                            topMargin: 16
+                        }
+                        text: Qt.formatDate(new Date(), "dddd, MMMM d")
+                        font.pixelSize: Math.round(14 * Looks.fontScale)
+                        font.weight: Looks.font.weight.regular
+                        font.family: Looks.font.family.ui
+                        color: root.textColor
+
+                        Timer {
+                            interval: 60000; running: true; repeat: true
+                            onTriggered: sDateAnalog.text = Qt.formatDate(new Date(), "dddd, MMMM d")
+                        }
+                    }
+                }
+            }
+        }
+
+        // Lock screen notifications - grouped by app, read-only
+        Loader {
+            id: safeLockNotificationsLoader
+            readonly property bool lockNotifEnabled: Config.options?.lock?.notifications?.enable ?? false
+            readonly property int lockNotifMaxCount: Config.options?.lock?.notifications?.maxCount ?? 3
+            readonly property bool lockNotifShowBody: Config.options?.lock?.notifications?.showBody ?? true
+            readonly property string lockNotifPosition: {
+                const pos = Config.options?.lock?.notifications?.position ?? "auto"
+                return pos === "auto" ? "right" : pos
+            }
+            active: lockNotifEnabled && Notifications.list.length > 0
+
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: 100
+            }
+            width: Math.min(340, parent.width * 0.3)
+
+            states: [
+                State {
+                    name: "center"; when: safeLockNotificationsLoader.lockNotifPosition === "center"
+                    AnchorChanges {
+                        target: safeLockNotificationsLoader
+                        anchors.horizontalCenter: lockView.horizontalCenter
+                    }
+                },
+                State {
+                    name: "left"; when: safeLockNotificationsLoader.lockNotifPosition === "left"
+                    AnchorChanges {
+                        target: safeLockNotificationsLoader
+                        anchors.left: lockView.left
+                    }
+                    PropertyChanges { target: safeLockNotificationsLoader; anchors.leftMargin: 48 }
+                },
+                State {
+                    name: "right"; when: safeLockNotificationsLoader.lockNotifPosition === "right"
+                    AnchorChanges {
+                        target: safeLockNotificationsLoader
+                        anchors.right: lockView.right
+                    }
+                    PropertyChanges { target: safeLockNotificationsLoader; anchors.rightMargin: 48 }
+                }
+            ]
+
+            sourceComponent: Column {
+                spacing: 6
+                clip: true
+
+                Repeater {
+                    model: {
+                        const apps = Notifications.appNameList
+                        const max = safeLockNotificationsLoader.lockNotifMaxCount
+                        return apps.length > max ? apps.slice(0, max) : apps
+                    }
+
+                    delegate: Item {
+                        id: safeGroupDelegate
+                        required property var modelData
+                        readonly property var group: Notifications.groupsByAppName[modelData] ?? null
+                        readonly property var latestNotif: group?.notifications?.[0] ?? null
+                        readonly property int groupCount: group?.notifications?.length ?? 0
+                        property bool expanded: false
+
+                        width: parent.width
+                        height: safeGroupCol.implicitHeight
+                        visible: latestNotif !== null
+
+                        Column {
+                            id: safeGroupCol
+                            width: parent.width
+                            spacing: 3
+
+                            // Main card — clickable to expand
+                            Rectangle {
+                                id: safeGroupCard
+                                width: parent.width
+                                height: safeGroupContent.implicitHeight + 14
+                                radius: Looks.radius.large
+                                color: safeGroupMouse.containsMouse
+                                    ? ColorUtils.transparentize(Looks.colors.bg1Hover, 0.06)
+                                    : ColorUtils.transparentize(Looks.colors.bg1Base, 0.06)
+                                border.color: ColorUtils.transparentize(Looks.colors.bg1Border, 0.5)
+                                border.width: 1
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: Looks.transition.enabled ? Looks.transition.duration.chromeHover : 0
+                                        easing.type: Easing.BezierSpline
+                                        easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: safeGroupMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: safeGroupDelegate.groupCount > 1 ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onClicked: {
+                                        if (safeGroupDelegate.groupCount > 1) safeGroupDelegate.expanded = !safeGroupDelegate.expanded
+                                    }
+                                }
+
+                                RowLayout {
+                                    id: safeGroupContent
+                                    anchors {
+                                        left: parent.left; right: parent.right
+                                        verticalCenter: parent.verticalCenter
+                                        margins: 10
+                                    }
+                                    spacing: 10
+
+                                    // App icon
+                                    Item {
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: 28
+                                        Layout.preferredHeight: 28
+
+                                        Rectangle {
+                                            anchors.fill: parent
+                                            radius: Looks.radius.medium
+                                            color: "transparent"
+                                            clip: true
+
+                                            IconImage {
+                                                id: safeGroupAppIcon
+                                                anchors.fill: parent
+                                                implicitSize: 28
+                                                asynchronous: true
+                                                source: {
+                                                    const img = root.safeLockNotificationImage(safeGroupDelegate.latestNotif?.image)
+                                                    const icon = safeGroupDelegate.latestNotif?.appIcon ?? ""
+                                                    if (img && img !== "") return img
+                                                    if (icon && icon !== "") return Quickshell.iconPath(icon, "image-missing")
+                                                    return Quickshell.iconPath("preferences-desktop-notification", "image-missing")
+                                                }
+                                            }
+
+                                            FluentIcon {
+                                                anchors.centerIn: parent
+                                                icon: "alert"
+                                                implicitSize: 16
+                                                color: Looks.colors.accentFg
+                                                visible: safeGroupAppIcon.status === Image.Error || safeGroupAppIcon.status === Image.Null
+                                            }
+                                        }
+
+                                        // Count badge
+                                        Rectangle {
+                                            visible: safeGroupDelegate.groupCount > 1
+                                            anchors {
+                                                right: parent.right
+                                                top: parent.top
+                                                rightMargin: -3
+                                                topMargin: -3
+                                            }
+                                            width: Math.max(14, safeBadgeText.implicitWidth + 6)
+                                            height: 14
+                                            radius: 7
+                                            color: Looks.colors.accent
+                                            z: 1
+
+                                            Text {
+                                                id: safeBadgeText
+                                                anchors.centerIn: parent
+                                                text: safeGroupDelegate.groupCount
+                                                font.pixelSize: 8
+                                                font.weight: Font.Bold
+                                                font.family: Looks.font.family.ui
+                                                color: Looks.colors.accentFg
+                                            }
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 1
+
+                                        RowLayout {
+                                            Layout.fillWidth: true
+
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: safeGroupDelegate.modelData ?? ""
+                                                font.pixelSize: Looks.font.pixelSize.tiny
+                                                font.weight: Looks.font.weight.regular
+                                                font.family: Looks.font.family.ui
+                                                color: Looks.colors.subfg
+                                                elide: Text.ElideRight
+                                                visible: text.length > 0
+                                            }
+
+                                            FluentIcon {
+                                                visible: safeGroupDelegate.groupCount > 1
+                                                icon: safeGroupDelegate.expanded ? "chevron-up" : "chevron-down"
+                                                implicitSize: 12
+                                                color: Looks.colors.subfg
+                                            }
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: safeGroupDelegate.latestNotif?.summary ?? ""
+                                            font.pixelSize: Looks.font.pixelSize.small
+                                            font.weight: Looks.font.weight.regular
+                                            font.family: Looks.font.family.ui
+                                            color: root.textColor
+                                            elide: Text.ElideRight
+                                            maximumLineCount: 1
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            visible: safeLockNotificationsLoader.lockNotifShowBody && text.length > 0
+                                            text: safeGroupDelegate.latestNotif?.body ?? ""
+                                            font.pixelSize: Looks.font.pixelSize.tiny
+                                            font.family: Looks.font.family.ui
+                                            color: Looks.colors.subfg
+                                            elide: Text.ElideRight
+                                            maximumLineCount: 2
+                                            wrapMode: Text.WordWrap
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Expanded notifications
+                            Column {
+                                width: parent.width - 12
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 2
+                                visible: safeGroupDelegate.expanded
+                                clip: true
+
+                                Repeater {
+                                    model: safeGroupDelegate.expanded ? (safeGroupDelegate.group?.notifications?.slice(1) ?? []) : []
+
+                                    delegate: Rectangle {
+                                        id: safeExpandedCard
+                                        required property var modelData
+                                        width: parent.width
+                                        height: safeExpandedContent.implicitHeight + 10
+                                        radius: Looks.radius.medium
+                                        color: ColorUtils.transparentize(Looks.colors.bg1Base, 0.1)
+                                        border.color: ColorUtils.transparentize(Looks.colors.bg1Border, 0.6)
+                                        border.width: 1
+
+                                        RowLayout {
+                                            id: safeExpandedContent
+                                            anchors {
+                                                left: parent.left; right: parent.right
+                                                verticalCenter: parent.verticalCenter
+                                                margins: 8
+                                            }
+                                            spacing: 8
+
+                                            IconImage {
+                                                Layout.alignment: Qt.AlignTop
+                                                Layout.preferredWidth: 20
+                                                Layout.preferredHeight: 20
+                                                implicitSize: 20
+                                                asynchronous: true
+                                                source: {
+                                                    const icon = safeExpandedCard.modelData?.appIcon ?? ""
+                                                    if (icon && icon !== "") return Quickshell.iconPath(icon, "image-missing")
+                                                    return Quickshell.iconPath("preferences-desktop-notification", "image-missing")
+                                                }
+                                            }
+
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 1
+
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    text: safeExpandedCard.modelData?.summary ?? ""
+                                                    font.pixelSize: Looks.font.pixelSize.tiny
+                                                    font.weight: Looks.font.weight.regular
+                                                    font.family: Looks.font.family.ui
+                                                    color: root.textColor
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 1
+                                                }
+
+                                                Text {
+                                                    Layout.fillWidth: true
+                                                    visible: safeLockNotificationsLoader.lockNotifShowBody && text.length > 0
+                                                    text: safeExpandedCard.modelData?.body ?? ""
+                                                    font.pixelSize: Looks.font.pixelSize.tiny
+                                                    font.family: Looks.font.family.ui
+                                                    color: Looks.colors.subfg
+                                                    elide: Text.ElideRight
+                                                    maximumLineCount: 2
+                                                    wrapMode: Text.WordWrap
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Overflow indicator for remaining app groups
+                Text {
+                    visible: Notifications.appNameList.length > safeLockNotificationsLoader.lockNotifMaxCount
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "+" + (Notifications.appNameList.length - safeLockNotificationsLoader.lockNotifMaxCount) + " " + Translation.tr("more")
+                    font.pixelSize: Looks.font.pixelSize.tiny
+                    font.family: Looks.font.family.ui
+                    color: Looks.colors.subfg
                 }
             }
         }
@@ -310,6 +883,7 @@ MouseArea {
         // Bottom hint
         Rectangle {
             id: hintContainer
+            visible: root.showHintText && opacity > 0
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 48
             anchors.horizontalCenter: parent.horizontalCenter
@@ -319,7 +893,7 @@ MouseArea {
             color: ColorUtils.transparentize(Looks.colors.bg1Base, 0.25)
             border.color: Looks.colors.bg1Border
             border.width: 1
-            opacity: hintOpacity
+            opacity: root.showHintText ? hintOpacity : 0
 
             property real hintOpacity: 1
 
@@ -351,7 +925,7 @@ MouseArea {
             }
 
             Behavior on hintOpacity {
-                animation: Looks.transition.opacity.createObject(this)
+                animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
             }
         }
     }
@@ -365,12 +939,13 @@ MouseArea {
         scale: root.showLoginView ? 1 : 1.05
 
         Behavior on opacity {
-            animation: Looks.transition.enter.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.panel : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
         }
         Behavior on scale {
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
+                duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate
             }
         }
 
@@ -405,21 +980,38 @@ MouseArea {
                     Image {
                         id: avatarImage
                         anchors.fill: parent
-                        source: `file://${Directories.userAvatarPathRicersAndWeirdSystems}`
+                        source: safeLockAvatarResolver.resolvedSource
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
+                        cache: true
+                        smooth: true
+                        mipmap: true
+                        sourceSize.width: avatarCircle.width * 2
+                        sourceSize.height: avatarCircle.height * 2
                         visible: false
+                        onStatusChanged: {
+                            if (status === Image.Error)
+                                safeLockAvatarResolver.advanceAfterError()
+                        }
                     }
 
-                    Image {
-                        id: avatarImageFallback
-                        anchors.fill: parent
-                        source: avatarImage.status !== Image.Ready
-                            ? `file://${Directories.userAvatarPathAccountsService}`
-                            : ""
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        visible: false
+                    QtObject {
+                        id: safeLockAvatarResolver
+                        property int avatarIndex: 0
+                        readonly property string resolvedSource: Directories.avatarSourceAt(avatarIndex)
+                        readonly property string primaryWatch: Directories.userAvatarSourcePrimary
+                        onPrimaryWatchChanged: avatarIndex = 0
+
+                        function advanceAfterError(): void {
+                            const failedIndex = avatarIndex
+                            Qt.callLater(() => {
+                                if (avatarIndex !== failedIndex || avatarImage.status !== Image.Error)
+                                    return
+                                const nextIdx = failedIndex + 1
+                                if (nextIdx < Directories.userAvatarPaths.length)
+                                    avatarIndex = nextIdx
+                            })
+                        }
                     }
 
                     ShaderEffectSource {
@@ -441,30 +1033,23 @@ MouseArea {
                         visible: avatarImage.status === Image.Ready
                     }
 
-                    MultiEffect {
-                        anchors.fill: parent
-                        source: avatarImageFallback
-                        maskEnabled: true
-                        maskSource: avatarMaskSource
-                        visible: avatarImageFallback.status === Image.Ready && avatarImage.status !== Image.Ready
-                    }
-
                     Text {
                         anchors.centerIn: parent
-                        text: SystemInfo.username.charAt(0).toUpperCase()
+                        text: (SystemInfo.displayName || SystemInfo.username || "?").charAt(0).toUpperCase()
                         font.pixelSize: 48 * Looks.fontScale
                         font.weight: Looks.font.weight.regular
                         font.family: Looks.font.family.ui
                         color: Looks.colors.accentFg
-                        visible: avatarImage.status !== Image.Ready && avatarImageFallback.status !== Image.Ready
+                        visible: avatarImage.status !== Image.Ready
                     }
                 }
             }
 
+            // Display name
             Text {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.topMargin: 8
-                text: SystemInfo.username
+                text: SystemInfo.displayName || SystemInfo.username
                 font.pixelSize: 24 * Looks.fontScale
                 font.weight: Looks.font.weight.regular
                 font.family: Looks.font.family.ui
@@ -482,8 +1067,8 @@ MouseArea {
                 border.color: passwordField.activeFocus ? Looks.colors.accent : Looks.colors.accentUnfocused
                 border.width: passwordField.activeFocus ? 2 : 1
 
-                Behavior on border.color { animation: Looks.transition.color.createObject(this) }
-                Behavior on border.width { animation: Looks.transition.resize.createObject(this) }
+                Behavior on border.color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
+                Behavior on border.width { animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
 
                 RowLayout {
                     anchors.fill: parent
@@ -558,7 +1143,7 @@ MouseArea {
                                 ? Looks.colors.accentHover
                                 : Looks.colors.accent
 
-                        Behavior on color { animation: Looks.transition.color.createObject(this) }
+                        Behavior on color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
 
                         FluentIcon {
                             anchors.centerIn: parent
@@ -637,6 +1222,7 @@ MouseArea {
 
         // Bottom right: Power options
         RowLayout {
+            visible: root.showPowerButtons
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.bottomMargin: 24
@@ -721,13 +1307,66 @@ MouseArea {
                     }
                 }
             }
+            
+            // On-screen keyboard toggle
+            WaffleLockButton {
+                icon: "keyboard"
+                tooltip: Translation.tr("Virtual keyboard")
+                toggled: root.oskVisible
+                anchors.verticalCenter: parent.verticalCenter
+                onClicked: root.oskVisible = !root.oskVisible
+            }
         }
+    }
+
+    // On-screen keyboard
+    LockKeyboard {
+        id: lockKeyboard
+        visible: root.oskVisible
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 80
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(parent.width * 0.6, 640)
+
+        // Waffle theme overrides
+        themeBgColor: ColorUtils.transparentize(Looks.colors.bg1Base, 0.15)
+        themeKeySurfaceColor: ColorUtils.transparentize(Looks.colors.bg2Base, 0.3)
+        themeTextColor: root.textColor
+        themeSubtextColor: ColorUtils.transparentize(root.textColor, 0.4)
+        themeAccentColor: Looks.colors.accent
+        themeAccentActiveColor: Qt.darker(Looks.colors.accent, 1.15)
+        themeAccentTextColor: Looks.colors.accentFg
+        themeRounding: Looks.radius.large
+        themeKeyRounding: Looks.radius.medium
+        themeAnimDuration: Looks.transition.enabled ? 70 : 0
+        themeFontSize: Looks.font.pixelSize.normal
+        themeFontSizeLarge: Looks.font.pixelSize.large
+        themeFontSizeSmall: Looks.font.pixelSize.small
+        themeFontFamily: Looks.font.family.ui
+
+        onKeyClicked: key => {
+            passwordField.text += key
+            passwordField.forceActiveFocus()
+        }
+        onBackspaceClicked: {
+            if (passwordField.text.length > 0) {
+                passwordField.text = passwordField.text.slice(0, -1)
+            }
+            passwordField.forceActiveFocus()
+        }
+        onEnterClicked: {
+            if (root.context.currentText.length > 0) {
+                root.hasAttemptedUnlock = true
+                root.context.tryUnlock(root.ctrlHeld)
+            }
+        }
+        onCloseRequested: root.oskVisible = false
     }
 
     // ===== INPUT HANDLING =====
 
     hoverEnabled: true
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton
     focus: true
     activeFocusOnTab: true
 
@@ -752,15 +1391,6 @@ MouseArea {
     }
 
     onClicked: mouse => {
-        if (mouse.button === Qt.RightButton) {
-            root.emergencyClickCount++
-            emergencyClickTimer.restart()
-            if (root.emergencyClickCount >= 5) {
-                root.emergencyClickCount = 0
-                GlobalStates.screenLocked = false
-            }
-            return
-        }
         if (!root.showLoginView) {
             root.switchToLogin()
         } else {
@@ -884,8 +1514,8 @@ MouseArea {
         border.color: Looks.colors.bg1Border
         border.width: 1
 
-        Behavior on color { animation: Looks.transition.color.createObject(this) }
-        Behavior on border.color { animation: Looks.transition.color.createObject(this) }
+        Behavior on color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
+        Behavior on border.color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
 
         FluentIcon {
             anchors.centerIn: parent
@@ -927,7 +1557,7 @@ MouseArea {
             return Looks.colors.bg2Base
         }
 
-        Behavior on color { animation: Looks.transition.color.createObject(this) }
+        Behavior on color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
 
         FluentIcon {
             anchors.centerIn: parent

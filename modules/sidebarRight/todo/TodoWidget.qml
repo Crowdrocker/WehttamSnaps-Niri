@@ -1,12 +1,15 @@
-import qs.services
-import qs.modules.common
-import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell
+import qs.modules.common
+import qs.modules.common.functions
+import qs.modules.common.widgets
+import qs.services
 
 Item {
     id: root
+    signal requestExpand()
     property int currentTab: 0
     property var tabButtonList: [{"icon": "checklist", "name": Translation.tr("Unfinished")}, {"name": Translation.tr("Done"), "icon": "check_circle"}]
     property bool showAddDialog: false
@@ -39,31 +42,61 @@ Item {
         anchors.fill: parent
         spacing: 0
 
-        SecondaryTabBar {
-            id: tabBar
+        Item {
+            id: todoHeader
             Layout.fillWidth: true
-            currentIndex: currentTab
-            onCurrentIndexChanged: currentTab = currentIndex
+            Layout.preferredHeight: Math.max(tabBar.implicitHeight, expandViewButton.implicitHeight)
 
-            background: Item {
-                WheelHandler {
-                    onWheel: (event) => {
-                        if (event.angleDelta.y < 0)
-                            tabBar.currentIndex = Math.min(tabBar.currentIndex + 1, root.tabButtonList.length - 1)
-                        else if (event.angleDelta.y > 0)
-                            tabBar.currentIndex = Math.max(tabBar.currentIndex - 1, 0)
+            SecondaryTabBar {
+                id: tabBar
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: expandViewButton.left
+                anchors.rightMargin: 6
+                currentIndex: currentTab
+                onCurrentIndexChanged: currentTab = currentIndex
+
+                background: Item {
+                    WheelHandler {
+                        onWheel: (event) => {
+                            if (event.angleDelta.y < 0)
+                                tabBar.currentIndex = Math.min(tabBar.currentIndex + 1, root.tabButtonList.length - 1)
+                            else if (event.angleDelta.y > 0)
+                                tabBar.currentIndex = Math.max(tabBar.currentIndex - 1, 0)
+                        }
+                        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
                     }
-                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                }
+
+                Repeater {
+                    model: root.tabButtonList
+                    delegate: SecondaryTabButton {
+                        selected: (index == currentTab)
+                        buttonText: modelData.name
+                        buttonIcon: modelData.icon
+                    }
                 }
             }
 
-            Repeater {
-                model: root.tabButtonList
-                delegate: SecondaryTabButton {
-                    selected: (index == currentTab)
-                    buttonText: modelData.name
-                    buttonIcon: modelData.icon
+            RippleButton {
+                id: expandViewButton
+                anchors.top: parent.top
+                anchors.right: parent.right
+                z: 5
+                implicitWidth: 32
+                implicitHeight: 32
+                buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.full
+                colBackground: "transparent"
+                colBackgroundHover: Appearance.colLayer2Hover
+                onClicked: root.requestExpand()
+                contentItem: MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "open_in_full"
+                    iconSize: 17
+                    color: Appearance.colors.colPrimary
                 }
+                StyledToolTip { text: Translation.tr("Open full to-do view") }
             }
         }
 
@@ -94,25 +127,26 @@ Item {
                 x: tabBar.currentIndex * fullTabSize + (fullTabSize - targetWidth) / 2
 
                 color: Appearance.colors.colPrimary
-                radius: Appearance.rounding.full
+                radius: Math.min(width, height) / 2
 
                 Behavior on x {
-                    enabled: tabIndicator.enableIndicatorAnimation
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: tabIndicator.enableIndicatorAnimation && Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
 
                 Behavior on implicitWidth {
-                    enabled: tabIndicator.enableIndicatorAnimation
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: tabIndicator.enableIndicatorAnimation && Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
             }
         }
 
-        Rectangle { // Tabbar bottom border
+        Rectangle { // Tabbar bottom border — removed: only the colored active
+            // indicator should read (matches pomodoro). No full-width grey track.
             id: tabBarBottomBorder
             Layout.fillWidth: true
             height: 1
-            color: Appearance.colors.colOutlineVariant
+            color: "transparent"
         }
 
         SwipeView {
@@ -133,6 +167,7 @@ Item {
                 listBottomPadding: root.fabSize + root.fabMargins * 2
                 emptyPlaceholderIcon: "check_circle"
                 emptyPlaceholderText: Translation.tr("Nothing here!")
+                emptyMascotPose: "todo-done"
                 taskList: Todo.list
                     .map(function(item, i) { return Object.assign({}, item, {originalIndex: i}); })
                     .filter(function(item) { return !item.done; })
@@ -141,12 +176,29 @@ Item {
                 listBottomPadding: root.fabSize + root.fabMargins * 2
                 emptyPlaceholderIcon: "checklist"
                 emptyPlaceholderText: Translation.tr("Finished tasks will go here")
+                emptyMascotPose: "success-celebrate"
                 taskList: Todo.list
                     .map(function(item, i) { return Object.assign({}, item, {originalIndex: i}); })
                     .filter(function(item) { return item.done; })
             }
 
         }
+    }
+
+    // Open txt in editor
+    StyledRectangularShadow {
+        target: editButton
+        radius: editButton.buttonRadius
+        blur: 0.6 * Appearance.sizes.elevationMargin
+    }
+    FloatingActionButton {
+        id: editButton
+        anchors.horizontalCenter: fabButton.horizontalCenter
+        anchors.bottom: fabButton.top
+        anchors.bottomMargin: 8
+        baseSize: 40
+        onClicked: ShellExec.execDetachedArgs(["xdg-open", Directories.todoTxtPath], "Open todo file")
+        iconText: "edit_note"
     }
 
     // + FAB
@@ -173,6 +225,7 @@ Item {
         visible: opacity > 0
         opacity: root.showAddDialog ? 1 : 0
         Behavior on opacity {
+            enabled: Appearance.animationsEnabled
             NumberAnimation { 
                 duration: Appearance.animation.elementMoveFast.duration
                 easing.type: Appearance.animation.elementMoveFast.type
@@ -229,9 +282,12 @@ Item {
                     Layout.leftMargin: 16
                     Layout.rightMargin: 16
                     Layout.alignment: Qt.AlignLeft
-                    color: Appearance.m3colors.m3onSurface
+                    color: Appearance.colors.colOnSurface
                     font.pixelSize: Appearance.font.pixelSize.larger
                     text: Translation.tr("Add task")
+                    font.family: Appearance.editorialEverywhere ? Appearance.font.family.title : Appearance.font.family.main
+                    font.weight: Appearance.editorialEverywhere ? Appearance.editorial.titleWeight : Font.Normal
+                    font.letterSpacing: Appearance.editorialEverywhere ? Appearance.editorial.titleTracking : 0
                 }
 
                 TextField {
@@ -240,12 +296,12 @@ Item {
                     Layout.leftMargin: 16
                     Layout.rightMargin: 16
                     padding: 10
-                    color: activeFocus ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
+                    color: activeFocus ? Appearance.colors.colOnSurface : Appearance.colMetadataText
                     renderType: Text.NativeRendering
-                    selectedTextColor: Appearance.m3colors.m3onSecondaryContainer
+                    selectedTextColor: Appearance.colors.colOnSecondaryContainer
                     selectionColor: Appearance.colors.colSecondaryContainer
                     placeholderText: Translation.tr("Task description")
-                    placeholderTextColor: Appearance.m3colors.m3outline
+                    placeholderTextColor: Appearance.colors.colOutline
                     focus: root.showAddDialog
                     onAccepted: dialog.addTask()
 
@@ -253,7 +309,7 @@ Item {
                         anchors.fill: parent
                         radius: Appearance.rounding.verysmall
                         border.width: 2
-                        border.color: todoInput.activeFocus ? Appearance.colors.colPrimary : Appearance.m3colors.m3outline
+                        border.color: todoInput.activeFocus ? Appearance.colors.colPrimary : Appearance.colors.colOutline
                         color: "transparent"
                     }
 

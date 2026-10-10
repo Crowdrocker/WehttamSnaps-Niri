@@ -1,4 +1,5 @@
 import qs.modules.common
+import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Controls.FluentWinUI3
 import QtQuick.Controls
@@ -27,5 +28,9 @@ TextField {
         acceptedButtons: Qt.NoButton
         hoverEnabled: true
         cursorShape: Qt.IBeamCursor
+    }
+
+    TextInputContextMenu {
+        target: root
     }
 }

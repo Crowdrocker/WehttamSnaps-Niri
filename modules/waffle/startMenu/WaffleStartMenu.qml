@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.services
+import qs.services.deferred
 import qs
 import qs.modules.common
 import qs.modules.common.widgets
@@ -10,10 +11,18 @@ import qs.modules.common.widgets
 Scope {
     id: root
 
+    readonly property bool allowMultiplePanels: Config.options?.waffles?.behavior?.allowMultiplePanels ?? false
+
     Connections {
         target: GlobalStates
         function onSearchOpenChanged() {
-            if (GlobalStates.searchOpen) panelLoader.active = true
+            if (GlobalStates.searchOpen) {
+                if (!root.allowMultiplePanels) {
+                    GlobalStates.waffleActionCenterOpen = false
+                    GlobalStates.waffleNotificationCenterOpen = false
+                }
+                panelLoader.active = true
+            }
         }
     }
 
@@ -25,6 +34,7 @@ Scope {
             WlrLayershell.namespace: "quickshell:wStartMenuBg"
             WlrLayershell.layer: WlrLayer.Top
             color: "transparent"
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: GlobalStates.searchOpen = false
@@ -77,10 +87,4 @@ Scope {
         }
     }
 
-    IpcHandler {
-        target: "search"
-        function toggle(): void { GlobalStates.searchOpen = !GlobalStates.searchOpen }
-        function close(): void { GlobalStates.searchOpen = false }
-        function open(): void { GlobalStates.searchOpen = true }
-    }
 }

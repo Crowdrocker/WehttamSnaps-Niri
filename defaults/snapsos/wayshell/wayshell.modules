@@ -1,0 +1,52 @@
+# Wayshell module definitions
+# Format: name|on_exec|off_exec|type|args...
+#   name     — unique identifier for the module
+#   on_exec  — command executed when the condition becomes true
+#   off_exec — command executed when the condition becomes false
+#   type     — module type: zone | layout | focused
+#
+# Zone args: x1,y1,x2,y2  (screen-space bounding box)
+# Layout args: layout_name[,monitor]
+#   layout_name: M for monocle, DW for dwindle, etc.
+#   monitor:     optional — if set, only triggers for that display
+# Focused args: app_id  (e.g. firefox, com.mitchellh.ghostty)
+
+# Zone modules — trigger when cursor enters/exits screen edges
+zone_left|mmsg dispatch spawn_shell,waybar -c ~/.config/snapsos/wayshell/configs/brightness.json -s ~/.config/snapsos/wayshell/configs/brightness.css|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/wayshell/configs/brightness.json -s /home/$(whoami)/.config/snapsos/wayshell/configs/brightness.css"|zone|0,300,40,780
+zone_right|mmsg dispatch spawn_shell,waybar -c ~/.config/snapsos/wayshell/configs/volume.json -s ~/.config/snapsos/wayshell/configs/volume.css|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/wayshell/configs/volume.json -s /home/$(whoami)/.config/snapsos/wayshell/configs/volume.css"|zone|1880,300,1920,780
+#zone_top|notify-send "top show"|notify-send "top hide"|zone|0,0,1920,30
+#zone_bottom|notify-send "bottom show"|notify-send "bottom hide"|zone|0,1050,1920,1080
+
+# Screenshot toolbar — triggered from top-center of any monitor (monitor-local)
+zone_topcenter|mmsg dispatch spawn_shell,waybar -c ~/.config/snapsos/wayshell/configs/screenshot.json -s ~/.config/snapsos/wayshell/configs/screenshot.css|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/wayshell/configs/screenshot.json -s /home/$(whoami)/.config/snapsos/wayshell/configs/screenshot.css"|zone|760,0,1160,40
+
+# Layout modules — trigger when a layout is activated/deactivated on any tag
+# Append a monitor name after the layout to restrict to one display:
+#   monocle_dp1|...|...|layout|M,DP-1
+
+# monocle bar
+monocle|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh hdmi|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-hdmi -s /home/den/.config/snapsos/monocle/style.css"|layout|M,HDMI-A-1
+monocle-dp1|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh dp1|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-dp1 -s /home/den/.config/snapsos/monocle/style.css"|layout|M,DP-1
+monocle-dp3|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh dp3|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-dp3 -s /home/den/.config/snapsos/monocle/style.css"|layout|M,DP-3
+
+# monocle bar on deck
+deck-hdmi|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh hdmi|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-hdmi -s /home/den/.config/snapsos/monocle/style.css"|layout|K,HDMI-A-1
+deck-dp1|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh dp1|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-dp1 -s /home/den/.config/snapsos/monocle/style.css"|layout|K,DP-1
+deck-dp3|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh dp3|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-dp3 -s /home/den/.config/snapsos/monocle/style.css"|layout|K,DP-3
+
+# monocle bar on vertical deck
+vdeck-hdmi|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh hdmi|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-hdmi -s /home/den/.config/snapsos/monocle/style.css"|layout|VK,HDMI-A-1
+vdeck-dp1|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh dp1|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-dp1 -s /home/den/.config/snapsos/monocle/style.css"|layout|VK,DP-1
+vdeck-dp3|mmsg dispatch spawn_shell,~/.config/snapsos/monocle/monocle.sh dp3|pkill -f "waybar -c /home/$(whoami)/.config/snapsos/monocle/config-dp3 -s /home/den/.config/snapsos/monocle/style.css"|layout|VK,DP-3
+
+
+# Focused modules — trigger when specific app gains/loses focus
+#term_focused|notify-send "terminal focused"|notify-send "terminal unfocused"|focused|com.mitchellh.ghostty
+#browser_focused|notify-send "browser focused"|notify-send "browser unfocused"|focused|firefox
+
+# Bottom-bar pinnable modules
+# These share a single waybar instance; each show/hide script sets a flag
+# and the daemon output blanks when the flag is not set.
+# Zone coordinates are monitor-relative (0,0 = monitor top-left).
+elevated_bar|mmsg dispatch spawn_shell,~/.config/snapsos/wayshell/configs/elevated-show.sh|mmsg dispatch spawn_shell,~/.config/snapsos/wayshell/configs/elevated-hide.sh|zone|0,1030,350,1080
+focused_bar|mmsg dispatch spawn_shell,~/.config/snapsos/wayshell/configs/focused-show.sh|mmsg dispatch spawn_shell,~/.config/snapsos/wayshell/configs/focused-hide.sh|zone|1570,1030,1920,1080

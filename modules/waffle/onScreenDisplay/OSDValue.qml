@@ -17,7 +17,7 @@ WBarAttachedPanelContent {
     property Timer timer: Timer {
         id: autoCloseTimer
         running: true
-        interval: Config.options.osd.timeout
+        interval: Config.options?.osd?.timeout ?? 3000
         repeat: false
         onTriggered: {
             root.close();
@@ -27,6 +27,10 @@ WBarAttachedPanelContent {
     contentItem: WPane {
         anchors.centerIn: parent
         borderColor: Looks.colors.ambientShadow
+        screenX: root.panelScreenX + root.visualMargin
+        screenY: root.panelScreenY + root.visualMargin
+        screenWidth: root._screenW
+        screenHeight: root._screenH
 
         contentItem: Item {
             // color: Looks.colors.bg1Base

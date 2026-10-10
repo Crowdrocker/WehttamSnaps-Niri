@@ -6,6 +6,11 @@ QtObject {
     readonly property string bssid: lastIpcObject.bssid
     readonly property int strength: lastIpcObject.strength
     readonly property int frequency: lastIpcObject.frequency
+    readonly property string rate: String(lastIpcObject.rate ?? "")
+    readonly property string bandLabel: frequency >= 5925 ? "6 GHz"
+        : frequency >= 4900 ? "5 GHz"
+        : frequency >= 2400 ? "2.4 GHz"
+        : ""
     readonly property bool active: lastIpcObject.active
     readonly property string security: lastIpcObject.security
     readonly property bool isSecure: security.length > 0

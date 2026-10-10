@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.waffle.looks
 
@@ -20,6 +21,6 @@ AppButton {
     BarToolTip {
         id: tooltip
         text: Translation.tr("Search")
-        extraVisibleCondition: root.shouldShowTooltip
+        barExtraVisibleCondition: root.shouldShowTooltip
     }
 }

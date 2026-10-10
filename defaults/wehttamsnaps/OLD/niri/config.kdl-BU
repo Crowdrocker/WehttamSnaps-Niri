@@ -1,0 +1,591 @@
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  WehttamSnaps — Niri Configuration                              ║
+// ║  Author: Matthew (WehttamSnaps)                                  ║
+// ║  GitHub: https://github.com/Crowdrocker                          ║
+// ║  Photography • Content Creation • Gaming                         ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+// ═══════════════════════════════════════════════════════════════════
+// 🖥️  DISPLAY CONFIGURATION — Dell XPS 8700 + RX 580
+// ═══════════════════════════════════════════════════════════════════
+
+output "DP-3" {
+    mode "1920x1080@60.000"
+    scale 1.0
+    position x=0 y=0
+
+    // VRR/FreeSync - Enable if your monitor supports it
+    // variable-refresh-rate true
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎨 WINDOW APPEARANCE
+// ═══════════════════════════════════════════════════════════════════
+
+layout {
+    gaps 8
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 2
+
+        active-color "#89b4fa"     // Catppuccin Blue
+        inactive-color "#313244"   // Catppuccin Surface0
+
+        active-gradient from="#89b4fa" to="#cba6f7" angle=45
+        inactive-gradient from="#313244" to="#1e1e2e" angle=45
+    }
+
+    border {
+        width 1
+        active-color "#89b4fa"
+        inactive-color "#313244"
+
+        active-gradient from="#89b4fa" to="#cba6f7" angle=90
+        inactive-gradient from="#313244" to="#1e1e2e" angle=90
+    }
+
+    struts {
+        left 0
+        right 0
+        top 0
+        bottom 0
+    }
+}
+
+// Window corner radius
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎯 WORKSPACES — 10 Total for Media/Gaming Workflow
+// ═══════════════════════════════════════════════════════════════════
+
+
+// General / Browser
+workspace "1" {
+}
+// Development / Code
+workspace "2" {
+}
+// Gaming
+workspace "3" {
+}
+// Streaming / OBS
+workspace "4" {
+}
+// Photography / GIMP
+workspace "5" {
+}
+ // Media / Video Editing
+workspace "6" {
+}
+// Communication / Discord
+workspace "7" {
+}
+// Music / Audio Production
+workspace "8" {
+}
+// File Management
+workspace "9" {
+}
+// Misc / Overflow
+workspace "10" {
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎮 WINDOW RULES — Gaming, Photography & Development
+// ═══════════════════════════════════════════════════════════════════
+
+// === GAMING - Fullscreen & Performance ===
+
+// Steam
+window-rule {
+    match app-id="^steam$"
+    open-maximized true
+    open-on-workspace "3"
+}
+
+// Division 2 / Ubisoft Connect
+window-rule {
+    match title="Tom Clancy's The Division"
+    open-maximized true
+    open-on-workspace "3"
+}
+
+// Cyberpunk 2077
+window-rule {
+    match title="Cyberpunk 2077"
+    open-maximized true
+    open-on-workspace "3"
+}
+
+// Lutris
+window-rule {
+    match app-id="^net.lutris.Lutris$"
+    open-on-workspace "3"
+}
+
+// === MODDING TOOLS - Floating Windows ===
+
+// Vortex Mod Manager
+window-rule {
+    match title="Vortex"
+    open-floating true
+    default-column-width { fixed 1280; }
+    open-on-workspace "3"
+}
+
+// Mod Organizer 2
+window-rule {
+    match title="Mod Organizer"
+    open-floating true
+    default-column-width { fixed 1400; }
+    open-on-workspace "3"
+}
+
+// Wabbajack
+window-rule {
+    match title="Wabbajack"
+    open-floating true
+    default-column-width { fixed 1200; }
+    open-on-workspace "3"
+}
+
+// === BROWSERS - Fullscreen ===
+
+window-rule {
+    match app-id="^brave-browser$"
+    open-maximized true
+    open-on-workspace "1"
+}
+
+window-rule {
+    match app-id="^firefox$"
+    open-maximized true
+    open-on-workspace "1"
+}
+
+window-rule {
+    match app-id="^chromium$"
+    open-maximized true
+    open-on-workspace "1"
+}
+
+// === DEVELOPMENT ===
+
+// Kate Text Editor
+window-rule {
+    match app-id="^org.kde.kate$"
+    open-maximized true
+    open-on-workspace "2"
+}
+
+// VS Code
+window-rule {
+    match app-id="^code$"
+    open-maximized true
+    open-on-workspace "2"
+}
+
+// === PHOTOGRAPHY ===
+
+// GIMP
+window-rule {
+    match app-id="^gimp"
+    open-on-workspace "5"
+}
+
+// Darktable
+window-rule {
+    match app-id="^darktable$"
+    open-on-workspace "5"
+}
+
+// RawTherapee
+window-rule {
+    match app-id="^rawtherapee$"
+    open-on-workspace "5"
+}
+
+// DigiKam
+window-rule {
+    match app-id="^digikam$"
+    open-on-workspace "5"
+}
+
+// === STREAMING / OBS ===
+
+window-rule {
+    match app-id="^com.obsproject.Studio$"
+    open-on-workspace "4"
+}
+
+// === COMMUNICATION ===
+
+window-rule {
+    match app-id="^discord$"
+    open-on-workspace "7"
+}
+
+window-rule {
+    match app-id="^Signal$"
+    open-on-workspace "7"
+}
+
+window-rule {
+    match app-id="^telegram"
+    open-on-workspace "7"
+}
+
+// === FILE MANAGERS ===
+
+window-rule {
+    match app-id="^thunar$"
+    open-on-workspace "9"
+}
+
+// === FLOATING WINDOWS ===
+
+// Pavucontrol
+window-rule {
+    match app-id="^pavucontrol$"
+    open-floating true
+    default-column-width { fixed 800; }
+}
+
+// Qpwgraph
+window-rule {
+    match app-id="^qpwgraph$"
+    open-floating true
+}
+
+// File pickers
+window-rule {
+    match app-id="^xdg-desktop-portal"
+    open-floating true
+}
+
+// Polkit authentication
+window-rule {
+    match app-id="^polkit"
+    open-floating true
+    focus-on-appearance true
+}
+
+// Calculator
+window-rule {
+    match app-id="^org.gnome.Calculator$"
+    open-floating true
+    default-column-width { fixed 400; }
+}
+
+// === NOCTALIA SHELL ===
+
+// Noctalia overview/launcher
+layer-rule {
+    match namespace="^quickshell-overview$"
+    place-within-backdrop true
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ⌨️  KEYBINDINGS — WehttamSnaps Layout
+// ═══════════════════════════════════════════════════════════════════
+
+binds {
+    // ============================================================
+    // 🚀 CORE NOCTALIA SHELL
+    // ============================================================
+
+    Mod+Space { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    Mod+S { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "controlCenter" "toggle"; }
+    Mod+Comma { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "settings" "toggle"; }
+
+    // ============================================================
+    // 📱 APPLICATIONS
+    // ============================================================
+
+    Mod+Return { spawn "ghostty"; }
+    Mod+Shift+Return { spawn "ghostty" "--class" "dropdown"; }
+    Mod+B { spawn "brave"; }
+    Mod+E { spawn "thunar"; }
+
+    // ============================================================
+    // 🌐 WEBAPPS
+    // ============================================================
+
+    Mod+Y { spawn "webapp-youtube"; }
+    Mod+T { spawn "webapp-twitch"; }
+    Mod+Shift+D { spawn "webapp-discord"; }
+    Mod+G { spawn "brave" "https://github.com/Crowdrocker"; }
+
+    // ============================================================
+    // 🖼️  SCREENSHOT TOOLS
+    // ============================================================
+
+    Print { spawn "grimblast" "copy" "screen"; }
+    Shift+Print { spawn "grimblast" "copy" "area"; }
+    Ctrl+Print { spawn "sh" "-c" "sleep 5 && grimblast copy screen"; }
+    Alt+Print { spawn "grimblast" "copy" "active"; }
+    Mod+Shift+S { spawn "swappy"; }
+    Mod+P { spawn "hyprpicker" "-a"; }
+
+    // ============================================================
+    // 🎵 MEDIA CONTROLS
+    // ============================================================
+
+    XF86AudioPlay { spawn "playerctl" "play-pause"; }
+    XF86AudioNext { spawn "playerctl" "next"; }
+    XF86AudioPrev { spawn "playerctl" "previous"; }
+    XF86AudioStop { spawn "playerctl" "stop"; }
+
+    // ============================================================
+    // 🔊 AUDIO CONTROLS (Noctalia IPC)
+    // ============================================================
+
+    XF86AudioRaiseVolume { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "increase"; }
+    XF86AudioLowerVolume { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "decrease"; }
+    XF86AudioMute { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "volume" "muteOutput"; }
+
+    // ============================================================
+    // 💡 BRIGHTNESS (Noctalia IPC)
+    // ============================================================
+
+    XF86MonBrightnessUp { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "brightness" "increase"; }
+    XF86MonBrightnessDown { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "brightness" "decrease"; }
+
+    // ============================================================
+    // 🔒 SECURITY
+    // ============================================================
+
+    Mod+L { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "lockScreen" "toggle"; }
+    Mod+Shift+L { spawn "systemctl" "suspend"; }
+
+    // ============================================================
+    // 🎮 GAMING / PERFORMANCE
+    // ============================================================
+
+    Mod+F11 { spawn "toggle-gamemode"; }
+    Mod+F12 { spawn "gamescope" "--"; }
+
+    // ============================================================
+    // 🪟 WINDOW MANAGEMENT
+    // ============================================================
+
+    Mod+Q { close-window; }
+    Mod+Shift+Q { quit skip-confirmation=true; }
+    Mod+F { fullscreen-window; }
+    Mod+Shift+F { set-window-floating; }
+
+    // Focus movement
+    Mod+Left  { focus-column-left; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+Shift+L     { focus-column-right; }
+
+    // Move windows
+    Mod+Shift+Left  { move-column-left; }
+    Mod+Shift+Down  { move-window-down; }
+    Mod+Shift+Up    { move-window-up; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+Shift+H     { move-column-left; }
+    Mod+Shift+J     { move-window-down; }
+    Mod+Shift+K     { move-window-up; }
+
+    // Column width
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    // ============================================================
+    // 🗂️  WORKSPACE NAVIGATION
+    // ============================================================
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+0 { focus-workspace 10; }
+
+    // Move windows to workspaces
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+    Mod+Shift+0 { move-column-to-workspace 10; }
+
+    // Scroll workspaces
+    Mod+Page_Down     { focus-workspace-down; }
+    Mod+Page_Up       { focus-workspace-up; }
+    Mod+Ctrl+Down     { move-column-to-workspace-down; }
+    Mod+Ctrl+Up       { move-column-to-workspace-up; }
+
+    // ============================================================
+    // 🎨 THEMING / WALLPAPER
+    // ============================================================
+
+    Mod+W { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "wallpaper" "toggle"; }
+    Mod+Ctrl+Space { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "wallpaper" "random"; }
+
+    // ============================================================
+    // 🔧 UTILITIES
+    // ============================================================
+
+    Mod+V { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "clipboard"; }
+    Mod+C { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "launcher" "calculator"; }
+    Mod+H { spawn "keyhints"; }
+
+    // ============================================================
+    // 🔄 SYSTEM CONTROL
+    // ============================================================
+
+    Mod+Shift+C { spawn "qs" "-c" "noctalia-shell" "ipc" "call" "sessionMenu" "toggle"; }
+    Mod+Shift+R { quit; }
+
+    // Screenshot with edit
+    Mod+Shift+S { spawn "grim" "-g" "$(slurp)" "-" "|" "swappy" "-f" "-"; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎯 INPUT CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════
+
+input {
+    keyboard {
+        xkb {
+            layout "us" // Use the German keyboard layout
+        }
+        numlock // Enable numlock on startup
+    }
+
+    touchpad {
+        tap // Enable tap-to-click
+        natural-scroll // Enable natural (macOS-style) scrolling
+    }
+
+    focus-follows-mouse // Automatically focus windows under the mouse pointer
+    workspace-auto-back-and-forth // Enable workspace back & forth switching
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// 🖱️  CURSOR CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════
+
+cursor {
+    xcursor-theme "Bibata-Modern-Classic"
+    xcursor-size 24
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🚀 AUTOSTART APPLICATIONS
+// ═══════════════════════════════════════════════════════════════════
+
+spawn-at-startup "xwayland-satellite"  // XWayland for Steam/X11 apps (REQUIRED)
+spawn-at-startup "qs" "-c" "noctalia-shell"
+spawn-at-startup "welcome.py"
+spawn-at-startup "polkit-kde-authentication-agent-1"
+spawn-at-startup "swaync"
+spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
+spawn-at-startup "nm-applet"
+spawn-at-startup "blueman-applet"
+spawn-at-startup "udiskie" "-t"
+spawn-at-startup "wlsunset" "-l" "40.8" "-L" "-96.6"  // Lincoln, NE coords
+
+// ═══════════════════════════════════════════════════════════════════
+// 🔧 ADVANCED SETTINGS
+// ═══════════════════════════════════════════════════════════════════
+
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/niri_%Y-%m-%d_%H-%M-%S.png"
+
+// Animation tweaks for gaming performance
+animations {
+    slowdown 1.0
+
+    window-open {
+        duration-ms 150
+        curve "ease-out-cubic"
+    }
+
+    window-close {
+        duration-ms 150
+        curve "ease-in-cubic"
+    }
+
+    window-movement {
+        duration-ms 200
+        curve "ease-out-cubic"
+    }
+
+    workspace-switch {
+        duration-ms 250
+        curve "ease-out-cubic"
+    }
+
+    // Disable animations in gaming workspace (handled by toggle-gamemode script)
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+// ✨ WehttamSnaps — Crafted for Photography & Gaming
+// ═══════════════════════════════════════════════════════════════════
+
+// Debug settings (comment out for production)
+debug {
+    preview-render "screencast"
+    // preview-render "screen-capture"
+    enable-overlay-planes
+    disable-cursor-plane
+    disable-direct-scanout
+    restrict-primary-scanout-to-matching-format
+    render-drm-device "/dev/dri/renderD129"
+    ignore-drm-device "/dev/dri/renderD128"
+    ignore-drm-device "/dev/dri/renderD130"
+    force-pipewire-invalid-modifier
+        dbus-interfaces-in-non-session-instances
+        wait-for-frame-completion-before-queueing
+        emulate-zero-presentation-time
+        disable-resize-throttling
+        disable-transactions
+        strict-new-window-focus-policy
+        honor-xdg-activation-with-invalid-serial
+        skip-cursor-only-updates-during-vrr
+        deactivate-unfocused-windows
+        keep-max-bpc-unchanged
+}
+
+binds {
+    Mod+Shift+Ctrl+T { toggle-debug-tint; }
+    Mod+Shift+Ctrl+O { debug-toggle-opaque-regions; }
+    Mod+Shift+Ctrl+D { debug-toggle-damage; }
+}

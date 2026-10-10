@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.waffle.looks
 import qs.modules.common.functions
@@ -17,6 +18,9 @@ RowLayout {
     property int resultLimit: 20
     property StartMenuContext context
     property int currentIndex: context.currentIndex
+    readonly property int searchIconSize: Config.options?.waffles?.bar?.searchIconSize ?? 24
+    readonly property int searchPreviewIconSize: Math.max(36, Math.round(root.searchIconSize * 2))
+    readonly property int searchActionIconSize: Math.max(14, Math.round(root.searchIconSize * 0.58))
     
     function focusFirstItem() {
         context.currentIndex = 0;
@@ -77,7 +81,7 @@ RowLayout {
         currentIndex: root.context.currentIndex
         highlightFollowsCurrentItem: true
         // Use Looks.transition for consistent animation timing
-        highlightMoveDuration: Looks.transition.enabled ? Looks.transition.duration.normal : 0
+        highlightMoveDuration: Looks.transition.enabled ? Looks.transition.duration.chromeMove : 0
         highlightMoveVelocity: -1  // Disable velocity-based animation, use duration only
 
         model: {
@@ -97,9 +101,12 @@ RowLayout {
                 
                 if (count >= root.maxResultsPerCategory) continue;
                 
-                // Reuse entry directly, just set category
-                entry.category = categorizedResults.length === 0 ? Translation.tr("Best match") : type;
-                categorizedResults.push(entry);
+                // Never mutate LauncherSearch.results from inside this model binding;
+                // doing so makes the source binding depend on its own output.
+                categorizedResults.push(Object.assign({}, entry, {
+                    category: categorizedResults.length === 0
+                        ? Translation.tr("Best match") : type
+                }));
                 categoryCount.set(type, count + 1);
             }
             return categorizedResults;
@@ -123,8 +130,12 @@ RowLayout {
         property var entry
 
         Layout.fillHeight: true
-        color: Looks.colors.bg1
-        radius: Looks.radius.normal
+        color: Looks.glassActive ? Looks.colors.bgPanelBody : Looks.colors.bg1
+        radius: Looks.radius.medium
+        border.width: Looks.glassActive ? 1 : 0
+        border.color: Looks.glassActive
+            ? (Appearance.angelEverywhere ? Appearance.angel.colPanelBorder : Appearance.aurora.colTooltipBorder)
+            : "transparent"
 
         ColumnLayout {
             anchors.fill: parent
@@ -140,7 +151,7 @@ RowLayout {
                     Layout.topMargin: 8
                     Layout.bottomMargin: 6
                     entry: resultPreview.entry
-                    iconSize: 48
+                    iconSize: root.searchPreviewIconSize
                 }
                 WText {
                     Layout.fillWidth: true
@@ -176,7 +187,7 @@ RowLayout {
                     const appId = isAppEntry ? (resultPreview.entry?.id ?? "") : "";
                     const pinned = isAppEntry ? (Config.options.dock?.pinnedApps?.includes(appId) ?? false) : false;
                     var result = [
-                        searchResultComp.createObject(null, {
+                        ({
                             name: resultPreview.entry?.verb ?? Translation.tr("Open"),
                             iconName: isAppEntry ? "open_in_new" : "keyboard_return",
                             iconType: LauncherSearchResult.IconType.Material,
@@ -185,7 +196,7 @@ RowLayout {
                             }
                         }),
                         ...(isAppEntry ? [
-                            searchResultComp.createObject(null, {
+                            ({
                                 name: pinned ? Translation.tr("Unpin from taskbar") : Translation.tr("Pin to taskbar"),
                                 iconName: pinned ? "keep_off" : "keep",
                                 iconType: LauncherSearchResult.IconType.Material,
@@ -213,7 +224,7 @@ RowLayout {
                         spacing: 8
                         SearchEntryIcon {
                             entry: actionButton.modelData
-                            iconSize: 14
+                            iconSize: root.searchActionIconSize
                         }
                         WText {
                             Layout.fillWidth: true
@@ -227,8 +238,4 @@ RowLayout {
         }
     }
 
-    Component {
-        id: searchResultComp
-        LauncherSearchResult {}
-    }
 }

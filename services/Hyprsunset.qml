@@ -10,14 +10,13 @@ import qs.services
 /**
  * Night light service with automatic mode.
  * Uses hyprsunset on Hyprland, wlsunset on Niri.
- * 
- * Based on end4's original implementation with Niri support added.
  */
 Singleton {
     id: root
     property string from: Config.options?.light?.night?.from ?? "19:00" 
     property string to: Config.options?.light?.night?.to ?? "06:30"
     property bool automatic: Config.options?.light?.night?.automatic && (Config?.ready ?? true)
+    property bool manualEnabled: Config.options?.light?.night?.enabled ?? false
     property int colorTemperature: Config.options?.light?.night?.colorTemperature ?? 5000
     property bool shouldBeOn
     property bool firstEvaluation: true
@@ -82,9 +81,16 @@ Singleton {
 
     onShouldBeOnChanged: ensureState()
     function ensureState() {
-        if (!root.automatic || root.manualActive !== undefined)
+        if (root.manualActive !== undefined)
             return;
-        if (root.shouldBeOn) {
+
+        if (root.automatic) {
+            if (root.shouldBeOn) {
+                root.enable();
+            } else {
+                root.disable();
+            }
+        } else if (root.manualEnabled) {
             root.enable();
         } else {
             root.disable();
@@ -95,10 +101,17 @@ Singleton {
 
     function _doEnable() {
         if (CompositorService.isNiri) {
-            // wlsunset: -T high temp (day), -t low temp (night)
-            // Force "always night" mode: sunset at 00:00, sunrise at 23:59
-            // Must use execDetached so wlsunset keeps running after Process ends
-            Quickshell.execDetached(["/usr/bin/wlsunset", "-T", "6500", "-t", root.colorTemperature.toString(), "-s", "00:00", "-S", "23:59"]);
+            Quickshell.execDetached([
+                "/usr/bin/bash", "-c",
+                `if [ -S "${Quickshell.env("XDG_RUNTIME_DIR") || ""}/systemd/private" ] &&
+                    [ -x /usr/bin/systemd-run ] && [ -x /usr/bin/systemctl ] && [ -x /usr/bin/timeout ] &&
+                    /usr/bin/timeout 3s /usr/bin/systemctl --user show-environment >/dev/null 2>&1; then
+                    exec /usr/bin/systemd-run --user --collect --unit=inir-wlsunset.service /usr/bin/wlsunset -T 6500 -t ${root.colorTemperature} -s 00:00 -S 23:59;
+                fi;
+                /usr/bin/pidof wlsunset >/dev/null 2>&1 ||
+                    nohup /usr/bin/wlsunset -T 6500 -t ${root.colorTemperature} -s 00:00 -S 23:59
+                        >/dev/null 2>&1 </dev/null &`
+            ]);
         } else {
             hyprsunsetStartProc.running = true;
         }
@@ -161,7 +174,13 @@ Singleton {
     // === Niri processes (wlsunset) ===
     Process {
         id: wlsunsetKillProc
-        command: ["/usr/bin/pkill", "-x", "wlsunset"]
+        command: ["/usr/bin/bash", "-c",
+            `if [ -S "${Quickshell.env("XDG_RUNTIME_DIR") || ""}/systemd/private" ] &&
+                [ -x /usr/bin/systemctl ] && [ -x /usr/bin/timeout ] &&
+                /usr/bin/timeout 3s /usr/bin/systemctl --user show-environment >/dev/null 2>&1; then
+                /usr/bin/systemctl --user stop inir-wlsunset.service >/dev/null 2>&1 || true;
+            fi;
+            /usr/bin/pkill -x wlsunset >/dev/null 2>&1 || true`]
         onExited: {
             // If we're enabling, start wlsunset after kill completes
             if (root.active) {
@@ -170,13 +189,17 @@ Singleton {
         }
     }
 
-    // wlsunsetStartProc removed - using Quickshell.execDetached instead
-    // because Process terminates the child when it's destroyed/restarted
-
     Process {
         id: niriFetchProc
         running: CompositorService.isNiri
-        command: ["/usr/bin/pidof", "wlsunset"]
+        command: ["/usr/bin/bash", "-c",
+            `if [ -S "${Quickshell.env("XDG_RUNTIME_DIR") || ""}/systemd/private" ] &&
+                [ -x /usr/bin/systemctl ] && [ -x /usr/bin/timeout ] &&
+                /usr/bin/timeout 3s /usr/bin/systemctl --user show-environment >/dev/null 2>&1 &&
+                /usr/bin/systemctl --user is-active --quiet inir-wlsunset.service; then
+                exit 0;
+            fi;
+            /usr/bin/pidof wlsunset >/dev/null`]
         onExited: (exitCode, exitStatus) => {
             root.active = (exitCode === 0);
         }
@@ -190,6 +213,7 @@ Singleton {
         }
 
         root.manualActive = active !== undefined ? active : !root.manualActive;
+        Config.setNestedValue("light.night.enabled", root.manualActive);
         if (root.manualActive) {
             root.enable();
         } else {

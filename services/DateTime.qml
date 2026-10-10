@@ -15,10 +15,22 @@ Singleton {
         precision: {
             if ((Config.options?.time?.secondPrecision ?? false) || GlobalStates.screenLocked)
                 return SystemClock.Seconds;
+            // The lock screen may show seconds, and it is rehearsed while unlocked.
+            if ((Config.options?.iris?.lock?.type?.seconds ?? false)
+                    && (GlobalStates.irisLockEdit || GlobalStates.screenLocked))
+                return SystemClock.Seconds;
             return SystemClock.Minutes;
         }
     }
     property string time: Qt.locale().toString(clock.date, Config.options?.time.format ?? "hh:mm")
+    // Like time, but appends :ss when secondPrecision is enabled — used by bar clocks
+    property string timeDisplay: {
+        const fmt = Config.options?.time?.format ?? "hh:mm";
+        if (!(Config.options?.time?.secondPrecision ?? false) || fmt.includes("s"))
+            return Qt.locale().toString(clock.date, fmt);
+        const ap = fmt.indexOf(" AP");
+        return Qt.locale().toString(clock.date, ap >= 0 ? fmt.slice(0, ap) + ":ss" + fmt.slice(ap) : fmt + ":ss");
+    }
     property string shortDate: Qt.locale().toString(clock.date, Config.options?.time.shortDateFormat ?? "dd/MM")
     property string date: Qt.locale().toString(clock.date, Config.options?.time.dateFormat ?? "dddd, dd/MM")
     property string collapsedCalendarFormat: Qt.locale().toString(clock.date, "dd MMMM yyyy")

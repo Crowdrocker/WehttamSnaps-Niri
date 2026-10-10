@@ -13,6 +13,7 @@ Scope {
     property var toasts: []
     property int maxToasts: 5
     property int toastSpacing: 8
+    readonly property bool suppressOnScreenToasts: (GameMode?.active ?? false) || (GameMode?.hasAnyFullscreenWindow ?? false)
     
     // Unified reload tracking - only show ONE toast per reload event
     property real _lastReloadToastTime: 0
@@ -25,6 +26,7 @@ Scope {
     
     // Check if reload toasts should be shown
     function shouldShowReloadToast(): bool {
+        if (Config.isSettingsProcess) return false
         if (!(Config.options?.reloadToasts?.enable ?? true)) return false
         
         if (GameMode.disableReloadToasts && (GameMode.active || GameMode.hasAnyFullscreenWindow || GameMode.suppressNiriToast)) {
@@ -192,6 +194,7 @@ Scope {
         
         PanelWindow {
             id: popup
+            visible: root.toasts.length > 0 && !root.suppressOnScreenToasts
             exclusiveZone: 0
             anchors.top: true
             anchors.left: true
@@ -247,16 +250,18 @@ Scope {
                                 property: "opacity"
                                 from: 0
                                 to: 1
-                                duration: 200
-                                easing.type: Easing.OutCubic
+                                duration: Appearance.animation.elementMoveFast.duration
+                                easing.type: Appearance.animation.elementMoveFast.type
+                                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
                             }
                             NumberAnimation {
                                 target: parent
                                 property: "scale"
                                 from: 0.9
                                 to: 1
-                                duration: 200
-                                easing.type: Easing.OutCubic
+                                duration: Appearance.animation.elementMoveFast.duration
+                                easing.type: Appearance.animation.elementMoveFast.type
+                                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
                             }
                         }
                         
@@ -274,15 +279,17 @@ Scope {
                                 target: parent
                                 property: "opacity"
                                 to: 0
-                                duration: 150
-                                easing.type: Easing.InCubic
+                                duration: Appearance.animation.elementMoveExit.duration
+                                easing.type: Appearance.animation.elementMoveExit.type
+                                easing.bezierCurve: Appearance.animation.elementMoveExit.bezierCurve
                             }
                             NumberAnimation {
                                 target: parent
                                 property: "scale"
                                 to: 0.9
-                                duration: 150
-                                easing.type: Easing.InCubic
+                                duration: Appearance.animation.elementMoveExit.duration
+                                easing.type: Appearance.animation.elementMoveExit.type
+                                easing.bezierCurve: Appearance.animation.elementMoveExit.bezierCurve
                             }
                             onFinished: root.removeToast(modelData.id)
                         }

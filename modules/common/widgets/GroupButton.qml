@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
@@ -13,15 +15,23 @@ Button {
     id: root
     property bool toggled
     property string buttonText
-    property real buttonRadius: Appearance?.rounding?.small ?? 8
-    property real buttonRadiusPressed: Appearance?.rounding?.small ?? 6
+    property real buttonRadius: Appearance.regaliaEverywhere ? Appearance.regalia.controlRadius
+        : (Appearance?.rounding?.small ?? 8)
+    property real buttonRadiusPressed: Appearance.regaliaEverywhere ? Appearance.regalia.controlRadius
+        : (Appearance?.rounding?.small ?? 6)
     property var downAction // When left clicking (down)
     property var releaseAction // When left clicking (release)
     property var altAction // When right clicking
     property var middleClickAction // When middle clicking
-    property bool bounce: true
+    property bool bounce: !Appearance.regaliaEverywhere && !Appearance.editorialEverywhere
+    // Cookie Shapes: an organic face costs a Canvas, and a segmented group needs
+    // its members to share one continuous silhouette. Standalone semantic
+    // controls opt in; grouped ones stay rectangular on purpose.
+    property bool cookieMorphing: false
     property real baseWidth: contentItem.implicitWidth + horizontalPadding * 2
-    property real baseHeight: contentItem.implicitHeight + verticalPadding * 2
+    property real baseHeight: Appearance.regaliaEverywhere
+        ? Math.max(Appearance.regalia.compactControlHeight, contentItem.implicitHeight + verticalPadding * 2)
+        : contentItem.implicitHeight + verticalPadding * 2
     property bool enableImplicitWidthAnimation: true
     property bool enableImplicitHeightAnimation: true
     property real clickedWidth: baseWidth + (isAtSide ? 10 : 20)
@@ -31,17 +41,24 @@ Button {
     property int clickIndex: parentGroup?.clickIndex ?? -1
     property bool isAtSide: indexInParent === 0 || indexInParent === (parentGroup?.childrenCount - 1)
 
-    Layout.fillWidth: (clickIndex - 1 <= indexInParent && indexInParent <= clickIndex + 1)
-    Layout.fillHeight: (clickIndex - 1 <= indexInParent && indexInParent <= clickIndex + 1)
+    // Bounce stretch only while a press is active. With clickIndex at the idle
+    // value -1 the raw interval test also matched the first child, permanently
+    // stretching it and starving its siblings (disproportionate quick controls).
+    property bool clickStretch: root.clickIndex >= 0
+        && (root.clickIndex - 1 <= root.indexInParent && root.indexInParent <= root.clickIndex + 1)
+    Layout.fillWidth: root.clickStretch
+    Layout.fillHeight: root.clickStretch
     implicitWidth: (root.down && bounce) ? clickedWidth : baseWidth
     implicitHeight: (root.down && bounce) ? clickedHeight : baseHeight
 
-    property color colBackground: ColorUtils.transparentize(colBackgroundHover, 1) || "transparent"
-    property color colBackgroundHover: Appearance?.colors.colLayer1Hover ?? "#E5DFED"
-    property color colBackgroundActive: Appearance?.colors.colLayer1Active ?? "#D6CEE2"
-    property color colBackgroundToggled: Appearance?.colors.colPrimary ?? "#65558F"
-    property color colBackgroundToggledHover: Appearance?.colors.colPrimaryHover ?? "#77699C"
-    property color colBackgroundToggledActive: Appearance?.colors.colPrimaryActive ?? "#D6CEE2"
+    property color colBackground: Appearance.regaliaEverywhere ? Appearance.regalia.controlPlate
+        : (ColorUtils.transparentize(colBackgroundHover, 1) || "transparent")
+    property color colBackgroundHover: Appearance.regaliaEverywhere ? Appearance.regalia.controlPlateHover : Appearance.colors.colLayer1Hover
+    property color colBackgroundActive: Appearance.regaliaEverywhere ? Appearance.regalia.controlPlateActive : Appearance.colors.colLayer1Active
+    property color colBackgroundToggled: Appearance.regaliaEverywhere ? Appearance.regalia.primaryPlate
+        : Appearance.zzzEverywhere ? Appearance.zzz.sticker : Appearance.colors.colPrimary
+    property color colBackgroundToggledHover: Appearance.regaliaEverywhere ? Appearance.regalia.primaryPlateHover : Appearance.colors.colPrimaryHover
+    property color colBackgroundToggledActive: Appearance.regaliaEverywhere ? Appearance.regalia.primaryPlateActive : Appearance.colors.colPrimaryActive
 
     property real radius: root.down ? root.buttonRadiusPressed : root.buttonRadius
     property real leftRadius: root.down ? root.buttonRadiusPressed : root.buttonRadius
@@ -64,19 +81,21 @@ Button {
 
     Behavior on implicitWidth {
         enabled: root.enableImplicitWidthAnimation
-        animation: Appearance.animation.clickBounce.numberAnimation.createObject(this)
+        animation: NumberAnimation { duration: Appearance.animation.clickBounce.duration; easing.type: Appearance.animation.clickBounce.type; easing.bezierCurve: Appearance.animation.clickBounce.bezierCurve }
     }
 
     Behavior on implicitHeight {
         enabled: root.enableImplicitHeightAnimation
-        animation: Appearance.animation.clickBounce.numberAnimation.createObject(this)
+        animation: NumberAnimation { duration: Appearance.animation.clickBounce.duration; easing.type: Appearance.animation.clickBounce.type; easing.bezierCurve: Appearance.animation.clickBounce.bezierCurve }
     }
 
     Behavior on leftRadius {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
     }
     Behavior on rightRadius {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        enabled: Appearance.animationsEnabled
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
     }
 
     // TapHandler for right-click (altAction) - works better with Button control
@@ -130,19 +149,71 @@ Button {
 
     background: Rectangle {
         id: buttonBackground
+        readonly property bool cookieFace: Appearance.cookieEverywhere && root.cookieMorphing
         topLeftRadius: root.leftRadius
         topRightRadius: root.rightRadius
         bottomLeftRadius: root.leftRadius
         bottomRightRadius: root.rightRadius
         implicitHeight: 50
 
-        color: root.color
+        color: buttonBackground.cookieFace || Appearance.regaliaEverywhere
+            ? "transparent" : root.color
+        border.width: Appearance.editorialEverywhere ? (root.visualFocus ? 2 : 1) : 0
+        border.color: Appearance.editorialEverywhere
+            ? (root.visualFocus ? Appearance.editorial.focusRing
+                : root.hovered || root.down ? Appearance.editorial.edge : "transparent")
+            : "transparent"
+        scale: Appearance.regaliaEverywhere && root.down ? Appearance.regalia.pressScale : 1
+        Behavior on scale {
+            enabled: Appearance.animationsEnabled && Appearance.regaliaEverywhere
+            NumberAnimation { duration: Appearance.regalia.pressDuration; easing.type: Easing.OutCubic }
+        }
         Behavior on color {
-            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            enabled: Appearance.animationsEnabled
+            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+
+        RegaliaControlFace {
+            anchors.fill: parent
+            visible: Appearance.regaliaEverywhere
+            fillColor: root.color
+            radius: root.radius
+            selected: root.toggled
+            focused: root.visualFocus
+        }
+
+        // The face carries the toggled state as topology (pill → cookie), so the
+        // colour is all this needs; press/hover stay on colour and the bounce.
+        // Keyboard focus is a ring on that same silhouette.
+        Loader {
+            anchors.fill: parent
+            active: buttonBackground.cookieFace
+            sourceComponent: CookieFace {
+                role: "control"
+                selected: root.toggled
+                color: root.color
+                strokeColor: root.visualFocus ? Appearance.colors.colPrimary : "transparent"
+                strokeWidth: root.visualFocus ? 2 : 0
+            }
         }
     }
 
     contentItem: StyledText {
         text: root.buttonText
+        font.weight: Appearance.editorialEverywhere ? Appearance.editorial.labelWeight : Font.Normal
+        horizontalAlignment: Text.AlignHCenter
+        // ZZZ selected = sticker plate → onSticker ink; idle = panel ink. Keeps
+        // tab/segment labels readable instead of washed default ink on a pop plate.
+        color: Appearance.regaliaEverywhere
+            ? (root.toggled ? Appearance.regalia.primaryPlateInk : Appearance.regalia.onColor)
+            : Appearance.zzzEverywhere
+                ? (root.toggled ? Appearance.zzz.onSticker : Appearance.zzz.ink)
+                : Appearance.editorialEverywhere
+                    ? (root.toggled ? Appearance.editorial.accentInk : Appearance.editorial.ink)
+                : Appearance.colors.colOnLayer0
+        Behavior on color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
     }
 }

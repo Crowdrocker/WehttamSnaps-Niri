@@ -1,35 +1,16 @@
-# Matugen configuration for iNiR
-# Generates Material You colors from wallpaper
-
-[config]
-version_check = false
-
-# Colors for Quickshell ii
-[templates.m3colors]
-input_path = '~/.config/matugen/templates/colors.json'
-output_path = '~/.local/state/quickshell/user/generated/colors.json'
-
-# Fuzzel launcher theme
-[templates.fuzzel]
-input_path = '~/.config/matugen/templates/fuzzel/fuzzel_theme.ini'
-output_path = '~/.config/fuzzel/fuzzel_theme.ini'
-
-# GTK3 theme
-[templates.gtk3]
-input_path = '~/.config/matugen/templates/gtk-3.0/gtk.css'
-output_path = '~/.config/gtk-3.0/gtk.css'
-
-# GTK4 theme
-[templates.gtk4]
-input_path = '~/.config/matugen/templates/gtk-4.0/gtk.css'
-output_path = '~/.config/gtk-4.0/gtk.css'
-
-# KDE colors (for Dolphin integration)
-[templates.kde_colors]
-input_path = '~/.config/matugen/templates/kde/color.txt'
-output_path = '~/.local/state/quickshell/user/generated/color.txt'
-
-# Wallpaper path tracking
-[templates.wallpaper]
-input_path = '~/.config/matugen/templates/wallpaper.txt'
-output_path = '~/.local/state/quickshell/user/generated/wallpaper/path.txt'
+# iNiR theming template configuration
+#
+# Templates are rendered by generate_colors_material.py (--render-templates flag).
+# The Python pipeline generates Material You colors AND renders all templates in
+# a single pass, replacing the previous matugen + Python split.
+#
+# Template syntax (compatible with former matugen templates):
+#   {{colors.primary.dark.hex}}            → "#rrggbb" (dark variant)
+#   {{colors.primary.light.hex}}           → "#rrggbb" (light variant)
+#   {{colors.primary.default.hex}}         → current mode variant
+#   {{colors.primary.default.hex_stripped}} → "rrggbb" (no #)
+#   {{colors.primary.dark.rgb}}            → "R, G, B" (decimal triplet)
+#   {{image}}                              → wallpaper path
+#
+# Template manifest: templates.json (declares input/output paths)
+# Active templates (processed on every wallpaper/color change):

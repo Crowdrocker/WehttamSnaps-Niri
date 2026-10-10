@@ -12,8 +12,8 @@ MenuItem {
     id: root
 
     property color colBackground: ColorUtils.transparentize(Looks.colors.bg1)
-    property color colBackgroundHover: Looks.colors.bg2Hover
-    property color colBackgroundActive: Looks.colors.bg2Active
+    property color colBackgroundHover: Looks.colors.popupSurfaceHover
+    property color colBackgroundActive: Looks.colors.popupSurfaceActive
     property color colBackgroundToggled: Looks.colors.accent
     property color colBackgroundToggledHover: Looks.colors.accentHover
     property color colBackgroundToggledActive: Looks.colors.accentActive
@@ -62,26 +62,34 @@ MenuItem {
         id: backgroundRect
         radius: Looks.radius.medium
         color: root.color
+        border.width: Looks.glassActive && (root.hovered || root.checked || root.down) ? 1 : 0
+        border.color: Looks.colors.tooltipBorder
         Behavior on color {
-            animation: Looks.transition.color.createObject(this)
+            animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
     }
 
-    implicitHeight: Math.max(28, contentItem.implicitHeight) + topInset + bottomInset
+    implicitHeight: Math.max(Looks.dp(28), contentItem.implicitHeight) + topInset + bottomInset
     implicitWidth: contentItem.implicitWidth + leftInset + rightInset + leftPadding + rightPadding
 
     contentItem: RowLayout {
         id: contentLayout
-        spacing: 12
+        spacing: Looks.dp(12)
         FluentIcon {
             id: buttonIcon
             monochrome: true
-            implicitSize: 20
+            implicitSize: Looks.dp(20)
             Layout.fillWidth: false
             Layout.alignment: Qt.AlignVCenter
             color: root.fgColor
             visible: root.icon.name !== "";
             icon: root.icon.name
+        }
+        // Keeps labels aligned in menus where sibling items have icons
+        Item {
+            implicitWidth: buttonIcon.implicitSize
+            implicitHeight: 1
+            visible: root.icon.name === "" && (root.menu?.hasIcons ?? false)
         }
         WText {
             id: buttonText

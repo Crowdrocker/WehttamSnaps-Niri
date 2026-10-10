@@ -50,7 +50,7 @@ ExpandableChoiceButton {
                 color: Looks.colors.subfg
                 visible: root.device?.connected || root.expanded
                 Behavior on opacity {
-                    animation: Looks.transition.opacity.createObject(this)
+                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
                 text: {
                     if (!root.device?.paired)

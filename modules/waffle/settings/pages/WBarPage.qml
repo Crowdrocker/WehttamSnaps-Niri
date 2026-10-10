@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.waffle.looks
@@ -17,37 +16,20 @@ WSettingsPage {
     
     property bool isWaffleActive: Config.options?.panelFamily === "waffle"
     
-    // Warning when ii is active
-    WSettingsCard {
+    WSettingsInfoBar {
         visible: !root.isWaffleActive
-        
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-            
-            FluentIcon {
-                icon: "info"
-                implicitSize: 24
-                color: Looks.colors.accent
-            }
-            
-            WText {
-                Layout.fillWidth: true
-                text: Translation.tr("These settings only apply when using the Windows 11 (Waffle) panel style. Go to Modules to enable it.")
-                wrapMode: Text.WordWrap
-                color: Looks.colors.subfg
-            }
-        }
+        severity: WSettingsInfoBar.Severity.Info
+        message: Translation.tr("These settings only apply when using the Windows 11 (Waffle) panel style. Go to Modules to enable it.")
     }
     
     WSettingsCard {
         visible: root.isWaffleActive
         title: Translation.tr("Position & Layout")
-        icon: "options"
+        icon: "panel-left-expand"
         
         WSettingsSwitch {
             label: Translation.tr("Bottom position")
-            icon: "options"
+            icon: "caret-down"
             description: Translation.tr("Place taskbar at bottom of screen")
             checked: Config.options?.waffles?.bar?.bottom ?? true
             onCheckedChanged: Config.setNestedValue("waffles.bar.bottom", checked)
@@ -55,7 +37,7 @@ WSettingsPage {
         
         WSettingsSwitch {
             label: Translation.tr("Left-align apps")
-            icon: "options"
+            icon: "chevron-left"
             description: Translation.tr("Align taskbar apps to the left instead of center")
             checked: Config.options?.waffles?.bar?.leftAlignApps ?? false
             onCheckedChanged: Config.setNestedValue("waffles.bar.leftAlignApps", checked)
@@ -77,21 +59,39 @@ WSettingsPage {
         
         WSettingsSwitch {
             label: Translation.tr("Tint tray icons")
-            icon: "dark-theme"
+            icon: "eyedropper"
             description: Translation.tr("Apply accent color to system tray icons")
             checked: Config.options?.waffles?.bar?.tintTrayIcons ?? false
             onCheckedChanged: Config.setNestedValue("waffles.bar.tintTrayIcons", checked)
+        }
+
+        WSettingsSpinBox {
+            label: Translation.tr("Taskbar icon size")
+            icon: "apps"
+            suffix: "px"
+            from: 20; to: 40; stepSize: 1
+            value: Config.options?.waffles?.bar?.iconSize ?? 26
+            onValueChanged: Config.setNestedValue("waffles.bar.iconSize", value)
+        }
+
+        WSettingsSpinBox {
+            label: Translation.tr("Search app icon size")
+            icon: "search"
+            suffix: "px"
+            from: 16; to: 40; stepSize: 1
+            value: Config.options?.waffles?.bar?.searchIconSize ?? 24
+            onValueChanged: Config.setNestedValue("waffles.bar.searchIconSize", value)
         }
     }
     
     WSettingsCard {
         visible: root.isWaffleActive
         title: Translation.tr("Desktop Peek")
-        icon: "desktop"
+        icon: "eye"
         
         WSettingsSwitch {
             label: Translation.tr("Enable hover peek")
-            icon: "desktop"
+            icon: "eye"
             description: Translation.tr("Show desktop when hovering the corner button")
             checked: Config.options?.waffles?.bar?.desktopPeek?.hoverPeek ?? false
             onCheckedChanged: Config.setNestedValue("waffles.bar.desktopPeek.hoverPeek", checked)
@@ -100,7 +100,7 @@ WSettingsPage {
         WSettingsSpinBox {
             visible: Config.options?.waffles?.bar?.desktopPeek?.hoverPeek ?? false
             label: Translation.tr("Hover delay")
-            icon: "options"
+            icon: "timer"
             suffix: "ms"
             from: 100; to: 2000; stepSize: 100
             value: Config.options?.waffles?.bar?.desktopPeek?.hoverDelay ?? 500
@@ -111,11 +111,11 @@ WSettingsPage {
     WSettingsCard {
         visible: root.isWaffleActive
         title: Translation.tr("Clock & Notifications")
-        icon: "options"
+        icon: "arrow-clockwise"
         
         WSettingsSwitch {
             label: Translation.tr("Show seconds")
-            icon: "options"
+            icon: "timer"
             description: Translation.tr("Display seconds in taskbar clock")
             checked: Config.options?.time?.secondPrecision ?? false
             onCheckedChanged: Config.setNestedValue("time.secondPrecision", checked)
@@ -123,10 +123,18 @@ WSettingsPage {
         
         WSettingsSwitch {
             label: Translation.tr("Show unread count")
-            icon: "alert"
+            icon: "alert-filled"
             description: Translation.tr("Display notification count badge on clock")
             checked: Config.options?.waffles?.bar?.notifications?.showUnreadCount ?? true
             onCheckedChanged: Config.setNestedValue("waffles.bar.notifications.showUnreadCount", checked)
+        }
+
+        WSettingsSwitch {
+            label: Translation.tr("Activation watermark")
+            icon: "key"
+            description: Translation.tr("Show a fake activation message on the taskbar")
+            checked: Config.options?.waffles?.bar?.activationWatermark?.enable ?? false
+            onCheckedChanged: Config.setNestedValue("waffles.bar.activationWatermark.enable", checked)
         }
     }
     
@@ -137,7 +145,7 @@ WSettingsPage {
         
         WSettingsSpinBox {
             label: Translation.tr("Check interval")
-            icon: "options"
+            icon: "arrow-clockwise"
             suffix: "m"
             from: 15; to: 1440; stepSize: 15
             value: Config.options?.updates?.checkInterval ?? 120
@@ -155,7 +163,7 @@ WSettingsPage {
         
         WSettingsSpinBox {
             label: Translation.tr("Warning threshold")
-            icon: "warning"
+            icon: "alert"
             description: Translation.tr("Show warning color when packages exceed this")
             from: 10; to: 500; stepSize: 10
             value: Config.options?.updates?.stronglyAdviseUpdateThreshold ?? 50

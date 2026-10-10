@@ -1,0 +1,24 @@
+{
+    "layer": "overlay",
+    "exclusive": false,
+    "position": "left",
+    "width": 36,
+    "margin-top": 240,
+    "margin-bottom": 240,
+    "margin-left": 6,
+    "margin-right": 0,
+    "spacing": 0,
+    "include": [
+        "~/.config/snapsos/wayshell/configs/waybar-modules"
+    ],
+    "modules-left": [
+    ],
+    "modules-center": [
+        "custom/brightness-up",
+        "custom/brightness-bar",
+        "custom/brightness-down",
+        "custom/brightness-icon"
+    ],
+    "modules-right": [
+    ]
+}

@@ -18,114 +18,50 @@ Item {
     implicitHeight: hasPlayer ? card.implicitHeight + Appearance.sizes.elevationMargin : 0
     visible: hasPlayer
 
-    readonly property MprisPlayer player: MprisController.activePlayer
-    readonly property bool hasPlayer: player && player.trackTitle
+    property MprisPlayer player: MprisController.activePlayer
+    readonly property bool isYtMusicPlayer: MprisController.isYtMusicActive
+    readonly property bool hasPlayer: (player && MprisController.titleOf(player)) || (isYtMusicPlayer && YtMusic.currentVideoId)
+    
+    readonly property string effectiveTitle: isYtMusicPlayer ? YtMusic.currentTitle : (MprisController.titleOf(player) ?? "")
+    readonly property string effectiveArtist: isYtMusicPlayer ? YtMusic.currentArtist : (MprisController.artistOf(player) ?? "")
+    readonly property string effectiveArtUrl: isYtMusicPlayer ? YtMusic.currentThumbnail : (MprisController.artUrlOf(player) ?? "")
+    readonly property real effectivePosition: isYtMusicPlayer ? YtMusic.currentPosition : MprisController.positionOf(player)
+    readonly property real effectiveLength: isYtMusicPlayer ? YtMusic.currentDuration : MprisController.lengthOf(player)
+    readonly property bool effectiveIsPlaying: isYtMusicPlayer ? YtMusic.isPlaying : (player?.isPlaying ?? false)
+    readonly property bool effectiveCanSeek: isYtMusicPlayer ? YtMusic.canSeek : (player?.canSeek ?? false)
+    
     property string artDownloadLocation: Directories.coverArt
-    property string artFileName: player?.trackArtUrl ? Qt.md5(player.trackArtUrl) : ""
-    property string artFilePath: artFileName ? `${artDownloadLocation}/${artFileName}` : ""
-    property bool downloaded: false
-    property string displayedArtFilePath: downloaded ? Qt.resolvedUrl(artFilePath) : ""
-    property list<real> visualizerPoints: []
-    property int _downloadRetryCount: 0
-    readonly property int _maxRetries: 3
+    readonly property bool downloaded: MediaArtwork.ready
+    property string displayedArtFilePath: MediaArtwork.displaySource
+    // Track-change slide direction (+1 next, -1 previous) drives the cross-slide
+    property int slideDirection: 1
+
+    // Cava visualizer - using shared CavaProcess component
+    CavaProcess {
+        id: cavaProcess
+        active: root.visible && root.hasPlayer && GlobalStates.sidebarLeftOpen && Appearance.effectsEnabled
+    }
+
+    property list<real> visualizerPoints: cavaProcess.points
 
     function checkAndDownloadArt() {
-        if (!player?.trackArtUrl) {
-            downloaded = false
-            _downloadRetryCount = 0
-            return
-        }
-        artExistsChecker.running = true
+        MediaArtwork.refresh()
     }
 
-    function retryDownload() {
-        if (_downloadRetryCount < _maxRetries && player?.trackArtUrl) {
-            _downloadRetryCount++
-            retryTimer.start()
-        }
-    }
-
-    Timer {
-        id: retryTimer
-        interval: 1000 * root._downloadRetryCount  // Exponential backoff: 1s, 2s, 3s
-        repeat: false
-        onTriggered: {
-            if (root.player?.trackArtUrl && !root.downloaded) {
-                coverArtDownloader.targetFile = root.player.trackArtUrl
-                coverArtDownloader.artFilePath = root.artFilePath
-                coverArtDownloader.running = true
-            }
-        }
-    }
-
-    onArtFilePathChanged: {
-        _downloadRetryCount = 0
-        checkAndDownloadArt()
-    }
-    
-    // Update art when track changes on current player
-    Connections {
-        target: root.player
-        function onTrackArtUrlChanged() {
-            root._downloadRetryCount = 0
-            root.checkAndDownloadArt()
+    function seekTo(seconds) {
+        if (root.effectiveLength <= 0) return
+        const bounded = Math.max(0, Math.min(root.effectiveLength, seconds))
+        if (root.isYtMusicPlayer) {
+            YtMusic.seek(bounded)
+        } else if (root.player) {
+            MprisController.seek(root.player, bounded)
         }
     }
     
     // Re-check cover art when becoming visible
     onVisibleChanged: {
-        if (visible && hasPlayer && artFilePath) {
+        if (visible && hasPlayer) {
             checkAndDownloadArt()
-        }
-    }
-
-    Process {
-        id: artExistsChecker
-        command: ["/usr/bin/test", "-f", root.artFilePath]
-        onExited: (exitCode, exitStatus) => {
-            if (exitCode === 0) {
-                root.downloaded = true
-                root._downloadRetryCount = 0
-            } else {
-                root.downloaded = false
-                coverArtDownloader.targetFile = root.player?.trackArtUrl ?? ""
-                coverArtDownloader.artFilePath = root.artFilePath
-                coverArtDownloader.running = true
-            }
-        }
-    }
-
-    Process {
-        id: coverArtDownloader
-        property string targetFile
-        property string artFilePath
-        command: ["/usr/bin/bash", "-c", `
-            if [ -f '${artFilePath}' ]; then exit 0; fi
-            mkdir -p '${root.artDownloadLocation}'
-            tmp='${artFilePath}.tmp'
-            /usr/bin/curl -sSL --connect-timeout 10 --max-time 30 '${targetFile}' -o "$tmp" && \
-            [ -s "$tmp" ] && /usr/bin/mv -f "$tmp" '${artFilePath}' || { rm -f "$tmp"; exit 1; }
-        `]
-        onExited: (exitCode) => {
-            if (exitCode === 0) {
-                root.downloaded = true
-                root._downloadRetryCount = 0
-            } else {
-                root.downloaded = false
-                root.retryDownload()
-            }
-        }
-    }
-
-    Process {
-        id: cavaProc
-        running: root.visible && root.hasPlayer && GlobalStates.sidebarLeftOpen
-        onRunningChanged: { if (!running) root.visualizerPoints = [] }
-        command: ["cava", "-p", `${FileUtils.trimFileProtocol(Directories.scriptPath)}/cava/raw_output_config.txt`]
-        stdout: SplitParser {
-            onRead: data => {
-                root.visualizerPoints = data.split(";").map(p => parseFloat(p.trim())).filter(p => !isNaN(p))
-            }
         }
     }
 
@@ -142,6 +78,8 @@ Item {
     )
 
     property QtObject blendedColors: AdaptedMaterialScheme { color: root.artDominantColor }
+    readonly property QtObject effectiveColors: Appearance.editorialEverywhere && Appearance.colors
+        ? Appearance.colors : root.blendedColors
     
     // Inir uses fixed colors instead of adaptive
     readonly property color jiraColText: Appearance.inir.colText
@@ -149,21 +87,64 @@ Item {
     readonly property color jiraColPrimary: Appearance.inir.colPrimary
     readonly property color jiraColLayer1: Appearance.inir.colLayer1
     readonly property color jiraColLayer2: Appearance.inir.colLayer2
+    readonly property color mediaAccent: Appearance.editorialEverywhere ? Appearance.editorial.accent
+        : Appearance.regaliaEverywhere ? Appearance.regalia.hardwarePrimary
+        : Appearance.zzzEverywhere ? Appearance.zzz.accent
+        : Appearance.angelEverywhere ? Appearance.angel.colPrimary
+        : Appearance.inirEverywhere ? root.jiraColPrimary
+        : Appearance.cookieEverywhere ? Appearance.colors.colPrimary
+        : Appearance.colors.colPrimary
+    readonly property color mediaSecondaryAccent: Appearance.editorialEverywhere ? Appearance.colors.colSecondary
+        : Appearance.regaliaEverywhere ? Appearance.regalia.hardwareSecondary
+        : Appearance.zzzEverywhere ? Appearance.zzz.secondary
+        : Appearance.angelEverywhere ? Appearance.angel.colSecondary
+        : Appearance.inirEverywhere ? Appearance.inir.colSecondary
+        : Appearance.cookieEverywhere ? Appearance.colors.colSecondary
+        : Appearance.colors.colSecondary
+    readonly property color mediaTertiaryAccent: Appearance.regaliaEverywhere ? Appearance.regalia.hardwareTertiary
+        : Appearance.colors.colTertiary
+    readonly property color mediaText: Appearance.editorialEverywhere ? Appearance.editorial.ink
+        : Appearance.regaliaEverywhere ? Appearance.regalia.onColor
+        : Appearance.cookieEverywhere ? Appearance.cookie.onColor
+        : Appearance.zzzEverywhere ? Appearance.zzz.ink
+        : Appearance.angelEverywhere ? Appearance.angel.colText
+        : Appearance.inirEverywhere ? root.jiraColText
+        : (effectiveColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+    readonly property color mediaMetadata: Appearance.editorialEverywhere ? Appearance.editorial.muted
+        : Appearance.regaliaEverywhere ? Appearance.regalia.onMuted
+        : Appearance.cookieEverywhere ? Appearance.cookie.inkMuted
+        : Appearance.zzzEverywhere ? Appearance.zzz.inkMuted
+        : Appearance.angelEverywhere ? Appearance.angel.colTextSecondary
+        : Appearance.inirEverywhere ? root.jiraColTextSecondary
+        : root.mediaSecondaryAccent
 
-    StyledRectangularShadow { target: card; visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere }
+    StyledRectangularShadow { target: card }
 
     Rectangle {
         id: card
         anchors.centerIn: parent
         width: parent.width - Appearance.sizes.elevationMargin
-        implicitHeight: 130
-        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
-        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1 
-             : Appearance.auroraEverywhere ? ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.7)
-             : (blendedColors?.colLayer0 ?? Appearance.colors.colLayer0)
-        border.width: Appearance.inirEverywhere ? 1 : 0
-        border.color: Appearance.inir.colBorder
+        implicitHeight: Appearance.editorialEverywhere ? Math.max(130, 142 * Appearance.fontSizeScale) : 130
+        radius: Appearance.zzzEverywhere ? Appearance.zzz.cardRadius
+            : Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+            : Appearance.inirEverywhere ? Appearance.inir.roundingNormal
+            : Appearance.rounding.normal
+        color: Appearance.zzzEverywhere ? "transparent"
+             : Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+             : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+             : Appearance.auroraEverywhere ? ColorUtils.transparentize(effectiveColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.7)
+             : (effectiveColors?.colLayer0 ?? Appearance.colors.colLayer0)
+        border.width: Appearance.zzzEverywhere ? 0 : (Appearance.angelEverywhere ? 0 : (Appearance.inirEverywhere ? 1 : 0))
+        border.color: Appearance.zzzEverywhere ? "transparent"
+            : Appearance.angelEverywhere ? "transparent"
+            : Appearance.inirEverywhere ? Appearance.inir.colBorder : "transparent"
         clip: true
+        Behavior on radius { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve } }
+        Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+        Behavior on border.width { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+        Behavior on border.color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+
+        AngelPartialBorder { targetRadius: card.radius; coverage: 0.5 }
 
         layer.enabled: true
         layer.effect: GE.OpacityMask {
@@ -177,8 +158,9 @@ Item {
             source: root.displayedArtFilePath
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
-            opacity: Appearance.inirEverywhere ? 0.15 : (Appearance.auroraEverywhere ? 0.25 : 0.5)
-            visible: root.displayedArtFilePath !== ""
+            cache: false
+            opacity: Appearance.angelEverywhere ? 0.2 : (Appearance.inirEverywhere ? 0.15 : (Appearance.auroraEverywhere ? 0.25 : 0.5))
+            visible: !Appearance.editorialEverywhere && root.displayedArtFilePath !== ""
 
             layer.enabled: Appearance.effectsEnabled
             layer.effect: MultiEffect {
@@ -192,12 +174,12 @@ Item {
         // Dark overlay for controls visibility - only for Material
         Rectangle {
             anchors.fill: parent
-            visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere
+            visible: !Appearance.editorialEverywhere && !Appearance.inirEverywhere && !Appearance.auroraEverywhere
             gradient: Gradient {
                 orientation: Gradient.Horizontal
                 GradientStop { position: 0.0; color: "transparent" }
-                GradientStop { position: 0.35; color: ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.3) }
-                GradientStop { position: 1.0; color: ColorUtils.transparentize(blendedColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.15) }
+                GradientStop { position: 0.35; color: ColorUtils.transparentize(effectiveColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.3) }
+                GradientStop { position: 1.0; color: ColorUtils.transparentize(effectiveColors?.colLayer0 ?? Appearance.colors.colLayer0, 0.15) }
             }
         }
 
@@ -207,102 +189,38 @@ Item {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: 30
-            live: root.player?.isPlaying ?? false
+            live: root.effectiveIsPlaying
             points: root.visualizerPoints
             maxVisualizerValue: 1000
             smoothing: 2
             color: ColorUtils.transparentize(
-                Appearance.inirEverywhere ? root.jiraColPrimary : (blendedColors?.colPrimary ?? Appearance.colors.colPrimary), 
+                Appearance.angelEverywhere ? Appearance.angel.colPrimary
+                : Appearance.inirEverywhere ? root.jiraColPrimary : (effectiveColors?.colPrimary ?? Appearance.colors.colPrimary),
                 0.6
             )
         }
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 10
+            anchors.margins: Appearance.editorialEverywhere ? Math.round(12 * Appearance.editorial.spacing) : 10
             spacing: 10
 
-            // Cover art thumbnail
-            Rectangle {
+            // Cover art thumbnail — direction-aware cross-slide
+            MediaCrossSlideImage {
                 id: coverArtContainer
                 Layout.preferredWidth: 110
                 Layout.preferredHeight: 110
-                radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
-                color: "transparent"
-                clip: true
-
-                layer.enabled: true
-                layer.effect: GE.OpacityMask {
-                    maskSource: Rectangle { 
-                        width: 110
-                        height: 110
-                        radius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small 
-                    }
-                }
-
-                // Cover art with blur transition
-                Image {
-                    id: coverArt
-                    anchors.fill: parent
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                    
-                    layer.enabled: Appearance.effectsEnabled
-                    layer.effect: MultiEffect {
-                        blurEnabled: true
-                        blur: coverArtContainer.transitioning ? 1 : 0
-                        blurMax: 32
-                        Behavior on blur {
-                            enabled: Appearance.animationsEnabled
-                            NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
-                        }
-                    }
-                }
-
-                property bool transitioning: false
-                property string pendingSource: ""
-                
-                Timer {
-                    id: blurInTimer
-                    interval: 150
-                    onTriggered: {
-                        coverArt.source = coverArtContainer.pendingSource
-                        blurOutTimer.start()
-                    }
-                }
-                
-                Timer {
-                    id: blurOutTimer
-                    interval: 50
-                    onTriggered: coverArtContainer.transitioning = false
-                }
-                
-                Connections {
-                    target: root
-                    function onDisplayedArtFilePathChanged() {
-                        if (!root.displayedArtFilePath) return
-                        if (!coverArt.source.toString()) {
-                            coverArt.source = root.displayedArtFilePath
-                            return
-                        }
-                        coverArtContainer.pendingSource = root.displayedArtFilePath
-                        coverArtContainer.transitioning = true
-                        blurInTimer.start()
-                    }
-                }
-
-                Rectangle {
-                    anchors.fill: parent
-                    color: Appearance.inirEverywhere ? root.jiraColLayer2 : (blendedColors?.colLayer1 ?? Appearance.colors.colLayer1)
-                    visible: !root.downloaded
-                    
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        text: "music_note"
-                        iconSize: 32
-                        color: Appearance.inirEverywhere ? root.jiraColTextSecondary : (blendedColors?.colSubtext ?? Appearance.colors.colSubtext)
-                    }
-                }
+                artRadius: Appearance.zzzEverywhere ? Appearance.zzz.roundNormal
+                    : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                    : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+                source: root.displayedArtFilePath
+                downloaded: root.downloaded
+                slideDirection: root.slideDirection
+                placeholderColor: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                    : Appearance.inirEverywhere ? root.jiraColLayer2
+                    : (effectiveColors?.colLayer1 ?? Appearance.colors.colLayer1)
+                iconColor: root.mediaMetadata
+                iconSize: 32
             }
 
             // Info & controls column
@@ -314,23 +232,32 @@ Item {
                 // Title
                 StyledText {
                     Layout.fillWidth: true
-                    text: StringUtils.cleanMusicTitle(root.player?.trackTitle) || "—"
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    font.weight: Font.Medium
-                    color: Appearance.inirEverywhere ? root.jiraColText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                    text: StringUtils.cleanMusicTitle(root.effectiveTitle) || "—"
+                    font.family: (Appearance.editorialEverywhere || Appearance.zzzEverywhere)
+                        ? Appearance.font.family.title : Appearance.font.family.main
+                    font.pixelSize: Appearance.editorialEverywhere ? Appearance.font.pixelSize.large * Appearance.editorial.titleScale : Appearance.font.pixelSize.normal
+                    font.weight: Appearance.editorialEverywhere ? Appearance.editorial.titleWeight : Font.DemiBold
+                    font.letterSpacing: Appearance.editorialEverywhere ? Appearance.editorial.titleTracking : 0
+                    color: root.mediaText
                     elide: Text.ElideRight
                     animateChange: true
-                    animationDistanceX: 6
+                    animationDistanceX: root.slideDirection * 8
+                    animationDistanceY: 0
                 }
 
                 // Artist
                 StyledText {
                     Layout.fillWidth: true
-                    text: root.player?.trackArtist || ""
+                    text: root.effectiveArtist || ""
+                    font.family: Appearance.font.family.main
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.inirEverywhere ? root.jiraColTextSecondary : (blendedColors?.colSubtext ?? Appearance.colors.colSubtext)
+                    font.weight: Font.Medium
+                    color: root.mediaSecondaryAccent
                     elide: Text.ElideRight
                     visible: text !== ""
+                    animateChange: true
+                    animationDistanceX: root.slideDirection * 8
+                    animationDistanceY: 0
                 }
 
                 Item { Layout.fillHeight: true }
@@ -340,32 +267,78 @@ Item {
                     Layout.fillWidth: true
                     implicitHeight: 16
 
-                    Loader {
+                    StyledSlider {
+                        id: seekSlider
                         anchors.fill: parent
-                        active: root.player?.canSeek ?? false
-                        sourceComponent: StyledSlider {
-                            configuration: StyledSlider.Configuration.Wavy
-                            wavy: root.player?.isPlaying ?? false
-                            animateWave: root.player?.isPlaying ?? false
-                            highlightColor: Appearance.inirEverywhere ? root.jiraColPrimary : (blendedColors?.colPrimary ?? Appearance.colors.colPrimary)
-                            trackColor: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : (blendedColors?.colSecondaryContainer ?? Appearance.colors.colSecondaryContainer)
-                            handleColor: Appearance.inirEverywhere ? root.jiraColPrimary : (blendedColors?.colPrimary ?? Appearance.colors.colPrimary)
-                            value: root.player?.length > 0 ? root.player.position / root.player.length : 0
-                            onMoved: root.player.position = value * root.player.length
-                            scrollable: true
+                        configuration: StyledSlider.Configuration.Wavy
+                        stopIndicatorValues: []
+                        wavy: !Appearance.editorialEverywhere && root.effectiveIsPlaying
+                        animateWave: !Appearance.editorialEverywhere && root.effectiveIsPlaying
+                        highlightColor: root.mediaAccent
+                        trackColor: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                            : Appearance.auroraEverywhere ? Appearance.colInactiveControlSurface
+                            : (effectiveColors?.colSecondaryContainer ?? Appearance.colors.colSecondaryContainer)
+                        handleColor: root.mediaAccent
+                        property bool draggingSeek: false
+                        property bool awaitingSeek: false
+                        property real requestedValue: 0
+                        readonly property real sourceValue: root.effectiveLength > 0
+                            ? Math.max(0, Math.min(1, root.effectivePosition / root.effectiveLength)) : 0
+                        value: (draggingSeek || awaitingSeek) ? requestedValue : sourceValue
+                        onPressedChanged: {
+                            if (!root.effectiveCanSeek) return
+                            if (pressed) {
+                                requestedValue = value
+                                draggingSeek = true
+                                awaitingSeek = false
+                                seekSyncTimeout.stop()
+                                return
+                            }
+                            if (!draggingSeek) return
+                            requestedValue = value
+                            draggingSeek = false
+                            awaitingSeek = true
+                            root.seekTo(requestedValue * root.effectiveLength)
+                            seekSyncTimeout.restart()
+                        }
+                        onMoved: {
+                            if (!root.effectiveCanSeek) return
+                            requestedValue = value
+                            awaitingSeek = true
+                            root.seekTo(requestedValue * root.effectiveLength)
+                            seekSyncTimeout.restart()
+                        }
+                        scrollable: root.effectiveCanSeek
+
+                        Connections {
+                            target: root
+                            function onEffectivePositionChanged() {
+                                if (!seekSlider.awaitingSeek || seekSlider.draggingSeek || root.effectiveLength <= 0)
+                                    return
+                                const target = seekSlider.requestedValue * root.effectiveLength
+                                if (Math.abs(root.effectivePosition - target) <= 1.25) {
+                                    seekSlider.awaitingSeek = false
+                                    seekSyncTimeout.stop()
+                                }
+                            }
+                        }
+
+                        Timer {
+                            id: seekSyncTimeout
+                            interval: 1600
+                            repeat: false
+                            onTriggered: seekSlider.awaitingSeek = false
                         }
                     }
 
-                    Loader {
+                    MouseArea {
                         anchors.fill: parent
-                        active: !(root.player?.canSeek ?? false)
-                        sourceComponent: StyledProgressBar {
-                            wavy: root.player?.isPlaying ?? false
-                            animateWave: root.player?.isPlaying ?? false
-                            highlightColor: Appearance.inirEverywhere ? root.jiraColPrimary : (blendedColors?.colPrimary ?? Appearance.colors.colPrimary)
-                            trackColor: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : (blendedColors?.colSecondaryContainer ?? Appearance.colors.colSecondaryContainer)
-                            value: root.player?.length > 0 ? root.player.position / root.player.length : 0
-                        }
+                        visible: !root.effectiveCanSeek
+                        acceptedButtons: Qt.AllButtons
+                        preventStealing: true
+                        cursorShape: Qt.ArrowCursor
+                        onWheel: event => event.accepted = true
                     }
                 }
 
@@ -375,10 +348,11 @@ Item {
                     spacing: 4
 
                     StyledText {
-                        text: StringUtils.friendlyTimeForSeconds(root.player?.position ?? 0)
+                        text: StringUtils.friendlyTimeForSeconds(root.effectivePosition)
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         font.family: Appearance.font.family.numbers
-                        color: Appearance.inirEverywhere ? root.jiraColText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                        font.weight: Font.Medium
+                        color: root.mediaTertiaryAccent
                     }
 
                     Item { Layout.fillWidth: true }
@@ -387,11 +361,16 @@ Item {
                     RippleButton {
                         implicitWidth: 32
                         implicitHeight: 32
-                        buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        enabled: MprisController.canGoPrevious
+                        buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                         colBackground: "transparent"
-                        colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover : ColorUtils.transparentize(blendedColors?.colLayer1 ?? Appearance.colors.colLayer1, 0.5)
-                        colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active : (blendedColors?.colLayer1Active ?? Appearance.colors.colLayer1Active)
-                        onClicked: root.player?.previous()
+                        colBackgroundHover: Appearance.colLayer1Hover
+                        colRipple: Appearance.colLayer1Active
+                        onClicked: {
+                            root.slideDirection = -1
+                            MprisController.previous()
+                        }
 
                         contentItem: Item {
                             MaterialSymbol {
@@ -399,7 +378,7 @@ Item {
                                 text: "skip_previous"
                                 iconSize: 22
                                 fill: 1
-                                color: Appearance.inirEverywhere ? root.jiraColText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                                color: root.mediaSecondaryAccent
                             }
                         }
 
@@ -410,31 +389,44 @@ Item {
                         id: playPauseButton
                         implicitWidth: 40
                         implicitHeight: 40
-                        buttonRadius: Appearance.inirEverywhere 
+                        buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                            : Appearance.inirEverywhere 
                             ? Appearance.inir.roundingSmall 
-                            : (root.player?.isPlaying ? Appearance.rounding.normal : Appearance.rounding.full)
-                        colBackground: Appearance.inirEverywhere
+                            : (root.effectiveIsPlaying ? Appearance.rounding.normal : Appearance.rounding.full)
+                        colBackground: Appearance.zzzEverywhere
+                            ? (root.effectiveIsPlaying ? Appearance.zzz.sticker : Appearance.colors.colLayer1)
+                            : Appearance.angelEverywhere
+                            ? "transparent"
+                            : Appearance.inirEverywhere
                             ? "transparent"
                             : Appearance.auroraEverywhere
                                 ? "transparent"
-                                : (root.player?.isPlaying 
-                                    ? (blendedColors?.colPrimary ?? Appearance.colors.colPrimary)
-                                    : (blendedColors?.colSecondaryContainer ?? Appearance.colors.colSecondaryContainer))
-                        colBackgroundHover: Appearance.inirEverywhere
+                                : (root.effectiveIsPlaying 
+                                    ? (effectiveColors?.colPrimary ?? Appearance.colors.colPrimary)
+                                    : (effectiveColors?.colSecondaryContainer ?? Appearance.colors.colSecondaryContainer))
+                        colBackgroundHover: Appearance.zzzEverywhere
+                            ? (root.effectiveIsPlaying ? Appearance.colors.colPrimaryHover : Appearance.colLayer1Hover)
+                            : Appearance.angelEverywhere
+                            ? Appearance.angel.colGlassCardHover
+                            : Appearance.inirEverywhere
                             ? Appearance.inir.colLayer2Hover
                             : Appearance.auroraEverywhere
-                                ? ColorUtils.transparentize(blendedColors?.colLayer1 ?? Appearance.colors.colLayer1, 0.5)
-                                : (root.player?.isPlaying 
-                                    ? (blendedColors?.colPrimaryHover ?? Appearance.colors.colPrimaryHover)
-                                    : (blendedColors?.colSecondaryContainerHover ?? Appearance.colors.colSecondaryContainerHover))
-                        colRipple: Appearance.inirEverywhere
+                                ? ColorUtils.transparentize(effectiveColors?.colLayer1 ?? Appearance.colors.colLayer1, 0.5)
+                                : (root.effectiveIsPlaying 
+                                    ? (effectiveColors?.colPrimaryHover ?? Appearance.colors.colPrimaryHover)
+                                    : (effectiveColors?.colSecondaryContainerHover ?? Appearance.colors.colSecondaryContainerHover))
+                        colRipple: Appearance.zzzEverywhere
+                            ? (root.effectiveIsPlaying ? Appearance.colors.colPrimaryActive : Appearance.colLayer1Active)
+                            : Appearance.angelEverywhere
+                            ? Appearance.angel.colGlassCardActive
+                            : Appearance.inirEverywhere
                             ? Appearance.inir.colLayer2Active
                             : Appearance.auroraEverywhere
-                                ? (blendedColors?.colLayer1Active ?? Appearance.colors.colLayer1Active)
-                                : (root.player?.isPlaying 
-                                    ? (blendedColors?.colPrimaryActive ?? Appearance.colors.colPrimaryActive)
-                                    : (blendedColors?.colSecondaryContainerActive ?? Appearance.colors.colSecondaryContainerActive))
-                        onClicked: root.player?.togglePlaying()
+                                ? (effectiveColors?.colLayer1Active ?? Appearance.colLayer1Active)
+                                : (root.effectiveIsPlaying 
+                                    ? (effectiveColors?.colPrimaryActive ?? Appearance.colors.colPrimaryActive)
+                                    : (effectiveColors?.colSecondaryContainerActive ?? Appearance.colors.colSecondaryContainerActive))
+                        onClicked: MprisController.togglePlaying()
 
                         Behavior on buttonRadius {
                             enabled: Appearance.animationsEnabled && !Appearance.inirEverywhere
@@ -444,35 +436,44 @@ Item {
                         contentItem: Item {
                             MaterialSymbol {
                                 anchors.centerIn: parent
-                                text: root.player?.isPlaying ? "pause" : "play_arrow"
+                                text: root.effectiveIsPlaying ? "pause" : "play_arrow"
                                 iconSize: 24
                                 fill: 1
-                                color: Appearance.inirEverywhere
+                                color: Appearance.zzzEverywhere
+                                    ? (root.effectiveIsPlaying ? Appearance.zzz.onSticker : Appearance.colors.colOnLayer1)
+                                    : Appearance.angelEverywhere
+                                    ? Appearance.angel.colPrimary
+                                    : Appearance.inirEverywhere
                                     ? root.jiraColPrimary
                                     : Appearance.auroraEverywhere
-                                        ? (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
-                                        : (root.player?.isPlaying 
-                                            ? (blendedColors?.colOnPrimary ?? Appearance.colors.colOnPrimary)
-                                            : (blendedColors?.colOnSecondaryContainer ?? Appearance.colors.colOnSecondaryContainer))
+                                        ? root.mediaAccent
+                                        : (root.effectiveIsPlaying 
+                                            ? (effectiveColors?.colOnPrimary ?? Appearance.colors.colOnPrimary)
+                                            : (effectiveColors?.colOnSecondaryContainer ?? Appearance.colors.colOnSecondaryContainer))
 
                                 Behavior on color {
                                     enabled: Appearance.animationsEnabled
-                                    animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+                                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                                 }
                             }
                         }
 
-                        StyledToolTip { text: root.player?.isPlaying ? Translation.tr("Pause") : Translation.tr("Play") }
+                        StyledToolTip { text: root.effectiveIsPlaying ? Translation.tr("Pause") : Translation.tr("Play") }
                     }
 
                     RippleButton {
                         implicitWidth: 32
                         implicitHeight: 32
-                        buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
+                        enabled: MprisController.canGoNext
+                        buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                         colBackground: "transparent"
-                        colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover : ColorUtils.transparentize(blendedColors?.colLayer1 ?? Appearance.colors.colLayer1, 0.5)
-                        colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active : (blendedColors?.colLayer1Active ?? Appearance.colors.colLayer1Active)
-                        onClicked: root.player?.next()
+                        colBackgroundHover: Appearance.colLayer1Hover
+                        colRipple: Appearance.colLayer1Active
+                        onClicked: {
+                            root.slideDirection = 1
+                            MprisController.next()
+                        }
 
                         contentItem: Item {
                             MaterialSymbol {
@@ -480,7 +481,7 @@ Item {
                                 text: "skip_next"
                                 iconSize: 22
                                 fill: 1
-                                color: Appearance.inirEverywhere ? root.jiraColText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                                color: root.mediaSecondaryAccent
                             }
                         }
 
@@ -490,10 +491,11 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     StyledText {
-                        text: StringUtils.friendlyTimeForSeconds(root.player?.length ?? 0)
+                        text: StringUtils.friendlyTimeForSeconds(root.effectiveLength)
                         font.pixelSize: Appearance.font.pixelSize.smallest
                         font.family: Appearance.font.family.numbers
-                        color: Appearance.inirEverywhere ? root.jiraColText : (blendedColors?.colOnLayer0 ?? Appearance.colors.colOnLayer0)
+                        font.weight: Font.Medium
+                        color: root.mediaMetadata
                     }
                 }
             }
@@ -501,9 +503,13 @@ Item {
     }
 
     Timer {
-        running: root.player?.playbackState === MprisPlaybackState.Playing
+        running: root.effectiveIsPlaying && GlobalStates.sidebarLeftOpen
         interval: 1000
         repeat: true
-        onTriggered: root.player?.positionChanged()
+        onTriggered: {
+            if (!root.isYtMusicPlayer && root.player) {
+                root.player.positionChanged()
+            }
+        }
     }
 }

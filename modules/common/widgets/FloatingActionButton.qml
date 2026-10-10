@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import qs.modules.common
@@ -14,11 +16,30 @@ RippleButton {
     property real elementSpacing: 5
     implicitWidth: expanded ? (Math.max(contentRowLayout.implicitWidth + 10 * 2, baseSize)) : baseSize
     implicitHeight: baseSize
-    buttonRadius: baseSize / 14 * 4
-    colBackground: Appearance.colors.colPrimaryContainer
-    colBackgroundHover: Appearance.colors.colPrimaryContainerHover
-    colRipple: Appearance.colors.colPrimaryContainerActive
-    property color colOnBackground: Appearance.colors.colOnPrimaryContainer
+
+    Behavior on implicitWidth {
+        enabled: Appearance.animationsEnabled
+        NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+    }
+
+    buttonRadius: Appearance.editorialEverywhere ? Appearance.editorial.radius : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+        : Appearance.angelEverywhere ? Appearance.angel.roundingNormal : (baseSize / 14 * 4)
+    colBackground: Appearance.zzzEverywhere ? Appearance.zzz.sticker
+                 : Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                 : Appearance.inirEverywhere ? Appearance.inir.colPrimaryContainer
+                 : Appearance.colors.colPrimaryContainer
+    colBackgroundHover: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryHover
+                      : Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                      : Appearance.inirEverywhere ? Appearance.inir.colPrimaryContainerHover
+                      : Appearance.colors.colPrimaryContainerHover
+    colRipple: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryActive
+             : Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive
+             : Appearance.inirEverywhere ? Appearance.inir.colPrimaryContainerActive
+             : Appearance.colors.colPrimaryContainerActive
+    property color colOnBackground: Appearance.zzzEverywhere ? Appearance.zzz.onSticker
+                                  : Appearance.angelEverywhere ? Appearance.angel.colPrimary
+                                  : Appearance.inirEverywhere ? Appearance.inir.colOnPrimaryContainer
+                                  : Appearance.colors.colOnPrimaryContainer
     contentItem: Row {
         id: contentRowLayout
         property real horizontalMargins: (root.baseSize - icon.width) / 2
@@ -54,7 +75,7 @@ RippleButton {
                         verticalCenter: parent.verticalCenter
                     }
                     text: root.buttonText
-                    color: Appearance.colors.colOnPrimaryContainer
+                    color: root.colOnBackground
                     font.pixelSize: Appearance.font.pixelSize.small
                     font.weight: 450
                 }

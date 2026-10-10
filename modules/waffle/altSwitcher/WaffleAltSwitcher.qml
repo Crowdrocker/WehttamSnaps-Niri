@@ -15,13 +15,24 @@ Scope {
 
     property var itemSnapshot: []
     property var iconCache: ({})  // Cache de iconos resueltos
+    property var iconCacheKeys: []
+    readonly property int maxIconCacheSize: 100
     property bool _warmedUp: false
     property bool overviewOpenedByAltSwitcher: false
     property int currentIndex: 0
     property bool quickSwitchDone: false  // Track if quick switch already happened this session
+    property var noUiSnapshot: []
+    property int noUiIndex: 0
+
+    property bool cardVisible: false
 
     // Config getters
     function cfg() { return Config.options?.waffles?.altSwitcher ?? {} }
+    function getPreset() { return cfg().preset ?? "thumbnails" }
+    function getNoVisualUi() {
+        const preset = getPreset()
+        return preset === "none" || ((cfg().noVisualUi ?? false) && preset !== "skew")
+    }
     function getScrimOpacity() { return cfg().scrimOpacity ?? 0.4 }
     function getAutoHide() { return cfg().autoHide ?? true }
     function getCloseOnFocus() { return cfg().closeOnFocus ?? true }
@@ -33,9 +44,23 @@ Scope {
     // Resuelve y cachea el icono
     function getCachedIcon(appId, appName, title) {
         const key = appId || appName || title || ""
-        if (iconCache[key] !== undefined) return iconCache[key]
+        if (iconCache[key] !== undefined) {
+            const existingIndex = iconCacheKeys.indexOf(key)
+            if (existingIndex >= 0) {
+                iconCacheKeys.splice(existingIndex, 1)
+                iconCacheKeys.push(key)
+            }
+            return iconCache[key]
+        }
+
+        if (iconCacheKeys.length >= maxIconCacheSize) {
+            const oldestKey = iconCacheKeys.shift()
+            delete iconCache[oldestKey]
+        }
+
         const icon = AppSearch.getIconSource(key)
         iconCache[key] = icon
+        iconCacheKeys.push(key)
         return icon
     }
 
@@ -78,6 +103,8 @@ Scope {
                 title: w.title || "",
                 workspaceId: w.workspace_id,
                 workspaceIdx: wsIdx,
+                isFocused: w.is_focused ?? false,
+                isFloating: w.is_floating ?? false,
                 icon: root.getCachedIcon(appId, appName, w.title)
             })
             itemsById[w.id] = items[items.length - 1]
@@ -121,11 +148,30 @@ Scope {
         _warmedUp = true
     }
 
+    function rebuildNoUiSnapshot() {
+        root.noUiSnapshot = buildItemsFrom(
+            NiriService.windows || [],
+            NiriService.workspaces || {},
+            NiriService.mruWindowIds || []
+        )
+        root.noUiIndex = 0
+    }
+
+    function focusNoUiIndex() {
+        const len = root.noUiSnapshot?.length ?? 0
+        if (len <= 0)
+            return
+        const idx = Math.max(0, Math.min(len - 1, root.noUiIndex))
+        const id = root.noUiSnapshot[idx]?.id
+        if (id !== undefined)
+            NiriService.focusWindow(id)
+    }
+
     // Pre-warm al inicio
     Timer {
         id: warmUpTimer
         interval: 2000
-        running: !root._warmedUp && NiriService.windows.length > 0
+        running: !root._warmedUp && (NiriService.windows?.length ?? 0) > 0
         onTriggered: {
             root.rebuildSnapshot()
             Qt.callLater(function() {
@@ -158,28 +204,63 @@ Scope {
         }
         quickSwitchResetTimer.stop()  // Cancel reset timer since we're opening UI
         if (itemSnapshot.length === 0) return
+        if (root.getPreset() === "skew")
+            currentIndex = itemSnapshot.length > 1 ? 1 : 0
         GlobalStates.waffleAltSwitcherOpen = true
+        if (root.getPreset() === "skew") {
+            root.cardVisible = false
+            cardShowTimer.restart()
+        } else {
+            root.cardVisible = true
+        }
         maybeOpenOverview()
-        if (root.getAutoHide()) autoHideTimer.restart()
+        if (CompositorService.isNiri && root.getPreset() === "skew") {
+            Qt.callLater(() => WindowPreviewService.captureForTaskView())
+        }
+        if (root.getAutoHide() && root.getPreset() !== "skew")
+            autoHideTimer.restart()
     }
 
     function closeSwitcher() {
         autoHideTimer.stop()
         GlobalStates.waffleAltSwitcherOpen = false
+        root.cardVisible = false
         quickSwitchDone = false  // Reset for next session
+        // The window unmaps right here (the fade already ran in the content), so drop the delegates
+        itemSnapshot = []
         maybeCloseOverview()
+    }
+
+    Timer {
+        id: cardShowTimer
+        interval: 30
+        repeat: false
+        onTriggered: root.cardVisible = GlobalStates.waffleAltSwitcherOpen && root.getPreset() === "skew"
+    }
+
+    Timer {
+        id: focusTimer
+        interval: 30
+        running: GlobalStates.waffleAltSwitcherOpen
+        repeat: true
+        onTriggered: {
+            if (GlobalStates.waffleAltSwitcherOpen)
+                keyHandler.forceActiveFocus()
+        }
     }
 
     function nextItem() {
         if (itemSnapshot.length === 0) return
         currentIndex = (currentIndex + 1) % itemSnapshot.length
-        if (root.getAutoHide()) autoHideTimer.restart()
+        if (root.getAutoHide() && root.getPreset() !== "skew")
+            autoHideTimer.restart()
     }
 
     function previousItem() {
         if (itemSnapshot.length === 0) return
         currentIndex = (currentIndex - 1 + itemSnapshot.length) % itemSnapshot.length
-        if (root.getAutoHide()) autoHideTimer.restart()
+        if (root.getAutoHide() && root.getPreset() !== "skew")
+            autoHideTimer.restart()
     }
 
     function activateCurrent() {
@@ -187,6 +268,11 @@ Scope {
         if (item?.id !== undefined) {
             NiriService.focusWindow(item.id)
         }
+    }
+
+    function confirmCurrent() {
+        root.activateCurrent()
+        root.closeSwitcher()
     }
 
     function activateAndClose(windowId) {
@@ -213,6 +299,8 @@ Scope {
         onTriggered: {
             if (!GlobalStates.waffleAltSwitcherOpen) {
                 root.quickSwitchDone = false
+                root.noUiSnapshot = []
+                root.noUiIndex = 0
             }
         }
     }
@@ -282,10 +370,17 @@ Scope {
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
         anchors { top: true; bottom: true; left: true; right: true }
 
-        Item {
+        FocusScope {
             id: keyHandler
             anchors.fill: parent
             focus: GlobalStates.waffleAltSwitcherOpen
+
+            Keys.onReleased: event => {
+                if (root.getPreset() === "skew" && event.key === Qt.Key_Alt) {
+                    root.confirmCurrent()
+                    event.accepted = true
+                }
+            }
 
             // Keyboard handling
             Keys.onPressed: event => {
@@ -296,24 +391,28 @@ Scope {
                         break
                     case Qt.Key_Return:
                     case Qt.Key_Enter:
-                        root.activateCurrent()
-                        if (root.getCloseOnFocus()) root.closeSwitcher()
+                        if (root.getPreset() === "skew")
+                            root.confirmCurrent()
+                        else {
+                            root.activateCurrent()
+                            if (root.getCloseOnFocus()) root.closeSwitcher()
+                        }
                         event.accepted = true
                         break
                     case Qt.Key_Tab:
+                        if (event.modifiers & Qt.ShiftModifier)
+                            root.previousItem()
+                        else
+                            root.nextItem()
+                        event.accepted = true
+                        break
                     case Qt.Key_Right:
-                        root.nextItem()
-                        event.accepted = true
-                        break
-                    case Qt.Key_Left:
-                        root.previousItem()
-                        event.accepted = true
-                        break
                     case Qt.Key_Down:
                     case Qt.Key_J:
                         root.nextItem()
                         event.accepted = true
                         break
+                    case Qt.Key_Left:
                     case Qt.Key_Up:
                     case Qt.Key_K:
                         root.previousItem()
@@ -333,6 +432,9 @@ Scope {
         WaffleAltSwitcherContent {
             id: content
             anchors.centerIn: parent
+            availableWidth: parent.width
+            availableHeight: parent.height
+            cardVisible: root.cardVisible
             itemSnapshot: root.itemSnapshot
             selectedIndex: root.currentIndex
             onSelectedIndexChanged: root.currentIndex = selectedIndex
@@ -341,10 +443,9 @@ Scope {
         }
     }
 
-    // IPC handler - only active when waffle family is selected
+    // IPC handler reached via the global altSwitcher router in AltSwitcher.qml
     IpcHandler {
-        target: "altSwitcher"
-        enabled: Config.options?.panelFamily === "waffle"
+        target: "waffleAltSwitcher"
 
         function open(): void {
             if (!GlobalStates.waffleAltSwitcherOpen) {
@@ -365,6 +466,40 @@ Scope {
         }
 
         function next(): void {
+            if (root.getNoVisualUi()) {
+                autoHideTimer.stop()
+                root.closeSwitcher()
+
+                const len = root.noUiSnapshot?.length ?? 0
+                if (!root.quickSwitchDone || len === 0) {
+                    root.rebuildNoUiSnapshot()
+                }
+
+                const newLen = root.noUiSnapshot?.length ?? 0
+                if (newLen === 0)
+                    return
+
+                if (!root.quickSwitchDone) {
+                    root.quickSwitchDone = true
+                    root.noUiIndex = newLen > 1 ? 1 : 0
+                } else {
+                    root.noUiIndex = (root.noUiIndex + 1) % newLen
+                }
+
+                root.focusNoUiIndex()
+                quickSwitchResetTimer.restart()
+                return
+            }
+
+            if (root.getPreset() === "skew") {
+                if (!GlobalStates.waffleAltSwitcherOpen) {
+                    root.openSwitcher()
+                    return
+                }
+                root.nextItem()
+                return
+            }
+
             if (!GlobalStates.waffleAltSwitcherOpen) {
                 root.rebuildSnapshot()
                 if (root.itemSnapshot.length === 0) return
@@ -386,6 +521,40 @@ Scope {
         }
 
         function previous(): void {
+            if (root.getNoVisualUi()) {
+                autoHideTimer.stop()
+                root.closeSwitcher()
+
+                const len = root.noUiSnapshot?.length ?? 0
+                if (!root.quickSwitchDone || len === 0) {
+                    root.rebuildNoUiSnapshot()
+                }
+
+                const newLen = root.noUiSnapshot?.length ?? 0
+                if (newLen === 0)
+                    return
+
+                if (!root.quickSwitchDone) {
+                    root.quickSwitchDone = true
+                    root.noUiIndex = newLen > 1 ? (newLen - 1) : 0
+                } else {
+                    root.noUiIndex = (root.noUiIndex - 1 + newLen) % newLen
+                }
+
+                root.focusNoUiIndex()
+                quickSwitchResetTimer.restart()
+                return
+            }
+
+            if (root.getPreset() === "skew") {
+                if (!GlobalStates.waffleAltSwitcherOpen) {
+                    root.openSwitcher()
+                    return
+                }
+                root.previousItem()
+                return
+            }
+
             if (!GlobalStates.waffleAltSwitcherOpen) {
                 root.openSwitcher()
             }

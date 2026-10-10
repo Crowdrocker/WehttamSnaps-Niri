@@ -1,11 +1,13 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.services
+import "root:"
 
 Item {
     id: root
@@ -15,22 +17,92 @@ Item {
     property var sparklineData: ({})
     property bool loading: false
     property bool error: false
+    property bool _cacheLoaded: false
 
     readonly property var coins: Config.options?.sidebar?.widgets?.crypto_settings?.coins ?? []
     readonly property int refreshInterval: (Config.options?.sidebar?.widgets?.crypto_settings?.refreshInterval ?? 60) * 1000
+    readonly property string cachePath: FileUtils.trimFileProtocol(`${Directories.state}/user/crypto_cache.json`)
+
+    // --- File-based cache ---
+    FileView {
+        id: cacheFile
+        path: root.cachePath
+        watchChanges: false
+
+        onLoaded: {
+            try {
+                const cached = JSON.parse(cacheFile.text())
+                if (cached.cryptoData && Object.keys(cached.cryptoData).length > 0) {
+                    root.cryptoData = cached.cryptoData
+                }
+                if (cached.sparklineData && Object.keys(cached.sparklineData).length > 0) {
+                    root.sparklineData = cached.sparklineData
+                }
+            } catch (e) {
+                // Corrupted cache, ignore
+            }
+            root._cacheLoaded = true
+        }
+
+        onLoadFailed: (error) => {
+            // No cache yet, that's fine
+            root._cacheLoaded = true
+        }
+    }
+
+    function saveCache() {
+        try {
+            cacheFile.setText(JSON.stringify({
+                cryptoData: root.cryptoData,
+                sparklineData: root.sparklineData,
+                timestamp: Date.now()
+            }))
+        } catch (e) {
+            // Non-critical, ignore write failures
+        }
+    }
 
     Timer {
         id: fetchTimer
         interval: root.refreshInterval
-        running: root.coins.length > 0 && Config.ready
+        running: root.coins.length > 0 && Config.ready && GlobalStates.sidebarLeftOpen
         repeat: true
         onTriggered: root.fetchPrices()
     }
-    
-    // Only fetch on first load if no data
+
+    // Fetch only after cache has been attempted, and only if data is stale or missing
     Component.onCompleted: {
-        if (root.coins.length > 0 && Object.keys(root.cryptoData).length === 0) {
-            Qt.callLater(() => root.fetchPrices())
+        // cacheFile.onLoaded / onLoadFailed will set _cacheLoaded
+    }
+
+    onCoinsChanged: {
+        if (root._cacheLoaded && root.coins.length > 0) {
+            // Check if we have data for all configured coins
+            const hasMissing = root.coins.some(c => !(c in root.cryptoData))
+            if (hasMissing) {
+                Qt.callLater(() => root.fetchPrices())
+            }
+        }
+    }
+
+    on_CacheLoadedChanged: {
+        if (root._cacheLoaded && root.coins.length > 0) {
+            // If cache had no data or is stale (>5 min), fetch fresh
+            const hasData = Object.keys(root.cryptoData).length > 0
+            if (!hasData) {
+                Qt.callLater(() => root.fetchPrices())
+            } else {
+                // Still schedule a background refresh for freshness
+                refreshDelayTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id: refreshDelayTimer
+        interval: 2000
+        onTriggered: {
+            if (root.coins.length > 0) root.fetchPrices()
         }
     }
 
@@ -56,6 +128,7 @@ Item {
                 try {
                     root.cryptoData = JSON.parse(text)
                     root.error = false
+                    root.saveCache()
                     // Start sparkline fetch
                     root.fetchSparklines()
                 } catch (e) {
@@ -111,6 +184,7 @@ Item {
                         const newData = Object.assign({}, root.sparklineData)
                         newData[sparklineProcess.coinId] = sampled.slice(-20)
                         root.sparklineData = newData
+                        root.saveCache()
                     }
                 } catch (e) {}
             }
@@ -134,18 +208,14 @@ Item {
              : p.toLocaleString(Qt.locale(), 'f', 6)
     }
 
-    StyledRectangularShadow { target: card; visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere }
-
     Rectangle {
         id: card
         anchors.centerIn: parent
         width: parent.width
         implicitHeight: col.implicitHeight + 20
-        radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
-        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
-             : Appearance.auroraEverywhere ? "transparent" : Appearance.colors.colLayer1
-        border.width: Appearance.inirEverywhere ? 1 : (Appearance.auroraEverywhere ? 0 : 1)
-        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer0Border
+        radius: Appearance.zzzEverywhere ? Appearance.zzz.cardRadius : Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
+        color: "transparent"
+        Behavior on radius { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve } }
 
         ColumnLayout {
             id: col
@@ -160,23 +230,29 @@ Item {
                 MaterialSymbol {
                     text: "currency_bitcoin"
                     iconSize: 16
-                    color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.accent : Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
                 }
                 StyledText {
-                    text: "Crypto"
+                    text: Translation.tr("Crypto")
                     font.pixelSize: Appearance.font.pixelSize.smaller
                     font.weight: Font.Medium
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.ink : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
                 }
                 Item { Layout.fillWidth: true }
 
                 Rectangle {
-                    visible: root.loading
                     width: 6; height: 6; radius: 3
-                    color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.accent : Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
+                    Behavior on color { enabled: Appearance.animationsEnabled; ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
+                    scale: root.loading ? 1 : 0
+                    visible: scale > 0
+                    Behavior on scale {
+                        enabled: Appearance.animationsEnabled
+                        NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Easing.OutCubic }
+                    }
                     opacity: 0.6
                     SequentialAnimation on opacity {
-                        running: root.loading && Appearance.animationsEnabled
+                        running: root.loading && GlobalStates.sidebarLeftOpen && Appearance.animationsEnabled
                         loops: Animation.Infinite
                         NumberAnimation { to: 0.3; duration: 400 }
                         NumberAnimation { to: 0.8; duration: 400 }
@@ -187,7 +263,7 @@ Item {
                     implicitWidth: 24; implicitHeight: 24
                     buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                     colBackground: "transparent"
-                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover : Appearance.colors.colLayer1Hover
+                    colBackgroundHover: Appearance.zzzEverywhere ? Appearance.zzz.chrome : Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover : Appearance.colLayer1Hover
                     onClicked: root.fetchPrices()
                     contentItem: MaterialSymbol {
                         text: "refresh"; iconSize: 14
@@ -216,7 +292,11 @@ Item {
                         text: root.getSymbol(row.modelData)
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         font.family: Appearance.font.family.monospace
-                        color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
+                        color: Appearance.zzzEverywhere ? Appearance.zzz.ink : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
+                        Behavior on color {
+                            enabled: Appearance.animationsEnabled
+                            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                         Layout.preferredWidth: 36
                     }
 
@@ -224,7 +304,13 @@ Item {
                         text: "$" + root.fmtPrice(row.price)
                         font.pixelSize: Appearance.font.pixelSize.smaller
                         font.family: Appearance.font.family.numbers
-                        color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
+                        font.weight: Appearance.zzzEverywhere ? Font.Black : Font.Normal
+                        font.italic: Appearance.zzzEverywhere
+                        color: Appearance.zzzEverywhere ? Appearance.zzz.ink : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer1
+                        Behavior on color {
+                            enabled: Appearance.animationsEnabled
+                            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                         Layout.fillWidth: true
                     }
 
@@ -234,8 +320,12 @@ Item {
                         Layout.preferredHeight: 16
                         Layout.alignment: Qt.AlignVCenter
                         values: row.spark
-                        color: row.up ? (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
-                                      : (Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                        color: row.up ? (Appearance.zzzEverywhere ? Appearance.zzz.accent : Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
+                                      : (Appearance.zzzEverywhere ? Appearance.zzz.signal : Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                        Behavior on color {
+                            enabled: Appearance.animationsEnabled
+                            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                         fillOpacity: 0.25
                         alignment: Graph.Alignment.Right
                     }
@@ -249,31 +339,47 @@ Item {
                         MaterialSymbol {
                             text: row.up ? "arrow_drop_up" : "arrow_drop_down"
                             iconSize: 14
-                            color: row.up ? (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
-                                          : (Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                            color: row.up ? (Appearance.zzzEverywhere ? Appearance.zzz.accent : Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
+                                          : (Appearance.zzzEverywhere ? Appearance.zzz.signal : Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                            Behavior on color {
+                                enabled: Appearance.animationsEnabled
+                                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                            }
                         }
                         StyledText {
                             text: Math.abs(row.chg).toFixed(1) + "%"
                             font.pixelSize: Appearance.font.pixelSize.smallest
                             font.family: Appearance.font.family.numbers
-                            color: row.up ? (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
-                                          : (Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                            color: row.up ? (Appearance.zzzEverywhere ? Appearance.zzz.accent : Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
+                                          : (Appearance.zzzEverywhere ? Appearance.zzz.signal : Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError)
+                            Behavior on color {
+                                enabled: Appearance.animationsEnabled
+                                ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                            }
                         }
                     }
                 }
             }
 
             StyledText {
-                visible: root.error
+                visible: root.error && Object.keys(root.cryptoData).length === 0
                 text: Translation.tr("Failed to load")
                 font.pixelSize: Appearance.font.pixelSize.smallest
-                color: Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError
+                color: Appearance.zzzEverywhere ? Appearance.zzz.signal : Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError
+                Behavior on color {
+                    enabled: Appearance.animationsEnabled
+                    ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                }
             }
             StyledText {
                 visible: root.coins.length === 0
                 text: Translation.tr("No coins configured")
                 font.pixelSize: Appearance.font.pixelSize.smallest
-                color: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+                color: Appearance.zzzEverywhere ? Appearance.zzz.inkMuted : Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+                Behavior on color {
+                    enabled: Appearance.animationsEnabled
+                    ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                }
             }
         }
     }

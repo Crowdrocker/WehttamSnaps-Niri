@@ -15,12 +15,36 @@ import qs.modules.common
  */
 Singleton {
     id: root
-    
+
+    function _log(...args): void {
+        if (Quickshell.env("QS_DEBUG") === "1") console.log(...args);
+    }
+
     // Public API - matches PolkitServiceImpl
     property var agent: impl?.agent ?? null
     property bool active: impl?.active ?? false
     property var flow: impl?.flow ?? null
     property bool interactionAvailable: impl?.interactionAvailable ?? false
+
+    readonly property string rawMessage: String(flow?.message ?? "").trim()
+    readonly property bool batteryChargeLimitRequest: rawMessage.includes("battery-charge-limit")
+    readonly property string cleanMessage: {
+        if (batteryChargeLimitRequest)
+            return Translation.tr("Do you want to allow this app to make changes to your device?")
+        return rawMessage.endsWith(".") ? rawMessage.slice(0, -1) : rawMessage
+    }
+    readonly property string cleanPrompt: {
+        const prompt = String(flow?.inputPrompt ?? "").trim()
+        const cleaned = prompt.endsWith(":") ? prompt.slice(0, -1) : prompt
+        if (cleaned.length > 0)
+            return cleaned
+        return flow?.responseVisible
+            ? Translation.tr("Input")
+            : Translation.tr("Password")
+    }
+    readonly property string actionLabel: batteryChargeLimitRequest
+        ? Translation.tr("Charge limit")
+        : Translation.tr("Authentication")
     
     // Whether the Polkit module is available
     readonly property bool available: impl !== null
@@ -43,10 +67,10 @@ Singleton {
         function finishCreation() {
             if (component.status === Component.Ready) {
                 root.impl = component.createObject(root)
-                console.log("[PolkitService] Polkit module loaded successfully")
+                _log("[PolkitService] Polkit module loaded successfully")
             } else if (component.status === Component.Error) {
-                console.warn("[PolkitService] Polkit module not available - polkit agent disabled")
-                console.warn("[PolkitService] To enable, rebuild quickshell with -DSERVICE_POLKIT=ON")
+                _log("[PolkitService] Polkit module not available - polkit agent disabled")
+                _log("[PolkitService] To enable, rebuild quickshell with -DSERVICE_POLKIT=ON")
             }
         }
 
@@ -65,8 +89,7 @@ Singleton {
             return
         }
 
-        // If another authentication agent already exists, registering will fail and spam warnings.
-        // Best-effort detection: if we can see a known agent process, skip our agent.
+        // iNiR is the agent. One the person runs on purpose still wins: registering beside it fails and spams warnings.
         polkitAgentCheck.running = true
     }
 
@@ -80,7 +103,8 @@ Singleton {
             "polkit-gnome-authentication-agent-1",
             "lxqt-policykit-agent",
             "polkit-kde-authentication-agent-1",
-            "mate-polkit"
+            "polkit-mate-authentication-agent-1",
+            "lxpolkit"
         ]
 
         onExited: (exitCode, exitStatus) => {

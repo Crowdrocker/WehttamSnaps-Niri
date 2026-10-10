@@ -1,0 +1,234 @@
+/**
+ * WehttamSnaps  Game Launcher Rofi Theme
+ * Author: Matthew (GitHub: Crowdrocker)
+ * Usage:  rofi -show drun -modi "game:~/.config/wehttamsnaps/scripts/game-launcher.sh"
+ *         -theme ~/.config/rofi/themes/wehttamsnaps-games.rasi
+ *
+ * Palette matches wehttamsnaps.rasi:
+ *   Pink    #ff5af1   gaming / iDroid accent
+ *   Cyan    #00ffd1   selected / active
+ *   Bg      #07050f   void black
+ */
+
+/* ----------- */
+
+* {
+    bg0:        #07050f;
+    bg1:        #0d0a1a;
+    bg2:        #130f22;
+    bg3:        #1a1430;
+
+    pink:       #ff5af1;
+    pink-dim:   rgba(255,90,241,0.10);
+    pink-mid:   rgba(255,90,241,0.22);
+    pink-glow:  rgba(255,90,241,0.05);
+
+    cyan:       #00ffd1;
+    cyan-dim:   rgba(0,255,209,0.10);
+    cyan-glow:  rgba(0,255,209,0.05);
+
+    blue:       #3b82ff;
+    blue-dim:   rgba(59,130,255,0.12);
+
+    text-pri:   #c8f0e8;
+    text-sec:   rgba(200,240,232,0.55);
+    text-mut:   rgba(200,240,232,0.25);
+
+    border-def: rgba(255,90,241,0.20);
+    border-sel: #ff5af1;
+
+    font-hud:   "Share Tech Mono 10";
+    font-ui:    "Rajdhani SemiBold 13";
+    font-title: "Rajdhani Bold 14";
+
+    background-color: transparent;
+    text-color:       @text-pri;
+}
+
+/* ----------- */
+
+window {
+    background-color: @bg0;
+    border:           1px solid @border-def;
+    border-radius:    8px;
+    width:            1100px;
+    /* no fixed height  expands to fit grid */
+}
+
+/* ----------- */
+
+mainbox {
+    background-color: transparent;
+    spacing:          0px;
+    padding:          0px;
+    children:         [ inputbar, message, listview, mode-switcher ];
+}
+
+/* ----------- */
+
+inputbar {
+    background-color: @bg1;
+    border:           0px 0px 1px 0px;
+    border-color:     @border-def;
+    padding:          10px 16px;
+    spacing:          10px;
+    children:         [ prompt, entry, case-indicator ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color:       @pink;
+    font:             @font-hud;
+    vertical-align:   0.5;
+}
+
+entry {
+    background-color: transparent;
+    text-color:       @text-pri;
+    font:             @font-ui;
+    placeholder:      "SEARCH GAMES...";
+    placeholder-color: @text-mut;
+    cursor:           text;
+    vertical-align:   0.5;
+    expand:           true;
+}
+
+case-indicator {
+    background-color: transparent;
+    text-color:       @text-mut;
+    font:             @font-hud;
+}
+
+/* ----------- */
+
+message {
+    background-color: @bg2;
+    border:           0px 0px 1px 0px;
+    border-color:     rgba(255,90,241,0.12);
+    padding:          4px 16px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color:       @text-mut;
+    font:             @font-hud;
+}
+
+/* ----------- */
+
+listview {
+    background-color: transparent;
+    padding:          14px 12px;
+    spacing:          10px;
+    scrollbar:        false;
+    columns:          6;          /* 6 cards per row at 1100px width */
+    lines:            3;
+    fixed-height:     false;
+    dynamic:          true;
+    layout:           vertical;
+    cycle:            true;
+}
+
+/* ----------- */
+
+element {
+    background-color: @bg2;
+    border:           1px solid rgba(255,90,241,0.18);
+    border-radius:    6px;
+    padding:          0px;
+    orientation:      vertical;
+    cursor:           pointer;
+    transition:       200ms;
+}
+
+element:hover {
+    background-color: @pink-glow;
+    border-color:     rgba(255,90,241,0.45);
+}
+
+element selected.normal {
+    background-color: @pink-dim;
+    border:           1px solid @pink;
+    border-radius:    6px;
+}
+
+element selected.urgent {
+    background-color: rgba(255,68,85,0.12);
+    border:           1px solid #ff4455;
+}
+
+/* ----------- */
+
+element-icon {
+    background-color: @bg3;
+    size:             148px;           /* cover art height */
+    border-radius:    5px 5px 0px 0px;
+    cursor:           inherit;
+    /* Rofi scales the icon to fill this box */
+}
+
+/* ----------- */
+
+element-text {
+    background-color: transparent;
+    text-color:       @text-sec;
+    font:             "Rajdhani SemiBold 11";
+    cursor:           inherit;
+    vertical-align:   0.5;
+    horizontal-align: 0.5;
+    padding:          5px 6px;
+    /* Single-line truncation */
+    str-width:        1;
+    highlight:        bold @pink;
+}
+
+element selected > element-text {
+    text-color:       @cyan;
+    font:             "Rajdhani Bold 11";
+}
+
+element:hover > element-text {
+    text-color:       @text-pri;
+}
+
+/* ----------- */
+
+scrollbar {
+    background-color: @bg2;
+    handle-color:     @pink-mid;
+    handle-width:     3px;
+    border:           0px;
+    width:            3px;
+}
+
+/* ----------- */
+
+mode-switcher {
+    background-color: @bg1;
+    border:           1px 0px 0px 0px;
+    border-color:     @border-def;
+    padding:          6px 12px;
+    spacing:          6px;
+}
+
+button {
+    background-color: transparent;
+    text-color:       @text-mut;
+    font:             @font-hud;
+    border:           1px solid rgba(255,90,241,0.15);
+    border-radius:    3px;
+    padding:          3px 10px;
+    cursor:           pointer;
+}
+
+button:hover {
+    background-color: @pink-glow;
+    text-color:       @text-pri;
+    border-color:     @pink-mid;
+}
+
+button selected {
+    background-color: @pink-dim;
+    text-color:       @pink;
+    border-color:     @pink;
+}

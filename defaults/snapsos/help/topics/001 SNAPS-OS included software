@@ -1,0 +1,54 @@
+> Included Software
+
+SNAPS-OS comes with a small inclusion of software on top of your base install (Which can be any kind of arch-based OS)
+
+#from the Arch User Repository:
+
+(aur)mangowm-git - the git version of mangoWM, you *can* choose to swap this out for a pacman repository version if you wish
+(aur)dsearch-bin - indexer for file search from Dank Material shell
+
+#from the pacman repositories:
+
+[^apps]:
+firefox - included browser
+nautilus - included file browser
+satty - included screenshot editor
+dms-shell - included shell environment
+shelly - default package management interface
+code - used for opening project directories, default GUI code editor
+
+[^terminal]:
+ghostty - included pre-configured terminal
+zsh - included shell
+zsh-theme-powerlevel10k - theming for zsh
+zsh-history-substring-search - plugin for zsh
+zsh-syntax-highlighting - plugin for zsh
+zsh-autosuggestions - plugin for zsh
+zsh-doc - plugin for zsh
+stow - symlinking utility
+zoxide - replaces CD with a better CD that can jump, making navigation easier
+eza - replaces the ls command with a smarter ls command using coloration, icons etc.
+fzf - used for TUIs, also integrated into the terminal with `**<tab>` for fzf search for arguments
+micro - terminal text editor
+
+[^utilities]:
+brightnessctl - allows screen brightness control 
+pipewire-pulse - audio helper
+pipewire - display capture helper
+yay - requirement for the AUR to work
+matugen - enables auto-theming
+adw-gtk-theme - helps with auto-theming
+wl-clipboard - used in scripts to interact with clipboard
+hyprshot - used for screenshots
+grim - used for screenshots
+kanshi - enables better monitor configuration
+
+[^fonts]:
+ttf-nerd-fonts-symbols-common 
+ttf-nerd-fonts-symbols-mono 
+ttf-nerd-fonts-symbols 
+ttf-cascadia-code-nerd 
+ttf-cascadia-mono-nerd 
+ttf-terminus-nerd 
+ttf-firacode-nerd 
+ttf-ubuntu-nerd

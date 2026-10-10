@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import qs.services
@@ -8,7 +10,7 @@ import qs.modules.common.functions
 Flow {
     id: root
     Layout.fillWidth: true
-    spacing: 2
+    spacing: Appearance.regaliaEverywhere ? Appearance.regalia.controlGap : 2
     // Integración con buscador global de Settings
     property bool enableSettingsSearch: true
     property int settingsSearchOptionId: -1
@@ -26,8 +28,13 @@ Flow {
         },
     ]
     property var currentValue: null
+    readonly property bool hovered: _hoverHandler.hovered
 
     signal selected(var newValue)
+
+    HoverHandler {
+        id: _hoverHandler
+    }
 
     function _findSettingsContext() {
         var page = null;
@@ -68,6 +75,8 @@ Flow {
             return;
         if (typeof SettingsSearchRegistry === "undefined")
             return;
+        if (!SettingsSearchRegistry.dynamicRegistrationEnabled)
+            return;
 
         var ctx = _findSettingsContext();
         var page = ctx.page;
@@ -101,26 +110,32 @@ Flow {
     }
 
     Repeater {
+        id: optionRepeater
         model: root.options
         delegate: SelectionGroupButton {
             id: paletteButton
             required property var modelData
             required property int index
-            onYChanged: {
-                if (index === 0) {
-                    paletteButton.leftmost = true
-                } else {
-                    var prev = root.children[index - 1]
-                    var thisIsOnNewLine = prev && prev.y !== paletteButton.y
-                    paletteButton.leftmost = thisIsOnNewLine
-                    prev.rightmost = thisIsOnNewLine
-                }
+
+            function syncRowEdges(): void {
+                const previous = index > 0 ? optionRepeater.itemAt(index - 1) : null
+                const startsRow = index === 0
+                    || (previous !== null && previous.y !== paletteButton.y)
+                paletteButton.leftmost = startsRow
+                paletteButton.rightmost = index === root.options.length - 1
+                if (previous !== null)
+                    previous.rightmost = startsRow
             }
+
+            Component.onCompleted: Qt.callLater(syncRowEdges)
+            onYChanged: Qt.callLater(syncRowEdges)
             leftmost: index === 0
             rightmost: index === root.options.length - 1
             buttonIcon: modelData.icon || ""
+            buttonPreviewKind: modelData.previewKind || ""
             buttonText: modelData.displayName
-            toggled: root.currentValue == modelData.value
+            opacity: modelData?.dimmed === true ? 0.45 : 1
+            toggled: (root.currentValue != null && root.currentValue == modelData.value) ?? false
             onClicked: {
                 root.selected(modelData.value);
             }

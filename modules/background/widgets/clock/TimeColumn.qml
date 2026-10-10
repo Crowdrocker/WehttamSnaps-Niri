@@ -8,10 +8,10 @@ import QtQuick
 Column {
     id: root
     property list<string> clockNumbers: DateTime.time.split(/[: ]/)
-    property bool isEnabled: Config.options.background.widgets.clock.cookie.timeIndicators
+    property bool isEnabled: Config.getNestedValue("background.widgets.clock.cookie.timeIndicators", false)
     property color color: Appearance.colors.colOnSecondaryContainer
 
-    property bool hourMarksEnabled: Config.options.background.widgets.clock.cookie.hourMarks
+    property bool hourMarksEnabled: Config.getNestedValue("background.widgets.clock.cookie.hourMarks", false)
     spacing: -16
 
     Repeater {
@@ -28,13 +28,13 @@ Column {
             anchors.horizontalCenter: root.horizontalCenter
             color: root.color
             font {
-                family: Appearance.font.family.expressive
+                family: Config.getNestedValue("background.widgets.clock.fontFamily", "Space Grotesk")
                 weight: Font.Bold
                 pixelSize: numberSize
             }
 
             Behavior on numberSize {
-                animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+                animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
             }
         }
     }

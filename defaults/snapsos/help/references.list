@@ -1,0 +1,217 @@
+## Introduction
+this menu shows you mangoWM configuration options, it uses the following format:
+location                                    | name              | example                                           | description                                             | category
+you can search by any of these fields using fuzzy finding
+
+## Mango Config Basics
+~/.config/mango/config.conf                 | source            | source=~/.config/mango/binds.conf                 | includes other config files in the mango config         | MangoWM Config Basics
+/usr/share/wayland-sessions/mango.desktop   | mango -c          | mango -c ~/.config/mango/custom.conf              | Launch mango with a custom config                       | MangoWM Config Basics
+command                                     |                   | mango -c ~/.config/mango/config.conf -p           | Validates the configuration of your mango config        | MangoWM Config Basics
+~/.config/mango/environment.conf            | env               | env=ENVIRONMENT_NAME,value                        | Sets an environment variable to a specific value        | MangoWM Config Basics
+~/.config/mango/autostart.conf              | exec-once         | exec-once=steam +open steam://my/steam/link       | runs the provided command once on mangoWM initial start | MangoWM Config Basics
+~/.config/mango/autostart.conf              | exec              | exec=bash ~/.config/snapsos/script.sh               | runs the provided command every config reload           | MangoWM Config Basics
+
+## Mango Monitor Rules
+~/.config/mango/monitors.conf               | monitorrule       | monitorrule=name:dp-1,width:1920,height:1920      | configures monitor settings                             | Mango Monitor Rules
+### Selecting screens
+~/.config/mango/monitors.conf               | name: parameter   | monitorrule=name:HDMI-A-1                         | apply this rule to any monitor with this name           | Mango Monitor Rules - Selecting Screens
+~/.config/mango/monitors.conf               | make: parameter   | monitorrule=make:benq                             | apply this rule to any monitor with this manufacturer   | Mango Monitor Rules - Selecting Screens
+~/.config/mango/monitors.conf               | model: parameter  | monitorrule=model:SW271                           | apply this rule to any monitor with this model          | Mango Monitor Rules - Selecting Screens
+~/.config/mango/monitors.conf               | serial: parameter | monitorrule=serial:<SerialNumber>                 | apply this rule to any monitor with this serial         | Mango Monitor Rules - Selecting Screens
+## configuring screens
+~/.config/mango/monitors.conf               | width: parameter  | monitorrule=name:DP-1,width:1920                  | set the output to this monitor to be this many px wide  | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | height: parameter | monitorrule=name:DP-1,height:1080                 | set the output to this monitor to be this many px tall  | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | refresh: parameter| monitorrule=name:DP-1,refresh:60                  | set the refresh rate for the monitor to <number>hz      | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | x: parameter      | monitorrule=name:DP-2,x:1920                      | offset the screen's location by that many px horizontal | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | y: parameter      | monitorrule=name:DP-2,y:1080                      | offset the screen's location by that many px verticaly  | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | scale: parameter  | monitorrule=name:DP-1,scale:2                     | changes the display scaling (useful for 4k)             | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | vrr: parameter    | monitorrule=name:DP-1,vrr:1                       | toggles variable refresh rate (1 = on, 0 = off)         | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | rr: parameter     | monitorrule=name:DP-1,rr:3                        | rotate display. 0=none, 1=90deg etc, add 4 to also flip | Mango Monitor Rules - Configuring Screens
+~/.config/mango/monitors.conf               | custom: parameter | monitorrule=name:DP-1,custom:1                    | enable custom mode for this display                     | Mango Monitor Rules - Configuring Screens
+### other monitor things
+~/.config/mango/monitors.conf               | allow_tearing     | allow_tearing=1                                   | allows programs to bypass mangoWM vsync                 | Mango Monitor Rules
+~/.config/mango/windowrules.conf            | force_tearing:1   | windowrule=force_tearing:1,title:myapptitle       | turns off compositor VSYNC for matching programs        | Mango Monitor Rules
+command                                     | toggle monitors   | mmsg dispatch toggle_monitor,eDP-1                      | toggles output to the provided monitor                  | Mango Monitor Rules
+
+## Mango Keyboard settings
+~/.config/mango/input.conf                  | repeat_rate       | repeat_rate=25                                    | how many keystrokes per second a held key does          | Mango Keyboard Settings
+~/.config/mango/input.conf                  | repeat_delay      | repeat_delay=600                                  | milliseconds before a held key starts repeating         | Mango Keyboard Settings
+~/.config/mango/input.conf                  | numlockon         | numlockon=0                                       | sets the default numlock state (on or off)              | Mango Keyboard Settings
+~/.config/mango/input.conf                  | xkb_rules_rules   | xkb_rules_rules=base                              | sets XKB rules file (advanced config, not needed)       | Mango Keyboard Settings
+~/.config/mango/input.conf                  | xkb_rules_model   | xkb_rules_model=macbook                           | sets the keyboard model (for compat reasons)            | Mango Keyboard Settings
+~/.config/mango/input.conf                  | xkb_rules_layout  | xkb_rules_layout=us,de                            | list of keyboard layouts                                | Mango Keyboard Settings
+~/.config/mango/input.conf                  | xkb_rules_Variant | xkb_rules_variant=dvorak                          | sets the layout variant                                 | Mango Keyboard Settings
+~/.config/mango/input.conf                  | xkb_rules_options | xkb_rules_options=ctrl:nocaps                     | sets advanced xkb rules options (like key remaps)       | Mango Keyboard Settings
+
+## Mango Mouse Settings
+~/.config/mango/input.conf                  | mouse_natural_scrolling| mouse_natural_scrolling=1                    | inverts the scrolling direction for mouse scroll wheels | Mango Mouse Settings
+~/.config/mango/input.conf                  | mouse_accel_profile    | mouse_accel_profile=2                        | sets acceleration curve (0=none,1=flat,2=adaptive)      | Mango Mouse Settings
+~/.config/mango/input.conf                  | mouse_accel_speed      | mouse_accel_speed=0.1                        | mouse acceleration modifier (-1.0 to 1.0)               | Mango Mouse Settings
+~/.config/mango/input.conf                  | left_handed            | left_handed=1                                | swaps the left and right mouse buttons                  | Mango Mouse Settings
+~/.config/mango/input.conf                  | axis_scroll_factor     | axis_scroll_factor=0.5                       | modifies the scroll speed (0.1 to 10.0)                 | Mango Mouse Settings
+~/.config/mango/input.conf                  | axis_bind_apply_timeout| axis_bind_apply_timeout=100                  | ms between axis bind events for scrolling               | Mango Mouse Settings
+~/.config/mango/input.conf                  | cursor_size            | cursor_size=24                               | sets the size of the cursor                             | Mango Mouse Settings
+~/.config/mango/input.conf                  | cursor_theme           | cursor_theme=Adwaita                         | sets the cursor cursor_theme                            | Mango Mouse Settings
+
+
+## Mango Trackpad Settings
+~/.config/mango/input.conf                  | disable_trackpad       | disable_trackpad=1                           | disables the Trackpad                                   | Mango Trackpad Settings
+~/.config/mango/input.conf                  | tap_to_click           | tap_to_click=1                               | triggers a left click on taps                           | Mango Trackpad Settings
+~/.config/mango/input.conf                  | tap_and_drag           | tap_and_drag=1                               | tap and hold to click-drag items                        | Mango Trackpad Settings
+~/.config/mango/input.conf                  | trackpad_natural_scrolling | trackpad_natural_scrolling=0             | inverts trackpad scrolling direction                    | Mango Trackpad Settings
+~/.config/mango/input.conf                  | trackpad_accel_profile | trackpad_accel_profile=2                     | sets accel profile (0 = none, 1 = flat, 2 = adaptive)   | Mango Trackpad Settings
+~/.config/mango/input.conf                  | trackpad_accel_speed   | trackpad_accel_speed=0.1                     | adjusts the trackpad acceleration speed (-1.0 to 1.0)   | Mango Trackpad Settings
+~/.config/mango/input.conf                  | scroll_button          | scroll_button=279                            | sets the button for scrolling (272-259)                 | Mango Trackpad Settings
+~/.config/mango/input.conf                  | scroll_method          | scroll_method=2                              | 1 = two-finger scroll, 2 = edge scroll, 4 = button      | Mango Trackpad Settings
+~/.config/mango/input.conf                  | click_method           | click_method=1                               | 1 = button area (bottom of trackpad), 2 = clickfinger   | Mango Trackpad Settings
+~/.config/mango/input.conf                  | send_events_mode       | send_events_mode=2                           | disable events sending on trackpad (1) or mouse (2)     | Mango Trackpad Settings
+~/.config/mango/input.conf                  | drag_lock              | drag_lock=1                                  | locks dragging after tapping                            | Mango Trackpad Settings
+~/.config/mango/input.conf                  | disable_while_typing   | disable_while_typing=1                       | disables the trackpad when disable_while_typing         | Mango Trackpad Settings
+~/.config/mango/input.conf                  | left_handed            | left_handed=1                                | reverses the buttons on the trackpad                    | Mango Trackpad Settings
+~/.config/mango/input.conf                  | middle_button_emulation| middle_button_emulation=1                    | adds a virtual middle-click button to the trackpad      | Mango Trackpad Settings
+~/.config/mango/input.conf                  | swipe_min_threshold    | swipe_min_threshold=1                        | minimum threshold for swipe gestures to activate        | Mango Trackpad Settings
+~/.config/mango/input.conf                  | button_map             | button_map=1                                 | changes trackpad button layout (0=l/r/m, 1=l/m/r)       | Mango Trackpad Settings
+~/.config/mango/input.conf                  | trackpad_scroll_factor | trackpad_scroll_factor=1.5                   | changes trackpad scroll speed (0.1 to 10.0)             | Mango Trackpad Settings
+
+## Mango Hardware Settings
+~/.config/mango/environment.conf            | xwayland_persistence   | xwayland_persistence=1                       | keeps xwayland running (reduces x11 app startup lag)    | Mango Hardware Settings
+~/.config/mango/environment.conf            | syncobj_enable         | syncobj_enable=1                             | enable syncobj timing (helps with gaming stutter/lag)   | Mango Hardware Settings
+~/.config/mango/environment.conf            | allow_lock_transparent | allow_lock_transparent=0                     | allow the lock screen to be transparent                 | Mango Hardware Settings
+~/.config/mango/environment.conf            | allow_shortcuts_inhibit| allow_shortcuts_inhibit=1                    | allows apps to inhibit mangowm keybinds                 | Mango Hardware Settings
+
+## Mango Focus Settings
+~/.config/mango/input.conf                  | focus_on_activate      | focus_on_activate=1                          | automatically focus windows that request activation     | Mango Focus Settings
+~/.config/mango/input.conf                  | sloppyfocus            | sloppyfocus=1                                | focus automatically follows the mouse cursor            | Mango Focus Settings
+~/.config/mango/input.conf                  | warpcursor             | warpcursor=1                 | move the cursor to the focused window when changing focus via keyboard  | Mango Focus Settings
+~/.config/mango/input.conf                  | cursor_hide_Timeout    | cursor_hide_timeout=30                       | hides the cursor after <number> seconds of not moving   | Mango Focus Settings
+~/.config/mango/input.conf                  | drag_tile_to_tile      | drag_tile_to_tile=0                          | allow dragging a tile onto another to swap them         | Mango Focus Settings
+~/.config/mango/input.conf                  | drag_tile_small        | drag_tile_small=1                            | temporarily makes tiles small when dragging them around | Mango Focus Settings
+~/.config/mango/input.conf                  | drag_corner            | drag_corner=0                                | drag corner for drag-to-tile detection                  | Mango Focus Settings
+~/.config/mango/input.conf                  | drag_warp_cursor       | drag_warp_cursor=1                           | warp cursor when dragging windows to tile               | Mango Focus Settings
+~/.config/mango/input.conf                  | focus_cross_monitor    | focus_cross_monitor=1                        | allow focus to jump across monitors                     | Mango Focus Settings
+~/.config/mango/input.conf                  | focus_cross_tag        | focus_cross_tag=1                            | allow focus to jump across tags/workspaces              | Mango Focus Settings
+
+## Mango Multi-Monitor Settings
+~/.config/mango/monitors.conf               | exchange_cross_monitor | exchange_cross_monitor=1                     | allow apps to be swapped across monitors                | Mango Multi-Monitor Settings
+~/.config/mango/monitors.conf               | scratchpad_cross_monitor | scratchpad_cross_monitor=1                 | share the scratchpad pool across monitors               | Mango Multi-Monitor Settings
+
+
+## Mango Tag Settings
+~/.config/mango/monitors.conf               | view_current_to_back   | view_current_to_back=1                       | toggling to the current tag goes to the previous tag    | Mango Tag Settings
+
+
+## Mango Misc Settings
+~/.config/mango/layouts.conf                | single_scratchpad      | single_scratchpad=1                          | only allow one scratchpad to be visible at a time       | Mango Misc Settings
+~/.config/mango/environment.conf            | idleinhibit_ignore_visible | idleinhibit_ignore_visible=1             | allows invisible programs (eg daemons) to prevent sleep | Mango Misc Settings
+~/.config/mango/environment.conf            | drag_tile_refresh_interval | drag_tile_refresh_interval=8.0           | interval to refresh sizes during tiled dragging         | Mango Misc Settings
+~/.config/mango/environment.conf            | drag_floating_refresh_interval | drag_floating_refresh_interval=8.0   | interval to refresh sizes during floating dragging      | Mango Misc Settings
+
+
+## Mango Window Settings
+~/.config/mango/layouts.conf                | enable_floating_snap   | enable_floating_snap=1                       | snap floating windows to edges of other windows         | Mango Window Settings
+~/.config/mango/layouts.conf                | snap_distance          | snap_distance=30                             | maximum distance to trigger floating snap               | Mango Window Settings
+~/.config/mango/decoration.conf             | no_border_when_single  | no_border_when_single=1                      | removes window borders when only one window is visible  | Mango Window Settings
+
+
+## Mango Decoration Settings
+~/.config/mango/decoration.conf             | borderpx          | borderpx=4                                        | sets the width of screen borders                        | Mango Decoration Settings
+~/.config/mango/decoration.conf             | border_radius     | border_radius=10                                  | rounding radius for windows                             | Mango Decoration Settings
+~/.config/mango/decoration.conf             | focused_opacity   | focused_opacity=0.9                               | sets the opacity of the focused window                  | Mango Decoration Settings
+~/.config/mango/decoration.conf             | unfocused_opacity | unfocused_opacity=0.8                             | sets the opacity of unfocused windows                   | Mango Decoration Settings
+~/.config/mango/decoration.conf             | gappih            | gappih=5                                          | sets the horizontal gap between windows                 | Mango Decoration Settings - Gaps
+~/.config/mango/decoration.conf             | gappiv            | gappiv=5                                          | sets the vertical gap between windows                   | Mango Decoration Settings - Gaps
+~/.config/mango/decoration.conf             | gappoh            | gappoh=10                                         | sets the horizontal gap to screen edges                 | Mango Decoration Settings - Gaps
+~/.config/mango/decoration.conf             | gappov            | gappov=10                                         | sets the vertical gap to screen edges                   | Mango Decoration Settings - Gaps
+## Colors
+~/.config/mango/decoration.conf             | rootcolor         | rootcolor=0x323232ff                              | sets the default background color                       | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | bordercolor       | bordercolor=0x444444ff                            | sets the inactive border color                          | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | dropcolor         | dropcolor=0x8FBA7C55                              | sets the drop shadow color for floating windows         | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | focuscolor        | focuscolor=0xc66b25ff                             | sets the focused window border color                    | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | urgentcolor       | urgentcolor=0xad401fff                            | sets the urgent window border color                     | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | maximizescreencolor| maximizescreencolor=0xad401fff                   | sets the maximized window border color                  | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | scratchpadcolor   | scratchpadcolor=0xad401fff                        | sets the scratchpad window border color                 | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | globalcolor       | globalcolor=0xad401fff                            | sets the border for windows in global mode              | Mango Decoration Settings - Colors
+~/.config/mango/decoration.conf             | overlaycolor      | overlaycolor=0xad401fff                           | sets the border color for windows in the overlay        | Mango Decoration Settings - Colors
+## Blur
+~/.config/mango/decoration.conf             | blur                      | blur=1                                    | toggles blur for windows                                | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_layer                | blur_layer=0                              | toggles blur for other elements (bars/docks)            | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_optimized            | blur_optimized=0                          | turns on blur optimization caching (reduced GPU usage)  | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_params_radius        | blur_params_radius=5                      | strength of the blurring                                | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_params_num_passes    | blur_params_num_passes=2                  | amount of passes (more = smoother but more expensive)   | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_params_noise         | blur_params_noise=0.02                    | noise level for the blur (advanced)                     | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_params_brightness    | blur_params_brightness=0.9                | brightness level for the blur (advanced)                | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_params_contrast      | blur_params_contrast=0.9                  | contrast level for the blur (advanced)                  | Mango Decoration Settings - Blur
+~/.config/mango/decoration.conf             | blur_params_saturation    | blur_params_saturation=1.2                | saturation level for the blur (advanced)                | Mango Decoration Settings - Blur
+## Shadows
+~/.config/mango/decoration.conf             | shadows                   | shadows=1                                 | enable shadows for windows                              | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | layer_shadows             | layer_shadows=0                           | enable shadows for other elements (bars/docks)          | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | shadow_only_floating      | shadow_only_floating=1                    | limit shadows to floating windows only                  | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | shadows_size              | shadows_size=10                           | size of the shadows                                     | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | shadows_blur              | shadows_blur=15                           | amount of blur for the shadows                          | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | shadows_position_x        | shadows_position_x=0                      | horizontal offset for the shadow                        | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | shadows_position_y        | shadows_position_y=0                      | vertical offset for the shadow                          | Mango Decoration Settings - Shadows
+~/.config/mango/decoration.conf             | shadowscolor              | shadowscolor=0x000000ff                   | color of the shadow                                     | Mango Decoration Settings - Shadows
+## Animations
+refer to the docs for animations: https://mangowm.github.io/docs/visuals/animations 
+
+## Mango Layout Settings
+~/.config/mango/layouts.conf                | circle_layout                         | circle_layout=grid,scroller,tile,dwindle  | sets the list of layouts to cycle between using the keybind   | Mango Layout Settings
+## scroller layouts
+~/.config/mango/layouts.conf                | scroller_structs                      | scroller_structs=20                       | sets reserved side width when window ratio is 1               | Mango Layout Settings - Scroller
+~/.config/mango/layouts.conf                | scroller_default_proportion           | scroller_default_proportion=0.9           | sets the default width proportion for new windows             | Mango Layout Settings - Scroller
+~/.config/mango/layouts.conf                | scroller_focus_center                 | scroller_focus_center=0                   | always center the focused window                              | Mango Layout Settings - Scroller
+~/.config/mango/layouts.conf                | scroller_prefer_center                | scroller_prefer_center=1                  | center the focused window only if it is outside the view      | Mango Layout Settings - Scroller
+~/.config/mango/layouts.conf                | scroller_prefer_overspread            | scroller_prefer_overspread=1              | allow windows to overspread when there is extra space         | Mango Layout Settings - Scroller
+~/.config/mango/layouts.conf                | edge_scroller_pointer_Focus           | edge_scroller_pointer_Focus=1             | focus windows even if they're partially off-screen            | Mango Layout Settings - Scroller
+~/.config/mango/layouts.conf                | scroller_proportion_preset            | scroller_proportion_preset=0.5,0.8,1.0    | presets for cycling window widths using keybinds
+~/.config/mango/layouts.conf                | scroller_ignore_proportion_single     | scroller_ignore_proportion_single=1       | ignore proportion adjustments for single windows
+~/.config/mango/layouts.conf                | scroller_default_proportion_single    | scroller_default_proportion_single=1.0    | default proportion for single windows
+## master-stack layouts
+~/.config/mango/layouts.conf                | new_is_master                         | new_is_master=1                           | make new windows the master window                            | Mango Layout Settings - Master Tile
+~/.config/mango/layouts.conf                | default_mfact                         | default_mfact=0.55                        | how much of the screen is used for the master window          | Mango Layout Settings - Master Tile
+~/.config/mango/layouts.conf                | default_nmaster                       | default_nmaster=1                         | number of allowed master windows                              | Mango Layout Settings - Master Tile
+~/.config/mango/layouts.conf                | smartgaps                             | smartgaps=0                               | disable gaps when only one window is present                  | Mango Layout Settings - Master Tile
+~/.config/mango/layouts.conf                | center_master_overspread              | center_master_overspread=0                | spread master across the screen if no stack exists            | Mango Layout Settings - Master Tile
+~/.config/mango/layouts.conf                | center_when_single_stack              | center_when_single_stack=1                | center master when only one stack window exits (center only)  | Mango Layout Settings - Master Tile
+## dwindle layout
+~/.config/mango/layouts.conf                | dwindle_split_ratio                   | dwindle_split_ratio=0.5                   | ratio used for new splits (0.05-0.95)                         | Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_smart_split                   | dwindle_smart_split=0                     | pick the split axis from the cursor's position                | Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_hsplit                        | dwindle_hsplit=1                          | where the window goes for horizontal splits (0=cursor,1=r,2=l)| Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_vsplit                        | dwindle_vsplit=1                          | where the window goes for vertical splits (0=cursor,1=d,2=u)  | Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_preserve_split                | dwindle_preserve_split=1                  | keep the sibling's split orientation when a window is closed  | Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_smart_resize                  | dwindle_smart_resize=0                    | change how drag-to-resize works (test both)                   | Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_drop_simple_split             | dwindle_drop_simple_split=0               | 1=two-zone matching, 0=quadrants for drag-and-drop            | Mango Layout Settings - Dwindle
+~/.config/mango/layouts.conf                | dwindle_manual_split                  | dwindle_manual_split=0                    | manually split windows mode                                   | Mango Layout Settings - Dwindle
+## overview
+~/.config/mango/layouts.conf                | hotarea_size      | hotarea_size=10                                   | sets the trigger size for the hot area
+~/.config/mango/layouts.conf                | enable_hotarea    | enable_hotarea=1                                  | toggles the hot area (hover to trigger overview)
+~/.config/mango/layouts.conf                | hotarea_corner    | hotarea_corner=0                                  | 0=top left,1=top right,2=bottom-left,3=bottom-right
+~/.config/mango/layouts.conf                | ov_tab_mode       | ov_tab_mode=1                                     | set overview to tab mode (works like windows alt+tab)
+~/.config/mango/layouts.conf                | overviewgappi     | overviewgappi=5                                   | sets the inner gaps in overview mode
+~/.config/mango/layouts.conf                | overviewgappo     | overviewgappo=30                                  | sets the piter gaps in overview mode
+~/.config/mango/layouts.conf                | ov_no_resize      | ov_no_resize=1                                    | disables window resizing in overview
+~/.config/mango/layouts.conf                |
+
+## Mango Window Rules
+refer to the docs for window rules: https://mangowm.github.io/docs/window-management/rules
+## Mango Scratchpad Config
+refer to the docs for scratchpad config: https://mangowm.github.io/docs/window-management/scratchpad
+
+## Mango binds
+~/.config/mango/binds.conf                  | bind      | bind=SUPER+SHIFT,Q,<dispatcher>                 | sets a bind with MODIFIER,KEY,DISPATCHER.                               | Mango Binds
+~/.config/mango/binds.conf                  | bind      | bind=ALT,code:24,<dispatcher>                   | you can use keycodes or multiple modifiers                              | Mango Binds
+~/.config/mango/binds.conf                  | bindl     | bindl=SUPER,L,<dispatcher>                      | bindl allows use while on the lockscreen                                | Mango Binds
+~/.config/mango/binds.conf                  | binds     | binds=KEY_SUPER,KEY_L,<dispatcher>              | binds uses keysym instead                                               | Mango Binds
+~/.config/mango/binds.conf                  | bindr     | BINDR=SUPER,ALT,<dispatcher>                    | bindr triggers on keyrelease                                            | Mango Binds
+~/.config/mango/binds.conf                  | bindp     | BINDP=ALT,TAB,<dispatcher>                      | bindp makes the bind transparent, so keystrokes won't be intercepted    | Mango Binds
+~/.config/mango/binds.conf                  | keymode   | keymode=common                                  | all binds below this will always be active                              | Mango Binds
+~/.config/mango/binds.conf                  | keymode   | keymode=mykeymode                               | all binds below this will be in this named keymode                      | Mango Binds
+~/.config/mango/binds.conf                  | keymode   | bind=SUPER,F,setkeymode,mykeymode               | keybind that sets the active keymode, you can have as many as you want  | Mango Binds
+~/.config/mango/binds.conf                  | mousebind | mousebind=SUPER,btn_left,moveresize,curmove     | bind with a mouse button                                                    | Mango Binds
+~/.config/mango/binds.conf                  | axisbind  | axisbind=SUPER,DOWN,viewtoright_have_client     | bind to scroll up/down/left/right                                           | Mango Binds
+~/.config/mango/binds.conf                  | gesturebind | gesturebind=SUPER,left,3,focusdir,left        | binds trackpad swipe gestures, format: MOD,direction,fingers,<dispatcher>   | Mango Binds
+~/.config/mango/binds.conf                  | switchbind| switchbind=fold,<dispatcher>                    | binds for laptop lid fold/unfold.                                           | Mango Binds
+
+
+
+

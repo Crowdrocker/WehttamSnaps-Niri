@@ -1,0 +1,38 @@
+> basic terminal utilities
+
+Terminal utilities are essential for viewing, filtering, and manipulating text and files. Here are some of the most common utilities included in SNAPS-OS.
+
+---
+
+### Viewing File Contents
+- `cat <filename>`: Displays the entire contents of a file. For example, `cat notes.txt` prints the contents of "notes.txt" to the terminal.
+
+- `less <filename>`: Views a file interactively, allowing you to scroll with arrow keys and exit with *q*. For example, `less longfile.txt` lets you scroll through "longfile.txt".
+
+- `head -n <num> <filename>`: Displays the first <num> lines of a file. For example, `head -n 10 notes.txt` shows the first 10 lines of "notes.txt".
+
+- `tail -n <num> <filename>`: Displays the last <num> lines of a file. For example, `tail notes.txt` shows the last 10 lines of "notes.txt".
+  Use `tail -f <filename>` to follow updates to a file in real-time, which is useful for monitoring logs.
+
+---
+
+### Printing Text
+- `echo "text"`: Prints text to the terminal. For example, `echo "Hello, SNAPS-OS!"` prints "Hello, SNAPS-OS!", you can also use this to input text to another command
+
+---
+
+### Counting Words and Lines
+- `wc <filename>`: Counts lines, words, and characters in a file. For example, `wc notes.txt` outputs: "5  10  50 notes.txt", This means "notes.txt" has 5 lines, 10 words, and 50 characters.
+
+- `wc -l <filename>`: Counts only lines. For example, `wc -l notes.txt` outputs the number of lines in "notes.txt".
+
+---
+
+### Sorting and Unique Lines
+- `sort <filename>`: Sorts lines alphabetically. For example, `sort list.txt` sorts the lines in "list.txt".
+
+- `uniq <filename>`: Removes duplicate lines from a sorted file. For example, `sort list.txt | uniq` sorts "list.txt" and removes duplicates.
+
+
+### watching outputs
+- `watch -n <num> <command>`: provides you with a live-updating display of the provided command, refreshing every <num> seconds, `watch -n 1 iostat` would give you the iostat output, updating every second.

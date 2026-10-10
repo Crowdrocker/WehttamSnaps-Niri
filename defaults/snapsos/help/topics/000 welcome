@@ -1,0 +1,23 @@
+> Welcome
+
+Welcome to the SNAPS-OS Help Documentation.
+
+this interface contains documentation on how to use your OS as well as the basics of customizing and configuring your OS and basic scripting and automation.
+
+
+#the following tools give you some quick access:
+
+*super+H* or `tldrtui` in the terminal - opens a quick reference for common commands
+*super+shift+H* or `helptui` in the terminal - opens this menu
+*super+k* - shows you all the available keybinds
+*super+shift+m* or `documentation` in the terminal - opens a runner for various documentation pieces as well as quick reference lists. 
+
+this interface is divided into chapters (first digit), the following chapters exist:
+
+- 000 - welcome and overview of SNAPS-OS specific functionality
+- 100 - using SNAPS-OS via the UI
+- 200 - terminal basics
+- 300 - customizing DMS
+- 400 - customizing Mango
+- 500 - custom scripting
+- 600 - detailed help for all of the DMS settings

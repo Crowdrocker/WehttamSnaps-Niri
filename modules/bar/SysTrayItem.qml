@@ -49,13 +49,12 @@ MouseArea {
         if (!item) return;
         const tooltipTitle = item.tooltipTitle ?? "";
         const title = item.title ?? "";
-        const id = item.id ?? "";
         const tooltipDescription = item.tooltipDescription ?? "";
         
         tooltip.text = tooltipTitle.length > 0 ? tooltipTitle
-                : (title.length > 0 ? title : id);
+                : (title.length > 0 ? title : "");
+        if (tooltip.text.length === 0) return;
         if (tooltipDescription.length > 0) tooltip.text += " • " + tooltipDescription;
-        if (Config.options?.bar?.tray?.showItemId) tooltip.text += "\n[" + id + "]";
     }
 
     // Listen for close signal from parent tray
@@ -81,9 +80,14 @@ MouseArea {
             anchorHovered: root.containsMouse
             anchor {
                 item: root
-                edges: (Config.options?.bar?.bottom ?? false) ? Edges.Top : Edges.Bottom
-                gravity: (Config.options?.bar?.bottom ?? false) ? Edges.Top : Edges.Bottom
-                adjustment: PopupAdjustment.SlideX
+                edges: (Config.options?.bar?.vertical ?? false)
+                    ? ((Config.options?.bar?.bottom ?? false) ? Edges.Left : Edges.Right)
+                    : ((Config.options?.bar?.bottom ?? false) ? Edges.Top : Edges.Bottom)
+                gravity: (Config.options?.bar?.vertical ?? false)
+                    ? ((Config.options?.bar?.bottom ?? false) ? Edges.Left : Edges.Right)
+                    : ((Config.options?.bar?.bottom ?? false) ? Edges.Top : Edges.Bottom)
+                adjustment: (Config.options?.bar?.vertical ?? false)
+                    ? PopupAdjustment.SlideY : PopupAdjustment.SlideX
             }
             onMenuOpened: (window) => root.menuOpened(window);
             onMenuClosed: {
@@ -133,7 +137,9 @@ MouseArea {
         id: tooltip
         extraVisibleCondition: root.containsMouse
         alternativeVisibleCondition: extraVisibleCondition
-        anchorEdges: (!(Config.options?.bar?.bottom ?? false) && !(Config.options?.bar?.vertical ?? false)) ? Edges.Bottom : Edges.Top
+        anchorEdges: (Config.options?.bar?.vertical ?? false)
+            ? ((Config.options?.bar?.bottom ?? false) ? Edges.Left : Edges.Right)
+            : ((Config.options?.bar?.bottom ?? false) ? Edges.Top : Edges.Bottom)
     }
 
 }

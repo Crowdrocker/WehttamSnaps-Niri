@@ -7,9 +7,9 @@ import Quickshell.Io
 Singleton {
     id: root
     property alias states: persistentStatesJsonAdapter
-    property string fileDir: Directories.state
+    property string fileDir: Directories.statePath
     property string fileName: "states.json"
-    property string filePath: `${root.fileDir}/${root.fileName}`
+    property string filePath: Directories.persistentStatesPath
 
     property bool ready: false
     property string previousHyprlandInstanceSignature: ""
@@ -20,11 +20,28 @@ Singleton {
         root.states.hyprlandInstanceSignature = Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") || ""
     }
 
+    // writeAdapter() is async; suppress reloads triggered by our own write
+    // so reload() doesn't drop the in-flight write operation.
+    property bool _writeInFlight: false
+    property bool _pendingReload: false
+
+    function _completeWrite(): void {
+        root._writeInFlight = false;
+        if (root._pendingReload) {
+            root._pendingReload = false;
+            fileReloadTimer.restart();
+        }
+    }
+
     Timer {
         id: fileReloadTimer
         interval: 100
         repeat: false
         onTriggered: {
+            if (root._writeInFlight) {
+                root._pendingReload = true;
+                return;
+            }
             persistentStatesFileView.reload()
         }
     }
@@ -34,6 +51,8 @@ Singleton {
         interval: 100
         repeat: false
         onTriggered: {
+            root._writeInFlight = true;
+            fileReloadTimer.stop();
             persistentStatesFileView.writeAdapter()
         }
     }
@@ -45,10 +64,19 @@ Singleton {
         watchChanges: true
         onFileChanged: fileReloadTimer.restart()
         onAdapterUpdated: fileWriteTimer.restart()
+        onSaved: root._completeWrite()
+        onSaveFailed: error => {
+            console.warn("[Persistent] Save failed:", error);
+            root._completeWrite();
+        }
         onLoaded: root.ready = true
         onLoadFailed: error => {
             console.log("Failed to load persistent states file:", error);
             if (error == FileViewError.FileNotFound) {
+                console.log("[Persistent] File not found, creating new file.")
+                // Ensure parent directory exists
+                const parentDir = root.filePath.substring(0, root.filePath.lastIndexOf('/'))
+                Quickshell.execDetached(["/usr/bin/mkdir", "-p", parentDir])
                 fileWriteTimer.restart();
             }
         }
@@ -61,6 +89,7 @@ Singleton {
             property JsonObject ai: JsonObject {
                 property string model: "gemini-2.5-flash"
                 property real temperature: 0.5
+                property string promptName: ""
             }
 
             property JsonObject cheatsheet: JsonObject {
@@ -72,10 +101,14 @@ Singleton {
                     property bool collapsed: false
                     property int tab: 0
                 }
+                property JsonObject compactGroup: JsonObject {
+                    property int tab: 0
+                }
             }
 
             property JsonObject booru: JsonObject {
                 property bool allowNsfw: false
+                property bool showTagsOnHover: true
                 property string provider: "yandere"
             }
 
@@ -85,6 +118,10 @@ Singleton {
 
             property JsonObject gameMode: JsonObject {
                 property bool manualActive: false
+            }
+
+            property JsonObject orbit: JsonObject {
+                property list<string> stashEntries: []
             }
 
             property JsonObject overlay: JsonObject {
@@ -129,6 +166,16 @@ Singleton {
                     property real width: 350
                     property real height: 200
                     property int tabIndex: 0
+                }
+                property JsonObject gamePerformance: JsonObject {
+                    property bool pinned: false
+                    property bool clickthrough: true
+                    property bool detailed: false
+                    property string viewMode: ""
+                    property real x: 1050
+                    property real y: 170
+                    property real width: 420
+                    property real height: 330
                 }
                 property JsonObject volumeMixer: JsonObject {
                     property bool pinned: false
@@ -186,7 +233,38 @@ Singleton {
                     property bool paused: false
                     property int start: 0
                     property int duration: 60
+                    // Minutes on the iRiS Timers dials, adjusted in place.
+                    property list<int> presets: [5, 15, 30]
                 }
+            }
+
+            // Settings workspace state is not user configuration. Keeping it
+            // here lets page delegates unload while navigation and active editor
+            // context survive page switches and standalone-window recreation.
+            property JsonObject settings: JsonObject {
+                property int iiPage: 0
+                property int wafflePage: 0
+                property int themeTab: 0
+                property string themeTag: ""
+                property string gowallFormat: "png"
+                property string gowallTheme: ""
+                property string gowallEffect: "grayscale"
+            }
+
+            // Desktop-widget editor workspace state. This is transient UI
+            // continuity, not user widget configuration: reopening the manager
+            // should restore the tool where the user left it without adding
+            // editor geometry to config.json.
+            property JsonObject desktopWidgets: JsonObject {
+                property real managerXRatio: 0.68
+                property real managerYRatio: 0.48
+                property int managerWidth: 600
+                property int managerHeight: 700
+                property string managerFilter: "all"
+            }
+
+            property JsonObject screenCast: JsonObject {
+                property bool active: false
             }
         }
     }

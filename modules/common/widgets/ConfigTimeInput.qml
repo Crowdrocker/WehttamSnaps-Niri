@@ -57,7 +57,7 @@ RowLayout {
         StyledText {
             Layout.fillWidth: true
             text: root.text
-            color: Appearance.colors.colOnSecondaryContainer
+            color: Appearance.colors.colOnSurface
             opacity: root.enabled ? 1 : 0.4
             elide: Text.ElideNone
         }
@@ -75,7 +75,7 @@ RowLayout {
         opacity: root.enabled ? 1 : 0.4
 
         Behavior on color {
-            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
         }
 
         StyledText {

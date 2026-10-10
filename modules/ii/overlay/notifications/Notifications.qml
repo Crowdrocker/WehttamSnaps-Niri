@@ -7,6 +7,7 @@ import Quickshell
 import qs
 import qs.services
 import qs.modules.common
+import qs.modules.common.functions
 import qs.modules.common.widgets
 import qs.modules.ii.overlay
 import qs.modules.sidebarRight.notifications
@@ -57,6 +58,7 @@ StyledOverlayWidget {
 
                     Item {
                         id: iconContainer
+                        visible: !OverlayLook.iris
                         Layout.alignment: Qt.AlignVCenter
                         implicitWidth: 28
                         implicitHeight: 28
@@ -66,29 +68,35 @@ StyledOverlayWidget {
                             anchors.centerIn: parent
                             text: Notifications.silent ? "notifications_paused" : "notifications"
                             iconSize: Appearance.font.pixelSize.larger
-                            color: Appearance.colors.colOnLayer1
+                            color: OverlayLook.colOnLayer1
                         }
 
                         Rectangle {
                             id: notifBadge
-                            visible: !Notifications.silent && Notifications.unread > 0
+                            scale: !Notifications.silent && Notifications.unread > 0 ? 1 : 0
+                            visible: scale > 0
                             anchors {
                                 right: bellIcon.right
                                 top: bellIcon.top
                                 rightMargin: 0
                                 topMargin: 0
                             }
-                            radius: Appearance.rounding.full
-                            color: Appearance.colors.colOnLayer0
+                            radius: Math.min(width, height) / 2
+                            color: OverlayLook.colOnLayer0
                             z: 1
 
                             implicitHeight: 16
                             implicitWidth: implicitHeight
 
+                            Behavior on scale {
+                                enabled: Appearance.animationsEnabled
+                                NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                            }
+
                             StyledText {
                                 anchors.centerIn: parent
                                 font.pixelSize: Appearance.font.pixelSize.smallest
-                                color: Appearance.colors.colLayer0
+                                color: OverlayLook.colLayer0
                                 text: Notifications.unread
                             }
                         }
@@ -100,16 +108,17 @@ StyledOverlayWidget {
                         spacing: 1
 
                         StyledText {
+                            visible: !OverlayLook.iris
                             text: Translation.tr("Notifications")
                             font.pixelSize: Appearance.font.pixelSize.smallie
-                            color: Appearance.colors.colOnLayer1
+                            color: OverlayLook.colOnLayer1
                         }
                         StyledText {
                             text: Notifications.silent
                                   ? Translation.tr("Silent · %1 total").arg(Notifications.list.length)
                                   : Translation.tr("%1 unread · %2 total").arg(Notifications.unread).arg(Notifications.list.length)
-                            font.pixelSize: Appearance.font.pixelSize.smallest
-                            color: Appearance.colors.colSubtext
+                            font.pixelSize: OverlayLook.iris ? Appearance.font.pixelSize.smallie : Appearance.font.pixelSize.smallest
+                            color: OverlayLook.colSubtext
                         }
                     }
 
@@ -122,7 +131,7 @@ StyledOverlayWidget {
                             implicitHeight: 22
                             implicitWidth: 22
                             Layout.alignment: Qt.AlignVCenter
-                            buttonRadius: Appearance.rounding.small
+                            buttonRadius: OverlayLook.roundingSmall
                             // Icon button plano: sin background de Button por defecto
                             background: Item {}
                             colBackground: "transparent"
@@ -142,7 +151,7 @@ StyledOverlayWidget {
                                     anchors.fill: parent
                                     radius: height / 2
                                     color: markReadButton.hovered
-                                           ? ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 0.25)
+                                           ? ColorUtils.transparentize(OverlayLook.colLayer1Hover, 0.25)
                                            : "transparent"
                                 }
 
@@ -150,7 +159,7 @@ StyledOverlayWidget {
                                     anchors.centerIn: parent
                                     iconSize: 16
                                     text: "check"
-                                    color: Appearance.colors.colOnLayer1
+                                    color: OverlayLook.colOnLayer1
                                 }
                             }
 
@@ -164,7 +173,7 @@ StyledOverlayWidget {
                             implicitHeight: 22
                             implicitWidth: 22
                             Layout.alignment: Qt.AlignVCenter
-                            buttonRadius: Appearance.rounding.small
+                            buttonRadius: OverlayLook.roundingSmall
                             // Icon button plano: sin background de Button por defecto
                             background: Item {}
                             colBackground: "transparent"
@@ -172,7 +181,7 @@ StyledOverlayWidget {
                             colRipple: "transparent"
 
                             onClicked: {
-                                GlobalStates.sidebarRightOpen = true;
+                                GlobalStates.openSidebarRight("");
                                 GlobalStates.overlayOpen = false;
                             }
 
@@ -185,7 +194,7 @@ StyledOverlayWidget {
                                     anchors.fill: parent
                                     radius: height / 2
                                     color: openCenterButton.hovered
-                                           ? ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 0.25)
+                                           ? ColorUtils.transparentize(OverlayLook.colLayer1Hover, 0.25)
                                            : "transparent"
                                 }
 
@@ -193,7 +202,7 @@ StyledOverlayWidget {
                                     anchors.centerIn: parent
                                     iconSize: 16
                                     text: "right_panel_open"
-                                    color: Appearance.colors.colOnLayer1
+                                    color: OverlayLook.colOnLayer1
                                 }
                             }
 
@@ -221,19 +230,28 @@ StyledOverlayWidget {
                     maskSource: Rectangle {
                         width: listview.width
                         height: listview.height
-                        radius: Appearance.rounding.normal
+                        radius: OverlayLook.roundingNormal
                     }
                 }
 
                 popup: false
             }
 
-            PagePlaceholder {
+            MaterialPlaceholderMessage {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: header.bottom
+                    bottom: statusRow.top
+                    topMargin: 24
+                    bottomMargin: 28
+                }
+                maximumWidth: 280
+                compact: true
                 shown: Notifications.list.length === 0
                 icon: "notifications_active"
-                description: Translation.tr("Nothing")
+                text: Notifications.silent ? Translation.tr("Muted") : Translation.tr("All caught up")
                 shape: MaterialShape.Shape.Ghostish
-                descriptionHorizontalAlignment: Text.AlignHCenter
             }
 
             ButtonGroup {
@@ -244,7 +262,7 @@ StyledOverlayWidget {
                     bottom: parent.bottom
                 }
 
-                NotificationStatusButton {
+                StatusButton {
                     Layout.fillWidth: false
                     buttonIcon: "notifications_paused"
                     toggled: Notifications.silent
@@ -252,12 +270,12 @@ StyledOverlayWidget {
                         Notifications.silent = !Notifications.silent;
                     }
                 }
-                NotificationStatusButton {
+                StatusButton {
                     enabled: false
                     Layout.fillWidth: true
                     buttonText: Translation.tr("%1 notifications").arg(Notifications.list.length)
                 }
-                NotificationStatusButton {
+                StatusButton {
                     Layout.fillWidth: false
                     buttonIcon: "delete_sweep"
                     onClicked: {
@@ -266,5 +284,13 @@ StyledOverlayWidget {
                 }
             }
         }
+    }
+
+    component StatusButton: NotificationStatusButton {
+        id: statusButton
+        Binding on colBackground { when: OverlayLook.iris; value: statusButton.toggled ? OverlayLook.colPrimaryContainer : OverlayLook.colLayer2 }
+        Binding on colBackgroundHover { when: OverlayLook.iris; value: statusButton.toggled ? OverlayLook.colPrimaryContainerHover : OverlayLook.colLayer2Hover }
+        Binding on colBackgroundActive { when: OverlayLook.iris; value: OverlayLook.colLayer2Active }
+        Binding on colText { when: OverlayLook.iris; value: statusButton.toggled ? OverlayLook.colOnPrimaryContainer : OverlayLook.colOnLayer1 }
     }
 }

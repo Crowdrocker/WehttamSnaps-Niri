@@ -39,7 +39,7 @@ Item {
     }
 
     Behavior on implicitHeight {
-        enabled: root.completed ?? false
+        enabled: (root.completed ?? false) && Appearance.animationsEnabled
         NumberAnimation {
             duration: collapseAnimation.duration
             easing.type: collapseAnimation.type
@@ -56,7 +56,9 @@ Item {
 
         Rectangle { // Header background
             id: header
-            color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 
+            color: Appearance.editorialEverywhere ? (headerMouseArea.containsMouse ? Appearance.colors.colSecondaryContainerHover : Appearance.editorial.secondaryField)
+                : Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer2 
                 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colSurfaceContainerHighest
             Layout.fillWidth: true
             implicitHeight: thinkBlockTitleBarRowLayout.implicitHeight + thinkBlockHeaderPaddingVertical * 2
@@ -87,9 +89,12 @@ Item {
                     Layout.bottomMargin: 7
                     Layout.leftMargin: 3
                     text: "linked_services"
+                    color: Appearance.editorialEverywhere ? Appearance.editorial.secondaryFieldInk : Appearance.colors.colOnLayer1
                 }
                 StyledText {
                     id: thinkBlockLanguage
+                    font.weight: Appearance.editorialEverywhere ? Font.Medium : Font.Normal
+                    color: Appearance.editorialEverywhere ? Appearance.editorial.secondaryFieldInk : Appearance.colors.colOnLayer1
                     Layout.fillWidth: false
                     Layout.alignment: Qt.AlignLeft
                     text: root.completed ? Translation.tr("Thought") : (Translation.tr("Thinking") + ".".repeat(Math.random() * 4))
@@ -101,10 +106,13 @@ Item {
                     implicitWidth: 22
                     implicitHeight: 22
                     colBackground: headerMouseArea.containsMouse 
-                        ? (Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover)
+                        ? (Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer2Hover)
                         : "transparent"
-                    colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer2Hover
-                    colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer2Active
+                    colBackgroundHover: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceHover : Appearance.colLayer2Hover
+                    colRipple: Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive
+                        : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colLayer2Active
 
                     onClicked: { root.collapsed = !root.collapsed }
                     
@@ -117,11 +125,8 @@ Item {
                         color: Appearance.colors.colOnLayer2
                         rotation: root.collapsed ? 0 : 180
                         Behavior on rotation {
-                            NumberAnimation {
-                                duration: Appearance.animation.elementMoveFast.duration
-                                easing.type: Appearance.animation.elementMoveFast.type
-                                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
-                            }
+                            enabled: Appearance.animationsEnabled
+                            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
                     }
 
@@ -138,7 +143,7 @@ Item {
             clip: true
 
             Behavior on implicitHeight {
-                enabled: root.completed ?? false
+                enabled: (root.completed ?? false) && Appearance.animationsEnabled
                 NumberAnimation {
                     duration: collapseAnimation.duration
                     easing.type: collapseAnimation.type
@@ -152,7 +157,8 @@ Item {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 implicitHeight: messageTextBlock.implicitHeight
-                color: Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
+                color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                    : Appearance.inirEverywhere ? Appearance.inir.colLayer2 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface : Appearance.colors.colLayer2
 
                 // Load data for the message at the correct scope
                 property bool editing: root.editing

@@ -1,0 +1,716 @@
+// === WINDOW RULES CONFIGURATION ===
+// WehttamSnaps Niri Setup
+// GitHub: https://github.com/Crowdrocker
+//
+// Define app-specific behaviors, workspace assignments, and window properties
+
+// === GENERAL UI ENHANCEMENTS ===
+window-rule {
+    geometry-corner-radius 20
+    clip-to-geometry true
+}
+
+// === NOCTALIA SHELL RULES ===
+
+// Overview panel - place within backdrop
+window-rule {
+    match namespace="^quickshell-overview$"
+    match app-id="^qs$"
+    
+    layer-rule {
+        place-within-backdrop true
+    }
+}
+
+// Launcher, settings, control center - float centered
+window-rule {
+    match app-id="^qs$"
+    match title="Launcher|Settings|Control Center"
+    
+    default-column-width { proportion 0.4; }
+    open-floating true
+    open-centered true
+}
+
+// === BROWSERS ===
+
+// Brave - fullscreen on workspace 1
+window-rule {
+    match app-id="^brave-browser$"
+    
+    open-on-workspace 1
+    open-fullscreen true
+}
+
+// Firefox - fullscreen on workspace 1
+window-rule {
+    match app-id="^firefox$"
+    
+    open-on-workspace 1
+    open-fullscreen true
+}
+
+// Chromium/Chrome
+window-rule {
+    match app-id="^chromium-browser$|^google-chrome$"
+    
+    open-on-workspace 1
+    open-fullscreen true
+}
+
+// === FILE MANAGERS ===
+
+// Thunar - workspace 2, normal window
+window-rule {
+    match app-id="^thunar$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.5; }
+}
+
+// Dolphin
+window-rule {
+    match app-id="^org.kde.dolphin$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.5; }
+}
+
+// Nautilus
+window-rule {
+    match app-id="^org.gnome.Nautilus$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.5; }
+}
+
+// === TERMINALS ===
+
+// Ghostty - workspace 2
+window-rule {
+    match app-id="^com.mitchellh.ghostty$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.6; }
+}
+
+// Foot
+window-rule {
+    match app-id="^foot$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.6; }
+}
+
+// Kitty
+window-rule {
+    match app-id="^kitty$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.6; }
+}
+
+// Alacritty
+window-rule {
+    match app-id="^Alacritty$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.6; }
+}
+
+// === TEXT EDITORS ===
+
+// Kate - fullscreen on workspace 2
+window-rule {
+    match app-id="^org.kde.kate$"
+    
+    open-on-workspace 2
+    open-fullscreen true
+}
+
+// VS Code
+window-rule {
+    match app-id="^code$|^Code$"
+    
+    open-on-workspace 2
+    open-fullscreen true
+}
+
+// Neovim (in terminal)
+window-rule {
+    match title="^nvim|^vim"
+    
+    open-on-workspace 2
+}
+
+// === PHOTOGRAPHY & CREATIVE APPS ===
+// Workspace 3 for photo editing
+
+// GIMP - fullscreen on workspace 3
+window-rule {
+    match app-id="^gimp-.*$|^org.gimp.GIMP$"
+    
+    open-on-workspace 3
+    open-fullscreen true
+}
+
+// Darktable - fullscreen on workspace 3
+window-rule {
+    match app-id="^darktable$|^org.darktable.Darktable$"
+    
+    open-on-workspace 3
+    open-fullscreen true
+}
+
+// Krita - fullscreen on workspace 3
+window-rule {
+    match app-id="^krita$|^org.kde.krita$"
+    
+    open-on-workspace 3
+    open-fullscreen true
+}
+
+// RawTherapee
+window-rule {
+    match app-id="^rawtherapee$"
+    
+    open-on-workspace 3
+    open-fullscreen true
+}
+
+// DigiKam - photo management on workspace 3
+window-rule {
+    match app-id="^digikam$|^org.kde.digikam$"
+    
+    open-on-workspace 3
+    open-fullscreen true
+}
+
+// Shotwell
+window-rule {
+    match app-id="^shotwell$|^org.gnome.Shotwell$"
+    
+    open-on-workspace 3
+}
+
+// === DESIGN & VECTOR APPS ===
+// Workspace 4 for design
+
+// Inkscape - workspace 4
+window-rule {
+    match app-id="^inkscape$|^org.inkscape.Inkscape$"
+    
+    open-on-workspace 4
+    open-fullscreen true
+}
+
+// Blender - fullscreen on workspace 5
+window-rule {
+    match app-id="^blender$|^org.blender.Blender$"
+    
+    open-on-workspace 5
+    open-fullscreen true
+}
+
+// === COMMUNICATION ===
+// Workspace 6 for chat/social
+
+// Discord/WebCord
+window-rule {
+    match app-id="^discord$|^WebCord$|^webcord$"
+    
+    open-on-workspace 6
+}
+
+// Telegram
+window-rule {
+    match app-id="^telegram-desktop$|^org.telegram.desktop$"
+    
+    open-on-workspace 6
+}
+
+// Signal
+window-rule {
+    match app-id="^signal$|^org.signal.Signal$"
+    
+    open-on-workspace 6
+}
+
+// Slack
+window-rule {
+    match app-id="^slack$|^Slack$"
+    
+    open-on-workspace 6
+}
+
+// === MEDIA PLAYERS ===
+// Workspace 7 for media
+
+// Spotify
+window-rule {
+    match app-id="^spotify$|^Spotify$"
+    match title="^Spotify"
+    
+    open-on-workspace 7
+}
+
+// VLC
+window-rule {
+    match app-id="^vlc$|^org.videolan.VLC$"
+    
+    open-on-workspace 7
+}
+
+// MPV - floating for quick video playback
+window-rule {
+    match app-id="^mpv$"
+    
+    default-column-width { proportion 0.6; }
+    open-floating true
+    open-centered true
+}
+
+// Celluloid
+window-rule {
+    match app-id="^celluloid$|^io.github.celluloid_player.Celluloid$"
+    
+    open-on-workspace 7
+}
+
+// === STREAMING & RECORDING ===
+// Workspace 8 for OBS/streaming
+
+// OBS Studio - fullscreen on workspace 8
+window-rule {
+    match app-id="^com.obsproject.Studio$|^obs$"
+    
+    open-on-workspace 8
+    open-fullscreen true
+}
+
+// OBS projector windows - always floating
+window-rule {
+    match app-id="^com.obsproject.Studio$"
+    match title="Projector"
+    
+    open-floating true
+}
+
+// === GAMING ===
+// Workspace 9 for gaming
+
+// Steam - fullscreen on workspace 9
+window-rule {
+    match app-id="^steam$"
+    match title="^Steam$"
+    
+    open-on-workspace 9
+    open-fullscreen true
+}
+
+// Steam game windows - fullscreen on workspace 9
+window-rule {
+    match app-id="^steam_app_.*$"
+    
+    open-on-workspace 9
+    open-fullscreen true
+    border { off; }
+}
+
+// Lutris - workspace 9
+window-rule {
+    match app-id="^lutris$|^net.lutris.Lutris$"
+    
+    open-on-workspace 9
+    default-column-width { proportion 0.7; }
+}
+
+// Lutris game windows - fullscreen
+window-rule {
+    match app-id="^lutris$"
+    match title="Lutris - .*"
+    
+    open-fullscreen true
+    border { off; }
+}
+
+// Heroic Games Launcher
+window-rule {
+    match app-id="^heroic$"
+    
+    open-on-workspace 9
+}
+
+// Bottles
+window-rule {
+    match app-id="^com.usebottles.bottles$"
+    
+    open-on-workspace 9
+}
+
+// ProtonUp-Qt
+window-rule {
+    match app-id="^net.davidotek.pupgui2$|^protonup-qt$"
+    
+    open-on-workspace 9
+    default-column-width { proportion 0.5; }
+}
+
+// GameMode status notifications
+window-rule {
+    match app-id="^gamemoded$"
+    
+    open-floating true
+}
+
+// === MOD MANAGERS ===
+// Workspace 10 for modding tools
+
+// Vortex Mod Manager (runs via Wine/Proton)
+window-rule {
+    match title="^Vortex$|Vortex Mod Manager"
+    match app-id="^vortex.exe$"
+    
+    open-on-workspace 10
+    default-column-width { proportion 0.8; }
+}
+
+// Mod Organizer 2 (MO2)
+window-rule {
+    match title="^Mod Organizer$|^ModOrganizer.exe$"
+    match app-id="^modorganizer.exe$"
+    
+    open-on-workspace 10
+    default-column-width { proportion 0.8; }
+}
+
+// Wabbajack
+window-rule {
+    match title="^Wabbajack$"
+    match app-id="^wabbajack.exe$"
+    
+    open-on-workspace 10
+    default-column-width { proportion 0.8; }
+}
+
+// LOOT (Load Order Optimization Tool)
+window-rule {
+    match title="^LOOT$"
+    
+    open-on-workspace 10
+}
+
+// xEdit (Creation Kit)
+window-rule {
+    match title=".*Edit$|^SSEEdit|^FO4Edit"
+    
+    open-on-workspace 10
+}
+
+// === WEBAPPS ===
+// Custom webapp windows - treat as apps
+
+// YouTube webapp
+window-rule {
+    match title="^YouTube - Webapp$"
+    match app-id="^youtube-webapp$"
+    
+    open-on-workspace 7
+    default-column-width { proportion 0.7; }
+}
+
+// Twitch webapp
+window-rule {
+    match title="^Twitch - Webapp$"
+    match app-id="^twitch-webapp$"
+    
+    open-on-workspace 7
+    default-column-width { proportion 0.7; }
+}
+
+// Gmail webapp
+window-rule {
+    match title="^Gmail - Webapp$"
+    match app-id="^gmail-webapp$"
+    
+    open-on-workspace 6
+}
+
+// GitHub webapp
+window-rule {
+    match title="^GitHub - Webapp$"
+    match app-id="^github-webapp$"
+    
+    open-on-workspace 2
+}
+
+// === SYSTEM UTILITIES ===
+
+// System monitors - floating
+window-rule {
+    match app-id="^gnome-system-monitor$|^org.gnome.SystemMonitor$"
+    
+    open-floating true
+    default-column-width { proportion 0.5; }
+}
+
+// Mission Center
+window-rule {
+    match app-id="^io.missioncenter.MissionCenter$|^missioncenter$"
+    
+    open-floating true
+    default-column-width { proportion 0.6; }
+}
+
+// btop (in terminal)
+window-rule {
+    match title="^btop$"
+    
+    open-floating true
+}
+
+// Audio controls - floating centered
+window-rule {
+    match app-id="^pavucontrol$|^org.pulseaudio.pavucontrol$"
+    
+    open-floating true
+    open-centered true
+    default-column-width { proportion 0.5; }
+}
+
+// qpwgraph - audio routing
+window-rule {
+    match app-id="^qpwgraph$|^org.rncbc.qpwgraph$"
+    
+    open-on-workspace 8
+    default-column-width { proportion 0.8; }
+}
+
+// EasyEffects
+window-rule {
+    match app-id="^easyeffects$|^com.github.wwmm.easyeffects$"
+    
+    open-floating true
+    default-column-width { proportion 0.6; }
+}
+
+// === SETTINGS & CONFIGURATION ===
+
+// System Settings
+window-rule {
+    match app-id="^systemsettings$|^org.kde.systemsettings$"
+    
+    open-floating true
+    open-centered true
+    default-column-width { proportion 0.6; }
+}
+
+// LXDE/Qt settings
+window-rule {
+    match app-id="^lxappearance$|^qt5ct$|^qt6ct$"
+    
+    open-floating true
+    open-centered true
+}
+
+// Kvantum Manager
+window-rule {
+    match app-id="^kvantummanager$"
+    
+    open-floating true
+    open-centered true
+}
+
+// nwg-look (GTK theme manager)
+window-rule {
+    match app-id="^nwg-look$"
+    
+    open-floating true
+    open-centered true
+}
+
+// === PACKAGE MANAGERS ===
+
+// Octopi
+window-rule {
+    match app-id="^octopi$"
+    
+    default-column-width { proportion 0.7; }
+}
+
+// Pacseek
+window-rule {
+    match app-id="^pacseek$"
+    
+    open-floating true
+    default-column-width { proportion 0.6; }
+}
+
+// === FILE DIALOGS ===
+
+// File pickers - floating centered
+window-rule {
+    match app-id="^xdg-desktop-portal.*$"
+    match title="Open File|Save File|Select"
+    
+    open-floating true
+    open-centered true
+    default-column-width { proportion 0.5; }
+}
+
+// Zenity dialogs
+window-rule {
+    match app-id="^zenity$"
+    
+    open-floating true
+    open-centered true
+}
+
+// YAD dialogs
+window-rule {
+    match app-id="^yad$"
+    
+    open-floating true
+    open-centered true
+}
+
+// === NOTIFICATIONS & OVERLAYS ===
+
+// Notification daemon (Mako/Dunst)
+window-rule {
+    match app-id="^mako$|^dunst$"
+    
+    layer "overlay"
+}
+
+// Rofi menus
+window-rule {
+    match app-id="^rofi$"
+    
+    open-floating true
+    open-centered true
+}
+
+// Fuzzel launcher
+window-rule {
+    match app-id="^fuzzel$"
+    
+    open-floating true
+}
+
+// === WELCOME APP ===
+
+// WehttamSnaps welcome screen
+window-rule {
+    match title="Welcome to WehttamSnaps"
+    match app-id="^python3$|^python$"
+    
+    open-floating true
+    open-centered true
+    default-column-width { proportion 0.5; }
+}
+
+// === SPECIAL RULES ===
+
+// Polkit authentication agent - always on top
+window-rule {
+    match app-id="^polkit-.*$"
+    
+    open-floating true
+    open-centered true
+    layer "top"
+}
+
+// Picture-in-Picture videos - floating, small
+window-rule {
+    match title="Picture-in-Picture|Picture in picture"
+    
+    open-floating true
+    default-column-width { proportion 0.3; }
+}
+
+// Wine/Proton configuration windows
+window-rule {
+    match app-id="^wine$|^explorer.exe$"
+    match title="Wine configuration|winecfg"
+    
+    open-floating true
+    open-centered true
+}
+
+// === GAMING WORKAROUNDS ===
+
+// Division 2 / Ubisoft Connect - force fullscreen
+window-rule {
+    match title="Tom Clancy's The Division|Ubisoft Connect"
+    
+    open-fullscreen true
+    border { off; }
+}
+
+// Cyberpunk 2077 - force fullscreen
+window-rule {
+    match title="Cyberpunk 2077"
+    
+    open-fullscreen true
+    border { off; }
+}
+
+// Fallout 4 / Bethesda games
+window-rule {
+    match title="Fallout 4|Skyrim|Starfield"
+    
+    open-fullscreen true
+    border { off; }
+}
+
+// === DEVELOPMENT TOOLS ===
+
+// GitHub Desktop
+window-rule {
+    match app-id="^GitHubDesktop$|^github-desktop$"
+    
+    open-on-workspace 2
+    default-column-width { proportion 0.7; }
+}
+
+// JetBrains IDEs
+window-rule {
+    match app-id="^jetbrains-.*$"
+    
+    open-on-workspace 2
+    open-fullscreen true
+}
+
+// === MISCELLANEOUS ===
+
+// Calculator - floating
+window-rule {
+    match app-id="^galculator$|^org.gnome.Calculator$|^qalculate-gtk$"
+    
+    open-floating true
+    open-centered true
+}
+
+// Color picker - floating
+window-rule {
+    match app-id="^gcolor3$|^org.gnome.ColorPicker$"
+    
+    open-floating true
+}
+
+// Image viewers - floating for quick previews
+window-rule {
+    match app-id="^imv$|^feh$|^sxiv$|^qview$"
+    
+    open-floating true
+    open-centered true
+    default-column-width { proportion 0.6; }
+}
+
+// PDF viewers
+window-rule {
+    match app-id="^org.pwmt.zathura$|^evince$|^okular$"
+    
+    default-column-width { proportion 0.6; }
+}

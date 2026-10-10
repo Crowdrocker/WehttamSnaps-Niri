@@ -20,6 +20,19 @@ MaterialShape { // App icon
     property real appIconSize: implicitSize * appIconScale
     property real smallAppIconSize: implicitSize * smallAppIconScale
 
+    readonly property string imageValue: String(image ?? "")
+    readonly property bool imageIsIconHint: imageValue.startsWith("image://icon/")
+    readonly property string hintedIcon: imageIsIconHint ? imageValue.substring(13) : ""
+    readonly property string appIconValue: String(appIcon ?? "").trim()
+    readonly property bool appIconIsFileUrl: appIconValue.startsWith("file://")
+    readonly property string effectiveAppIcon: appIconValue.length > 0 ? appIconValue : hintedIcon
+    readonly property string defaultMaterialSymbol: NotificationUtils.findSuitableMaterialSymbol("")
+    readonly property string guessedMaterialSymbol: NotificationUtils.findSuitableMaterialSymbol(String(summary ?? ""))
+    readonly property bool preferMaterialSymbol: guessedMaterialSymbol !== defaultMaterialSymbol
+        && ((appIconValue.length === 0 && imageIsIconHint)
+            || (appIconIsFileUrl && String(summary ?? "").toLowerCase().includes("screenshot")))
+    readonly property bool hasVisualImage: imageValue.length > 0 && !imageIsIconHint
+
     implicitSize: 38 * scale
     property list<var> urgentShapes: [
         MaterialShape.Shape.VerySunny,
@@ -27,20 +40,27 @@ MaterialShape { // App icon
     ]
     shape: isUrgent ? urgentShapes[Math.floor(Math.random() * urgentShapes.length)] : MaterialShape.Shape.Circle
 
-    color: isUrgent ? Appearance.colors.colPrimaryContainer : Appearance.colors.colSecondaryContainer
+    color: Appearance.zzzEverywhere
+        ? (isUrgent ? Appearance.zzz.secondary : Appearance.zzz.paperAlt)
+        : isUrgent ? Appearance.colors.colPrimaryContainer : "transparent"
     Loader {
         id: materialSymbolLoader
-        active: root.appIcon == ""
+        // Icon-theme hints such as notify-send's `-i camera-photo` are not
+        // notification artwork. Prefer a semantic Material Symbol when the
+        // summary identifies one (for example screenshot notifications).
+        active: root.preferMaterialSymbol
+            || (root.effectiveAppIcon == "" && !root.hasVisualImage)
         anchors.fill: parent
         sourceComponent: MaterialSymbol {
             text: {
-                const defaultIcon = NotificationUtils.findSuitableMaterialSymbol("")
-                const guessedIcon = NotificationUtils.findSuitableMaterialSymbol(root.summary)
-                return (root.urgency == NotificationUrgency.Critical && guessedIcon === defaultIcon) ?
-                    "priority_high" : guessedIcon
+                return (root.urgency == NotificationUrgency.Critical
+                    && root.guessedMaterialSymbol === root.defaultMaterialSymbol)
+                    ? "priority_high" : root.guessedMaterialSymbol
             }
             anchors.fill: parent
-            color: isUrgent ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnSecondaryContainer
+            color: Appearance.zzzEverywhere
+                ? (isUrgent ? Appearance.zzz.onSecondary : Appearance.zzz.ink)
+                : isUrgent ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnSecondaryContainer
             iconSize: root.materialIconSize
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
@@ -48,18 +68,19 @@ MaterialShape { // App icon
     }
     Loader {
         id: appIconLoader
-        active: root.image == "" && root.appIcon != ""
+        active: !root.hasVisualImage && !root.preferMaterialSymbol
+            && root.effectiveAppIcon != ""
         anchors.centerIn: parent
         sourceComponent: IconImage {
             id: appIconImage
             implicitSize: root.appIconSize
             asynchronous: true
-            source: Quickshell.iconPath(root.appIcon, "image-missing")
+            source: Quickshell.iconPath(root.effectiveAppIcon, "image-missing")
         }
     }
     Loader {
         id: notifImageLoader
-        active: root.image != "" && root.image !== undefined
+        active: root.hasVisualImage
         anchors.fill: parent
         sourceComponent: Item {
             id: notifImageContainer
@@ -93,19 +114,23 @@ MaterialShape { // App icon
                     maskSource: Rectangle {
                         width: notifImage.size
                         height: notifImage.size
-                        radius: Appearance.rounding.full
+                        radius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius : Appearance.rounding.full
+                        Behavior on radius {
+                            enabled: Appearance.animationsEnabled
+                            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                        }
                     }
                 }
             }
             Loader {
                 id: notifImageAppIconLoader
-                active: root.appIcon != ""
+                active: root.appIconValue.length > 0
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 sourceComponent: IconImage {
                     implicitSize: root.smallAppIconSize
                     asynchronous: true
-                    source: Quickshell.iconPath(root.appIcon, "image-missing")
+                    source: Quickshell.iconPath(root.appIconValue, "image-missing")
                 }
             }
         }

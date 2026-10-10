@@ -1,0 +1,5 @@
+include "conf.d/00-base.kdl"
+include "conf.d/10-rules.kdl"
+include "conf.d/20-work.kdl"
+include "conf.d/30-gaming.kdl"
+include "conf.d/99-overrides.kdl"

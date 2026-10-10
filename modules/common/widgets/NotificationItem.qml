@@ -12,27 +12,49 @@ Item { // Notification item area
     id: root
     property var notificationObject
     property bool expanded: false
+    property bool popup: false
     property bool onlyNotification: false
     property real fontSize: Appearance.font.pixelSize.small
-    property real padding: onlyNotification ? 0 : 8
+    property real padding: onlyNotification ? 0 : Appearance.editorialEverywhere ? Math.round(10 * Appearance.editorial.spacing) : 8
     property real summaryElideRatio: 0.85
 
+    // Animation tokens — use fast timing for dismiss in all modes
+    readonly property QtObject _contentAnim: Appearance.animation.elementMoveFast
+
     property real dragConfirmThreshold: 70 // Drag to discard notification
-    property real dismissOvershoot: notificationIcon.implicitWidth + 20 // Account for gaps and bouncy animations
+    property real dismissOvershoot: 58 // Account for gaps and bouncy animations (was notificationIcon.implicitWidth + 20)
     property var qmlParent: root?.parent?.parent // There's something between this and the parent ListView
     property var parentDragIndex: qmlParent?.dragIndex ?? -1
     property var parentDragDistance: qmlParent?.dragDistance ?? 0
     property var dragIndexDiff: Math.abs(parentDragIndex - index)
-    property real xOffset: dragIndexDiff == 0 ? parentDragDistance : 
-        Math.abs(parentDragDistance) > dragConfirmThreshold ? 0 :
-        dragIndexDiff == 1 ? (parentDragDistance * 0.3) :
-        dragIndexDiff == 2 ? (parentDragDistance * 0.1) : 0
+    property real xOffset: dragIndexDiff == 0 ? parentDragDistance : 0
+
+    readonly property bool notificationCritical: {
+        const value = root.notificationObject?.urgency
+        if (value === undefined || value === null)
+            return false
+        return value === NotificationUrgency.Critical
+            || String(value).toLowerCase() === "critical"
+    }
+
+    readonly property string notificationSummaryText: String(root.notificationObject?.summary ?? "")
+    readonly property bool hasNotificationActions: (root.notificationObject?.actions?.length ?? 0) > 0
+    readonly property string processedNotificationBodyText: {
+        if (!root.notificationObject) return ""
+        const body = String(root.notificationObject.body ?? "")
+        const source = String(root.notificationObject.appName
+            ?? root.notificationObject.summary ?? "")
+        return String(NotificationUtils.processNotificationBody(body, source) ?? "")
+            .replace(/\n/g, "<br/>")
+    }
 
     implicitHeight: background.implicitHeight
 
     function destroyWithAnimation(left = false) {
+        background.anchors.leftMargin = root.xOffset; // Break binding, capture current position
+        background.implicitHeight = background.implicitHeight; // Freeze height so it doesn't resize during dismiss
+        root.implicitHeight = root.implicitHeight; // Freeze delegate height in ListView
         root.qmlParent.resetDrag()
-        background.anchors.leftMargin = background.anchors.leftMargin; // Break binding
         destroyAnimation.left = left;
         destroyAnimation.running = true;
     }
@@ -40,7 +62,7 @@ Item { // Notification item area
     TextMetrics {
         id: summaryTextMetrics
         font.pixelSize: root.fontSize
-        text: root.notificationObject.summary || ""
+        text: root.notificationSummaryText
     }
 
     SequentialAnimation { // Drag finish animation
@@ -52,9 +74,9 @@ Item { // Notification item area
             target: background.anchors
             property: "leftMargin"
             to: (root.width + root.dismissOvershoot) * (destroyAnimation.left ? -1 : 1)
-            duration: Appearance.animation.elementMove.duration
-            easing.type: Appearance.animation.elementMove.type
-            easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
+            duration: Number(Appearance.animation?.elementMoveFast?.duration ?? 200)
+            easing.type: Number(Appearance.animation?.elementMoveFast?.type ?? Easing.OutCubic)
+            easing.bezierCurve: Appearance.animation?.elementMoveFast?.bezierCurve ?? [0.2, 0, 0, 1, 1, 1]
         }
         onFinished: () => {
             Notifications.discardNotification(notificationObject.notificationId);
@@ -64,7 +86,7 @@ Item { // Notification item area
     DragManager { // Drag manager
         id: dragManager
         anchors.fill: root
-        anchors.leftMargin: root.expanded ? -notificationIcon.implicitWidth : 0
+        anchors.leftMargin: root.expanded ? -root.dismissOvershoot : 0
         interactive: expanded
         automaticallyReset: false
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
@@ -88,67 +110,101 @@ Item { // Notification item area
         onDragReleased: (diffX, diffY) => {
             if (Math.abs(diffX) > root.dragConfirmThreshold)
                 root.destroyWithAnimation(diffX < 0);
-            else 
+            else
                 dragManager.resetDrag();
         }
     }
 
-    NotificationAppIcon { // App icon
-        id: notificationIcon
-        opacity: (!onlyNotification && notificationObject.image != "" && expanded) ? 1 : 0
-        visible: opacity > 0
-
-        Behavior on opacity {
-            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-        }
-
-        image: notificationObject.image
-        anchors.right: background.left
-        anchors.top: background.top
-        anchors.rightMargin: 10
-    }
+    // Note: App icon for expanded notifications with images is now handled by NotificationAppIcon
+    // within the image itself (small corner icon) - no separate icon needed here to avoid duplication
 
     Rectangle { // Background of notification item
         id: background
         width: parent.width
         anchors.left: parent.left
-        radius: Appearance.rounding.small
+        radius: Appearance.regaliaEverywhere ? Appearance.regalia.roundSmall
+            : Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+            : Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall
+            : Appearance.rounding.small
         anchors.leftMargin: root.xOffset
 
+        Behavior on radius {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+        }
+
         Behavior on anchors.leftMargin {
-            enabled: !dragManager.dragging
+            enabled: !dragManager.dragging && Appearance.animationsEnabled
             NumberAnimation {
-                duration: Appearance.animation.elementMove.duration
-                easing.type: Appearance.animation.elementMove.type
+                duration: root._contentAnim.duration
+                easing.type: root._contentAnim.type
                 easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
             }
         }
 
-        color: (expanded && !onlyNotification) ? 
-            (notificationObject.urgency == NotificationUrgency.Critical) ? 
+        color: (expanded && !onlyNotification) ?
+            Appearance.regaliaEverywhere ? "transparent" :
+            Appearance.zzzEverywhere ? (root.notificationCritical ? Appearance.zzz.secondary : Appearance.zzz.chrome) :
+            root.notificationCritical ?
                 ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer2, 0.35) :
-                (Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                (Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                    : Appearance.inirEverywhere ? Appearance.inir.colLayer2
                     : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
                     : Appearance.colors.colLayer3) :
             "transparent"
-        border.width: (expanded && !onlyNotification && (Appearance.auroraEverywhere || Appearance.inirEverywhere)) ? 1 : 0
-        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+        border.width: (expanded && !onlyNotification && Appearance.zzzEverywhere) ? Appearance.zzz.borderThick
+            : (expanded && !onlyNotification && (Appearance.angelEverywhere || Appearance.auroraEverywhere || Appearance.inirEverywhere)) ? 1 : 0
+        border.color: Appearance.zzzEverywhere ? Appearance.zzz.hairlineStrong
+            : Appearance.angelEverywhere ? Appearance.angel.colBorder
+            : Appearance.inirEverywhere ? Appearance.inir.colBorder
             : Appearance.auroraEverywhere ? ColorUtils.transparentize(Appearance.colors.colOutline, 0.8)
             : Appearance.colors.colLayer0Border
 
-        implicitHeight: expanded ? (contentColumn.implicitHeight + padding * 2) : summaryRow.implicitHeight
+        RegaliaPlate {
+            anchors.fill: parent
+            visible: Appearance.regaliaEverywhere && root.expanded && !root.onlyNotification
+            radius: background.radius
+            fillColor: root.notificationCritical ? Appearance.regalia.signalPlate : Appearance.regalia.bg2
+            elevated: true
+        }
+
+        Behavior on color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        Behavior on border.width {
+            enabled: Appearance.animationsEnabled
+            NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+        Behavior on border.color {
+            enabled: Appearance.animationsEnabled
+            ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+        }
+
+        implicitHeight: expanded ? (contentColumn.implicitHeight + root.padding * 2) : summaryRow.implicitHeight
         Behavior on implicitHeight {
-            NumberAnimation { duration: 10; easing.type: Easing.OutCubic }
+            // Sidebar: subtle fast transition; Popup: instant (window resize handled by parent)
+            enabled: !root.popup && Appearance.animationsEnabled
+            NumberAnimation {
+                duration: root._contentAnim.duration / 2
+                easing.type: root._contentAnim.type
+                easing.bezierCurve: root._contentAnim.bezierCurve
+            }
         }
 
         ColumnLayout { // Content column
             id: contentColumn
-            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
             anchors.margins: expanded ? root.padding : 0
             spacing: 3
 
             Behavior on anchors.margins {
-                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                // Sidebar: smooth margin transition; Popup: instant
+                enabled: !root.popup && Appearance.animationsEnabled
+                animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
             }
 
             RowLayout { // Summary row
@@ -158,29 +214,41 @@ Item { // Notification item area
                 implicitHeight: summaryText.implicitHeight
                 StyledText {
                     id: summaryText
-                    Layout.fillWidth: summaryTextMetrics.width >= summaryRow.implicitWidth * root.summaryElideRatio
+                    Layout.fillWidth: summaryTextMetrics.width >= contentColumn.width * root.summaryElideRatio
                     visible: !root.onlyNotification
-                    font.pixelSize: root.fontSize
-                    color: Appearance.colors.colOnLayer3
+                    font.family: Appearance.editorialEverywhere && root.expanded
+                        ? Appearance.font.family.title : Appearance.font.family.main
+                    font.pixelSize: Appearance.editorialEverywhere && root.expanded
+                        ? Appearance.font.pixelSize.normal : root.fontSize
+                    font.weight: Appearance.editorialEverywhere ? (root.expanded ? Appearance.editorial.titleWeight : Font.DemiBold) : Font.Normal
+                    font.letterSpacing: Appearance.editorialEverywhere && root.expanded ? Appearance.editorial.titleTracking : 0
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.ink : Appearance.colors.colOnLayer3
+                    Behavior on color {
+                        enabled: Appearance.animationsEnabled
+                        ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                    }
                     elide: Text.ElideRight
-                    text: root.notificationObject.summary || ""
+                    text: root.notificationSummaryText
                 }
                 StyledText {
                     opacity: !root.expanded ? 1 : 0
                     visible: opacity > 0
                     Layout.fillWidth: true
                     Behavior on opacity {
-                        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        enabled: Appearance.animationsEnabled
+                        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                     }
                     font.pixelSize: root.fontSize
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.inkMuted : Appearance.colors.colSubtext
+                    Behavior on color {
+                        enabled: Appearance.animationsEnabled
+                        ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                    }
                     elide: Text.ElideRight
                     wrapMode: Text.Wrap // Needed for proper eliding????
                     maximumLineCount: 1
                     textFormat: Text.StyledText
-                    text: {
-                        return NotificationUtils.processNotificationBody(notificationObject.body, notificationObject.appName || notificationObject.summary).replace(/\n/g, "<br/>")
-                    }
+                    text: root.processedNotificationBodyText
                 }
             }
 
@@ -193,24 +261,28 @@ Item { // Notification item area
                 StyledText { // Notification body (expanded)
                     id: notificationBodyText
                     Behavior on opacity {
-                        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        enabled: Appearance.animationsEnabled
+                        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                     }
                     Layout.fillWidth: true
                     font.pixelSize: root.fontSize
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.zzzEverywhere ? Appearance.zzz.inkMuted : Appearance.colors.colSubtext
+                    Behavior on color {
+                        enabled: Appearance.animationsEnabled
+                        ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                    }
                     wrapMode: Text.Wrap
                     elide: Text.ElideRight
                     textFormat: Text.RichText
-                    text: {
-                        return `<style>img{max-width:${expandedContentColumn.width}px;}</style>` + 
-                            `${NotificationUtils.processNotificationBody(notificationObject.body, notificationObject.appName || notificationObject.summary).replace(/\n/g, "<br/>")}`
-                    }
+                    text: root.notificationObject
+                        ? `<style>img{max-width:100%;}</style>${root.processedNotificationBodyText}`
+                        : ""
 
                     onLinkActivated: (link) => {
                         Qt.openUrlExternally(link)
                         GlobalStates.sidebarRightOpen = false
                     }
-                    
+
                     PointingHandLinkHover {}
                 }
 
@@ -224,7 +296,8 @@ Item { // Notification item area
                         maskSource: Rectangle {
                             width: actionsFlickable.width
                             height: actionsFlickable.height
-                            radius: Appearance.rounding.small
+                            radius: Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                                : Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
                         }
                     }
 
@@ -240,25 +313,29 @@ Item { // Notification item area
                         contentWidth: actionRowLayout.implicitWidth
 
                         Behavior on opacity {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                            enabled: Appearance.animationsEnabled
+                            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
                         Behavior on height {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                            enabled: Appearance.animationsEnabled
+                            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
                         Behavior on implicitHeight {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                            enabled: Appearance.animationsEnabled
+                            animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                         }
 
                         RowLayout {
                             id: actionRowLayout
                             Layout.alignment: Qt.AlignBottom
+                            spacing: 4
 
                             NotificationActionButton {
                                 Layout.fillWidth: true
                                 buttonText: Translation.tr("Close")
-                                urgency: notificationObject.urgency
-                                implicitWidth: (notificationObject.actions.length == 0) ? ((actionsFlickable.width - actionRowLayout.spacing) / 2) : 
-                                    (contentItem.implicitWidth + leftPadding + rightPadding)
+                                urgency: root.notificationObject?.urgency ?? NotificationUrgency.Normal
+                                implicitWidth: !root.hasNotificationActions ? (Math.max(0, actionsFlickable.width - actionRowLayout.spacing) / 2) :
+                                    ((contentItem?.implicitWidth ?? 0) + (leftPadding ?? 0) + (rightPadding ?? 0))
 
                                 onClicked: {
                                     root.destroyWithAnimation()
@@ -267,20 +344,21 @@ Item { // Notification item area
                                 contentItem: MaterialSymbol {
                                     iconSize: Appearance.font.pixelSize.larger
                                     horizontalAlignment: Text.AlignHCenter
-                                    color: (notificationObject.urgency == NotificationUrgency.Critical) ? 
-                                        Appearance.m3colors.m3onSurfaceVariant : Appearance.m3colors.m3onSurface
+                                    color: root.notificationCritical
+                                        ? Appearance.colors.colOnSecondaryContainer
+                                        : Appearance.colors.colOnLayer3
                                     text: "close"
                                 }
                             }
 
                             Repeater {
                                 id: actionRepeater
-                                model: notificationObject.actions
+                                model: notificationObject?.actions ?? []
                                 NotificationActionButton {
                                     required property var modelData
                                     Layout.fillWidth: true
-                                    buttonText: modelData.text
-                                    urgency: notificationObject.urgency
+                                    buttonText: String(modelData?.text ?? "")
+                                    urgency: root.notificationObject?.urgency ?? NotificationUrgency.Normal
                                     onClicked: {
                                         Notifications.attemptInvokeAction(notificationObject.notificationId, modelData.identifier);
                                     }
@@ -289,12 +367,12 @@ Item { // Notification item area
 
                             NotificationActionButton {
                                 Layout.fillWidth: true
-                                urgency: notificationObject.urgency
-                                implicitWidth: (notificationObject.actions.length == 0) ? ((actionsFlickable.width - actionRowLayout.spacing) / 2) : 
-                                    (contentItem.implicitWidth + leftPadding + rightPadding)
+                                urgency: root.notificationObject?.urgency ?? NotificationUrgency.Normal
+                                implicitWidth: !root.hasNotificationActions ? (Math.max(0, actionsFlickable.width - actionRowLayout.spacing) / 2) :
+                                    ((contentItem?.implicitWidth ?? 0) + (leftPadding ?? 0) + (rightPadding ?? 0))
 
                                 onClicked: {
-                                    Quickshell.clipboardText = notificationObject.body
+                                    Quickshell.execDetached(["wl-copy", notificationObject?.body ?? ""])
                                     copyIcon.text = "inventory"
                                     copyIconTimer.restart()
                                 }
@@ -312,12 +390,13 @@ Item { // Notification item area
                                     id: copyIcon
                                     iconSize: Appearance.font.pixelSize.larger
                                     horizontalAlignment: Text.AlignHCenter
-                                    color: (notificationObject.urgency == NotificationUrgency.Critical) ? 
-                                        Appearance.m3colors.m3onSurfaceVariant : Appearance.m3colors.m3onSurface
+                                    color: root.notificationCritical
+                                        ? Appearance.colors.colOnSecondaryContainer
+                                        : Appearance.colors.colOnLayer3
                                     text: "content_copy"
                                 }
                             }
-                            
+
                         }
                     }
                 }

@@ -15,22 +15,74 @@ fi
 # Optional: install only a specific list of missing deps
 #####################################################################################
 if [[ -n "${ONLY_MISSING_DEPS:-}" ]]; then
-  echo -e "${STY_CYAN}[$0]: Installing missing dependencies only...${STY_RST}"
+  tui_info "Installing missing dependencies only..."
 
-  local installflags="--needed"
-  $ask || installflags="$installflags --noconfirm"
+  # doctor reports command IDs; map them to Arch package names.
+  declare -A cmd_to_pkg=(
+    [qs]="quickshell"
+    [niri]="niri"
+    [nmcli]="networkmanager"
+    [wpctl]="wireplumber"
+    [jq]="jq"
+    [rsync]="rsync"
+    [curl]="curl"
+    [git]="git"
+    [python3]="python"
+    [wlsunset]="wlsunset"
+    [fish]="fish"
+    [magick]="imagemagick"
+    [swaylock]="swaylock"
+    [swayidle]="swayidle"
+    [grim]="grim"
+    [mpv]="mpv"
+    [cliphist]="cliphist"
+    [wl-copy]="wl-clipboard"
+    [wl-paste]="wl-clipboard"
+    [hyprpicker]="hyprpicker"
+    [songrec]="songrec"
+    [trans]="translate-shell"
+    [ocr-eng]="tesseract-data-eng"
+    [ocr-spa]="tesseract-data-spa"
+    [ocr-rus]="tesseract-data-rus"
+    [ocr-jpn]="tesseract-data-jpn"
+    [ocr-jpn-vert]="tesseract-data-jpn_vert"
+    [ocr-chi-sim]="tesseract-data-chi_sim"
+    [ocr-chi-sim-vert]="tesseract-data-chi_sim_vert"
+    [ocr-chi-tra]="tesseract-data-chi_tra"
+    [ocr-chi-tra-vert]="tesseract-data-chi_tra_vert"
+    # Package-level checks from doctor (no direct command binary)
+    [syntax-highlighting]="syntax-highlighting"
+    [kirigami]="kirigami"
+    [kdialog]="kdialog"
+    [millennium]="millennium-bin"
+    [missioncenter]="mission-center"
+  )
 
-  local missing_pkgs=()
-  read -r -a missing_pkgs <<<"$ONLY_MISSING_DEPS"
+  _miss_installflags="--needed"
+  $ask || _miss_installflags="$_miss_installflags --noconfirm"
 
-  if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
+  _miss_pkgs=()
+  _miss_cmds=()
+  read -r -a _miss_cmds <<<"$ONLY_MISSING_DEPS"
+  for cmd in "${_miss_cmds[@]}"; do
+    _miss_pkg="${cmd_to_pkg[$cmd]:-$cmd}"
+    [[ " ${_miss_pkgs[*]} " == *" ${_miss_pkg} "* ]] || _miss_pkgs+=("$_miss_pkg")
+  done
+
+  if [[ ${#_miss_pkgs[@]} -gt 0 ]]; then
     case $SKIP_SYSUPDATE in
       true) sleep 0;;
-      *) v sudo pacman -Syu;;
+      *) 
+        if $ask; then
+          v pkg_sudo pacman -Syu
+        else
+          v pkg_sudo pacman -Syu --noconfirm
+        fi
+        ;;
     esac
 
     if ! command -v yay >/dev/null 2>&1 && ! command -v paru >/dev/null 2>&1; then
-      echo -e "${STY_YELLOW}[$0]: No AUR helper found.${STY_RST}"
+      log_warning "No AUR helper found"
       showfun install-yay
       v install-yay
     fi
@@ -41,7 +93,7 @@ if [[ -n "${ONLY_MISSING_DEPS:-}" ]]; then
       AUR_HELPER="paru"
     fi
 
-    v $AUR_HELPER -S $installflags "${missing_pkgs[@]}"
+    v $AUR_HELPER -S $_miss_installflags "${_miss_pkgs[@]}"
   fi
 
   unset ONLY_MISSING_DEPS
@@ -53,14 +105,20 @@ fi
 #####################################################################################
 case $SKIP_SYSUPDATE in
   true) sleep 0;;
-  *) v sudo pacman -Syu;;
+  *) 
+    if $ask; then
+      v pkg_sudo pacman -Syu
+    else
+      v pkg_sudo pacman -Syu --noconfirm
+    fi
+    ;;
 esac
 
 #####################################################################################
 # Ensure AUR helper
 #####################################################################################
 if ! command -v yay >/dev/null 2>&1 && ! command -v paru >/dev/null 2>&1; then
-  echo -e "${STY_YELLOW}[$0]: No AUR helper found.${STY_RST}"
+  log_warning "No AUR helper found"
   showfun install-yay
   v install-yay
 fi
@@ -73,46 +131,31 @@ elif command -v paru >/dev/null 2>&1; then
 fi
 
 #####################################################################################
-# Install packages from PKGBUILDs (read depends and install them)
+# Collect official dependencies from PKGBUILDs
 #####################################################################################
-echo -e "${STY_CYAN}[$0]: Installing packages from local PKGBUILDs...${STY_RST}"
+tui_info "Resolving Arch package plan..."
 
-# Function to install deps from a PKGBUILD
-install_pkgbuild_deps() {
+PKGBUILD_PACKAGES=()
+collect_pkgbuild_deps() {
   local pkgbuild_dir="$1"
   local pkgbuild_file="${pkgbuild_dir}/PKGBUILD"
-  
+
   if [[ ! -f "$pkgbuild_file" ]]; then
-    echo -e "${STY_YELLOW}PKGBUILD not found: $pkgbuild_file${STY_RST}"
+    log_warning "PKGBUILD not found: $pkgbuild_file"
     return 1
   fi
-  
-  echo -e "${STY_BLUE}Reading dependencies from: $pkgbuild_file${STY_RST}"
-  
-  # Source PKGBUILD to get depends array
+
   local depends=()
   source "$pkgbuild_file"
-  
-  if [[ ${#depends[@]} -eq 0 ]]; then
-    echo -e "${STY_YELLOW}No dependencies in $pkgbuild_file${STY_RST}"
-    return 0
+  if [[ ${#depends[@]} -gt 0 ]]; then
+    PKGBUILD_PACKAGES+=("${depends[@]}")
   fi
-  
-  echo -e "${STY_GREEN}Installing: ${depends[*]}${STY_RST}"
-  
-  local installflags="--needed"
-  $ask || installflags="$installflags --noconfirm"
-  
-  # Install via pacman first (for official repos)
-  sudo pacman -S $installflags "${depends[@]}" 2>/dev/null || {
-    # Some packages may be AUR-only, try with AUR helper
-    $AUR_HELPER -S $installflags "${depends[@]}"
-  }
 }
 
-# Install from each PKGBUILD
+# Keep the same dependency surface as before, but defer installation until all
+# package groups and conflict decisions are known. This avoids one pacman
+# transaction per local PKGBUILD on fresh systems.
 for pkgdir in ./sdata/dist-arch/inir-*/; do
-  # Check group flags
   pkgname=$(basename "$pkgdir")
   case "$pkgname" in
     inir-audio) $INSTALL_AUDIO || continue ;;
@@ -120,28 +163,244 @@ for pkgdir in ./sdata/dist-arch/inir-*/; do
     inir-screencapture) $INSTALL_SCREENCAPTURE || continue ;;
     inir-fonts) $INSTALL_FONTS || continue ;;
   esac
-  
-  v install_pkgbuild_deps "$pkgdir"
+  collect_pkgbuild_deps "$pkgdir"
 done
 
 #####################################################################################
-# Install AUR packages
+# Pre-install: resolve quickshell package conflicts
+# quickshell-git and quickshell-bin conflict with quickshell (official extra repo).
+# pacman --noconfirm does NOT auto-remove conflicting packages — it aborts instead.
 #####################################################################################
-echo -e "${STY_CYAN}[$0]: Installing AUR packages...${STY_RST}"
+_keep_existing_quickshell=false
+for qs_conflict in quickshell-git quickshell-bin; do
+  if pacman -Qi "$qs_conflict" &>/dev/null 2>&1; then
+    log_warning "$qs_conflict is installed and conflicts with quickshell (stable, extra repo)"
+    if $ask; then
+      if tui_confirm "Replace $qs_conflict with quickshell (stable)? (recommended)"; then
+        log_info "Removing $qs_conflict..."
+        v pkg_sudo pacman -Rdd --noconfirm "$qs_conflict" 2>/dev/null \
+          || v pkg_sudo pacman -R --noconfirm "$qs_conflict" \
+          || log_warning "Could not remove $qs_conflict — install may fail"
+      else
+        log_warning "Keeping $qs_conflict — removing quickshell from install plan"
+        _keep_existing_quickshell=true
+      fi
+    else
+      log_info "Non-interactive: replacing $qs_conflict with quickshell (stable)"
+      pkg_sudo pacman -Rdd --noconfirm "$qs_conflict" 2>/dev/null \
+        || pkg_sudo pacman -R --noconfirm "$qs_conflict" 2>/dev/null \
+        || log_warning "Could not remove $qs_conflict — install may fail"
+    fi
+  fi
+done
 
-AUR_PACKAGES=(
-  # Quickshell (CRITICAL)
-  quickshell-git
-  google-breakpad
-  qt6-avif-image-plugin
-  
-  # Note: Python deps are handled via uv + requirements.txt, not AUR packages
+#####################################################################################
+# Pre-install: resolve Quickshell-based shell conflicts
+# Other shells ship their own Quickshell fork or own overlapping configs.
+# Order matters: meta-packages first, then shells, then runtimes, so pacman
+# doesn't complain about dangling dependents.
+#####################################################################################
+_qs_shell_conflicts=(
+  # Noctalia (CachyOS default Niri shell) — meta first, then shell, then runtime
+  cachyos-niri-noctalia
+  noctalia-shell
+  noctalia-qs
+  noctalia-qs-git
+  # DankMaterialShell
+  dms-shell
+  dms-shell-git
+  # Caelestia
+  caelestia-shell
+  caelestia-shell-git
+  # BMS
+  bms-shell-bin
 )
 
-# Critical fonts (UI breaks without these)
+_qs_shell_found=false
+for _qs_pkg in "${_qs_shell_conflicts[@]}"; do
+  if pacman -Qi "$_qs_pkg" &>/dev/null 2>&1; then
+    _qs_shell_found=true
+    log_warning "$_qs_pkg is installed and conflicts with iNiR"
+
+    # Stop related services before removal
+    systemctl --user stop "${_qs_pkg}.service" 2>/dev/null || true
+    systemctl --user disable "${_qs_pkg}.service" 2>/dev/null || true
+
+    if $ask; then
+      if tui_confirm "Remove $_qs_pkg? (required for iNiR)"; then
+        log_info "Removing $_qs_pkg..."
+        v pkg_sudo pacman -Rdd --noconfirm "$_qs_pkg" 2>/dev/null \
+          || v pkg_sudo pacman -R --noconfirm "$_qs_pkg" \
+          || log_warning "Could not remove $_qs_pkg — install may fail"
+      else
+        log_warning "Keeping $_qs_pkg — iNiR may not work correctly"
+      fi
+    else
+      log_info "Non-interactive: removing $_qs_pkg"
+      pkg_sudo pacman -Rdd --noconfirm "$_qs_pkg" 2>/dev/null \
+        || pkg_sudo pacman -R --noconfirm "$_qs_pkg" 2>/dev/null \
+        || log_warning "Could not remove $_qs_pkg — install may fail"
+    fi
+  fi
+done
+
+# After removing a shell that provides quickshell (e.g. noctalia-qs), the
+# quickshell slot is empty.  Sync the package db so pacman can install the
+# upstream quickshell cleanly.
+if $_qs_shell_found; then
+  pkg_sudo pacman -Sy 2>/dev/null || true
+fi
+tui_info "Installing official repo packages..."
+
+# These packages are now in official Arch repos (extra) - NO AUR, NO COMPILATION!
+OFFICIAL_PACKAGES=(
+  # Quickshell (CRITICAL) - NOW IN EXTRA REPO!
+  quickshell
+
+  # Critical QML/KDE runtime modules (required for shell startup)
+  syntax-highlighting
+  kirigami
+  kdialog
+  
+  # Already in PKGBUILDs but ensure they're installed
+  niri
+  cliphist
+  gum
+  starship
+  eza
+  xwayland-satellite
+  
+  # Emoji font (CRITICAL — overview search, notifications, etc.)
+  noto-fonts-emoji
+  
+  # File manager
+  nautilus
+  
+  # Polkit, for the shell's own authentication dialogs
+  polkit
+  
+  # Icon themes - fallbacks from official repos (always available)
+  hicolor-icon-theme
+  adwaita-icon-theme
+  papirus-icon-theme
+  breeze-icons
+
+  # Qt theming (works without Plasma desktop)
+  qt6ct
+  kvantum
+  plasma-integration   # Provides QT_QPA_PLATFORMTHEME=kde plugin (reads kdeglobals colors)
+
+  # Browser media integration
+  plasma-browser-integration   # Provides browser MPRIS sessions and artwork
+
+  # KDE Frameworks needed by darkly-bin Qt style (lightweight, NOT Plasma)
+  frameworkintegration
+  kdecoration
+
+  # SDDM login screen (users without another DE need this to log in)
+  sddm
+  qt6-svg
+  qt6-multimedia-ffmpeg
+
+  # Video wallpaper support (thumbnail + SDDM background extraction)
+  ffmpeg
+
+  # Prebuilt package that used to be routed through AUR
+  mission-center
+)
+
+if [[ "${OS_SPECIFIC_ID:-}" == "cachyos" ]] && pacman -Si niri-focused-booster &>/dev/null; then
+  OFFICIAL_PACKAGES+=(niri-focused-booster)
+fi
+
+# Preserve install-group flags while preferring signed Arch packages wherever
+# possible. These used to be installed through AUR only when their group was on.
+if $INSTALL_FONTS; then
+  OFFICIAL_PACKAGES+=(
+    adw-gtk-theme
+    capitaine-cursors
+    ttf-material-symbols-variable
+    ttf-jetbrains-mono-nerd
+  )
+fi
+if $INSTALL_TOOLKIT; then
+  OFFICIAL_PACKAGES+=(uv)
+fi
+
+installflags="--needed"
+$ask || installflags="$installflags --noconfirm"
+
+# Merge every official dependency into one transaction. The local PKGBUILDs
+# remain the dependency source of truth; OFFICIAL_PACKAGES covers explicit
+# integration packages that are not represented by those bundles.
+_all_official=("${PKGBUILD_PACKAGES[@]}" "${OFFICIAL_PACKAGES[@]}")
+mapfile -t _all_official < <(printf '%s\n' "${_all_official[@]}" | awk 'NF' | sort -u)
+if $_keep_existing_quickshell; then
+  mapfile -t _all_official < <(printf '%s\n' "${_all_official[@]}" | grep -vx 'quickshell' || true)
+fi
+mapfile -t _missing_official < <(pacman -T "${_all_official[@]}" 2>/dev/null || true)
+REPO_FALLBACK_PACKAGES=()
+_repo_installable=()
+
+# Derivatives such as Manjaro can lag Arch `extra`. Only send packages that
+# actually exist in the configured sync databases to pacman; preserve the old
+# AUR recovery path for anything missing from those repositories. pacman -Si
+# reads the already-synced local metadata, so this adds no network round trip.
+for pkg in "${_missing_official[@]}"; do
+  if pacman -Si "$pkg" &>/dev/null; then
+    _repo_installable+=("$pkg")
+  else
+    REPO_FALLBACK_PACKAGES+=("$pkg")
+  fi
+done
+
+if [[ ${#_repo_installable[@]} -gt 0 ]]; then
+  log_info "Installing ${#_repo_installable[@]} missing packages from official repos..."
+  if ! v pkg_sudo pacman -S $installflags "${_repo_installable[@]}"; then
+    log_warning "Official package batch failed — retrying individually before AUR fallback"
+    for pkg in "${_repo_installable[@]}"; do
+      pacman -Q "$pkg" &>/dev/null && continue
+      if ! pkg_sudo pacman -S $installflags "$pkg"; then
+        REPO_FALLBACK_PACKAGES+=("$pkg")
+      fi
+    done
+  fi
+elif [[ ${#_missing_official[@]} -eq 0 ]]; then
+  log_success "Official Arch dependencies already satisfied"
+fi
+
+if [[ ${#REPO_FALLBACK_PACKAGES[@]} -gt 0 ]]; then
+  log_warning "Not available from configured repos: ${REPO_FALLBACK_PACKAGES[*]}"
+  log_info "Will try the existing AUR path for those packages"
+fi
+unset PKGBUILD_PACKAGES _all_official _missing_official _repo_installable _keep_existing_quickshell
+
+#####################################################################################
+# Install AUR packages (only those not in official repos)
+#####################################################################################
+tui_info "Installing AUR packages..."
+
+REQUIRED_AUR_PACKAGES=(
+)
+
+AUR_PACKAGES=(
+  "${REPO_FALLBACK_PACKAGES[@]}"
+
+  # Qt6 extras (not in official repos)
+  qt6-avif-image-plugin
+
+  # Wallpaper effects editor (used by Gowall integration)
+  gowall-bin
+
+  # Note: Python deps are handled via uv + requirements.txt, not AUR packages
+)
+unset REPO_FALLBACK_PACKAGES
+
+# Critical fonts that still require AUR (official-repo fonts are installed above)
 CRITICAL_FONTS=(
-  ttf-material-symbols-variable-git
-  ttf-jetbrains-mono-nerd
+  ttf-roboto-flex
+  ttf-oxanium
+  ttf-gabarito-git
 )
 
 # Optional fonts (have system fallbacks)
@@ -156,8 +415,10 @@ OPTIONAL_FONTS=(
 # These are used as fallback when AUR packages are unavailable
 declare -A FONT_FALLBACK_URLS=(
   ["otf-space-grotesk"]="https://github.com/floriankarsten/space-grotesk/raw/master/fonts/ttf/SpaceGrotesk%5Bwght%5D.ttf"
+  ["ttf-gabarito-git"]="https://github.com/google/fonts/raw/main/ofl/gabarito/Gabarito%5Bwght%5D.ttf"
   ["ttf-readex-pro"]="https://raw.githubusercontent.com/ThomasJockin/readexpro/master/fonts/variable/Readexpro%5BHEXP%2Cwght%5D.ttf"
   ["ttf-rubik-vf"]="https://github.com/googlefonts/rubik/raw/main/fonts/variable/Rubik%5Bwght%5D.ttf"
+  ["ttf-oxanium"]="https://github.com/google/fonts/raw/main/ofl/oxanium/Oxanium%5Bwght%5D.ttf"
 )
 
 # Function to install font from direct URL
@@ -172,69 +433,150 @@ install_font_fallback() {
   local font_dir="$HOME/.local/share/fonts"
   mkdir -p "$font_dir"
   
-  echo -e "${STY_BLUE}Downloading $font_name from fallback URL...${STY_RST}"
+  log_info "Downloading $font_name from fallback URL..."
   if curl -fsSL -o "$font_dir/${font_name}.ttf" "$url" 2>/dev/null; then
     fc-cache -f "$font_dir" 2>/dev/null
-    echo -e "${STY_GREEN}Installed $font_name from fallback${STY_RST}"
+    log_success "Installed $font_name from fallback"
     return 0
   fi
   return 1
 }
 
+# Millennium (Steam theming) is opt-in — not installed automatically.
+# Users who want Steam Material-Theme can install millennium-bin manually.
+
 # Add other AUR packages based on flags
 if $INSTALL_FONTS; then
-  AUR_PACKAGES+=(
-    matugen-bin
-    adw-gtk-theme-git
-    capitaine-cursors
-    whitesur-icon-theme-git
-    darkly
-  )
+  AUR_PACKAGES+=(whitesur-icon-theme)
+  # Darkly already on the system (another package, or files left by an earlier install) makes
+  # darkly-bin fail with "exists in filesystem" and stops the whole AUR batch.
+  if [[ -e /usr/lib/qt6/plugins/styles/darkly6.so ]]; then
+    log_info "Darkly is already installed, skipping darkly-bin"
+  else
+    AUR_PACKAGES+=(darkly-bin)
+  fi
 fi
 
 if $INSTALL_AUDIO; then
   : # cava moved to inir-audio PKGBUILD
 fi
 
-if $INSTALL_TOOLKIT; then
-  AUR_PACKAGES+=(uv)
-fi
+# uv is in Arch extra and is installed in the official package batch.
 
+# Reset installflags for AUR helper
 installflags="--needed"
 $ask || installflags="$installflags --noconfirm"
 
-# Install main AUR packages
-v $AUR_HELPER -S $installflags "${AUR_PACKAGES[@]}"
+if [[ ${#REQUIRED_AUR_PACKAGES[@]} -gt 0 ]]; then
+  log_info "Installing required AUR packages: ${REQUIRED_AUR_PACKAGES[*]}"
+  if ! v $AUR_HELPER -S $installflags "${REQUIRED_AUR_PACKAGES[@]}"; then
+    log_error "Failed to install required AUR packages: ${REQUIRED_AUR_PACKAGES[*]}"
+    return 1
+  fi
+fi
 
-# Install fonts separately with proper error handling
+# Install main AUR packages (these are the only ones that need AUR)
+if [[ ${#AUR_PACKAGES[@]} -gt 0 ]]; then
+  log_info "Installing ${#AUR_PACKAGES[@]} AUR packages..."
+  v $AUR_HELPER -S $installflags "${AUR_PACKAGES[@]}" || {
+    log_warning "Some AUR packages failed — trying individually..."
+    for pkg in "${AUR_PACKAGES[@]}"; do
+      $AUR_HELPER -S $installflags "$pkg" 2>/dev/null || \
+        log_warning "Could not install $pkg (non-critical)"
+    done
+  }
+fi
+
+# Install fonts with one AUR transaction first; keep the old per-package and
+# direct-download paths as recovery for flaky/region-limited AUR access.
 if $INSTALL_FONTS; then
-  echo -e "${STY_CYAN}[$0]: Installing critical fonts...${STY_RST}"
-  
-  # Critical fonts - must succeed
+  tui_info "Installing AUR fonts..."
+
+  _aur_fonts=("${CRITICAL_FONTS[@]}" "${OPTIONAL_FONTS[@]}")
+  if [[ ${#_aur_fonts[@]} -gt 0 ]]; then
+    $AUR_HELPER -S $installflags "${_aur_fonts[@]}" 2>/dev/null ||
+      log_warning "AUR font batch was incomplete — checking packages individually"
+  fi
+
   for font in "${CRITICAL_FONTS[@]}"; do
-    if ! $AUR_HELPER -S $installflags "$font" 2>/dev/null; then
-      echo -e "${STY_RED}CRITICAL: Failed to install $font. UI icons may not work.${STY_RST}"
-      echo -e "${STY_YELLOW}Try installing manually: $AUR_HELPER -S $font${STY_RST}"
+    if ! pacman -Q "$font" &>/dev/null && ! $AUR_HELPER -S $installflags "$font" 2>/dev/null; then
+      log_error "CRITICAL: Failed to install $font — some iNiR typography may fall back"
+      log_warning "Try: $AUR_HELPER -S $font"
     fi
   done
-  
-  echo -e "${STY_CYAN}[$0]: Installing optional fonts...${STY_RST}"
-  
-  # Optional fonts - try AUR first, then fallback
+
   for font in "${OPTIONAL_FONTS[@]}"; do
+    if pacman -Q "$font" &>/dev/null; then
+      continue
+    fi
     if ! $AUR_HELPER -S $installflags "$font" 2>/dev/null; then
-      echo -e "${STY_YELLOW}AUR package $font not available, trying fallback...${STY_RST}"
+      log_info "$font unavailable through AUR, trying direct download fallback..."
       if ! install_font_fallback "$font"; then
-        echo -e "${STY_YELLOW}Could not install $font. System will use fallback fonts.${STY_RST}"
+        log_warning "$font unavailable — system will use fallback fonts"
       fi
     fi
   done
+  unset _aur_fonts
 fi
 
 #####################################################################################
-# Optional: Python environment setup
+# Register dependencies with pacman via meta-package
+# This prevents "clean orphans" from removing iNiR's deps.
+# The meta-package contains no files — only dependency declarations.
 #####################################################################################
-showfun install-python-packages
-v install-python-packages
+tui_info "Registering dependencies with pacman..."
 
-echo -e "${STY_GREEN}[$0]: Dependencies installed successfully.${STY_RST}"
+_meta_dir="./sdata/dist-arch/inir-deps"
+if [[ -f "$_meta_dir/PKGBUILD" ]]; then
+  # Update pkgver from VERSION file
+  _inir_ver="$(cat ./VERSION 2>/dev/null || echo '2.33.0')"
+  sed -i "s/^pkgver=.*/pkgver=${_inir_ver}/" "$_meta_dir/PKGBUILD"
+
+  (
+    cd "$_meta_dir"
+    # -d: skip dependency checks during build (they're already installed)
+    # -f: force rebuild if .pkg.tar.zst already exists
+    # -C: clean build dir first
+    if makepkg -dfC 2>/dev/null; then
+      # Install the meta-package (overwrite if already installed)
+      local_pkg=(*.pkg.tar.zst)
+      if [[ -f "${local_pkg[0]}" ]]; then
+        if pkg_sudo pacman -U --noconfirm --needed "${local_pkg[0]}" 2>/dev/null; then
+          log_success "Meta-package inir-deps registered — orphan cleaner will skip iNiR deps"
+        else
+          # Some deps might be AUR-only and not satisfy pacman's check.
+          # Fall back to installing without dep verification.
+          pkg_sudo pacman -Udd --noconfirm "${local_pkg[0]}" 2>/dev/null && \
+            log_success "Meta-package inir-deps registered (forced)" || \
+            log_warning "Could not register meta-package — orphan protection unavailable"
+        fi
+        rm -f "${local_pkg[@]}" 2>/dev/null
+      fi
+    else
+      log_warning "Could not build meta-package — orphan protection unavailable"
+    fi
+  )
+else
+  log_warning "Meta-package PKGBUILD not found at $_meta_dir"
+fi
+unset _meta_dir _inir_ver
+
+#####################################################################################
+# Post-install: Quickshell built for another Qt version
+# Quickshell uses Qt internals and asks to be rebuilt after every Qt update.
+# `inir doctor --fix-abi` (scripts/inir) owns the rebuild for every install kind.
+#####################################################################################
+if command -v qs >/dev/null 2>&1; then
+  qs_abi_output="$(timeout 5 env QT_QPA_PLATFORM=offscreen qs --version 2>&1 || true)"
+  if echo "$qs_abi_output" | grep -qiE "built against Qt|Qt.*mismatch|incompatible Qt"; then
+    log_warning "Quickshell was built for another Qt version. Until it is rebuilt it can crash."
+    qs_fix_args=(doctor --fix-abi)
+    $ask || qs_fix_args+=(--noninteractive)
+    if ! bash ./scripts/inir "${qs_fix_args[@]}"; then
+      log_warning "To fix later: inir doctor --fix-abi"
+    fi
+    unset qs_fix_args
+  fi
+fi
+
+log_success "Dependencies installed"

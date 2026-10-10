@@ -1,0 +1,26 @@
+#!/bin/bash
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# WEHTTAMSNAPS PHOTOGRAPHY WORKFLOW PROTOCOL
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 1. Voice Confirmation
+jarvis photo-mode
+
+# 2. Set the Visual Vibe (TokyoNight Purple focus ring)
+niri msg action set-focus-ring-color "#8A2BE2"
+
+# 3. Move to Workspace 5 (Your Photography Studio)
+niri msg action focus-workspace 5
+
+# 4. Launch the Suite
+# We'll launch them in the background so the script doesn't hang
+nautilus ~/Pictures/Projects & 
+gimp &
+
+# 5. J.A.R.V.I.S. Status Report
+notify-send "J.A.R.V.I.S." "Photography workspace initialized. Good luck with the edit, Matthew.o
+"
+# Set GPU back to auto power management
+if [ -f /sys/class/drm/card0/device/power_dpm_force_performance_level ]; then
+    echo "auto" | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level > /dev/null
+fi

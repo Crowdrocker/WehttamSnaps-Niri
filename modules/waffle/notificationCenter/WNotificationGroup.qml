@@ -75,17 +75,20 @@ Item {
         id: contentLayout
         anchors.fill: parent
         x: root.expanded ? 0 : dragManager.dragDiffX
-        spacing: 4
+        spacing: Looks.dp(4)
 
         Behavior on x {
             enabled: !dragManager.dragging
-            animation: Looks.transition.move.createObject(this)
+            animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
         }
 
         GroupHeader {
             id: notifHeader
             Layout.fillWidth: true
-            Layout.margins: 11
+            Layout.leftMargin: Looks.dp(11)
+            Layout.rightMargin: Looks.dp(11)
+            Layout.topMargin: Looks.dp(11)
+            Layout.bottomMargin: Looks.dp(11)
         }
 
         ListView {
@@ -93,29 +96,25 @@ Item {
             implicitWidth: notifHeader.implicitWidth
             implicitHeight: contentHeight
             interactive: false
-            spacing: 4
+            spacing: Looks.dp(4)
 
             // Smooth transitions
             add: Transition {
                 ParallelAnimation {
-                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
-                    NumberAnimation { property: "scale"; from: 0.95; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
+                    NumberAnimation { property: "scale"; from: 0.95; to: 1; duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.decelerate }
                 }
             }
             
             remove: Transition {
                 ParallelAnimation {
-                    NumberAnimation { property: "opacity"; to: 0; duration: 150; easing.type: Easing.InCubic }
-                    NumberAnimation { property: "x"; to: 50; duration: 150; easing.type: Easing.InCubic }
+                    NumberAnimation { property: "opacity"; to: 0; duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.accelerate }
+                    NumberAnimation { property: "x"; to: 50; duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.accelerate }
                 }
             }
             
             displaced: Transition {
-                NumberAnimation { properties: "x,y"; duration: 200; easing.type: Easing.OutCubic }
-            }
-
-            Behavior on implicitHeight {
-                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                NumberAnimation { properties: "x,y"; duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
             }
 
             model: ScriptModel {
@@ -194,9 +193,9 @@ Item {
             // Notification count badge
             Rectangle {
                 visible: root.notificationCount > 1
-                implicitWidth: Math.max(countText.implicitWidth + 8, 18)
-                implicitHeight: 18
-                radius: 9
+                implicitWidth: Math.max(countText.implicitWidth + Looks.dp(8), Looks.dp(18))
+                implicitHeight: Looks.dp(18)
+                radius: height / 2
                 color: Looks.colors.bg1Base
 
                 WText {
@@ -222,7 +221,7 @@ Item {
                 }
 
                 Behavior on opacity {
-                    animation: Looks.transition.opacity.createObject(this)
+                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
                 }
             }
         }

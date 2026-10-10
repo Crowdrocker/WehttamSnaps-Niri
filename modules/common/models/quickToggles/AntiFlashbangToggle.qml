@@ -8,10 +8,11 @@ QuickToggleModel {
     name: Translation.tr("Anti-flashbang")
     tooltipText: Translation.tr("Anti-flashbang")
     icon: "flash_off"
-    toggled: Config.options.light.antiFlashbang.enable
+    toggled: Config.options?.light?.antiFlashbang?.enable ?? false
 
     mainAction: () => {
-        Config.options.light.antiFlashbang.enable = !Config.options.light.antiFlashbang.enable;
+        const current = Config.options?.light?.antiFlashbang?.enable ?? false
+        Config.setNestedValue("light.antiFlashbang.enable", !current)
     }
     hasMenu: true
 }

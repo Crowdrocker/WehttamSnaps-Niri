@@ -1,4 +1,5 @@
 import qs.modules.common
+import qs.modules.common.functions
 import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Layouts
@@ -9,21 +10,41 @@ RippleButton {
     property string buttonIcon
     property string buttonText
     property bool keyboardDown: false
-    property real size: 120
+    readonly property bool editorial: Appearance.editorialEverywhere
+    property real size: editorial ? 104 : 120
 
-    buttonRadius: (button.focus || button.down) ? size / 2 
-        : (Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.verylarge)
-    colBackground: button.keyboardDown 
+    buttonRadius: Appearance.zzzEverywhere
+        ? ((button.focus || button.down) ? Appearance.zzz.controlRadius : Appearance.zzz.panelRadius)
+        : editorial ? Appearance.rounding.small
+        : (button.focus || button.down) ? size / 2
+        : (Appearance.angelEverywhere ? Appearance.angel.roundingLarge
+            : Appearance.inirEverywhere ? Appearance.inir.roundingLarge : Appearance.rounding.verylarge)
+    colBackground: Appearance.zzzEverywhere
+        ? (button.keyboardDown
+            ? Appearance.zzz.signal
+            : button.focus ? Appearance.zzz.sticker : Appearance.zzz.paperAlt)
+        : editorial
+            ? ((button.keyboardDown || button.focus) ? Appearance.editorial.accent : Appearance.editorial.paper)
+        : button.keyboardDown
         ? (Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colSecondaryContainerActive)
-        : button.focus 
+        : button.focus
             ? (Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary)
-            : (Appearance.inirEverywhere ? Appearance.inir.colLayer2 
-                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
+            : (Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                : Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
                 : Appearance.colors.colSecondaryContainer)
-    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colPrimaryHover : Appearance.colors.colPrimary
-    colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryActive
-    property color colText: (button.down || button.keyboardDown || button.focus || button.hovered) ?
-        (Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.m3colors.m3onPrimary) 
+    colBackgroundHover: Appearance.zzzEverywhere ? ColorUtils.applyAlpha(Appearance.zzz.sticker, 0.88)
+        : editorial ? Appearance.editorial.field
+        : Appearance.inirEverywhere ? Appearance.inir.colPrimaryHover : Appearance.colors.colPrimary
+    colRipple: Appearance.zzzEverywhere ? ColorUtils.applyAlpha(Appearance.zzz.accent, 0.30)
+        : editorial ? Appearance.colors.colPrimaryActive
+        : Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryActive
+    property color colText: Appearance.zzzEverywhere
+        ? ((button.down || button.keyboardDown) ? Appearance.zzz.onSignal
+            : (button.focus || button.hovered) ? Appearance.zzz.onSticker : Appearance.zzz.ink)
+        : editorial ? ((button.down || button.keyboardDown || button.focus) ? Appearance.editorial.accentInk : Appearance.editorial.ink)
+        : (button.down || button.keyboardDown || button.focus || button.hovered) ?
+        (Appearance.inirEverywhere ? Appearance.inir.colOnPrimary : Appearance.colors.colOnPrimary)
         : (Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer0)
 
     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -31,7 +52,7 @@ RippleButton {
     background.implicitWidth: size
 
     Behavior on buttonRadius {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
     }
 
     Keys.onPressed: (event) => {
@@ -53,7 +74,7 @@ RippleButton {
         anchors.fill: parent
         color: button.colText
         horizontalAlignment: Text.AlignHCenter
-        iconSize: 45
+        iconSize: button.editorial ? 34 : 45
         text: buttonIcon
     }
 

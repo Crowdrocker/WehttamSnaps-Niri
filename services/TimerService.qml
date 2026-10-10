@@ -28,27 +28,13 @@ Singleton {
         root.cyclesBeforeLongBreak = Config.options?.time?.pomodoro?.cyclesBeforeLongBreak ?? 4
     }
 
-    // Sync pomodoro config from Config.options.time.pomodoro
-    Connections {
-        target: Config.options?.time?.pomodoro ?? null
-        function onFocusChanged() { root._syncPomodoroConfig() }
-        function onBreakTimeChanged() { root._syncPomodoroConfig() }
-        function onLongBreakChanged() { root._syncPomodoroConfig() }
-        function onCyclesBeforeLongBreakChanged() { root._syncPomodoroConfig() }
-    }
-
-    // Re-sync when Config becomes ready or options change
+    // Sync pomodoro config on ANY config change (reliable - survives object recreation after file reload)
     Connections {
         target: Config
+        function onConfigChanged() { root._syncPomodoroConfig() }
         function onReadyChanged() {
             if (Config.ready) root._syncPomodoroConfig()
         }
-    }
-
-    // Also sync when time object changes (in case pomodoro object is recreated)
-    Connections {
-        target: Config.options?.time ?? null
-        function onPomodoroChanged() { root._syncPomodoroConfig() }
     }
 
     Component.onCompleted: {
@@ -136,7 +122,7 @@ Singleton {
 
             Quickshell.execDetached(["/usr/bin/notify-send", "Pomodoro", notificationMessage, "-a", "Shell"]);
             if (Config.options?.sounds?.pomodoro ?? false) {
-                Audio.playSystemSound("alarm-clock-elapsed")
+                Audio.playEvent("pomodoroDone")
             }
 
             if (!pomodoroBreak) {
@@ -147,12 +133,18 @@ Singleton {
         pomodoroSecondsLeft = pomodoroLapDuration - (getCurrentTimeInSeconds() - Persistent.states.timer.pomodoro.start);
     }
 
-    Timer {
-        id: pomodoroTimer
-        interval: 200
-        running: root.pomodoroRunning && !root.pomodoroPaused
-        repeat: true
-        onTriggered: refreshPomodoro()
+    function refreshSecondTimers(): void {
+        if (!Persistent.ready) return;
+        if (root.pomodoroRunning && !root.pomodoroPaused) root.refreshPomodoro();
+        if (root.countdownRunning && !root.countdownPaused) root.refreshCountdown();
+    }
+
+    SystemClock {
+        precision: SystemClock.Seconds
+        enabled: Persistent.ready && ((root.pomodoroRunning && !root.pomodoroPaused)
+            || (root.countdownRunning && !root.countdownPaused))
+        // Let start/resume finish writing its timestamp before the first refresh.
+        onDateChanged: Qt.callLater(root.refreshSecondTimers)
     }
 
     function togglePomodoro() {
@@ -233,7 +225,9 @@ Singleton {
     }
 
     function stopwatchRecordLap() {
-        Persistent.states.timer.stopwatch.laps.push(stopwatchTime);
+        const laps = (Persistent.states?.timer?.stopwatch?.laps ?? []).slice(0)
+        laps.push(stopwatchTime)
+        Persistent.states.timer.stopwatch.laps = laps
     }
 
     // Countdown Timer
@@ -246,17 +240,9 @@ Singleton {
             Persistent.states.timer.countdown.paused = false;
             Quickshell.execDetached(["/usr/bin/notify-send", "Timer", Translation.tr("Time's up!"), "-a", "Shell", "-i", "alarm-symbolic"]);
             if (Config.options?.sounds?.timer ?? false) {
-                Audio.playSystemSound("alarm-clock-elapsed");
+                Audio.playEvent("timerDone");
             }
         }
-    }
-
-    Timer {
-        id: countdownTimer
-        interval: 200
-        running: root.countdownRunning && !root.countdownPaused
-        repeat: true
-        onTriggered: refreshCountdown()
     }
 
     function toggleCountdown(): void {
@@ -289,6 +275,36 @@ Singleton {
         countdownDuration = seconds;
         if (!countdownRunning) {
             countdownSecondsLeft = seconds;
+        }
+    }
+
+    function adjustCountdownDuration(deltaSeconds: int): void {
+        if (!Persistent.ready || deltaSeconds === 0)
+            return;
+
+        const previousDuration = root.countdownDuration;
+        const nextDuration = Math.max(60, Math.min(24 * 60 * 60,
+            previousDuration + deltaSeconds));
+        const appliedDelta = nextDuration - previousDuration;
+        if (appliedDelta === 0)
+            return;
+
+        Persistent.states.timer.countdown.duration = nextDuration;
+        root.countdownDuration = nextDuration;
+
+        if (!root.countdownRunning) {
+            // Editing an idle/expired countdown establishes a fresh duration.
+            root.countdownSecondsLeft = nextDuration;
+            Persistent.states.timer.countdown.start = root.getCurrentTimeInSeconds();
+            return;
+        }
+
+        root.countdownSecondsLeft = Math.max(0, Math.min(nextDuration,
+            root.countdownSecondsLeft + appliedDelta));
+        if (!root.countdownPaused) {
+            // Preserve elapsed time while extending/shortening a live timer.
+            Persistent.states.timer.countdown.start = root.getCurrentTimeInSeconds()
+                - (nextDuration - root.countdownSecondsLeft);
         }
     }
 }

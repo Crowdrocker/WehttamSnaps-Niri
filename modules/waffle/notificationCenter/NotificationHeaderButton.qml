@@ -17,7 +17,7 @@ WBorderlessButton {
     colForeground: root.hovered && !root.pressed ? Looks.colors.fg : Looks.colors.fg1
 
     Behavior on colForeground {
-        animation: Looks.transition.color.createObject(this)
+        animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
 
     contentItem: Item {

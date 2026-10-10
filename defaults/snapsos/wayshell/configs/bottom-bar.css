@@ -1,0 +1,110 @@
+@import "./colors.css";
+
+window#waybar {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+.hidden {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    font-size: 0;
+}
+
+#custom-elevated-pin,
+#custom-cap {
+    background-color: @surface_container;
+    color: @primary;
+    font-size: 14px;
+    padding: 4px 8px 6px;
+    border-color: @primary;
+    border-style: solid;
+    border-width: 2px 1px 0;
+    min-width: 20px;
+}
+
+#custom-elevated-1,
+#custom-elevated-2,
+#custom-elevated-3,
+#custom-elevated-4,
+#custom-elevated-5 {
+    background-color: @surface_container;
+    color: @error;
+    font-size: 14px;
+    padding: 4px 8px 6px;
+    border-color: @error;
+    border-style: solid;
+    border-width: 2px 1px 0;
+    min-width: 20px;
+}
+
+#custom-elevated-pin {
+    border-left-width: 2px;
+    border-radius: 10px 0 0 0;
+}
+
+#custom-elevated-1 {
+    border-left-width: 2px;
+}
+
+#custom-cap {
+    border-right-width: 2px;
+    border-radius: 0 10px 0 0;
+}
+
+#custom-elevated-pin:hover,
+#custom-elevated-1:hover,
+#custom-elevated-2:hover,
+#custom-elevated-3:hover,
+#custom-elevated-4:hover,
+#custom-elevated-5:hover {
+    background-color: @primary;
+    color: @surface_container;
+}
+
+#custom-elevated-pin.pinned {
+    background-color: @primary;
+    color: @surface_container;
+}
+
+#custom-focused-pin,
+#custom-focused-cpu,
+#custom-focused-mem,
+#custom-focused-fps,
+#custom-focused-cap {
+    background-color: @surface_container;
+    color: @primary;
+    font-size: 14px;
+    padding: 4px 8px 6px;
+    border-color: @primary;
+    border-style: solid;
+    border-width: 2px 1px 0;
+    min-width: 20px;
+}
+
+#custom-focused-pin {
+    border-left-width: 2px;
+    border-radius: 10px 0 0 0;
+}
+
+#custom-focused-cap {
+    border-right-width: 2px;
+    border-radius: 0 10px 0 0;
+}
+
+#custom-focused-pin:hover,
+#custom-focused-cpu:hover,
+#custom-focused-mem:hover,
+#custom-focused-fps:hover {
+    background-color: @primary;
+    color: @surface_container;
+}
+
+#custom-focused-pin.pinned {
+    background-color: @primary;
+    color: @surface_container;
+}

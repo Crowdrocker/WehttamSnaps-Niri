@@ -4,7 +4,7 @@
 # shellcheck shell=bash
 
 showhelp_install(){
-printf "[$0]: Install illogical-impulse on Niri.
+printf "[$0]: Install iNiR — Quickshell config for Niri.
 
 Syntax:
   $0 install [OPTIONS]...
@@ -24,6 +24,7 @@ Options:
   --no-toolkit        Skip toolkit dependencies (ydotool, backlight)
   --no-screencapture  Skip screenshot/recording tools
   --no-fonts          Skip fonts and theming tools
+  --set-default-shell Set Fish as the default shell (uses chsh)
   -h, --help          Show this help
 
 Examples:
@@ -35,9 +36,10 @@ Examples:
 "
 }
 
-# Default values
-ask=true
-quiet=false
+# Default values (preserve globals already set by top-level parser)
+ask=${ask:-true}
+quiet=${quiet:-false}
+assume_yes=${assume_yes:-false}
 INSTALL_FIRSTRUN=""
 RESET_DOLPHIN_LAYOUT=false
 SKIP_ALLDEPS=${SKIP_ALLDEPS:-false}
@@ -53,12 +55,14 @@ INSTALL_AUDIO=true
 INSTALL_TOOLKIT=true
 INSTALL_SCREENCAPTURE=true
 INSTALL_FONTS=true
+SET_DEFAULT_SHELL=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
   case $1 in
     -y|--yes)
       ask=false
+      assume_yes=true
       shift
       ;;
     -q|--quiet)
@@ -115,6 +119,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-fonts)
       INSTALL_FONTS=false
+      shift
+      ;;
+    --set-default-shell)
+      SET_DEFAULT_SHELL=true
       shift
       ;;
     -h|--help)

@@ -17,9 +17,9 @@ Item {
     Behavior on rotation {
         animation: RotationAnimation {
             direction: RotationAnimation.Clockwise
-            duration: 300
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: Appearance.animationCurves.emphasized
+            duration: Appearance.animation.elementMoveFast.duration
+            easing.type: Appearance.animation.elementMoveFast.type
+            easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
         }
     }
 
@@ -37,11 +37,11 @@ Item {
         color: root.color
 
         Behavior on height {
-            animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+            animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
         }
 
         Behavior on x {
-            animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+            animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
         }
     }
 }

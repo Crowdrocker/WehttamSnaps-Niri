@@ -1,10 +1,9 @@
 //@ pragma UseQApplication
 //@ pragma Env QS_NO_RELOAD_POPUP=1
+//@ pragma Env INIR_STANDALONE_WINDOW=1
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
 //@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
-
-// Adjust this to make the app smaller or larger
-//@ pragma Env QT_SCALE_FACTOR=1
+// Launcher keeps QT_SCALE_FACTOR=1; shell scaling lives in appearance.typography.sizeScale
 
 import QtQuick
 import QtQuick.Controls
@@ -14,6 +13,7 @@ import QtQuick.Window
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import qs.services
+import qs.modules.settings
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions as CF
@@ -24,478 +24,115 @@ ApplicationWindow {
     property string firstRunFileContent: "This file is just here to confirm you've been greeted :>"
     property real contentPadding: 8
     property bool showNextTime: false
-    property var pages: [
-        {
-            name: Translation.tr("Quick"),
-            icon: "instant_mix",
-            component: "modules/settings/QuickConfig.qml"
-        },
-        {
-            name: Translation.tr("General"),
-            icon: "browse",
-            component: "modules/settings/GeneralConfig.qml"
-        },
-        {
-            name: Translation.tr("Bar"),
-            icon: "toast",
-            iconRotation: 180,
-            component: "modules/settings/BarConfig.qml"
-        },
-        {
-            name: Translation.tr("Background"),
-            icon: "texture",
-            component: "modules/settings/BackgroundConfig.qml"
-        },
-        {
-            name: Translation.tr("Themes"),
-            icon: "palette",
-            component: "modules/settings/ThemesConfig.qml"
-        },
-        {
-            name: Translation.tr("Interface"),
-            icon: "bottom_app_bar",
-            component: "modules/settings/InterfaceConfig.qml"
-        },
-        {
-            name: Translation.tr("Services"),
-            icon: "settings",
-            component: "modules/settings/ServicesConfig.qml"
-        },
-        {
-            name: Translation.tr("Advanced"),
-            icon: "construction",
-            component: "modules/settings/AdvancedConfig.qml"
-        },
-        {
-            name: Translation.tr("Shortcuts"),
-            icon: "keyboard",
-            component: "modules/settings/CheatsheetConfig.qml"
-        },
-        {
-            name: Translation.tr("Modules"),
-            icon: "extension",
-            component: "modules/settings/ModulesConfig.qml"
-        },
-        {
-            name: Translation.tr("Waffle Style"),
-            icon: "window",
-            component: "modules/settings/WaffleConfig.qml"
-        },
-        {
-            name: Translation.tr("About"),
-            icon: "info",
-            component: "modules/settings/About.qml"
-        }
-    ]
+    // Pages come from the shared registry; resolve component paths to absolute
+    // shell URLs so the Loaders work regardless of this file's location.
+    readonly property var pages: SettingsPageRegistry.pages.map(p => {
+        var entry = Object.assign({}, p);
+        entry.component = Quickshell.shellPath(p.component);
+        return entry;
+    })
     property int currentPage: 0
-    property bool uiReady: Config.ready && ThemeService.ready
+    property bool navEditMode: false
+    property int _requestedStartPage: -1
+    property string _requestedStartSection: ""
+    property bool _navigationInitialized: false
+
+    function _persistCurrentPage(): void {
+        if (root._navigationInitialized && Persistent.ready && Persistent.states?.settings)
+            Persistent.states.settings.iiPage = Math.max(0, Math.min(root.currentPage, root.pages.length - 1))
+    }
+
+    function initializeNavigation(): void {
+        if (root._navigationInitialized || !Persistent.ready)
+            return
+        const persisted = Persistent.states?.settings?.iiPage ?? 0
+        const requested = root._requestedStartPage >= 0 ? root._requestedStartPage : persisted
+        root.currentPage = Math.max(0, Math.min(requested, root.pages.length - 1))
+        root._navigationInitialized = true
+        root._persistCurrentPage()
+        if (root._requestedStartSection.length > 0) {
+            root.pendingSpotlightTask = root._requestedStartSection
+            root.pendingSpotlightPageIndex = root.currentPage
+            root.trySpotlight()
+        }
+    }
+
+    onCurrentPageChanged: root._persistCurrentPage()
+
+    property bool uiReady: Config.ready
+
+    // Easy mode helpers — derived list filtered to essentials when on
+    readonly property bool easyMode: Config.options?.settingsUi?.easyMode ?? false
+    // Nav model: category headers + page entries, filtered by easy mode (same as overlay)
+    readonly property var visibleNavItems: {
+        var items = [];
+        var cats = SettingsPageRegistry.categories;
+        for (var c = 0; c < cats.length; c++) {
+            var cat = cats[c];
+            var catPages = [];
+            for (var p = 0; p < cat.pages.length; p++) {
+                var pageIdx = cat.pages[p];
+                if (pageIdx >= pages.length) continue;
+                if (easyMode && pages[pageIdx].essential !== true) continue;
+                catPages.push(pageIdx);
+            }
+            if (catPages.length === 0) continue;
+            items.push({ type: "header", label: cat.label });
+            for (var j = 0; j < catPages.length; j++) {
+                var entry = Object.assign({}, pages[catPages[j]]);
+                entry.type = "page";
+                entry.realIndex = catPages[j];
+                items.push(entry);
+            }
+        }
+        return items;
+    }
+
+    // Ordered page indices matching nav rail order (for keyboard nav)
+    readonly property var navPageOrder: visibleNavItems.filter(i => i.type === "page").map(i => i.realIndex)
+
+    function nextNavPage(current) {
+        var idx = navPageOrder.indexOf(current);
+        if (idx < 0) return navPageOrder.length > 0 ? navPageOrder[0] : 0;
+        return navPageOrder[(idx + 1) % navPageOrder.length];
+    }
+    function prevNavPage(current) {
+        var idx = navPageOrder.indexOf(current);
+        if (idx < 0) return navPageOrder.length > 0 ? navPageOrder[navPageOrder.length - 1] : 0;
+        return navPageOrder[(idx - 1 + navPageOrder.length) % navPageOrder.length];
+    }
+
+    function setEasyMode(enabled) {
+        Config.setNestedValue("settingsUi.easyMode", enabled === true);
+    }
+
+    // Auto-bounce off non-essential pages when easy mode is enabled
+    onEasyModeChanged: {
+        if (easyMode) {
+            var current = pages[currentPage];
+            if (current && current.essential !== true) currentPage = 0;
+        }
+        if (settingsSearchText.length > 0) recomputeSettingsSearchResults();
+    }
 
     // Global settings search
     property string settingsSearchText: ""
     property var settingsSearchResults: []
-    
-    // Spotlight effect for search results
-    property var spotlightTarget: null
-    property rect spotlightRect: Qt.rect(0, 0, 0, 0)
-    property bool spotlightActive: false
 
-    // Índice de secciones principales de cada página para el buscador
-    property var settingsSearchIndex: [
-        // Quick
-        {
-            pageIndex: 0,
-            pageName: pages[0].name,
-            section: Translation.tr("Wallpaper & Colors"),
-            label: Translation.tr("Wallpaper & Colors"),
-            description: Translation.tr("Wallpaper, palette and transparency settings"),
-            keywords: ["wallpaper", "colors", "palette", "theme", "background"]
-        },
-        {
-            pageIndex: 0,
-            pageName: pages[0].name,
-            section: Translation.tr("Bar & screen"),
-            label: Translation.tr("Bar & screen"),
-            description: Translation.tr("Bar position and screen rounding"),
-            keywords: ["bar", "position", "screen", "round", "corner"]
-        },
+    // Search navigation focus state
+    property var searchTargetControl: null
 
-        // General
-        {
-            pageIndex: 1,
-            pageName: pages[1].name,
-            section: Translation.tr("Audio"),
-            label: Translation.tr("Audio"),
-            description: Translation.tr("Volume protection and limits"),
-            keywords: ["audio", "volume", "earbang", "limit", "sound"]
-        },
-        {
-            pageIndex: 1,
-            pageName: pages[1].name,
-            section: Translation.tr("Battery"),
-            label: Translation.tr("Battery"),
-            description: Translation.tr("Battery warnings and auto suspend thresholds"),
-            keywords: ["battery", "low", "critical", "suspend", "full"]
-        },
-        {
-            pageIndex: 1,
-            pageName: pages[1].name,
-            section: Translation.tr("Language"),
-            label: Translation.tr("Language"),
-            description: Translation.tr("Interface language and AI translations"),
-            keywords: ["language", "locale", "translation", "gemini"]
-        },
-        {
-            pageIndex: 1,
-            pageName: pages[1].name,
-            section: Translation.tr("Sounds"),
-            label: Translation.tr("Sounds"),
-            description: Translation.tr("Battery, Pomodoro and notifications sounds"),
-            keywords: ["sound", "notification", "pomodoro", "battery"]
-        },
-        {
-            pageIndex: 1,
-            pageName: pages[1].name,
-            section: Translation.tr("Time"),
-            label: Translation.tr("Time"),
-            description: Translation.tr("Clock format and seconds"),
-            keywords: ["time", "clock", "24h", "12h", "format"]
-        },
-
-        // Bar
-        {
-            pageIndex: 2,
-            pageName: pages[2].name,
-            section: Translation.tr("Notifications"),
-            label: Translation.tr("Notifications"),
-            description: Translation.tr("Notification indicator in the bar"),
-            keywords: ["notifications", "unread", "indicator", "count"]
-        },
-        {
-            pageIndex: 2,
-            pageName: pages[2].name,
-            section: Translation.tr("Positioning"),
-            label: Translation.tr("Positioning"),
-            description: Translation.tr("Bar position, auto hide and style"),
-            keywords: ["bar", "position", "auto hide", "corner", "style"]
-        },
-        {
-            pageIndex: 2,
-            pageName: pages[2].name,
-            section: Translation.tr("Tray"),
-            label: Translation.tr("Tray"),
-            description: Translation.tr("System tray icons behaviour"),
-            keywords: ["tray", "systray", "icons", "pinned"]
-        },
-        {
-            pageIndex: 2,
-            pageName: pages[2].name,
-            section: Translation.tr("Utility buttons"),
-            label: Translation.tr("Utility buttons"),
-            description: Translation.tr("Screen snip, color picker and toggles"),
-            keywords: ["screen snip", "color picker", "mic", "dark mode", "performance"]
-        },
-        {
-            pageIndex: 2,
-            pageName: pages[2].name,
-            section: Translation.tr("Workspaces"),
-            label: Translation.tr("Workspaces"),
-            description: Translation.tr("Workspace count, numbers and icons"),
-            keywords: ["workspace", "numbers", "icons", "delays"]
-        },
-
-        // Background
-        {
-            pageIndex: 3,
-            pageName: pages[3].name,
-            section: Translation.tr("Parallax"),
-            label: Translation.tr("Parallax"),
-            description: Translation.tr("Background parallax based on workspace and sidebar"),
-            keywords: ["parallax", "background", "zoom", "workspace"]
-        },
-        {
-            pageIndex: 3,
-            pageName: pages[3].name,
-            section: Translation.tr("Effects"),
-            label: Translation.tr("Effects"),
-            description: Translation.tr("Wallpaper blur and dim overlay"),
-            keywords: ["blur", "dim", "wallpaper", "effects"]
-        },
-        {
-            pageIndex: 3,
-            pageName: pages[3].name,
-            section: Translation.tr("Widget: Clock"),
-            label: Translation.tr("Widget: Clock"),
-            description: Translation.tr("Clock widget style and behaviour"),
-            keywords: ["clock", "widget", "cookie", "digital"]
-        },
-        {
-            pageIndex: 3,
-            pageName: pages[3].name,
-            section: Translation.tr("Widget: Weather"),
-            label: Translation.tr("Widget: Weather"),
-            description: Translation.tr("Background weather widget"),
-            keywords: ["weather", "widget", "background"]
-        },
-
-        // Themes
-        {
-            pageIndex: 4,
-            pageName: pages[4].name,
-            section: Translation.tr("Global Style"),
-            label: Translation.tr("Global Style"),
-            description: Translation.tr("Material, Cards, Aurora glass effect, Inir TUI style"),
-            keywords: ["global", "style", "aurora", "inir", "material", "cards", "glass", "tui", "transparency", "blur"]
-        },
-        {
-            pageIndex: 4,
-            pageName: pages[4].name,
-            section: Translation.tr("Global Style"),
-            label: Translation.tr("Aurora"),
-            description: Translation.tr("Glass effect with wallpaper blur behind panels"),
-            keywords: ["aurora", "glass", "blur", "transparency", "style"]
-        },
-        {
-            pageIndex: 4,
-            pageName: pages[4].name,
-            section: Translation.tr("Global Style"),
-            label: Translation.tr("Inir"),
-            description: Translation.tr("TUI-inspired style with accent borders"),
-            keywords: ["inir", "tui", "terminal", "borders", "style"]
-        },
-        {
-            pageIndex: 4,
-            pageName: pages[4].name,
-            section: Translation.tr("Theme Presets"),
-            label: Translation.tr("Theme Presets"),
-            description: Translation.tr("Predefined color themes like Gruvbox, Catppuccin, Nord, Dracula"),
-            keywords: ["theme", "preset", "gruvbox", "catppuccin", "nord", "dracula", "material", "colors", "palette"]
-        },
-        {
-            pageIndex: 4,
-            pageName: pages[4].name,
-            section: Translation.tr("Auto Theme"),
-            label: Translation.tr("Auto Theme"),
-            description: Translation.tr("Automatic colors from wallpaper"),
-            keywords: ["auto", "wallpaper", "dynamic", "colors", "matugen"]
-        },
-
-        // Interface
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Crosshair overlay"),
-            label: Translation.tr("Crosshair overlay"),
-            description: Translation.tr("In-game crosshair overlay"),
-            keywords: ["crosshair", "overlay", "aim"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Dock"),
-            label: Translation.tr("Dock"),
-            description: Translation.tr("Dock position and behaviour"),
-            keywords: ["dock", "position", "pinned", "hover", "reveal", "desktop", "show"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Dock"),
-            label: Translation.tr("Show on desktop"),
-            description: Translation.tr("Show dock when no window is focused"),
-            keywords: ["dock", "desktop", "show", "focus", "window", "empty"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Lock screen"),
-            label: Translation.tr("Lock screen"),
-            description: Translation.tr("Lock screen behaviour and style"),
-            keywords: ["lock", "screen", "hyprlock", "blur"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Notifications"),
-            label: Translation.tr("Notifications"),
-            description: Translation.tr("Notification timeouts and popup position"),
-            keywords: ["notifications", "timeout", "popup", "position"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Region selector (screen snipping/Google Lens)"),
-            label: Translation.tr("Region selector (screen snipping/Google Lens)"),
-            description: Translation.tr("Screen snipping target regions and Lens behaviour"),
-            keywords: ["region", "selector", "snip", "lens", "screenshot"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Sidebars"),
-            label: Translation.tr("Sidebars"),
-            description: Translation.tr("Sidebar toggles, sliders and corner open"),
-            keywords: ["sidebar", "quick toggles", "sliders", "corner"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("On-screen display"),
-            label: Translation.tr("On-screen display"),
-            description: Translation.tr("OSD timeout"),
-            keywords: ["osd", "volume", "brightness", "timeout"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Overview"),
-            label: Translation.tr("Overview"),
-            description: Translation.tr("Overview scale, rows and columns"),
-            keywords: ["overview", "grid", "rows", "columns"]
-        },
-        {
-            pageIndex: 5,
-            pageName: pages[5].name,
-            section: Translation.tr("Wallpaper selector"),
-            label: Translation.tr("Wallpaper selector"),
-            description: Translation.tr("Wallpaper picker behaviour"),
-            keywords: ["wallpaper", "selector", "file dialog"]
-        },
-
-        // Services
-        {
-            pageIndex: 6,
-            pageName: pages[6].name,
-            section: Translation.tr("AI"),
-            label: Translation.tr("AI"),
-            description: Translation.tr("System prompt for sidebar AI"),
-            keywords: ["ai", "prompt", "system", "sidebar"]
-        },
-        {
-            pageIndex: 6,
-            pageName: pages[6].name,
-            section: Translation.tr("Music Recognition"),
-            label: Translation.tr("Music Recognition"),
-            description: Translation.tr("Song recognition timeout and interval"),
-            keywords: ["music", "recognition", "song", "timeout"]
-        },
-        {
-            pageIndex: 6,
-            pageName: pages[6].name,
-            section: Translation.tr("Networking"),
-            label: Translation.tr("Networking"),
-            description: Translation.tr("Custom user agent string"),
-            keywords: ["network", "user agent", "http"]
-        },
-        {
-            pageIndex: 6,
-            pageName: pages[6].name,
-            section: Translation.tr("Resources"),
-            label: Translation.tr("Resources"),
-            description: Translation.tr("Polling interval for resource monitor"),
-            keywords: ["resources", "cpu", "memory", "interval"]
-        },
-        {
-            pageIndex: 6,
-            pageName: pages[6].name,
-            section: Translation.tr("Search"),
-            label: Translation.tr("Search"),
-            description: Translation.tr("Prefix configuration and engines"),
-            keywords: ["search", "prefix", "engine", "web"]
-        },
-        {
-            pageIndex: 6,
-            pageName: pages[6].name,
-            section: Translation.tr("Weather"),
-            label: Translation.tr("Weather"),
-            description: Translation.tr("Weather units, GPS and city"),
-            keywords: ["weather", "gps", "city", "fahrenheit"]
-        },
-
-        // Advanced
-        {
-            pageIndex: 7,
-            pageName: pages[7].name,
-            section: Translation.tr("Color generation"),
-            label: Translation.tr("Color generation"),
-            description: Translation.tr("Wallpaper-based color theming"),
-            keywords: ["color", "generation", "theming", "wallpaper"]
-        },
-
-        // Shortcuts
-        {
-            pageIndex: 8,
-            pageName: pages[8].name,
-            section: Translation.tr("Keyboard Shortcuts"),
-            label: Translation.tr("Keyboard Shortcuts"),
-            description: Translation.tr("Niri and ii keybindings reference"),
-            keywords: ["shortcuts", "keybindings", "hotkeys", "keyboard", "cheatsheet",
-                       "terminal", "clipboard", "volume", "brightness", "screenshot", "lock",
-                       "workspace", "window", "focus", "move", "fullscreen", "floating",
-                       "overview", "settings", "wallpaper", "media", "play", "pause"]
-        },
-
-        // Modules
-        {
-            pageIndex: 9,
-            pageName: pages[9].name,
-            section: Translation.tr("Panel Modules"),
-            label: Translation.tr("Panel Modules"),
-            description: Translation.tr("Enable or disable shell modules"),
-            keywords: ["modules", "panels", "enable", "disable", "bar", "sidebar", "overview"]
-        },
-        {
-            pageIndex: 9,
-            pageName: pages[9].name,
-            section: Translation.tr("Alt+Tab Switcher"),
-            label: Translation.tr("Alt+Tab Switcher"),
-            description: Translation.tr("Window switcher style and behavior"),
-            keywords: ["alt", "tab", "switcher", "windows", "thumbnails"]
-        },
-
-        // Waffle Style
-        {
-            pageIndex: 10,
-            pageName: pages[10].name,
-            section: Translation.tr("Waffle Taskbar"),
-            label: Translation.tr("Waffle Taskbar"),
-            description: Translation.tr("Windows 11 style taskbar settings"),
-            keywords: ["waffle", "taskbar", "windows", "bottom", "tray"]
-        },
-        {
-            pageIndex: 10,
-            pageName: pages[10].name,
-            section: Translation.tr("Waffle Start Menu"),
-            label: Translation.tr("Waffle Start Menu"),
-            description: Translation.tr("Start menu size and behavior"),
-            keywords: ["waffle", "start", "menu", "apps", "pinned"]
-        },
-        {
-            pageIndex: 10,
-            pageName: pages[10].name,
-            section: Translation.tr("Waffle Action Center"),
-            label: Translation.tr("Waffle Action Center"),
-            description: Translation.tr("Quick toggles and action center"),
-            keywords: ["waffle", "action", "center", "toggles", "quick"]
-        },
-        {
-            pageIndex: 10,
-            pageName: pages[10].name,
-            section: Translation.tr("Waffle Widgets"),
-            label: Translation.tr("Waffle Widgets"),
-            description: Translation.tr("Widgets panel settings"),
-            keywords: ["waffle", "widgets", "panel", "weather", "calendar"]
-        },
-
-        // About
-        {
-            pageIndex: 11,
-            pageName: pages[11].name,
-            section: Translation.tr("About"),
-            label: Translation.tr("About ii"),
-            description: Translation.tr("Version info, credits and links"),
-            keywords: ["about", "version", "credits", "github", "info"]
+    // Static section/option index — shared with the overlay via SettingsPageRegistry.
+    function getFamilySettingsPageIndex(family: string) {
+        const componentName = family === "waffle" ? "WaffleConfig.qml"
+            : family === "iris" ? "IrisConfig.qml" : ""
+        if (!componentName.length) return -1
+        for (var i = 0; i < pages.length; i++) {
+            if ((pages[i].component || "").indexOf(componentName) >= 0)
+                return i;
         }
-    ]
+        return -1;
+    }
 
     function recomputeSettingsSearchResults() {
         var q = String(settingsSearchText || "").toLowerCase().trim();
@@ -504,82 +141,62 @@ ApplicationWindow {
             return;
         }
 
-        var terms = q.split(/\s+/).filter(t => t.length > 0);
         var results = [];
-        
-        // Check if waffle family is active
-        var isWaffleActive = Config.options?.panelFamily === "waffle";
-        var wafflePageIndex = 10; // "Waffle Style" page index
 
-        // 1. Buscar en el índice estático de secciones (para navegación rápida a secciones)
-        for (var i = 0; i < settingsSearchIndex.length; i++) {
-            var entry = settingsSearchIndex[i];
-            
-            // Skip Waffle Style page if waffle family is not active
-            if (entry.pageIndex === wafflePageIndex && !isWaffleActive) {
-                continue;
-            }
-            
-            var label = (entry.label || "").toLowerCase();
-            var desc = (entry.description || "").toLowerCase();
-            var page = (entry.pageName || "").toLowerCase();
-            var sect = (entry.section || "").toLowerCase();
-            var kw = (entry.keywords || []).join(" ").toLowerCase();
+        var activeFamily = Config.options?.panelFamily ?? "ii";
+        var wafflePageIndex = getFamilySettingsPageIndex("waffle");
+        var irisPageIndex = getFamilySettingsPageIndex("iris");
+        var easyOn = root.easyMode;
 
-            var matchCount = 0;
-            var score = 0;
-
-            for (var j = 0; j < terms.length; j++) {
-                var term = terms[j];
-                if (label.indexOf(term) >= 0 || desc.indexOf(term) >= 0 || 
-                    page.indexOf(term) >= 0 || sect.indexOf(term) >= 0 || kw.indexOf(term) >= 0) {
-                    matchCount++;
-                    if (label.indexOf(term) === 0) score += 800;
-                    else if (label.indexOf(term) > 0) score += 400;
-                    if (kw.indexOf(term) >= 0) score += 300;
-                    if (sect.indexOf(term) >= 0) score += 200;
-                }
-            }
-
-            if (matchCount === terms.length) {
-                results.push({
-                    pageIndex: entry.pageIndex,
-                    pageName: entry.pageName,
-                    section: entry.section,
-                    label: entry.label,
-                    labelHighlighted: SettingsSearchRegistry.highlightTerms(entry.label, terms),
-                    description: entry.description,
-                    descriptionHighlighted: SettingsSearchRegistry.highlightTerms(entry.description, terms),
-                    score: score + 500, // Bonus para secciones principales
-                    isSection: true
-                });
-            }
-        }
+        var staticResults = SettingsSearchRegistry.buildStaticResults(
+            settingsSearchText, SettingsPageRegistry.searchIndex());
+        staticResults = staticResults.filter(entry => {
+            const family = String(entry.panelFamily || "")
+            if (family.length > 0 && family !== activeFamily)
+                return false;
+            if (wafflePageIndex >= 0 && entry.pageIndex === wafflePageIndex && activeFamily !== "waffle")
+                return false;
+            if (irisPageIndex >= 0 && entry.pageIndex === irisPageIndex && activeFamily !== "iris")
+                return false;
+            return !(easyOn && entry.pageIndex >= 0 && entry.pageIndex < pages.length
+                && pages[entry.pageIndex].essential !== true);
+        });
+        results = results.concat(staticResults);
 
         // 2. Buscar en el registro dinámico de widgets
         if (typeof SettingsSearchRegistry !== "undefined") {
             var widgetResults = SettingsSearchRegistry.buildResults(settingsSearchText);
-            // Filter out Waffle Style widgets if waffle family is not active
-            if (!isWaffleActive) {
+            if (activeFamily !== "waffle") {
                 widgetResults = widgetResults.filter(r => r.pageIndex !== wafflePageIndex);
+            }
+            if (activeFamily !== "iris")
+                widgetResults = widgetResults.filter(r => r.pageIndex !== irisPageIndex);
+            if (easyOn) {
+                widgetResults = widgetResults.filter(r =>
+                    r.pageIndex >= 0 && r.pageIndex < pages.length
+                    && pages[r.pageIndex].essential === true);
+            }
+            // Prefer real controls (dynamic registry entries with optionId)
+            for (var wr = 0; wr < widgetResults.length; wr++) {
+                widgetResults[wr].score = (widgetResults[wr].score || 0) + 2000;
             }
             results = results.concat(widgetResults);
         }
 
         // 3. Ordenar por score y eliminar duplicados
         results.sort((a, b) => b.score - a.score);
-        
-        // Eliminar duplicados por label+section, preferring entries with optionId
+
+        // Eliminar duplicados por pageIndex+label, preferring entries with optionId
         var seen = {};
         var unique = [];
         for (var k = 0; k < results.length; k++) {
             var r = results[k];
-            var key = (r.label || "") + "|" + (r.section || "");
+            var key = [r.pageIndex, r.task || "", r.section || "", r.label || ""]
+                .join("|").toLowerCase();
             if (!seen[key]) {
                 seen[key] = { index: unique.length, hasOptionId: r.optionId !== undefined };
                 unique.push(r);
             } else if (r.optionId !== undefined && !seen[key].hasOptionId) {
-                // Replace the existing entry (without optionId) with this one (with optionId)
                 unique[seen[key].index] = r;
                 seen[key].hasOptionId = true;
             }
@@ -588,103 +205,96 @@ ApplicationWindow {
         settingsSearchResults = unique.slice(0, 50);
     }
 
-    // Pending spotlight data
+    // Pending search navigation target data
     property int pendingSpotlightOptionId: -1
     property string pendingSpotlightLabel: ""
     property string pendingSpotlightSection: ""
+    property string pendingSpotlightTask: ""
     property int pendingSpotlightPageIndex: -1
-    property var spotlightFlickable: null
-    
+    property bool pendingSpotlightIsSection: false
+    property var searchTargetFlickable: null
+
     function openSearchResult(entry) {
         // Clear search immediately
         settingsSearchText = "";
         if (settingsSearchField) {
             settingsSearchField.text = "";
         }
-        
-        // Deactivate any existing spotlight
-        deactivateSpotlight();
-        
+
+        // Reset existing search target state
+        resetSearchTarget();
+
         if (!entry || entry.pageIndex === undefined || entry.pageIndex < 0) {
             return;
         }
-        
-        // Store spotlight target info
+
+        // Store navigation target info
         pendingSpotlightOptionId = (entry.optionId !== undefined) ? entry.optionId : -1;
         pendingSpotlightLabel = entry.label || "";
         pendingSpotlightSection = entry.section || "";
+        pendingSpotlightTask = entry.task || "";
         pendingSpotlightPageIndex = entry.pageIndex;
-        
+        pendingSpotlightIsSection = (entry.optionId === undefined) && (entry.isSection === true);
+
         // Navigate to page (this triggers page load if needed)
         if (currentPage !== entry.pageIndex) {
             currentPage = entry.pageIndex;
         }
-        
-        // Always try spotlight (with retry for lazy-loaded widgets)
+
+        // Always try to resolve and navigate target (with retry for lazy-loaded widgets)
         if (pendingSpotlightOptionId >= 0 || pendingSpotlightLabel.length > 0) {
             spotlightRetryCount = 0;
             spotlightPageLoadTimer.restart();
         }
     }
-    
+
     property int spotlightRetryCount: 0
     property int spotlightMaxRetries: 15
-    
+
     // Timer to wait for page load and widget registration
     Timer {
         id: spotlightPageLoadTimer
         interval: 150
         onTriggered: root.trySpotlight()
     }
-    
+
     function trySpotlight() {
+        const pageItem = pagesStack.currentItem
+        let taskActivated = false
+        if (pageItem && pagesStack.currentIndex === pendingSpotlightPageIndex) {
+            const targetTask = pendingSpotlightTask.length > 0
+                ? pendingSpotlightTask : pendingSpotlightSection
+            if (targetTask.length > 0)
+                taskActivated = SettingsSearchRegistry.activatePageSection(pageItem, targetTask)
+        }
+
+        if (taskActivated && pendingSpotlightOptionId < 0
+                && pendingSpotlightLabel.length === 0 && pendingSpotlightSection.length === 0) {
+            resetSearchTarget()
+            return
+        }
+
         var control = null;
-        
+
         // Try by optionId first
         if (pendingSpotlightOptionId >= 0) {
             control = SettingsSearchRegistry.getControlById(pendingSpotlightOptionId);
         }
-        
-        // Fallback: search in registry by various criteria
-        if (!control && (pendingSpotlightLabel.length > 0 || pendingSpotlightSection.length > 0)) {
-            var labelLower = pendingSpotlightLabel.toLowerCase();
-            var sectionLower = pendingSpotlightSection.toLowerCase();
-            // Remove page name prefix from section if present (e.g., "Themes › Global Style" -> "Global Style")
-            var sectionParts = sectionLower.split(" › ");
-            var sectionOnly = sectionParts.length > 1 ? sectionParts[sectionParts.length - 1] : sectionLower;
-            
-            for (var i = 0; i < SettingsSearchRegistry.entries.length; i++) {
-                var e = SettingsSearchRegistry.entries[i];
-                if (e.pageIndex === pendingSpotlightPageIndex) {
-                    var eLabelLower = (e.label || "").toLowerCase();
-                    var eSectionLower = (e.section || "").toLowerCase();
-                    
-                    // Exact label match
-                    if (eLabelLower === labelLower) {
-                        control = e.control;
-                        break;
-                    }
-                    // Section title match (for SettingsCardSection)
-                    if (eSectionLower === sectionOnly || eSectionLower === labelLower) {
-                        control = e.control;
-                        break;
-                    }
-                    // Label contains search term
-                    if (labelLower.length > 2 && eLabelLower.indexOf(labelLower) >= 0) {
-                        control = e.control;
-                        break;
-                    }
-                    // Keywords contain search term
-                    if (e.keywords && e.keywords.some(k => k.toLowerCase() === labelLower)) {
-                        control = e.control;
-                        break;
-                    }
-                }
-            }
+
+        if (!control && pageItem)
+            control = SettingsSearchRegistry.findLoadedTarget(
+                pageItem, pendingSpotlightLabel, pendingSpotlightSection, pendingSpotlightIsSection)
+
+        if (!control && pageItem && pendingSpotlightSection.length > 0
+                && spotlightRetryCount < spotlightMaxRetries
+                && SettingsSearchRegistry.revealLoadedSection(pageItem, pendingSpotlightSection)) {
+            spotlightRetryCount++
+            spotlightPageLoadTimer.restart()
+            return
         }
-        
+
         if (control) {
-            doSpotlightForControl(control);
+            navigateToSearchControl(control);
         } else if (spotlightRetryCount < spotlightMaxRetries) {
             spotlightRetryCount++;
             spotlightPageLoadTimer.restart();
@@ -693,18 +303,21 @@ ApplicationWindow {
             pendingSpotlightOptionId = -1;
             pendingSpotlightLabel = "";
             pendingSpotlightSection = "";
+            pendingSpotlightTask = "";
             pendingSpotlightPageIndex = -1;
+            pendingSpotlightIsSection = false;
         }
     }
-    
-    function doSpotlightForControl(control) {
+
+    function navigateToSearchControl(control) {
         if (!control) return;
-        
+
         // Expand the section containing the control and collapse others
         if (typeof SettingsSearchRegistry !== "undefined") {
+            SettingsSearchRegistry.activateTaskSectionForControl(control);
             SettingsSearchRegistry.expandSectionForControl(control);
         }
-        
+
         // Find the parent Flickable (ContentPage/StyledFlickable)
         var flick = findParentFlickable(control);
         if (!flick) {
@@ -713,98 +326,48 @@ ApplicationWindow {
             pendingSpotlightPageIndex = -1;
             return;
         }
-        
+
         // Use mapToItem to get the control's position relative to the Flickable's contentItem
         // This accounts for all intermediate containers (ColumnLayout margins, etc.)
         var posInContent = control.mapToItem(flick.contentItem, 0, 0);
         var controlYInContent = posInContent.y;
-        
+
         // Calculate target scroll position to center the control in viewport
         var viewportHeight = flick.height;
         var controlHeight = control.height;
         var targetScrollY = controlYInContent - (viewportHeight / 2) + (controlHeight / 2);
-        
+
         // Clamp to valid scroll range
         var maxScroll = Math.max(0, flick.contentHeight - flick.height);
         targetScrollY = Math.max(0, Math.min(targetScrollY, maxScroll));
-        
+
         // Store the target scroll position for later verification
         spotlightTargetScrollY = targetScrollY;
-        
+
         // Scroll to position - set directly to bypass animation
         flick.contentY = targetScrollY;
-        
-        // Store references for spotlight calculation
-        spotlightTarget = control;
-        spotlightFlickable = flick;
-        
-        // Wait for layout to update after scroll
-        spotlightShowTimer.restart();
-    }
-    
-    property real spotlightTargetScrollY: 0
-    
-    Timer {
-        id: spotlightShowTimer
-        interval: 250  // Must be longer than scroll animation (200ms) + layout time
-        onTriggered: root.showSpotlight()
-    }
-    
-    function showSpotlight() {
-        if (!spotlightTarget || !spotlightFlickable) {
-            deactivateSpotlight();
-            return;
-        }
-        
-        var control = spotlightTarget;
-        var flick = spotlightFlickable;
-        
-        // Check if scroll animation is still running (contentY hasn't reached target)
-        var scrollDiff = Math.abs(flick.contentY - spotlightTargetScrollY);
-        if (scrollDiff > 2) {
-            // Animation still in progress, wait a bit more
-            spotlightShowTimer.restart();
-            return;
-        }
-        
-        // Use mapToItem directly to get the control's visual position in contentContainer
-        // This is the most reliable method as it accounts for all transformations
-        var pos = control.mapToItem(contentContainer, 0, 0);
-        
-        // Sanity check: control should be roughly centered vertically
-        var expectedY = (contentContainer.height - control.height) / 2;
-        var yDiff = Math.abs(pos.y - expectedY);
-        
-        // If position is way off from center, something went wrong
-        if (yDiff > contentContainer.height / 2) {
-            // Fallback: recalculate scroll position
-            var posInContent = control.mapToItem(flick.contentItem, 0, 0);
-            var targetScrollY = posInContent.y - (flick.height / 2) + (control.height / 2);
-            var maxScroll = Math.max(0, flick.contentHeight - flick.height);
-            targetScrollY = Math.max(0, Math.min(targetScrollY, maxScroll));
-            spotlightTargetScrollY = targetScrollY;
-            flick.contentY = targetScrollY;
-            spotlightShowTimer.restart();
-            return;
-        }
-        
-        var padding = 8;
-        spotlightRect = Qt.rect(
-            Math.max(0, pos.x - padding),
-            Math.max(0, pos.y - padding),
-            control.width + padding * 2,
-            control.height + padding * 2
-        );
-        spotlightActive = true;
+
+        // Store references for optional focus retries
+        searchTargetControl = control;
+        searchTargetFlickable = flick;
+
+        // Clear pending data after successful navigation
         pendingSpotlightOptionId = -1;
+        pendingSpotlightLabel = "";
+        pendingSpotlightSection = "";
+        pendingSpotlightTask = "";
+        pendingSpotlightPageIndex = -1;
+        pendingSpotlightIsSection = false;
     }
-    
+
+    property real spotlightTargetScrollY: 0
+
     function findParentFlickable(item) {
         var p = item ? item.parent : null;
         while (p) {
             // Check for Flickable properties (contentY, contentHeight, contentItem)
-            if (p.hasOwnProperty("contentY") && 
-                p.hasOwnProperty("contentHeight") && 
+            if (p.hasOwnProperty("contentY") &&
+                p.hasOwnProperty("contentHeight") &&
                 p.hasOwnProperty("contentItem")) {
                 return p;
             }
@@ -812,21 +375,37 @@ ApplicationWindow {
         }
         return null;
     }
-    
-    function deactivateSpotlight() {
-        spotlightActive = false;
-        spotlightTarget = null;
-        spotlightFlickable = null;
+
+    function resetSearchTarget() {
+        searchTargetControl = null;
+        searchTargetFlickable = null;
         spotlightTargetScrollY = 0;
         pendingSpotlightOptionId = -1;
+        pendingSpotlightLabel = "";
+        pendingSpotlightSection = "";
+        pendingSpotlightTask = "";
+        pendingSpotlightPageIndex = -1;
+        pendingSpotlightIsSection = false;
     }
 
     visible: true
     onClosing: Qt.quit()
-    title: "illogical-impulse Settings"
+    title: "Settings — iNiR"
 
     Component.onCompleted: {
+        Quickshell.watchFiles = false
         Config.readWriteDelay = 0 // Settings app always only sets one var at a time so delay isn't needed
+
+        const startPage = parseInt(Quickshell.env("QS_SETTINGS_PAGE"));
+        if (!isNaN(startPage)) root._requestedStartPage = startPage;
+
+        root._requestedStartSection = Quickshell.env("QS_SETTINGS_SECTION") || ""
+        root.initializeNavigation()
+    }
+
+    Connections {
+        target: Persistent
+        function onReadyChanged() { root.initializeNavigation() }
     }
 
     // Apply theme when Config is ready
@@ -841,11 +420,29 @@ ApplicationWindow {
     minimumHeight: 500
     width: 1100
     height: 750
-    color: root.uiReady ? Appearance.m3colors.m3background : "transparent"
+    color: root.uiReady
+        ? (Appearance.inirEverywhere ? Appearance.inir.colLayer0
+          : Appearance.zzzEverywhere ? Appearance.colors.colLayer0
+          : Appearance.m3colors.m3background)
+        : "transparent"
 
     Shortcut {
         sequences: [StandardKey.Find]
         onActivated: settingsSearchField.forceActiveFocus()
+    }
+
+    ZzzDiagonalPattern {
+        stripeSpacing: 28
+        stripeThickness: 1
+    }
+
+    ZzzSurfaceAccent {
+        // No top registration tape on this large utility window — it reads as an
+        // ugly hard border along the top edge. Keep only the diagonal backdrop.
+        showTape: false
+        stripeCount: 34
+        edgeMargin: root.contentPadding
+        z: 1
     }
 
     ColumnLayout {
@@ -853,93 +450,289 @@ ApplicationWindow {
             fill: parent
             margins: contentPadding
         }
+        z: 2
         visible: root.uiReady
         opacity: visible ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 150 } }
 
         Keys.onPressed: (event) => {
             if (event.modifiers === Qt.ControlModifier) {
-                if (event.key === Qt.Key_PageDown) {
-                    root.currentPage = Math.min(root.currentPage + 1, root.pages.length - 1)
-                    event.accepted = true;
-                } 
-                else if (event.key === Qt.Key_PageUp) {
-                    root.currentPage = Math.max(root.currentPage - 1, 0)
+                if (event.key === Qt.Key_PageDown || event.key === Qt.Key_Tab) {
+                    root.currentPage = root.nextNavPage(root.currentPage)
                     event.accepted = true;
                 }
-                else if (event.key === Qt.Key_Tab) {
-                    root.currentPage = (root.currentPage + 1) % root.pages.length;
-                    event.accepted = true;
-                }
-                else if (event.key === Qt.Key_Backtab) {
-                    root.currentPage = (root.currentPage - 1 + root.pages.length) % root.pages.length;
+                else if (event.key === Qt.Key_PageUp || event.key === Qt.Key_Backtab) {
+                    root.currentPage = root.prevNavPage(root.currentPage)
                     event.accepted = true;
                 }
             }
         }
 
-        Item { // Titlebar
+        Item { // Titlebar with integrated search
+            id: settingsHeader
             visible: Config.options?.windows?.showTitlebar ?? true
             Layout.fillWidth: true
-            Layout.fillHeight: false
-            implicitHeight: Math.max(titleText.implicitHeight, windowControlsRow.implicitHeight)
-            StyledText {
-                id: titleText
-                anchors {
-                    left: (Config.options?.windows?.centerTitle ?? false) ? undefined : parent.left
-                    horizontalCenter: (Config.options?.windows?.centerTitle ?? false) ? parent.horizontalCenter : undefined
-                    verticalCenter: parent.verticalCenter
-                    leftMargin: 12
+            Layout.preferredHeight: root.navEditMode ? 58 : 52
+            Layout.leftMargin: 12
+            Layout.rightMargin: 6
+
+            Behavior on Layout.preferredHeight {
+                enabled: Appearance.animationsEnabled
+                NumberAnimation { duration: Appearance.animation.elementResize.duration }
+            }
+
+            function slotBlock(index: int): string {
+                return SettingsChromeLayout.headerOrder[index] ?? ""
+            }
+
+            readonly property real headerGap: root.navEditMode ? 8 : 12
+            readonly property real identityWidth: root.navEditMode ? 176 : 210
+            readonly property real actionsWidth: Math.max(108, actionsRow.implicitWidth)
+            readonly property bool defaultOrder: SettingsChromeLayout.headerOrder.join(",") === "identity,search,actions"
+
+            function searchWidth(): real {
+                const preferred = root.navEditMode ? 420 : 480
+                const minimum = root.navEditMode ? 150 : 200
+                if (settingsHeader.defaultOrder) {
+                    const side = Math.max(settingsHeader.identityWidth, settingsHeader.actionsWidth)
+                    return Math.max(minimum, Math.min(preferred,
+                        settingsHeader.width - 2 * (side + settingsHeader.headerGap)))
                 }
-                color: Appearance.colors.colOnLayer0
-                text: Translation.tr("Settings")
-                font {
-                    family: Appearance.font.family.title
-                    pixelSize: Appearance.font.pixelSize.title
-                    variableAxes: Appearance.font.variableAxes.title
+                return Math.max(minimum, Math.min(preferred,
+                    settingsHeader.width - settingsHeader.identityWidth
+                        - settingsHeader.actionsWidth - 2 * settingsHeader.headerGap))
+            }
+
+            function slotWidth(index: int): real {
+                const block = settingsHeader.slotBlock(index)
+                if (block === "identity")
+                    return settingsHeader.identityWidth
+                if (block === "actions")
+                    return settingsHeader.actionsWidth
+                return settingsHeader.searchWidth()
+            }
+
+            function slotX(index: int): real {
+                const block = settingsHeader.slotBlock(index)
+                if (settingsHeader.defaultOrder) {
+                    if (block === "identity")
+                        return 0
+                    if (block === "actions")
+                        return Math.max(0, settingsHeader.width - settingsHeader.actionsWidth)
+                    return Math.max(0, (settingsHeader.width - settingsHeader.searchWidth()) / 2)
+                }
+
+                const total = settingsHeader.identityWidth + settingsHeader.searchWidth()
+                    + settingsHeader.actionsWidth + 2 * settingsHeader.headerGap
+                let x = Math.max(0, (settingsHeader.width - total) / 2)
+                for (let i = 0; i < index; ++i)
+                    x += settingsHeader.slotWidth(i) + settingsHeader.headerGap
+                return x
+            }
+
+
+            Item {
+                anchors.fill: parent
+
+                Item {
+                    id: settingsHeaderSlot0
+                    x: settingsHeader.slotX(0)
+                    width: settingsHeader.slotWidth(0)
+                    height: parent.height
+                }
+                Item {
+                    id: settingsHeaderSlot1
+                    x: settingsHeader.slotX(1)
+                    width: settingsHeader.slotWidth(1)
+                    height: parent.height
+                }
+                Item {
+                    id: settingsHeaderSlot2
+                    x: settingsHeader.slotX(2)
+                    width: settingsHeader.slotWidth(2)
+                    height: parent.height
                 }
             }
-            RowLayout { // Window controls row
-                id: windowControlsRow
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                RippleButton {
-                    buttonRadius: Appearance.rounding.full
-                    implicitWidth: 35
-                    implicitHeight: 35
-                    onClicked: root.close()
-                    contentItem: MaterialSymbol {
-                        anchors.centerIn: parent
-                        horizontalAlignment: Text.AlignHCenter
-                        text: "close"
-                        iconSize: 20
+
+            Item {
+                id: headerIdentity
+                parent: SettingsChromeLayout.columnFor("identity") === 0 ? settingsHeaderSlot0
+                    : SettingsChromeLayout.columnFor("identity") === 1 ? settingsHeaderSlot1
+                    : settingsHeaderSlot2
+                anchors.fill: parent
+                anchors.topMargin: 4
+                anchors.bottomMargin: 4
+
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 9
+
+                    Item {
+                        id: settingsAvatarButton
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: 36
+
+                        HoverHandler {
+                            id: settingsAvatarHover
+                            enabled: !root.navEditMode
+                            cursorShape: Qt.PointingHandCursor
+                        }
+
+                        TapHandler {
+                            enabled: !root.navEditMode
+                            gesturePolicy: TapHandler.WithinBounds
+                            onTapped: root.openSearchResult({
+                                pageIndex: 23,
+                                label: Translation.tr("Profile picture"),
+                                section: "right",
+                                isSection: true
+                            })
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: width / 2
+                            color: Appearance.colors.colLayer1
+                            border.width: 1
+                            border.color: Appearance.colors.colPrimary
+                        }
+
+                        Rectangle {
+                            id: settingsAvatarMask
+                            anchors.centerIn: parent
+                            width: 32
+                            height: 32
+                            radius: width / 2
+                            visible: false
+                        }
+
+                        Image {
+                            id: settingsAvatarImage
+                            anchors.centerIn: parent
+                            width: 32
+                            height: 32
+                            source: settingsAvatarResolver.resolvedSource
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            cache: true
+                            smooth: true
+                            mipmap: true
+                            sourceSize.width: 64
+                            sourceSize.height: 64
+                            visible: status === Image.Ready
+                            layer.enabled: visible
+                            layer.effect: OpacityMask { maskSource: settingsAvatarMask }
+
+                            onStatusChanged: {
+                                if (settingsAvatarImage.status !== Image.Error)
+                                    return
+                                const next = settingsAvatarResolver.avatarIndex + 1
+                                if (next < Directories.userAvatarPaths.length)
+                                    settingsAvatarResolver.avatarIndex = next
+                            }
+                        }
+
+                        QtObject {
+                            id: settingsAvatarResolver
+                            property int avatarIndex: 0
+                            readonly property string resolvedSource: Directories.avatarSourceAt(avatarIndex)
+                            readonly property string primaryWatch: Directories.userAvatarSourcePrimary
+                            onPrimaryWatchChanged: avatarIndex = 0
+                        }
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            visible: settingsAvatarImage.status !== Image.Ready
+                            text: "person"
+                            iconSize: 18
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        Rectangle {
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            width: 15
+                            height: 15
+                            radius: width / 2
+                            color: Appearance.colors.colPrimaryContainer
+                            border.width: 1
+                            border.color: Appearance.colors.colPrimary
+                            opacity: settingsAvatarHover.hovered && !root.navEditMode ? 1 : 0
+                            scale: opacity > 0 ? 1 : 0.7
+
+                            Behavior on opacity { NumberAnimation { duration: Appearance.animation.elementMoveFast.duration } }
+                            Behavior on scale { NumberAnimation { duration: Appearance.animation.elementMoveFast.duration } }
+
+                            MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "edit"
+                                iconSize: 10
+                                color: Appearance.colors.colOnPrimaryContainer
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
+
+                        StyledText {
+                            Layout.fillWidth: true
+                            color: Appearance.colors.colOnLayer0
+                            text: Translation.tr("Settings")
+                            font {
+                                family: Appearance.font.family.title
+                                pixelSize: Appearance.font.pixelSize.title
+                                variableAxes: Appearance.font.variableAxes.title
+                            }
+                            elide: Text.ElideRight
+                        }
+
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: SystemInfo.displayName || SystemInfo.username
+                            color: Appearance.colors.colSubtext
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            elide: Text.ElideRight
+                        }
                     }
                 }
+
+                SettingsChromeEditFrame {
+                    anchors.fill: parent
+                    active: root.navEditMode
+                    blockId: "identity"
+                    label: Translation.tr("Identity")
+                    targetIndex: SettingsChromeLayout.columnFor("identity")
+                }
             }
-        }
 
-        // Global settings search bar - Material Design style
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: 12
-            Layout.bottomMargin: 8
-
-            Item { Layout.fillWidth: true }
-
-            // Search container with visual feedback
             Rectangle {
                 id: searchContainer
-                Layout.preferredWidth: Math.min(560, root.width - 200)
-                Layout.preferredHeight: 48
+                parent: SettingsChromeLayout.columnFor("search") === 0 ? settingsHeaderSlot0
+                    : SettingsChromeLayout.columnFor("search") === 1 ? settingsHeaderSlot1
+                    : settingsHeaderSlot2
+                anchors.fill: parent
+                anchors.topMargin: root.navEditMode ? 8 : 6
+                anchors.bottomMargin: root.navEditMode ? 8 : 6
                 radius: Appearance.rounding.full
-                color: settingsSearchField.activeFocus 
-                    ? Appearance.colors.colLayer1 
-                    : Appearance.colors.colLayer0
-                border.width: settingsSearchField.activeFocus ? 2 : 1
-                border.color: settingsSearchField.activeFocus 
-                    ? Appearance.colors.colPrimary 
-                    : Appearance.m3colors.m3outlineVariant
-                
+                color: settingsSearchField.activeFocus
+                    ? (Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                      : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                      : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                      : Appearance.colors.colLayer1)
+                    : (Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                      : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                      : Appearance.inirEverywhere ? Appearance.inir.colLayer0
+                      : Appearance.colors.colLayer0)
+                border.width: settingsSearchField.activeFocus ? 2
+                    : (Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth : 1)
+                border.color: settingsSearchField.activeFocus
+                    ? Appearance.colors.colPrimary
+                    : (Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                      : Appearance.inirEverywhere ? Appearance.inir.colBorderMuted
+                      : Appearance.m3colors.m3outlineVariant)
+
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Behavior on border.color { ColorAnimation { duration: 150 } }
 
@@ -954,8 +747,8 @@ ApplicationWindow {
                         id: settingsSearchIcon
                         Layout.alignment: Qt.AlignVCenter
                         iconSize: Appearance.font.pixelSize.huge
-                        shape: root.settingsSearchText.length > 0 
-                            ? MaterialShape.Shape.SoftBurst 
+                        shape: root.settingsSearchText.length > 0
+                            ? MaterialShape.Shape.SoftBurst
                             : MaterialShape.Shape.Cookie7Sided
                         text: root.settingsSearchResults.length > 0 ? "manage_search" : "search"
                     }
@@ -964,7 +757,7 @@ ApplicationWindow {
                     Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        
+
                         // Placeholder text (behind TextField, separate element)
                         StyledText {
                             id: searchPlaceholder
@@ -979,13 +772,13 @@ ApplicationWindow {
                             }
                             visible: settingsSearchField.text.length === 0 && !settingsSearchField.activeFocus
                         }
-                        
+
                         TextInput {
                             id: settingsSearchField
                             anchors.fill: parent
                             anchors.leftMargin: 12
                             verticalAlignment: Text.AlignVCenter
-                            
+
                             color: Appearance.colors.colOnLayer1
                             selectionColor: Appearance.colors.colPrimaryContainer
                             selectedTextColor: Appearance.colors.colOnPrimaryContainer
@@ -993,14 +786,14 @@ ApplicationWindow {
                                 family: Appearance.font.family.main
                                 pixelSize: Appearance.font.pixelSize.normal
                             }
-                            
+
                             // Custom cursor color
                             cursorVisible: activeFocus
                             cursorDelegate: Rectangle {
                                 visible: settingsSearchField.cursorVisible
                                 width: 2
                                 color: Appearance.colors.colPrimary
-                                
+
                                 SequentialAnimation on opacity {
                                     loops: Animation.Infinite
                                     running: settingsSearchField.cursorVisible
@@ -1008,13 +801,13 @@ ApplicationWindow {
                                     NumberAnimation { to: 1; duration: 530 }
                                 }
                             }
-                            
+
                             text: root.settingsSearchText
                             onTextChanged: {
                                 root.settingsSearchText = text;
                                 root.recomputeSettingsSearchResults();
                             }
-                            
+
                             Keys.onPressed: (event) => {
                                 if (event.key === Qt.Key_Down && root.settingsSearchResults.length > 0) {
                                     resultsListView.forceActiveFocus();
@@ -1046,12 +839,12 @@ ApplicationWindow {
                         visible: root.settingsSearchText.length > 0
                         opacity: visible ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: 100 } }
-                        
+
                         onClicked: {
                             settingsSearchField.text = "";
                             settingsSearchField.forceActiveFocus();
                         }
-                        
+
                         contentItem: MaterialSymbol {
                             anchors.centerIn: parent
                             text: "close"
@@ -1069,7 +862,7 @@ ApplicationWindow {
                         visible: root.settingsSearchText.length > 0 && root.settingsSearchResults.length > 0
                         radius: Appearance.rounding.full
                         color: Appearance.colors.colPrimaryContainer
-                        
+
                         StyledText {
                             id: resultsCountText
                             anchors.centerIn: parent
@@ -1080,9 +873,88 @@ ApplicationWindow {
                         }
                     }
                 }
+
+                SettingsChromeEditFrame {
+                    anchors.fill: parent
+                    active: root.navEditMode
+                    blockId: "search"
+                    label: Translation.tr("Search")
+                    targetIndex: SettingsChromeLayout.columnFor("search")
+                }
             }
 
-            Item { Layout.fillWidth: true }
+            Item {
+                id: headerActions
+                parent: SettingsChromeLayout.columnFor("actions") === 0 ? settingsHeaderSlot0
+                    : SettingsChromeLayout.columnFor("actions") === 1 ? settingsHeaderSlot1
+                    : settingsHeaderSlot2
+                anchors.fill: parent
+                anchors.topMargin: root.navEditMode ? 8 : 6
+                anchors.bottomMargin: root.navEditMode ? 8 : 6
+
+                RowLayout {
+                    id: actionsRow
+                    anchors.fill: parent
+                    spacing: 4
+
+                    RippleButton {
+                        buttonRadius: Appearance.rounding.full
+                        implicitWidth: 35
+                        implicitHeight: 35
+                        onClicked: root.setEasyMode(!root.easyMode)
+                        contentItem: MaterialSymbol {
+                            anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            text: root.easyMode ? "school" : "tune"
+                            iconSize: 20
+                            color: root.easyMode ? Appearance.colors.colPrimary : Appearance.colors.colOnSurfaceVariant
+                            Behavior on color {
+                                enabled: Appearance.animationsEnabled
+                                animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                            }
+                        }
+                        StyledToolTip {
+                            text: root.easyMode
+                                ? Translation.tr("Easy mode — click to show all settings")
+                                : Translation.tr("Advanced mode — click to switch to Easy mode (essentials only)")
+                        }
+                    }
+
+                    RippleButton {
+                        buttonRadius: Appearance.rounding.full
+                        implicitWidth: 35
+                        implicitHeight: 35
+                        onClicked: Quickshell.execDetached([Quickshell.shellPath("scripts/inir"), "lock", "activate"])
+                        contentItem: MaterialSymbol {
+                            anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            text: "lock"
+                            iconSize: 20
+                        }
+                    }
+
+                    RippleButton {
+                        buttonRadius: Appearance.rounding.full
+                        implicitWidth: 35
+                        implicitHeight: 35
+                        onClicked: root.close()
+                        contentItem: MaterialSymbol {
+                            anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            text: "close"
+                            iconSize: 20
+                        }
+                    }
+                }
+
+                SettingsChromeEditFrame {
+                    anchors.fill: parent
+                    active: root.navEditMode
+                    blockId: "actions"
+                    label: Translation.tr("Actions")
+                    targetIndex: SettingsChromeLayout.columnFor("actions")
+                }
+            }
         }
 
         RowLayout { // Window content with navigation rail and content pane
@@ -1093,149 +965,587 @@ ApplicationWindow {
                 id: navRailWrapper
                 Layout.fillHeight: true
                 Layout.margins: 5
-                implicitWidth: navRail.expanded ? 150 : fab.baseSize
+                implicitWidth: root.navEditMode ? 228 : 168
+
                 Behavior on implicitWidth {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: Appearance.animation.elementResize.duration
+                        easing.type: Appearance.animation.elementResize.type
+                        easing.bezierCurve: Appearance.animation.elementResize.bezierCurve
+                    }
                 }
+
                 Flickable {
                     id: navRailFlickable
+                    visible: !root.navEditMode || navEditLoader.status !== Loader.Ready
                     anchors.fill: parent
-                    contentWidth: navRail.width
-                    contentHeight: navRail.implicitHeight
+                    anchors.bottomMargin: navBottomActions.height + 8
+                    contentHeight: navCol.implicitHeight
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
-                    
-                    NavigationRail {
-                        id: navRail
-                        width: navRailWrapper.implicitWidth
-                        spacing: 10
-                        expanded: false  // Default collapsed, user can expand with button
-                        
-                        NavigationRailExpandButton {
-                            focus: root.visible
+                    interactive: contentHeight > height
+                    ScrollBar.vertical: StyledScrollBar {
+                        policy: ScrollBar.AlwaysOff
+                    }
+
+                    ColumnLayout {
+                        id: navCol
+                        width: parent.width
+                        spacing: 0
+
+                        Repeater {
+                            id: navRepeater
+                            model: root.visibleNavItems
+                            delegate: Column {
+                                id: navItem
+                                required property int index
+                                required property var modelData
+                                Layout.fillWidth: true
+                                spacing: 0
+                                readonly property color headerAccentColor: Appearance.angelEverywhere ? Appearance.angel.colPrimary
+                                    : Appearance.inirEverywhere ? Appearance.inir.colAccent
+                                    : Appearance.colors.colPrimary
+
+                                // ── Category header ──
+                                Item {
+                                    width: parent.width
+                                    height: visible ? (navItem.index > 0 ? 32 : 20) : 0
+                                    visible: navItem.modelData.type === "header"
+
+                                    Behavior on height {
+                                        enabled: Appearance.animationsEnabled
+                                        animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+                                    }
+
+                                    StyledText {
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 12
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: 4
+                                        text: navItem.modelData.label || ""
+                                        font {
+                                            family: Appearance.font.family.main
+                                            pixelSize: Appearance.font.pixelSize.smaller
+                                            weight: Font.DemiBold
+                                            capitalization: Font.AllUppercase
+                                            letterSpacing: 1.1
+                                        }
+                                        color: navItem.headerAccentColor
+                                        opacity: 0.85
+
+                                        Behavior on color {
+                                            enabled: Appearance.animationsEnabled
+                                            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                        }
+                                    }
+                                }
+
+                                // ── Nav button ──
+                                RippleButton {
+                                    id: navBtn
+                                    visible: navItem.modelData.type === "page"
+                                    width: parent.width
+                                    implicitHeight: visible ? 34 : 0
+                                    z: 1
+
+                                    readonly property int pageRealIndex: navItem.modelData.realIndex !== undefined ? navItem.modelData.realIndex : navItem.index
+
+                                    buttonRadius: Appearance.regaliaEverywhere
+                                        ? Appearance.regalia.roundSmall
+                                        : Appearance.zzzEverywhere
+                                        ? Appearance.zzz.controlRadius
+                                        : Appearance.editorialEverywhere
+                                        ? Appearance.rounding.small
+                                        : Math.min(width, height) / 2
+                                    toggled: root.currentPage === pageRealIndex
+                                    // Bgless doctrine: zzz selection reads through the sticker pill
+                                    // below, not a Material ripple / opaque hover fill on this
+                                    // Control's own background (which renders above the pill).
+                                    rippleEnabled: !Appearance.zzzEverywhere
+                                    colBackground: "transparent"
+                                    colBackgroundToggled: Appearance.regaliaEverywhere
+                                        ? Appearance.regalia.primaryPlate : "transparent"
+                                    colBackgroundToggledHover: Appearance.regaliaEverywhere
+                                        ? Appearance.regalia.primaryPlateHover
+                                        : Appearance.zzzEverywhere
+                                        ? "transparent"
+                                        : Appearance.angelEverywhere
+                                        ? Appearance.angel.colGlassCardHover
+                                        : Appearance.inirEverywhere
+                                            ? Appearance.inir.colLayer1Hover
+                                            : Appearance.auroraEverywhere
+                                                ? Appearance.aurora.colElevatedSurface
+                                                : CF.ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 0.5)
+                                    colBackgroundHover: Appearance.regaliaEverywhere
+                                        ? Appearance.regalia.surfacePlateHover
+                                        : Appearance.zzzEverywhere
+                                        ? Appearance.zzz.paperAlt
+                                        : Appearance.colors.colLayer1Hover
+
+                                    onClicked: root.currentPage = pageRealIndex
+
+                                    contentItem: Item {
+                                        anchors.fill: parent
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 10
+                                            anchors.rightMargin: 8
+                                            spacing: 10
+
+                                            MaterialSymbol {
+                                                text: navItem.modelData.icon || ""
+                                                iconSize: 18
+                                                color: navBtn.toggled || (Appearance.regaliaEverywhere && navBtn.buttonHovered)
+                                                    ? (Appearance.regaliaEverywhere
+                                                        ? Appearance.regalia.hardwarePrimary
+                                                        : Appearance.zzzEverywhere
+                                                        ? Appearance.zzz.ink
+                                                        : Appearance.inirEverywhere
+                                                        ? Appearance.inir.colAccent
+                                                        : Appearance.colors.colPrimary)
+                                                    : Appearance.colors.colOnSurfaceVariant
+                                                rotation: navItem.modelData.iconRotation || 0
+
+                                                Behavior on color {
+                                                    enabled: Appearance.animationsEnabled
+                                                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                                }
+                                            }
+
+                                            StyledText {
+                                                Layout.fillWidth: true
+                                                text: navItem.modelData.name || ""
+                                                font {
+                                                    family: Appearance.font.family.main
+                                                    pixelSize: Appearance.font.pixelSize.small
+                                                    weight: navBtn.toggled ? Font.Medium : Font.Normal
+                                                }
+                                                color: navBtn.toggled || (Appearance.regaliaEverywhere && navBtn.buttonHovered)
+                                                    ? (Appearance.regaliaEverywhere
+                                                        ? Appearance.regalia.primaryPlateInk
+                                                        : Appearance.colors.colOnLayer1)
+                                                    : Appearance.colors.colOnSurfaceVariant
+                                                elide: Text.ElideRight
+
+                                                Behavior on color {
+                                                    enabled: Appearance.animationsEnabled
+                                                    animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
 
-                        FloatingActionButton {
-                            id: fab
-                            property bool justCopied: false
-                            iconText: justCopied ? "check" : "edit"
-                            buttonText: justCopied ? Translation.tr("Path copied") : Translation.tr("Config file")
-                            expanded: navRail.expanded
-                            downAction: () => {
-                                Qt.openUrlExternally(`${Directories.config}/illogical-impulse/config.json`);
-                            }
-                            altAction: () => {
-                                Quickshell.clipboardText = CF.FileUtils.trimFileProtocol(`${Directories.config}/illogical-impulse/config.json`);
-                                fab.justCopied = true;
-                                revertTextTimer.restart()
+                        // Active indicator: pill travelling behind the active item
+                        ZzzPlate {
+                            id: sharedNavIndicator
+                            z: -1
+                            parent: navCol
+                            x: 0
+                            width: navCol.width
+                            radius: Appearance.zzzEverywhere
+                                ? (Appearance.zzz.round ? Appearance.zzz.controlRadius : 0)
+                                : Appearance.rounding.small
+                            chamfer: Appearance.zzzEverywhere && !Appearance.zzz.round ? Appearance.zzz.cutCorner : 0
+                            fillColor: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                                 : Appearance.inirEverywhere ? Appearance.inir.colLayer2
+                                 : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface
+                                 : Appearance.zzzEverywhere ? Appearance.zzz.sticker
+                                 : Appearance.colors.colPrimaryContainer
+                            // No hairline in zzz: the stroke next to the accent bar read
+                            // as two stacked vertical lines (matches SettingsOverlay.qml —
+                            // zzz doctrine: separate by fill, not outline).
+                            strokeColor: "transparent"
+                            strokeWidth: 0
+
+                            // ZZZ: solid vertical accent edge — the sticker fill alone
+                            // reads as a hairline; the active item needs a real marker.
+                            Rectangle {
+                                visible: Appearance.zzzEverywhere
+                                anchors.left: parent.left
+                                anchors.leftMargin: Appearance.zzz.borderThick
+                                anchors.verticalCenter: parent.verticalCenter
+                                height: Math.max(0, parent.height * 0.62)
+                                width: Appearance.zzz.borderThick * 3
+                                color: Appearance.zzz.accent
                             }
 
-                            Timer {
-                                id: revertTextTimer
-                                interval: 1500
-                                onTriggered: {
-                                    fab.justCopied = false;
+
+                            Behavior on radius {
+                                enabled: Appearance.animationsEnabled
+                                NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animationCurves.zzzOvershoot }
+                            }
+
+                            property real targetY: 0
+                            property real targetH: 0
+                            property bool hasTarget: false
+
+                            // Leading/trailing edges travel at different speeds, so the
+                            // pill stretches toward the target and contracts on arrival.
+                            property real edgeTop: targetY
+                            property real edgeBottom: targetY + targetH
+                            Behavior on edgeTop {
+                                enabled: Appearance.animationsEnabled
+                                animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+                            }
+                            Behavior on edgeBottom {
+                                enabled: Appearance.animationsEnabled
+                                animation: NumberAnimation { duration: Math.round(Appearance.animation.elementResize.duration * 1.18); easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
+                            }
+
+                            function updatePosition() {
+                                for (var i = 0; i < navRepeater.count; i++) {
+                                    var item = navRepeater.itemAt(i);
+                                    if (item && item.modelData && item.modelData.type === "page" && item.modelData.realIndex === root.currentPage) {
+                                        var btn = item.children[1];
+                                        if (btn && btn.visible) {
+                                            targetY = item.y + btn.y;
+                                            targetH = btn.height;
+                                            hasTarget = true;
+                                            return;
+                                        }
+                                    }
+                                }
+                                hasTarget = false;
+                            }
+
+                            y: Math.min(edgeTop, edgeBottom)
+                            height: hasTarget ? Math.abs(edgeBottom - edgeTop) : 0
+                            opacity: hasTarget ? 1 : 0
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.leftMargin: 4
+                                width: 3
+                                radius: 1.5
+                                // ZZZ separates by fill, not outlines — the sticker plate above
+                                // already carries the selection signal (matches SettingsOverlay.qml).
+                                visible: !Appearance.zzzEverywhere
+                                height: (parent.hasTarget && visible) ? parent.height * 0.5 : 0
+                                color: Appearance.angelEverywhere ? Appearance.angel.colPrimary
+                                     : Appearance.inirEverywhere ? Appearance.inir.colAccent
+                                     : Appearance.colors.colPrimary
+                                Behavior on height {
+                                    enabled: Appearance.animationsEnabled
+                                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                                 }
                             }
 
-                            StyledToolTip {
-                                text: Translation.tr("Open the shell config file\nAlternatively right-click to copy path")
+                            Behavior on opacity {
+                                enabled: Appearance.animationsEnabled
+                                animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
                             }
-                        }
 
-                        NavigationRailTabArray {
-                            currentIndex: root.currentPage
-                            expanded: navRail.expanded
-                            Repeater {
-                                model: root.pages
-                                NavigationRailButton {
-                                    required property var index
-                                    required property var modelData
-                                    toggled: root.currentPage === index
-                                    onPressed: root.currentPage = index;
-                                    expanded: navRail.expanded
-                                    buttonIcon: modelData.icon
-                                    buttonIconRotation: modelData.iconRotation || 0
-                                    buttonText: modelData.name
-                                    showToggledHighlight: false
-                                }
+                            Connections {
+                                target: root
+                                function onCurrentPageChanged() { Qt.callLater(sharedNavIndicator.updatePosition); }
+                                function onVisibleNavItemsChanged() { Qt.callLater(sharedNavIndicator.updatePosition); }
                             }
+                            Connections {
+                                target: navRepeater
+                                function onCountChanged() { Qt.callLater(sharedNavIndicator.updatePosition); }
+                            }
+                            Component.onCompleted: Qt.callLater(updatePosition)
                         }
                     }
                 }
+
+                Loader {
+                    id: navEditLoader
+                    anchors {
+                        top: parent.top
+                        left: parent.left
+                        right: parent.right
+                        bottom: navBottomActions.top
+                        bottomMargin: 8
+                    }
+                    active: root.navEditMode
+                    asynchronous: true
+                    visible: status === Loader.Ready
+                    opacity: visible ? 1 : 0
+
+                    Behavior on opacity {
+                        enabled: Appearance.animationsEnabled
+                        NumberAnimation { duration: Appearance.animation.elementMoveFast.duration }
+                    }
+
+                    sourceComponent: Component {
+                        SettingsNavEditPane {
+                            currentPage: root.currentPage
+                            onPageActivated: pageIndex => root.currentPage = pageIndex
+                            onPageHidden: pageIndex => {
+                                if (root.currentPage !== pageIndex)
+                                    return
+                                Qt.callLater(() => {
+                                    if (root.navPageOrder.length > 0)
+                                        root.currentPage = root.navPageOrder[0]
+                                })
+                            }
+                            onDoneRequested: root.navEditMode = false
+                        }
+                    }
+                }
+
+                // Bottom actions: config file + overlay mode
+                ColumnLayout {
+                    id: navBottomActions
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: 2
+
+                    RippleButton {
+                        id: navEditToggle
+                        readonly property color editSurface: Appearance.colors.colPrimaryContainer
+                        readonly property color editSurfaceHover: Appearance.colors.colPrimaryContainerHover
+                        readonly property color editForeground: Appearance.colors.colOnPrimaryContainer
+                        Layout.fillWidth: true
+                        implicitHeight: 36
+                        buttonRadius: Appearance.rounding.small
+                        toggled: root.navEditMode
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.colors.colLayer1Hover
+                        colBackgroundToggled: editSurface
+                        colBackgroundToggledHover: editSurfaceHover
+                        onClicked: root.navEditMode = !root.navEditMode
+
+
+                        contentItem: RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 8
+                            spacing: 10
+
+                            MaterialSymbol {
+                                text: root.navEditMode ? "done" : "edit"
+                                iconSize: 18
+                                color: root.navEditMode
+                                    ? navEditToggle.editForeground
+                                    : Appearance.colors.colOnSurfaceVariant
+                            }
+
+                            StyledText {
+                                Layout.fillWidth: true
+                                text: root.navEditMode
+                                    ? Translation.tr("Done")
+                                    : Translation.tr("Edit navigation")
+                                font {
+                                    family: Appearance.font.family.main
+                                    pixelSize: Appearance.font.pixelSize.small
+                                }
+                                color: root.navEditMode
+                                    ? navEditToggle.editForeground
+                                    : Appearance.colors.colOnSurfaceVariant
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        StyledToolTip {
+                            position: "top"
+                            text: root.navEditMode
+                                ? Translation.tr("Finish editing navigation")
+                                : Translation.tr("Reorder or hide Settings pages directly in the sidebar")
+                        }
+                    }
+
+                    RippleButton {
+                        id: configFileBtn
+                        property bool justCopied: false
+                        Layout.fillWidth: true
+                        implicitHeight: 36
+                        buttonRadius: Appearance.rounding.small
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.colors.colLayer1Hover
+
+                        onClicked: Qt.openUrlExternally(`${Directories.config}/illogical-impulse/config.json`)
+                        altAction: () => {
+                            Quickshell.clipboardText = CF.FileUtils.trimFileProtocol(`${Directories.config}/illogical-impulse/config.json`);
+                            configFileBtn.justCopied = true;
+                            revertTextTimer.restart();
+                        }
+
+                        Timer {
+                            id: revertTextTimer
+                            interval: 1500
+                            onTriggered: configFileBtn.justCopied = false
+                        }
+
+                        contentItem: RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 8
+                            spacing: 10
+
+                            MaterialSymbol {
+                                text: configFileBtn.justCopied ? "check" : "edit"
+                                iconSize: 18
+                                color: Appearance.colors.colOnSurfaceVariant
+                            }
+
+                            StyledText {
+                                Layout.fillWidth: true
+                                text: configFileBtn.justCopied ? Translation.tr("Path copied") : Translation.tr("Config file")
+                                font {
+                                    family: Appearance.font.family.main
+                                    pixelSize: Appearance.font.pixelSize.small
+                                }
+                                color: Appearance.colors.colOnSurfaceVariant
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        StyledToolTip {
+                            position: "top"
+                            text: Translation.tr("Open the shell config file\nAlternatively right-click to copy path")
+                        }
+                    }
+
+                    RippleButton {
+                        id: overlayToggleBtn
+                        Layout.fillWidth: true
+                        implicitHeight: 36
+                        buttonRadius: Appearance.rounding.small
+                        colBackground: "transparent"
+                        colBackgroundHover: Appearance.colors.colLayer1Hover
+
+                        onClicked: {
+                            Quickshell.execDetached([Quickshell.shellPath("scripts/inir"),
+                                "ipc", "settings", "openOverlayAt", String(root.currentPage)])
+                            Qt.quit()
+                        }
+
+                        contentItem: RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 8
+                            spacing: 10
+
+                            MaterialSymbol {
+                                text: "layers"
+                                iconSize: 18
+                                color: Appearance.colors.colOnSurfaceVariant
+                            }
+
+                            StyledText {
+                                Layout.fillWidth: true
+                                text: Translation.tr("Overlay")
+                                font {
+                                    family: Appearance.font.family.main
+                                    pixelSize: Appearance.font.pixelSize.small
+                                }
+                                color: Appearance.colors.colOnSurfaceVariant
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        StyledToolTip {
+                            position: "top"
+                            text: Translation.tr("Switch to overlay mode")
+                        }
+                    }
+                }
+
             }
+
             Rectangle { // Content container
                 id: contentContainer
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                color: Appearance.m3colors.m3surfaceContainerLow
-                radius: Appearance.rounding.windowRounding - root.contentPadding
+                // ZZZ: same bg2 plate + hairline as the overlay-mode content
+                // field, so both settings modes read as the same surface.
+                color: Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+                     : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                     : Appearance.zzzEverywhere ? Appearance.zzz.bg2
+                     : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                     : Appearance.colors.colSurfaceContainerLow
+                radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                      : Appearance.inirEverywhere ? Appearance.inir.roundingNormal
+                      : Appearance.rounding.windowRounding - root.contentPadding
+                border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth
+                            : Appearance.zzzEverywhere ? Appearance.zzz.borderThick
+                            : Appearance.inirEverywhere ? 1 : 0
+                border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                            : Appearance.zzzEverywhere ? Appearance.zzz.hairline
+                            : Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle
+                            : "transparent"
 
+                // ── Page header: icon + name + description ──
                 Item {
-                    id: pagesStack
-                    anchors.fill: parent
+                    id: windowPageHeader
+                    anchors { top: parent.top; left: parent.left; right: parent.right }
+                    height: 48
+                    readonly property var meta: root.pages[root.currentPage] ?? {}
 
-                    // Track which pages have been visited (for lazy loading with cache)
-                    property var visitedPages: ({})
-                    property int preloadIndex: 0
+                    RowLayout {
+                        id: windowPageHeaderRow
+                        anchors.fill: parent
+                        anchors.leftMargin: 20
+                        anchors.rightMargin: 20
+                        spacing: 10
+
+                        MaterialShapeWrappedMaterialSymbol {
+                            text: windowPageHeader.meta.icon ?? ""
+                            iconSize: 15
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        StyledText {
+                            text: windowPageHeader.meta.name ?? ""
+                            font {
+                                family: Appearance.font.family.title
+                                pixelSize: Appearance.font.pixelSize.normal
+                                weight: Font.DemiBold
+                            }
+                            color: Appearance.colors.colOnLayer1
+                        }
+
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: windowPageHeader.meta.desc ?? ""
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            color: Appearance.colors.colSubtext
+                            elide: Text.ElideRight
+                        }
+                    }
 
                     Connections {
                         target: root
-                        function onCurrentPageChanged() {
-                            pagesStack.visitedPages[root.currentPage] = true
-                            pagesStack.visitedPagesChanged()
-                        }
+                        function onCurrentPageChanged() { if (Appearance.animationsEnabled) windowPageHeaderSwap.restart() }
+                    }
+                    SequentialAnimation {
+                        id: windowPageHeaderSwap
+                        NumberAnimation { target: windowPageHeaderRow; property: "opacity"; to: 0; duration: Appearance.animation.elementMoveFast.duration / 2; easing.type: Appearance.animation.elementMoveFast.type }
+                        NumberAnimation { target: windowPageHeaderRow; property: "opacity"; to: 1; duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type }
                     }
 
-                    Component.onCompleted: {
-                        // Mark initial page as visited
-                        visitedPages[root.currentPage] = true
-                        // Start preloading other pages after a short delay
-                        preloadTimer.start()
+                    Rectangle {
+                        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; leftMargin: 16; rightMargin: 16 }
+                        height: 1
+                        color: Appearance.inirEverywhere ? Appearance.inir.colBorderSubtle : Appearance.m3colors.m3outlineVariant
+                        opacity: 0.5
                     }
-                    
-                    // Preload all pages for search - faster interval
-                    Timer {
-                        id: preloadTimer
-                        interval: 100
-                        repeat: true
-                        onTriggered: {
-                            // Load 2 pages per tick for faster indexing
-                            for (var i = 0; i < 2 && pagesStack.preloadIndex < root.pages.length; i++) {
-                                if (!pagesStack.visitedPages[pagesStack.preloadIndex]) {
-                                    pagesStack.visitedPages[pagesStack.preloadIndex] = true
-                                    pagesStack.visitedPagesChanged()
-                                }
-                                pagesStack.preloadIndex++
-                            }
-                            if (pagesStack.preloadIndex >= root.pages.length) {
-                                preloadTimer.stop()
-                            }
-                        }
+                }
+
+                SettingsPageHost {
+                    id: pagesStack
+                    anchors { top: windowPageHeader.bottom; left: parent.left; right: parent.right; bottom: parent.bottom }
+
+                    pages: root.pages
+                    requestedIndex: root.currentPage
+                    loadEnabled: Config.ready && root._navigationInitialized
+
+                    SettingsPageLoadingOverlay {
+                        anchors.fill: parent
+                        loading: pagesStack.loading
+                        text: Translation.tr("Loading page…")
+                        z: 15
                     }
 
-                    Repeater {
-                        model: root.pages.length
-                        delegate: Loader {
-                            id: pageLoader
-                            required property int index
-                            anchors.fill: parent
-                            // Lazy load: only load when visited, keep loaded after
-                            active: Config.ready && (pagesStack.visitedPages[index] === true)
-                            asynchronous: index !== root.currentPage // Load non-current pages async
-                            source: root.pages[index].component
-                            visible: index === root.currentPage && status === Loader.Ready
-                            opacity: visible ? 1 : 0
-
-                            Behavior on opacity {
-                                NumberAnimation {
-                                    duration: Appearance.animation.elementMoveFast.duration
-                                    easing.type: Appearance.animation.elementMoveEnter.type
-                                    easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // Search results overlay - Simple dropdown style
@@ -1253,22 +1563,57 @@ ApplicationWindow {
                     }
 
                     // Results card
+                    StyledRectangularShadow {
+                        target: searchResultsCard
+                    }
                     Rectangle {
                         id: searchResultsCard
-                        width: Math.min(parent.width - 40, 500)
+                        width: Math.max(searchContainer.width, Math.min(parent.width - 40, 480))
                         height: Math.min(resultsListView.contentHeight + 16, 400)
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: parent.top
-                        anchors.topMargin: 8
-                        radius: Appearance.rounding.normal
-                        color: Appearance.auroraEverywhere ? Appearance.colors.colLayer1Base
-                            : Appearance.inirEverywhere ? Appearance.inir.colLayer2
-                            : Appearance.colors.colLayer1
-                        border.width: 1
-                        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+                        // Centered under the search box, not the content pane
+                        x: {
+                            const slotIndex = SettingsChromeLayout.columnFor("search")
+                            const slot = slotIndex === 0 ? settingsHeaderSlot0
+                                : slotIndex === 1 ? settingsHeaderSlot1 : settingsHeaderSlot2
+                            const p = settingsHeader.mapToItem(settingsSearchOverlay,
+                                slot.x, searchContainer.y + searchContainer.height)
+                            return Math.max(8, Math.min(
+                                p.x + (slot.width - width) / 2,
+                                parent.width - width - 8))
+                        }
+                        y: {
+                            const slotIndex = SettingsChromeLayout.columnFor("search")
+                            const slot = slotIndex === 0 ? settingsHeaderSlot0
+                                : slotIndex === 1 ? settingsHeaderSlot1 : settingsHeaderSlot2
+                            const p = settingsHeader.mapToItem(settingsSearchOverlay,
+                                slot.x, searchContainer.y + searchContainer.height)
+                            return Math.max(0, p.y)
+                        }
+                        radius: Appearance.angelEverywhere ? Appearance.angel.roundingNormal
+                             : Appearance.inirEverywhere ? Appearance.inir.roundingNormal
+                             : Appearance.rounding.normal
+                        color: "transparent"
+                        border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth
+                                    : Appearance.inirEverywhere ? 1 : 1
+                        border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+                            : Appearance.inirEverywhere ? Appearance.inir.colBorder
+                            : Appearance.auroraEverywhere ? Appearance.aurora.colPopupBorder
                             : Appearance.m3colors.m3outlineVariant
 
-                        layer.enabled: true
+                        GlassBackground {
+                            anchors.fill: parent
+                            radius: searchResultsCard.radius
+                            screenX: searchResultsCard.mapToGlobal(0, 0).x
+                            screenY: searchResultsCard.mapToGlobal(0, 0).y
+                            screenWidth: Quickshell.screens[0]?.width ?? root.width
+                            screenHeight: Quickshell.screens[0]?.height ?? root.height
+                            hovered: false
+                            fallbackColor: Appearance.colors.colLayer1
+                            inirColor: Appearance.inir.colLayer2
+                            auroraTransparency: Math.max(0.22, Appearance.aurora.popupTransparentize - 0.12)
+                        }
+
+                        layer.enabled: Appearance.effectsEnabled && !Appearance.auroraEverywhere
                         layer.effect: DropShadow {
                             color: Qt.rgba(0, 0, 0, 0.3)
                             radius: 12
@@ -1315,14 +1660,24 @@ ApplicationWindow {
                                 id: resultItem
                                 required property var modelData
                                 required property int index
-                                
+
                                 width: resultsListView.width
                                 implicitHeight: 52
-                                buttonRadius: Appearance.rounding.small
-                                
-                                colBackground: ListView.isCurrentItem ? Appearance.colors.colPrimaryContainer : "transparent"
-                                colBackgroundHover: Appearance.colors.colLayer2
-                                
+                                buttonRadius: Appearance.angelEverywhere ? Appearance.angel.roundingSmall
+                                            : Appearance.inirEverywhere ? Appearance.inir.roundingSmall
+                                            : Appearance.rounding.small
+
+                                colBackground: ListView.isCurrentItem
+                                    ? (Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                                      : Appearance.inirEverywhere ? Appearance.inir.colLayer1
+                                      : Appearance.auroraEverywhere ? Appearance.aurora.colElevatedSurface
+                                      : Appearance.colors.colPrimaryContainer)
+                                    : "transparent"
+                                colBackgroundHover: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                                                  : Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover
+                                                  : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface
+                                                  : Appearance.colors.colLayer2
+
                                 Keys.forwardTo: [resultsListView]
                                 onClicked: root.openSearchResult(modelData)
 
@@ -1334,15 +1689,10 @@ ApplicationWindow {
 
                                     // Page icon
                                     MaterialSymbol {
-                                        text: {
-                                            var icons = ["instant_mix", "browse", "toast", "texture", "palette", 
-                                                        "bottom_app_bar", "settings", "construction", "keyboard", 
-                                                        "extension", "window", "info"];
-                                            return icons[resultItem.modelData.pageIndex] || "settings";
-                                        }
+                                        text: SettingsPageRegistry.iconForPage(resultItem.modelData.pageIndex)
                                         iconSize: 20
-                                        color: resultItem.ListView.isCurrentItem 
-                                            ? Appearance.colors.colOnPrimaryContainer 
+                                        color: resultItem.ListView.isCurrentItem
+                                            ? Appearance.colors.colOnPrimaryContainer
                                             : Appearance.colors.colPrimary
                                     }
 
@@ -1360,8 +1710,8 @@ ApplicationWindow {
                                                 pixelSize: Appearance.font.pixelSize.small
                                                 weight: Font.Medium
                                             }
-                                            color: resultItem.ListView.isCurrentItem 
-                                                ? Appearance.colors.colOnPrimaryContainer 
+                                            color: resultItem.ListView.isCurrentItem
+                                                ? Appearance.colors.colOnPrimaryContainer
                                                 : Appearance.colors.colOnLayer1
                                             elide: Text.ElideRight
                                         }
@@ -1370,31 +1720,38 @@ ApplicationWindow {
                                         Row {
                                             Layout.fillWidth: true
                                             spacing: 4
-                                            
+
+                                            readonly property string sectionDisplay: {
+                                                var sect = resultItem.modelData.section || "";
+                                                var page = resultItem.modelData.pageName || "";
+                                                var parts = sect.split(/\s*[·›]\s*/).filter(t => t.length > 0);
+                                                if (parts.length > 1 && parts[0] === page) parts.shift();
+                                                return parts.join(" › ");
+                                            }
                                             StyledText {
                                                 text: resultItem.modelData.pageName || ""
                                                 font.pixelSize: Appearance.font.pixelSize.smaller
-                                                color: resultItem.ListView.isCurrentItem 
-                                                    ? Appearance.colors.colOnPrimaryContainer 
+                                                color: resultItem.ListView.isCurrentItem
+                                                    ? Appearance.colors.colOnPrimaryContainer
                                                     : Appearance.colors.colSubtext
                                                 opacity: 0.9
                                             }
                                             MaterialSymbol {
-                                                visible: resultItem.modelData.section && resultItem.modelData.section !== resultItem.modelData.pageName
+                                                visible: parent.sectionDisplay.length > 0 && parent.sectionDisplay !== resultItem.modelData.pageName
                                                 text: "chevron_right"
                                                 iconSize: Appearance.font.pixelSize.smaller
-                                                color: resultItem.ListView.isCurrentItem 
-                                                    ? Appearance.colors.colOnPrimaryContainer 
+                                                color: resultItem.ListView.isCurrentItem
+                                                    ? Appearance.colors.colOnPrimaryContainer
                                                     : Appearance.colors.colSubtext
                                                 opacity: 0.6
                                                 anchors.verticalCenter: parent.verticalCenter
                                             }
                                             StyledText {
-                                                visible: resultItem.modelData.section && resultItem.modelData.section !== resultItem.modelData.pageName
-                                                text: resultItem.modelData.section || ""
+                                                visible: parent.sectionDisplay.length > 0 && parent.sectionDisplay !== resultItem.modelData.pageName
+                                                text: parent.sectionDisplay
                                                 font.pixelSize: Appearance.font.pixelSize.smaller
-                                                color: resultItem.ListView.isCurrentItem 
-                                                    ? Appearance.colors.colOnPrimaryContainer 
+                                                color: resultItem.ListView.isCurrentItem
+                                                    ? Appearance.colors.colOnPrimaryContainer
                                                     : Appearance.colors.colSubtext
                                                 opacity: 0.9
                                             }
@@ -1405,8 +1762,8 @@ ApplicationWindow {
                                     MaterialSymbol {
                                         text: "arrow_forward"
                                         iconSize: 16
-                                        color: resultItem.ListView.isCurrentItem 
-                                            ? Appearance.colors.colOnPrimaryContainer 
+                                        color: resultItem.ListView.isCurrentItem
+                                            ? Appearance.colors.colOnPrimaryContainer
                                             : Appearance.colors.colSubtext
                                         opacity: resultItem.hovered || resultItem.ListView.isCurrentItem ? 1 : 0
                                     }
@@ -1418,15 +1775,44 @@ ApplicationWindow {
 
                 // No results indicator (inline, not overlay)
                 Rectangle {
+                    id: noResultsCard
                     visible: root.settingsSearchText.length > 0 && root.settingsSearchResults.length === 0
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.top
-                    anchors.topMargin: 8
+                    x: {
+                        const slotIndex = SettingsChromeLayout.columnFor("search")
+                        const slot = slotIndex === 0 ? settingsHeaderSlot0
+                            : slotIndex === 1 ? settingsHeaderSlot1 : settingsHeaderSlot2
+                        const p = settingsHeader.mapToItem(parent,
+                            slot.x, searchContainer.y + searchContainer.height)
+                        return Math.max(8, Math.min(
+                            p.x + (slot.width - width) / 2,
+                            parent.width - width - 8))
+                    }
+                    y: {
+                        const slotIndex = SettingsChromeLayout.columnFor("search")
+                        const slot = slotIndex === 0 ? settingsHeaderSlot0
+                            : slotIndex === 1 ? settingsHeaderSlot1 : settingsHeaderSlot2
+                        const p = settingsHeader.mapToItem(parent,
+                            slot.x, searchContainer.y + searchContainer.height)
+                        return Math.max(0, p.y)
+                    }
                     width: noResultsRow.implicitWidth + 24
                     height: 36
                     radius: Appearance.rounding.full
-                    color: Appearance.colors.colLayer1
+                    color: "transparent"
                     z: 100
+
+                    GlassBackground {
+                        anchors.fill: parent
+                        radius: noResultsCard.radius
+                        screenX: noResultsCard.mapToGlobal(0, 0).x
+                        screenY: noResultsCard.mapToGlobal(0, 0).y
+                        screenWidth: Quickshell.screens[0]?.width ?? root.width
+                        screenHeight: Quickshell.screens[0]?.height ?? root.height
+                        hovered: false
+                        fallbackColor: Appearance.colors.colLayer1
+                        inirColor: Appearance.inir.colLayer2
+                        auroraTransparency: Math.max(0.22, Appearance.aurora.popupTransparentize - 0.12)
+                    }
 
                     RowLayout {
                         id: noResultsRow
@@ -1446,98 +1832,7 @@ ApplicationWindow {
                         }
                     }
                 }
-                
-                // Spotlight overlay - scrim with cutout for focused option
-                Item {
-                    id: spotlightOverlay
-                    anchors.fill: parent
-                    visible: root.spotlightActive
-                    z: 200
-                    
-                    // Click anywhere to dismiss
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.deactivateSpotlight()
-                    }
-                    
-                    // Dark scrim with cutout using Canvas
-                    Canvas {
-                        id: spotlightCanvas
-                        anchors.fill: parent
-                        
-                        onPaint: {
-                            var ctx = getContext("2d");
-                            ctx.reset();
-                            
-                            // Fill entire area with semi-transparent dark
-                            ctx.fillStyle = Qt.rgba(0, 0, 0, 0.5);
-                            ctx.fillRect(0, 0, width, height);
-                            
-                            // Cut out the spotlight area (clear it)
-                            if (root.spotlightActive && root.spotlightRect.width > 0) {
-                                ctx.globalCompositeOperation = "destination-out";
-                                
-                                var r = root.spotlightRect;
-                                var radius = Appearance.rounding.normal;
-                                
-                                // Draw rounded rectangle cutout
-                                ctx.beginPath();
-                                ctx.moveTo(r.x + radius, r.y);
-                                ctx.lineTo(r.x + r.width - radius, r.y);
-                                ctx.quadraticCurveTo(r.x + r.width, r.y, r.x + r.width, r.y + radius);
-                                ctx.lineTo(r.x + r.width, r.y + r.height - radius);
-                                ctx.quadraticCurveTo(r.x + r.width, r.y + r.height, r.x + r.width - radius, r.y + r.height);
-                                ctx.lineTo(r.x + radius, r.y + r.height);
-                                ctx.quadraticCurveTo(r.x, r.y + r.height, r.x, r.y + r.height - radius);
-                                ctx.lineTo(r.x, r.y + radius);
-                                ctx.quadraticCurveTo(r.x, r.y, r.x + radius, r.y);
-                                ctx.closePath();
-                                ctx.fill();
-                            }
-                        }
-                        
-                        Connections {
-                            target: root
-                            function onSpotlightRectChanged() {
-                                spotlightCanvas.requestPaint();
-                            }
-                            function onSpotlightActiveChanged() {
-                                spotlightCanvas.requestPaint();
-                            }
-                        }
-                    }
-                    
-                    // Subtle border around the cutout
-                    Rectangle {
-                        visible: root.spotlightActive && root.spotlightRect.width > 0
-                        x: root.spotlightRect.x - 1
-                        y: root.spotlightRect.y - 1
-                        width: root.spotlightRect.width + 2
-                        height: root.spotlightRect.height + 2
-                        radius: Appearance.rounding.normal + 1
-                        color: "transparent"
-                        border.width: 1
-                        border.color: Appearance.colors.colPrimary
-                        opacity: 0.8
-                    }
-                    
-                    // Auto-dismiss after 2.5 seconds
-                    Timer {
-                        running: root.spotlightActive
-                        interval: 2500
-                        onTriggered: root.deactivateSpotlight()
-                    }
-                    
-                    // Keyboard dismiss
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Escape || event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            root.deactivateSpotlight();
-                            event.accepted = true;
-                        }
-                    }
-                    
-                    Component.onCompleted: forceActiveFocus()
-                }
+
             }
         }
     }

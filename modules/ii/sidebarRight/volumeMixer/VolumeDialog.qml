@@ -26,14 +26,14 @@ WindowDialog {
 
     VolumeDialogContent {
         isSink: root.isSink
+        dialogShown: root.show
     }
 
     WindowDialogButtonRow {
         DialogButton {
             buttonText: Translation.tr("Details")
             onClicked: {
-                const cmd = Config.options?.apps?.volumeMixer ?? "pavucontrol"
-                ShellExec.execCmd(cmd)
+                AppLauncher.launch("volumeMixer")
                 GlobalStates.sidebarRightOpen = false;
             }
         }

@@ -1,0 +1,138 @@
+> Using SNAPS-OS Functions
+
+
+
+
+
+
+## TLDR TUI 
+
+you can call this using either the *SUPER+H* bind or the alias `tldrtui` in the terminal
+
+you can use a mouse to interact with this interface or use the arrow keys, you can type to search.
+
+pressing enter or double-clicking an entry will open the man page for that entry
+
+pressing q on the manpage will bring you back to the main menu.
+
+to exit, press *SUPER+Q* to quit the terminal
+
+
+
+## help TUI
+
+you can call this using the *SUPER+SHIFT+H* bind or the alias `helptui` in the terminal
+
+you can use the arrow keys or the mouse to navigate and type to search.
+
+enter refreshes the menu
+
+to exit, press *SUPER+Q*
+
+
+
+## mango config editor
+
+to start, either press *SUPER+M* or run `mangoconf` in the terminal.
+
+this will provide you with a menu listing the configuration files in ~/.config/mango
+
+on the right side, it will show you a preview of the file.
+
+once you've found the file you want to edit, press enter to open it in micro. 
+
+in micro, you can use ctrl+s to save and ctrl+q to quit
+
+then, you can reload the mango config with *SUPER+R*
+
+
+
+## project selector
+
+the project selector uses a state file in your ~/.config directory to determine which directory to scan.
+
+this directory must be inside home, and is set to ~/projects by default
+
+to change this, run the following:
+
+`echo "my-projects/subdir-if-needed" > ~/.config/projectdir.state`
+
+this example would make the project selector scan /home/UserName/my-projects/subdir-if-needed
+
+the project selector finds git repositories, so it will only display projects that are a git repository. it is recommended you keep your projects in git repo's.
+
+for configs, you can place them inside a git repo and symlink them using the ln command or using stow.
+
+
+with git repositories inside your projects directory, you can now use the project selector to access them.
+
+you can open the project selector with the bind *SUPER+SHIFT+TAB* or the terminal alias `git-projects`
+
+on the left, you'll see the full paths to all found git repositories.
+
+on the right, you'll see a listing of the files in the git repository as well as the readme.
+
+pressing enter on the repository will open the repository in code-OSS, which will then allow you to work on the repository without clutter.
+
+this also allows you to then use the code-OSS GUI to do git pull, push and sync. 
+
+
+
+## layout switcher
+
+you can open the layout switcher with the bind *SUPER+SHIFT+W*
+
+you can then tab through the layouts using the arrow keys and press enter on your desired one.
+
+this will only affect your current view on the active monitor and will be reset when the config is reloaded.
+
+if you've accidentally messed up your layout, pressing *SUPER+R* will force it back to dwindle. 
+
+
+
+## documentation menu
+
+you can open this menu using the alias `documentation` in the terminal or the bind *SUPER+shift+M*
+
+this menu will allow you to quickly open both various documentation sites in firefox as well as custom-built searchable quick reference menu's 
+
+
+## wallpaper switcher
+
+you can open this with *SUPER+W*, it'll show you the directories in ~/.config/sdgos/wallpapers
+
+each directory can contain any number of images, which will be cycled through. if you do not want cycling, just put one wallpaper in a folder.
+
+you can also cycle with alt+w and shift+alt+w to go forwards and back. 
+
+
+## bar presets
+
+you can open this with *SUPER+SHIFT+D*, this allows you to toggle the various pre-included bars, as well as dock, including some presets.
+
+
+
+## tips
+
+tips are shown automatically when you start your first terminal session, they are also shown when you run the command `tipme`
+
+you can also get a tip in your notifications by pressing the bind *SUPER+0*
+
+
+## alternative Install TUIs
+
+you need to enable these in your binds.conf file by uncommenting the TUIs and commenting out the default installers (shelly+unipkg)
+
+the process is the same for using Pacman repositories or using the AUR.
+
+Please always prefer using the pacman repositories if possible, only use the AUR if needed.
+
+step 1: either open a terminal and type the alias `pacgui` or `aurgui`, or use the keybind *SUPER+Y* for pacman or *SUPER+SHIFT+Y* for the AUR
+
+step 2: search for your package
+
+step 3: if you wish to install multiple packages, press tab after highlighting each package
+
+step 4: press enter and provide your password
+
+your software will now be installed alongside all of its dependencies

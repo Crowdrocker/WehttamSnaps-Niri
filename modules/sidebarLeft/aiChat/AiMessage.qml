@@ -13,8 +13,10 @@ Rectangle {
     property var messageData
     property var messageInputField
 
-    property real messagePadding: 7
-    property real contentSpacing: 3
+    readonly property bool editorial: Appearance.editorialEverywhere
+    readonly property bool userMessage: messageData?.role === "user"
+    property real messagePadding: editorial ? Math.round(12 * Appearance.editorial.spacing) : 7
+    property real contentSpacing: editorial ? Math.round(8 * Appearance.editorial.spacing) : 3
 
     property bool enableMouseSelection: false
     property bool renderMarkdown: true
@@ -26,8 +28,10 @@ Rectangle {
     anchors.right: parent?.right
     implicitHeight: columnLayout.implicitHeight + root.messagePadding * 2
 
-    radius: Appearance.rounding.normal
-    color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+    radius: root.editorial ? Appearance.editorial.radius : Appearance.rounding.normal
+    color: root.editorial ? (root.userMessage ? Appearance.editorial.secondaryField : Appearance.editorial.layer(1))
+        : Appearance.angelEverywhere ? Appearance.angel.colGlassCard
+        : Appearance.inirEverywhere ? Appearance.inir.colLayer1
         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1
 
     function saveMessage() {
@@ -99,7 +103,7 @@ Rectangle {
                         ? Ai.models[messageData?.model].icon 
                         : ""
                     colorize: true
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.colSecondaryActionIcon
                 }
 
                 MaterialSymbol {
@@ -107,7 +111,7 @@ Rectangle {
                     anchors.centerIn: parent
                     visible: !modelIcon.visible
                     iconSize: 16
-                    color: Appearance.colors.colSubtext
+                    color: Appearance.colSecondaryActionIcon
                     text: messageData?.role == 'user' ? 'person' : 
                         messageData?.role == 'interface' ? 'settings' : 
                         messageData?.role == 'assistant' ? 'neurology' : 
@@ -122,7 +126,9 @@ Rectangle {
                 Layout.fillWidth: true
                 elide: Text.ElideRight
                 font.pixelSize: Appearance.font.pixelSize.small
-                color: Appearance.colors.colSubtext
+                font.weight: root.editorial ? Font.DemiBold : Font.Normal
+                font.letterSpacing: root.editorial ? 0.3 : 0
+                color: root.editorial ? (root.userMessage ? Appearance.editorial.secondaryFieldInk : Appearance.editorial.accent) : Appearance.colMetadataText
                 text: (messageData?.role == 'assistant' && Ai.models[messageData?.model]) 
                     ? Ai.models[messageData?.model].name 
                     : (messageData?.role == 'user' && SystemInfo.username) 
@@ -136,7 +142,7 @@ Rectangle {
                 visible: messageData?.role == 'interface'
                 Layout.alignment: Qt.AlignVCenter
                 iconSize: 12
-                color: Appearance.colors.colSubtext
+                color: Appearance.colSecondaryActionIcon
                 text: "visibility_off"
                 
                 MouseArea {
@@ -210,7 +216,7 @@ Rectangle {
 
         Loader {
             Layout.fillWidth: true
-            active: root.messageData?.localFilePath && root.messageData?.localFilePath.length > 0
+            active: (root.messageData?.localFilePath?.length ?? 0) > 0
             sourceComponent: AttachedFileIndicator {
                 filePath: root.messageData?.localFilePath
                 canRemove: false
@@ -219,6 +225,8 @@ Rectangle {
 
         ColumnLayout { // Message content
             id: messageContentColumnLayout
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
             spacing: 0
 
             Item {
@@ -228,12 +236,13 @@ Rectangle {
                 visible: implicitHeight > 0
 
                 Behavior on implicitHeight {
-                    animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    animation: NumberAnimation { duration: Appearance.animation.elementMove.duration; easing.type: Appearance.animation.elementMove.type; easing.bezierCurve: Appearance.animation.elementMove.bezierCurve }
                 }
                 FadeLoader {
                     id: loadingIndicatorLoader
                     anchors.centerIn: parent
-                    shown: (root.messageBlocks.length < 1) && (root.messageData && !root.messageData.done)
+                    shown: (root.messageBlocks.length < 1) && (root.messageData ? !root.messageData.done : false)
                     sourceComponent: MaterialLoadingIndicator {
                         loading: true
                     }
@@ -269,10 +278,10 @@ Rectangle {
                         editing: root.editing
                         renderMarkdown: root.renderMarkdown
                         enableMouseSelection: root.enableMouseSelection
-                        segmentContent: thisBlock.content
+                        segmentContent: thisBlock?.content ?? ""
                         messageData: root.messageData
                         done: root.messageData?.done ?? false
-                        completed: thisBlock.completed ?? false
+                        completed: thisBlock?.completed ?? false
                     } }
                     DelegateChoice { roleValue: "text"; MessageTextBlock {
                         required property int index
@@ -280,10 +289,10 @@ Rectangle {
                         editing: root.editing
                         renderMarkdown: root.renderMarkdown
                         enableMouseSelection: root.enableMouseSelection
-                        segmentContent: thisBlock.content
+                        segmentContent: thisBlock?.content ?? ""
                         messageData: root.messageData
                         done: root.messageData?.done ?? false
-                        forceDisableChunkSplitting: root.messageData?.content.includes("```") ?? true
+                        forceDisableChunkSplitting: (root.messageData?.content?.includes("```")) ?? true
                     } }
                 }
             }

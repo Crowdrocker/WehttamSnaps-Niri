@@ -1,0 +1,47 @@
+/**
+ * wehttamsnaps-keyhints.rasi — Keybinds Cheat Sheet Variant
+ * Wide 3-column layout for Super + H keyhints display
+ * Inherits all variables from wehttamsnaps.rasi
+ *
+ * Used by: ~/.config/sway/scripts/keyhints.sh
+ * Reference: wehttamsnaps-keyhints.sh  (GDK_BACKEND=wayland rofi -columns 3)
+ */
+
+@import "wehttamsnaps.rasi"
+
+/* Override window to be wider for 3-column layout */
+window {
+    width:              1200px;
+    border-radius:      10px;
+}
+
+/* Override listview for 3 columns */
+listview {
+    columns:            3;
+    lines:              25;
+    spacing:            0px;
+    padding:            6px 4px;
+}
+
+/* Tighter elements for dense keybind display */
+element {
+    padding:            6px 14px;
+    spacing:            6px;
+}
+
+element-text {
+    font:               "JetBrainsMono Nerd Font 9";
+}
+
+/* Section headers (lines starting with ===) stand out in cyan */
+element normal.active {
+    background-color:   @ws-surface2;
+    text-color:         @ws-cyan;
+}
+
+element selected.normal {
+    background-color:   @ws-selected;
+    text-color:         @ws-cyan;
+    border:             0px 0px 0px 2px;
+    border-color:       @ws-cyan;
+}

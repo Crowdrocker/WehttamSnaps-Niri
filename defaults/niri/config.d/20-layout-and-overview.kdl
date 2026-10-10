@@ -1,0 +1,116 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 20 — Layout, gaps, borders, shadows & overview
+// ─────────────────────────────────────────────────────────────────────────────
+// Docs: https://niri-wm.github.io/niri/Configuration:-Layout
+//
+// Niri uses a scrollable-tiling layout: windows arrange in an infinite
+// horizontal strip and you scroll left/right to navigate.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ╭───────────────────────────── LAYOUT ─────────────────────────────╮
+layout {
+    gaps 12 // Gap between windows
+    center-focused-column "never" // Don’t auto-center focused column
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 0.96
+        proportion 1.0
+    }
+
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    border {
+        width 2
+        active-gradient from="#f38ba8" to="#fab387" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#313244" to="#45475a" angle=45 relative-to="workspace-view"
+    }
+
+    focus-ring {
+        width 3
+        active-gradient from="#eba0ac" to="#f38ba8" angle=45 relative-to="workspace-view"
+        inactive-gradient from="#45475a" to="#585b70" angle=45 relative-to="workspace-view"
+    }
+
+    shadow {
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#0007"
+    }
+
+    background-color "transparent"
+    default-column-width { proportion 0.5; }
+    // Struts for Noctalia bar (adjust if using top bar)
+    struts {
+        top 0
+        bottom 0
+    }
+}
+// ╰──────────────────────────────────────────────────────────────────╯
+
+
+// ╭───────────────────────────── gestures ───────────────────────────╮
+gestures {
+    dnd-edge-view-scroll {
+        trigger-width 30
+        delay-ms 100
+        max-speed 1500
+    }
+
+    dnd-edge-workspace-switch {
+        trigger-height 50
+        delay-ms 100
+        max-speed 1500
+    }
+
+    hot-corners {
+        // off
+        top-left
+        // top-right
+        // bottom-left
+        // bottom-right
+    }
+}
+// ╰──────────────────────────────────────────────────────────────────╯
+
+
+
+// ── Niri's built-in overview ────────────────────────────────────────────────
+// Triggered by Mod+Tab or hot corners. Shows a zoomed-out workspace view.
+// Note: iNiR also has its own app-launcher overlay (Mod+Space).
+overview {
+    zoom 0.75
+
+    // Solid color between workspaces (default: transparent).
+    // backdrop-color "#777777"
+
+    // Disable the shadow behind each workspace in the overview.
+    // workspace-shadow {
+    //     off
+    // }
+}
+
+recent-windows {
+    open-delay-ms 120
+    debounce-ms 750
+
+    highlight {
+        active-color "#e5989bff"
+        urgent-color "#ffb4abff"
+        padding 18
+        corner-radius 14
+    }
+
+    previews {
+        max-height 520
+        max-scale 0.55
+    }
+}

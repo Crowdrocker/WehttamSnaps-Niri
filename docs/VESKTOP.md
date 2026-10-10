@@ -2,9 +2,9 @@
 
 iNiR includes automatic Discord/Vesktop theming that syncs with your wallpaper colors.
 
-## Included Theme
+## Included Themes
 
-### ii-system24
+### iNiR Material
 A Material Design Discord theme based on [refact0r/system24](https://github.com/refact0r/system24) with Material You colors from your wallpaper.
 
 Features:
@@ -15,13 +15,28 @@ Features:
 - Auto-sync with wallpaper changes
 - Auto-sync with theme preset changes
 
+### iNiR TUI
+A terminal-style System24 flavor that keeps the upstream TUI layout and applies iNiR's generated Material You palette on top.
+
+Features:
+- JetBrainsMono Nerd Font, shipped by iNiR
+- Square panels and profile pictures
+- Compact System24 title bar
+- ASCII channel titles and loader
+- Panel labels and text-style Spotify progress
+- Full Material You color integration
+- Auto-sync with wallpaper and theme preset changes
+
+### iNiR Midnight
+A cleaner Midnight-based Discord flavor using the same generated iNiR palette without System24's TUI layout.
+
 ## Setup
 
 1. Install [Vesktop](https://github.com/Vencord/Vesktop) (or any Vencord-based client)
 
 2. The theme is automatically installed to `~/.config/vesktop/themes/` during iNiR setup
 
-3. In Vesktop, go to Settings → Vencord → Themes and enable `system24`
+3. In Vesktop, go to Settings → Vencord → Themes and enable one of the installed iNiR themes: `iNiR Material`, `iNiR TUI`, or `iNiR Midnight`.
 
 4. Colors will automatically update when you change your wallpaper or theme preset!
 
@@ -29,14 +44,14 @@ Features:
 
 ### Wallpaper Changes (Auto mode)
 When you change your wallpaper:
-1. `switchwall.sh` runs matugen to generate Material You colors
-2. `system24_palette.py` generates the complete theme with embedded palette
+1. `switchwall.sh` runs `generate_colors_material.py` to generate Material You colors
+2. `system24_palette.sh` generates all three Discord themes with the same embedded palette
 3. Vesktop should auto-reload theme changes (if it doesn't, use Ctrl+R)
 
 ### Theme Preset Changes
 When you change theme preset in Settings:
 1. `apply-gtk-theme.sh` applies GTK/KDE colors
-2. It also calls `system24_palette.py` to regenerate Vesktop theme
+2. It also calls `system24_palette.sh` to regenerate the Vesktop themes
 3. Vesktop should auto-reload theme changes (if it doesn't, use Ctrl+R)
 
 ### Color Mapping
@@ -57,17 +72,17 @@ If colors get out of sync, regenerate manually:
 
 ```fish
 # Regenerate theme
-python3 ~/.config/quickshell/ii/scripts/colors/system24_palette.py
+bash ~/.config/quickshell/inir/scripts/colors/system24_palette.sh
 
 # Or trigger a full wallpaper refresh
-~/.config/quickshell/ii/scripts/colors/switchwall.sh --noswitch
+~/.config/quickshell/inir/scripts/colors/switchwall.sh --noswitch
 ```
 
 ## Customization
 
 ### Changing Fonts
 
-Edit `scripts/colors/system24_palette.py` and change the font variables:
+Edit the system24 generator source (`scripts/colors/system24_palette.py`, invoked via `scripts/colors/system24_palette.sh`) and change the font variables:
 
 ```css
 body {
@@ -81,7 +96,7 @@ Then regenerate the theme.
 ## Troubleshooting
 
 ### Colors not updating
-- Check that `~/.config/vesktop/themes/system24.theme.css` exists
+- Check that `~/.config/vesktop/themes/system24.theme.css`, `inir-tui.theme.css`, and `inir-midnight.theme.css` exist
 - Some installs use `~/.config/Vesktop/themes/` (capital V)
 - Verify the theme is enabled in Vesktop settings
 - Try Ctrl+R in Vesktop to force reload
@@ -98,12 +113,12 @@ Then regenerate the theme.
 - Optional: place a local copy of System24 at `~/.config/vesktop/themes/system24.local.css` (same folder as the theme). If present, iNiR will import it first.
 
 ### Wrong colors
-- Run `python3 ~/.config/quickshell/ii/scripts/colors/system24_palette.py` to regenerate
-- Check `~/.local/state/quickshell/user/generated/colors.json` exists
+- Run `bash ~/.config/quickshell/inir/scripts/colors/system24_palette.sh` to regenerate
+- Check `~/.local/state/quickshell/user/generated/palette.json` exists
 
 ### Debugging generation failures
-- Run `python3 ~/.config/quickshell/ii/scripts/colors/system24_palette.py` in a terminal and check for errors
-- If you're using preset themes (Settings), `apply-gtk-theme.sh` no longer suppresses Python errors, so `qs log -c ii` (or your shell logs) should show failures
+- Run `bash ~/.config/quickshell/inir/scripts/colors/system24_palette.sh` in a terminal and check for errors
+- If you're using preset themes (Settings), `apply-gtk-theme.sh` no longer suppresses Python errors, so `qs log -c inir` (or your shell logs) should show failures
 
 ### Hot-reload not working
 - The theme palette is embedded in the main file, so Ctrl+R should work

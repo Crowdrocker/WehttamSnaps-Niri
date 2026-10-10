@@ -1,0 +1,529 @@
+{
+  "terminal": "ghostty -e",
+  "exec_prefix": "mmsg dispatch spawn_shell,",
+  "prefixes": [
+    {
+      "words": [
+        "administrator"
+      ],
+      "prepend": "sudo",
+      "append": ""
+    },
+    {
+      "words": [
+        "silent"
+      ],
+      "prepend": "setsid -w",
+      "append": ""
+    }
+  ],
+  "suffixes": [
+    {
+      "words": [
+        "background"
+      ],
+      "prepend": "",
+      "append": "&"
+    },
+    {
+      "words": [
+        "detach"
+      ],
+      "prepend": "",
+      "append": "&>/dev/null &"
+    }
+  ],
+  "immediate_triggers": [
+    {
+      "word": "cancel",
+      "type": "exec",
+      "command": "true"
+    }
+  ],
+  "tree": {
+    "nodes": {
+      "66": {
+        "type": "branch",
+        "trigger": "66",
+        "text_capture": false,
+        "connections": [
+          "play imperial march"
+        ],
+        "pos_x": 760,
+        "pos_y": 1180
+      },
+      "browser_l": {
+        "type": "branch",
+        "trigger": "browser",
+        "text_capture": false,
+        "connections": [
+          "launch_firefox_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 60
+      },
+      "browser_q": {
+        "type": "branch",
+        "trigger": "browser",
+        "text_capture": false,
+        "connections": [
+          "quit_firefox_exec",
+          "quit_chromium_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 460
+      },
+      "chromium_l": {
+        "type": "branch",
+        "trigger": "chromium",
+        "text_capture": false,
+        "connections": [
+          "launch_chromium_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 220
+      },
+      "chromium_q": {
+        "type": "branch",
+        "trigger": "chromium",
+        "text_capture": false,
+        "connections": [
+          "quit_chromium_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 620
+      },
+      "clipboard": {
+        "type": "branch",
+        "trigger": "clipboard",
+        "text_capture": false,
+        "connections": [
+          "copy_branch",
+          "paste_branch"
+        ],
+        "pos_x": 60,
+        "pos_y": 300
+      },
+      "copy_branch": {
+        "type": "branch",
+        "trigger": "copy",
+        "text_capture": false,
+        "connections": [
+          "copy_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 700
+      },
+      "copy_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "wl-copy",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 620
+      },
+      "default": {
+        "type": "root",
+        "wake_word": "system command",
+        "aliases": [
+          "cmd",
+          "computer",
+          "i cast",
+          "highcast"
+        ],
+        "connections": [
+          "launch",
+          "open",
+          "quit",
+          "clipboard",
+          "volume",
+          "search for",
+          "type",
+          "run",
+          "output",
+          "dictate",
+          "execute",
+          "full",
+          "fool"
+        ],
+        "pos_x": -726,
+        "pos_y": 574
+      },
+      "dictate": {
+        "type": "branch",
+        "trigger": "dictate",
+        "text_capture": false,
+        "connections": [
+          "type_exec"
+        ],
+        "pos_x": 60,
+        "pos_y": 780
+      },
+      "down_branch": {
+        "type": "branch",
+        "trigger": "down",
+        "text_capture": false,
+        "connections": [
+          "down_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 940
+      },
+      "down_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 860
+      },
+      "execute": {
+        "type": "branch",
+        "trigger": "execute",
+        "text_capture": false,
+        "connections": [
+          "system",
+          "order"
+        ],
+        "pos_x": 60,
+        "pos_y": 860
+      },
+      "firefox_l": {
+        "type": "branch",
+        "trigger": "firefox",
+        "text_capture": false,
+        "connections": [
+          "launch_firefox_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 140
+      },
+      "firefox_q": {
+        "type": "branch",
+        "trigger": "firefox",
+        "text_capture": false,
+        "connections": [
+          "quit_firefox_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 540
+      },
+      "fool": {
+        "type": "branch",
+        "trigger": "fool",
+        "text_capture": false,
+        "connections": [
+          "system"
+        ],
+        "pos_x": 49,
+        "pos_y": 1024
+      },
+      "full": {
+        "type": "branch",
+        "trigger": "full",
+        "text_capture": false,
+        "connections": [
+          "system"
+        ],
+        "pos_x": 60,
+        "pos_y": 940
+      },
+      "full system update": {
+        "type": "shell_exec",
+        "trigger": "",
+        "command": "cachy-update",
+        "text_capture": false,
+        "pos_x": 1419,
+        "pos_y": 658
+      },
+      "ghostty_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "ghostty",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 380
+      },
+      "launch": {
+        "type": "branch",
+        "trigger": "launch",
+        "text_capture": false,
+        "connections": [
+          "browser_l",
+          "firefox_l",
+          "chromium_l",
+          "package",
+          "terminal"
+        ],
+        "pos_x": 60,
+        "pos_y": 60
+      },
+      "launch_chromium_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "chromium",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 140
+      },
+      "launch_firefox_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "firefox",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 60
+      },
+      "mute_branch": {
+        "type": "branch",
+        "trigger": "mute",
+        "text_capture": false,
+        "connections": [
+          "mute_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 1020
+      },
+      "mute_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 940
+      },
+      "open": {
+        "type": "branch",
+        "trigger": "open",
+        "text_capture": false,
+        "connections": [
+          "browser_l",
+          "firefox_l",
+          "chromium_l",
+          "package",
+          "terminal"
+        ],
+        "pos_x": 60,
+        "pos_y": 140
+      },
+      "order": {
+        "type": "branch",
+        "trigger": "order",
+        "text_capture": false,
+        "connections": [
+          "66"
+        ],
+        "pos_x": 410,
+        "pos_y": 1340
+      },
+      "output": {
+        "type": "branch",
+        "trigger": "output",
+        "text_capture": false,
+        "connections": [
+          "type_exec"
+        ],
+        "pos_x": 60,
+        "pos_y": 700
+      },
+      "package": {
+        "type": "branch",
+        "trigger": "package",
+        "text_capture": false,
+        "connections": [
+          "unipkg"
+        ],
+        "pos_x": 410,
+        "pos_y": 300
+      },
+      "paste_branch": {
+        "type": "branch",
+        "trigger": "paste",
+        "text_capture": false,
+        "connections": [
+          "paste_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 780
+      },
+      "paste_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "wl-paste",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 700
+      },
+      "play imperial march": {
+        "type": "exec",
+        "trigger": "",
+        "command": "xdg-open 'https://www.youtube.com/watch?v=-bzWSJG93P8'",
+        "text_capture": false,
+        "pos_x": 1248,
+        "pos_y": 925
+      },
+      "quit": {
+        "type": "branch",
+        "trigger": "quit",
+        "text_capture": false,
+        "connections": [
+          "browser_q",
+          "firefox_q",
+          "chromium_q"
+        ],
+        "pos_x": 60,
+        "pos_y": 220
+      },
+      "quit_chromium_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "pkill chromium",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 540
+      },
+      "quit_firefox_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "pkill firefox",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 460
+      },
+      "run": {
+        "type": "branch",
+        "trigger": "run",
+        "text_capture": false,
+        "connections": [
+          "system"
+        ],
+        "pos_x": 60,
+        "pos_y": 620
+      },
+      "run_terminal_exec": {
+        "type": "shell_exec",
+        "trigger": "",
+        "command": "{text}",
+        "text_capture": true,
+        "pos_x": 760,
+        "pos_y": 300
+      },
+      "search for": {
+        "type": "branch",
+        "trigger": "search for",
+        "text_capture": false,
+        "connections": [
+          "search_exec"
+        ],
+        "pos_x": 60,
+        "pos_y": 460
+      },
+      "search_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "xdg-open https://google.com/search?q={url_text}",
+        "text_capture": true,
+        "pos_x": 410,
+        "pos_y": 1100
+      },
+      "system": {
+        "type": "branch",
+        "trigger": "system",
+        "text_capture": false,
+        "connections": [
+          "upgrade",
+          "update"
+        ],
+        "pos_x": 410,
+        "pos_y": 1260
+      },
+      "terminal": {
+        "type": "branch",
+        "trigger": "terminal",
+        "text_capture": false,
+        "connections": [
+          "run_terminal_exec",
+          "ghostty_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 380
+      },
+      "type": {
+        "type": "branch",
+        "trigger": "type",
+        "text_capture": false,
+        "connections": [
+          "type_exec"
+        ],
+        "pos_x": 60,
+        "pos_y": 540
+      },
+      "type_exec": {
+        "type": "type",
+        "trigger": "",
+        "command": "{text}",
+        "text_capture": true,
+        "pos_x": 410,
+        "pos_y": 1180
+      },
+      "unipkg": {
+        "type": "shell_exec",
+        "trigger": "",
+        "command": "unipkg launch-tui",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 220
+      },
+      "up_branch": {
+        "type": "branch",
+        "trigger": "up",
+        "text_capture": false,
+        "connections": [
+          "up_exec"
+        ],
+        "pos_x": 410,
+        "pos_y": 860
+      },
+      "up_exec": {
+        "type": "exec",
+        "trigger": "",
+        "command": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+        "text_capture": false,
+        "pos_x": 760,
+        "pos_y": 780
+      },
+      "update": {
+        "type": "branch",
+        "trigger": "update",
+        "text_capture": false,
+        "connections": [
+          "full system update"
+        ],
+        "pos_x": 760,
+        "pos_y": 1100
+      },
+      "upgrade": {
+        "type": "branch",
+        "trigger": "upgrade",
+        "text_capture": false,
+        "connections": [
+          "full system update"
+        ],
+        "pos_x": 760,
+        "pos_y": 1020
+      },
+      "volume": {
+        "type": "branch",
+        "trigger": "volume",
+        "text_capture": false,
+        "connections": [
+          "up_branch",
+          "down_branch",
+          "mute_branch"
+        ],
+        "pos_x": 60,
+        "pos_y": 380
+      }
+    }
+  }
+}

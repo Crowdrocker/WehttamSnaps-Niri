@@ -12,13 +12,48 @@ import Quickshell.Hyprland
 
 Scope {
     id: root
+    property bool _presentedOpen: false
+    Component.onCompleted: {
+        if (GlobalStates.wallpaperSelectorOpen)
+            Qt.callLater(() => { root._presentedOpen = GlobalStates.wallpaperSelectorOpen })
+    }
 
     Loader {
         id: wallpaperSelectorLoader
-        active: GlobalStates.wallpaperSelectorOpen
+        active: GlobalStates.wallpaperSelectorOpen || _wsClosing
+
+        property bool _wsClosing: false
+
+        Connections {
+            target: GlobalStates
+            function onWallpaperSelectorOpenChanged() {
+                if (GlobalStates.wallpaperSelectorOpen) {
+                    Qt.callLater(() => { root._presentedOpen = GlobalStates.wallpaperSelectorOpen })
+                } else {
+                    root._presentedOpen = false
+                    wallpaperSelectorLoader._wsClosing = true
+                    _wsCloseTimer.restart()
+                }
+            }
+        }
+
+        Timer {
+            id: _wsCloseTimer
+            interval: 200
+            onTriggered: wallpaperSelectorLoader._wsClosing = false
+        }
 
         sourceComponent: PanelWindow {
             id: panelWindow
+            // Show on the target monitor so focus stays correct after close
+            screen: {
+                const targetMon = GlobalStates.wallpaperSelectorTargetMonitor
+                if (targetMon) {
+                    const s = Quickshell.screens.find(s => s.name === targetMon)
+                    if (s) return s
+                }
+                return GlobalStates.focusedScreen ?? GlobalStates.primaryScreen
+            }
             readonly property HyprlandMonitor monitor: CompositorService.isHyprland ? Hyprland.monitorFor(panelWindow.screen) : null
             property bool monitorIsFocused: CompositorService.isHyprland 
                 ? (Hyprland.focusedMonitor?.id == monitor?.id)
@@ -27,7 +62,7 @@ Scope {
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "quickshell:wallpaperSelector"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+            WlrLayershell.keyboardFocus: GlobalStates.wallpaperSelectorOpen && !GlobalStates.regionSelectorOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             color: "transparent"
 
             anchors {
@@ -63,70 +98,30 @@ Scope {
                 anchors {
                     top: parent.top
                     horizontalCenter: parent.horizontalCenter
-                    topMargin: Config?.options.bar.vertical ? Appearance.sizes.hyprlandGapsOut : Appearance.sizes.barHeight + Appearance.sizes.hyprlandGapsOut
+                    topMargin: (Config.options?.bar?.vertical ?? false) ? Appearance.sizes.hyprlandGapsOut : Appearance.sizes.barHeight + Appearance.sizes.hyprlandGapsOut
                 }
                 implicitHeight: Appearance.sizes.wallpaperSelectorHeight
                 implicitWidth: Appearance.sizes.wallpaperSelectorWidth
-                // Subtle scale + fade when opening the wallpaper selector
+                // Subtle scale + fade when opening/closing the wallpaper selector
                 transformOrigin: Item.Top
-                scale: GlobalStates.wallpaperSelectorOpen ? 1.0 : 0.97
-                opacity: GlobalStates.wallpaperSelectorOpen ? 1.0 : 0.0
+                scale: root._presentedOpen ? 1.0 : 0.93
+                opacity: root._presentedOpen ? 1.0 : 0.0
                 Behavior on scale {
-                    animation: Appearance.animation.elementMoveEnter.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: root._presentedOpen ? 250 : 180
+                        easing.type: Easing.OutCubic
+                    }
                 }
                 Behavior on opacity {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                    enabled: Appearance.animationsEnabled
+                    NumberAnimation {
+                        duration: root._presentedOpen ? 250 : 180
+                        easing.type: Easing.OutCubic
+                    }
                 }
             }
         }
     }
 
-    function toggleWallpaperSelector() {
-        if (Config.options?.wallpaperSelector?.useSystemFileDialog ?? false) {
-            Wallpapers.openFallbackPicker(Appearance.m3colors.darkmode);
-            return;
-        }
-        
-        // Set target based on active family and config
-        if (Config.options?.panelFamily === "waffle") {
-            const useMain = Config.options?.waffles?.background?.useMainWallpaper ?? true
-            Config.setNestedValue("wallpaperSelector.selectionTarget", useMain ? "main" : "waffle")
-        } else {
-            Config.setNestedValue("wallpaperSelector.selectionTarget", "main")
-        }
-        
-        GlobalStates.wallpaperSelectorOpen = !GlobalStates.wallpaperSelectorOpen
-    }
-
-    IpcHandler {
-        target: "wallpaperSelector"
-
-        function toggle(): void {
-            root.toggleWallpaperSelector();
-        }
-
-        function random(): void {
-            Wallpapers.randomFromCurrentFolder();
-        }
-    }
-    Loader {
-        active: CompositorService.isHyprland
-        sourceComponent: Item {
-            GlobalShortcut {
-                name: "wallpaperSelectorToggle"
-                description: "Toggle wallpaper selector"
-                onPressed: {
-                    root.toggleWallpaperSelector();
-                }
-            }
-
-            GlobalShortcut {
-                name: "wallpaperSelectorRandom"
-                description: "Select random wallpaper in current folder"
-                onPressed: {
-                    Wallpapers.randomFromCurrentFolder();
-                }
-            }
-        }
-    }
 }

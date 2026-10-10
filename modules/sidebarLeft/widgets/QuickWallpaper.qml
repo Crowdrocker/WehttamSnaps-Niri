@@ -21,7 +21,7 @@ Item {
     readonly property real itemWidth: 130
     readonly property real itemHeight: 78  // ~16:10 aspect
     readonly property bool showHeader: Config.options?.sidebar?.widgets?.quickWallpaper?.showHeader ?? true
-    readonly property string wallpapersPath: `${FileUtils.trimFileProtocol(Directories.pictures)}/Wallpapers`
+    readonly property string wallpapersPath: Directories.wallpapersPath
     
     property var wallpapersList: []
     
@@ -44,7 +44,7 @@ Item {
     Process {
         id: scanProc
         // Use %C@ (ctime - when file was added/changed) instead of %T@ (mtime - content modification)
-        command: ["/usr/bin/fish", "-c", `find '${root.wallpapersPath}' -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.avif' -o -iname '*.bmp' -o -iname '*.svg' \\) -printf '%C@\\t%p\\n'`]
+        command: ["find", root.wallpapersPath, "-maxdepth", "1", "-type", "f", "(", "-iname", "*.jpg", "-o", "-iname", "*.jpeg", "-o", "-iname", "*.png", "-o", "-iname", "*.webp", "-o", "-iname", "*.avif", "-o", "-iname", "*.bmp", "-o", "-iname", "*.svg", ")", "-printf", "%C@\t%p\n"]
         stdout: SplitParser {
             splitMarker: ""
             onRead: data => {
@@ -60,19 +60,13 @@ Item {
         }
     }
 
-    StyledRectangularShadow { target: card; visible: !Appearance.inirEverywhere && !Appearance.auroraEverywhere }
-
     Rectangle {
         id: card
         anchors.centerIn: parent
         width: parent.width
         implicitHeight: mainColumn.implicitHeight + (root.cardPadding * 2)
         radius: Appearance.inirEverywhere ? Appearance.inir.roundingNormal : Appearance.rounding.normal
-        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
-             : Appearance.auroraEverywhere ? "transparent" 
-             : Appearance.colors.colLayer1
-        border.width: Appearance.inirEverywhere ? 1 : (Appearance.auroraEverywhere ? 0 : 1)
-        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder : Appearance.colors.colLayer0Border
+        color: "transparent"
 
         ColumnLayout {
             id: mainColumn
@@ -105,12 +99,14 @@ Item {
                     implicitHeight: 28
                     buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                     colBackground: "transparent"
-                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+                    colBackgroundHover: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                        : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
                         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
-                        : Appearance.colors.colLayer2Hover
-                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
+                        : Appearance.colLayer2Hover
+                    colRipple: Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive
+                        : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
                         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive 
-                        : Appearance.colors.colLayer2Active
+                        : Appearance.colLayer2Active
                     onClicked: {
                         if (root.wallpapersList.length === 0) return
                         const randomIndex = Math.floor(Math.random() * root.wallpapersList.length)
@@ -132,13 +128,15 @@ Item {
                     implicitHeight: 28
                     buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.full
                     colBackground: "transparent"
-                    colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
+                    colBackgroundHover: Appearance.angelEverywhere ? Appearance.angel.colGlassCardHover
+                        : Appearance.inirEverywhere ? Appearance.inir.colLayer2Hover 
                         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface 
-                        : Appearance.colors.colLayer2Hover
-                    colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
+                        : Appearance.colLayer2Hover
+                    colRipple: Appearance.angelEverywhere ? Appearance.angel.colGlassCardActive
+                        : Appearance.inirEverywhere ? Appearance.inir.colLayer2Active 
                         : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive 
-                        : Appearance.colors.colLayer2Active
-                    onClicked: GlobalStates.wallpaperSelectorOpen = true
+                        : Appearance.colLayer2Active
+                    onClicked: GlobalActions.runLauncher(["wallpaperSelector", "toggle"])
                     contentItem: Item {
                         MaterialSymbol {
                             anchors.centerIn: parent
@@ -185,7 +183,7 @@ Item {
                     // Smooth scroll animation
                     Behavior on contentX {
                         enabled: Appearance.animationsEnabled
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                        NumberAnimation { duration: Appearance.animation.scroll.duration; easing.type: Appearance.animation.scroll.type; easing.bezierCurve: Appearance.animation.scroll.bezierCurve }
                     }
 
                     WheelHandler {
@@ -206,7 +204,7 @@ Item {
                         required property int index
                         required property string modelData
                         readonly property string filePath: modelData
-                        readonly property bool isCurrentWallpaper: (Config.options?.background?.wallpaperPath ?? "") === filePath
+                        readonly property bool isCurrentWallpaper: Wallpapers.isCurrentWallpaperPath(filePath, "main", "")
                         readonly property bool isHovered: mouseArea.containsMouse
 
                         width: root.itemWidth
@@ -221,7 +219,10 @@ Item {
                             border.color: Appearance.inirEverywhere ? Appearance.inir.colPrimary : Appearance.colors.colPrimary
                             z: 2
 
-                            Behavior on border.width { NumberAnimation { duration: 150 } }
+                            Behavior on border.width {
+                                enabled: Appearance.animationsEnabled
+                                animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                            }
                         }
 
                         Rectangle {
@@ -239,12 +240,12 @@ Item {
                                 }
                             }
 
-                            Image {
+                            ThumbnailImage {
                                 anchors.fill: parent
-                                source: wallpaperDelegate.filePath ? `file://${wallpaperDelegate.filePath}` : ""
+                                sourcePath: wallpaperDelegate.filePath
+                                generateThumbnail: true
                                 fillMode: Image.PreserveAspectCrop
-                                asynchronous: true
-                                cache: false
+                                cache: true
                                 sourceSize.width: root.itemWidth * 2
                                 sourceSize.height: root.itemHeight * 2
                             }
@@ -254,9 +255,9 @@ Item {
                                 anchors.fill: parent
                                 radius: parent.radius
                                 color: wallpaperDelegate.isHovered && !wallpaperDelegate.isCurrentWallpaper
-                                    ? ColorUtils.transparentize("#000000", 0.7)
+                                    ? ColorUtils.transparentize("black", 0.7)
                                     : "transparent"
-                                Behavior on color { animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this) }
+                                Behavior on color { enabled: Appearance.animationsEnabled; animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve } }
                             }
 
                             // Check icon for selected
@@ -269,7 +270,10 @@ Item {
                                 visible: wallpaperDelegate.isCurrentWallpaper
                                 scale: wallpaperDelegate.isCurrentWallpaper ? 1 : 0
 
-                                Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
+                                Behavior on scale {
+                                    enabled: Appearance.animationsEnabled
+                                    animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
+                                }
 
                                 MaterialSymbol {
                                     anchors.centerIn: parent

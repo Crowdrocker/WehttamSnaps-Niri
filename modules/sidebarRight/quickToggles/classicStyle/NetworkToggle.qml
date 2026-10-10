@@ -15,6 +15,6 @@ QuickToggleButton {
     onClicked: Network.toggleWifi()
     // altAction is set by parent (ClassicQuickPanel opens dialog, others may open external app)
     StyledToolTip {
-        text: Translation.tr("%1 | Right-click to configure").arg(Network.networkName)
+        text: Translation.tr("%1 | Right-click to configure").arg(Network.connectionTooltip())
     }
 }

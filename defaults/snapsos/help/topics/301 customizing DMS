@@ -1,0 +1,42 @@
+> Customizing DMS 
+
+
+this page will go over customizing DMS using the settings menu, because much of the settings menu is either self-explanatory or has good explanations, this document will serve only as a reference for the parts that are not immediately obvious.
+
+
+you can open the settings from the bar or by pressing *super+s*
+
+### personalization
+
+the wallpaper settings can be modified using the wallpaper script (*super+w*), this will effectively change the set wallpaper. turning on per-mode or per-monitor wallpapers here will prevent the script from working properly.
+
+for the color settings, generally, colors are listed by their application outside of the top section of theme and colors. all colors are decided from there.
+
+auto uses matugen, different templates give different results for colors and it is recommended to play around with each. 
+
+matugen templates are used to apply the color scheme to other programs, DMS comes with a selection, and it is possible to add your own.
+
+Currently, no additional matugen templates are provided, but the requirements for both GTK and QT theming are included.
+
+all templates are enabled by default, so outside of the software that needs manual configuration (firefox, vesktop and vscode, which does work even if vscode itself is not detected because you're using another version of it, like code-oss), it should work by default.
+
+you can find good instructions on how to handle these applications here: https://danklinux.com/docs/dankmaterialshell/application-themes
+
+for vesktop, you'll need to enable the theme under the vencord theme settings and then *change your theme* (eg toggling light mode on and off) to make it update.
+
+if GTK or QT applications (most native linux apps) are not being themed properly, you can click the button at the bottom of the themes and colors page. 
+
+### dank bar
+
+SNAPS-OS comes with 4 pre-configured bars: a full top bar, a bottom bar, a top status bar and a side bar.
+
+you can tweak these however you wish, to get different looks, you can check how these are configured. 
+
+
+## workspaces
+these affect the workspaces/tags display in your top bar. 
+
+## keyboard shortcuts
+
+these interact with your mango config, you can see all of the current binds, add new ones (Which are saved to ~/.config/mango/dms/binds.conf, including overwrites) 
+

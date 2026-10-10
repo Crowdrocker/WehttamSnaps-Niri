@@ -18,7 +18,11 @@ Item {
     }
 
     property int weekOffset: 0
-    property var today: new Date()
+    readonly property string _todayKey: Qt.formatDate(DateTime.clock.date, "yyyy-MM-dd")
+    readonly property var today: {
+        root._todayKey;
+        return new Date();
+    }
     property var weekStart: {
         const fdow = locale?.firstDayOfWeek ?? Qt.locale().firstDayOfWeek
         const d = new Date(today)
@@ -49,6 +53,43 @@ Item {
         return arr
     }
 
+    // Cached color properties to avoid repeated ternary evaluation
+    readonly property color colSubtext: Appearance.zzzEverywhere ? Appearance.zzz.inkMuted
+                                      : Appearance.inirEverywhere ? Appearance.inir?.colTextMuted ?? Appearance.colors?.colSubtext ?? "gray"
+                                      : Appearance.auroraEverywhere ? Appearance.aurora?.colOnSubSurface ?? Appearance.colors?.colSubtext ?? "gray"
+                                      : Appearance.colors?.colSubtext ?? "gray"
+    readonly property color colPrimary: Appearance.zzzEverywhere ? Appearance.zzz.accent
+                                      : Appearance.inirEverywhere ? Appearance.inir?.colPrimary ?? Appearance.colors?.colPrimary ?? "blue"
+                                      : Appearance.auroraEverywhere ? Appearance.aurora?.colAccent ?? Appearance.colors?.colPrimary ?? "blue"
+                                      : Appearance.colors?.colPrimary ?? "blue"
+    readonly property color colText: Appearance.zzzEverywhere ? Appearance.zzz.ink
+                                   : Appearance.inirEverywhere ? Appearance.inir?.colText ?? Appearance.colors?.colOnLayer1 ?? "white"
+                                   : Appearance.auroraEverywhere ? Appearance.aurora?.colOnSurface ?? Appearance.colors?.colOnLayer1 ?? "white"
+                                   : Appearance.colors?.colOnLayer1 ?? "white"
+    readonly property color colLabel: Appearance.zzzEverywhere ? Appearance.zzz.accent
+                                    : Appearance.inirEverywhere ? Appearance.inir?.colLabel ?? Appearance.colors?.colPrimary ?? "blue"
+                                    : Appearance.colors?.colPrimary ?? "blue"
+    readonly property color colLayer1Hover: Appearance.zzzEverywhere ? Appearance.zzz.chrome
+                                          : Appearance.angelEverywhere ? Appearance.angel?.colGlassCardHover ?? Appearance.colors?.colLayer1Hover ?? "gray"
+                                          : Appearance.inirEverywhere ? Appearance.inir?.colLayer1Hover ?? Appearance.colors?.colLayer1Hover ?? "gray"
+                                          : Appearance.auroraEverywhere ? Appearance.aurora?.colSubSurface ?? Appearance.colors?.colLayer1Hover ?? "gray"
+                                          : Appearance.colors?.colLayer1Hover ?? "gray"
+    readonly property color colLayer1Active: Appearance.zzzEverywhere ? Appearance.zzz.chromeAlt
+                                           : Appearance.angelEverywhere ? Appearance.angel?.colGlassCardActive ?? Appearance.colors?.colLayer1Active ?? "gray"
+                                           : Appearance.inirEverywhere ? Appearance.inir?.colLayer1Active ?? Appearance.colors?.colLayer1Active ?? "gray"
+                                           : Appearance.auroraEverywhere ? Appearance.aurora?.colSubSurfaceActive ?? Appearance.colors?.colLayer1Active ?? "gray"
+                                           : Appearance.colors?.colLayer1Active ?? "gray"
+    readonly property color colPrimaryContainer: Appearance.zzzEverywhere ? Appearance.zzz.chrome
+                                               : Appearance.inirEverywhere ? Appearance.inir?.colPrimaryContainer ?? Appearance.colors?.colPrimaryContainer ?? "blue"
+                                               : Appearance.colors?.colPrimaryContainer ?? "blue"
+    readonly property color colPrimaryActive: Appearance.zzzEverywhere ? Appearance.zzz.chromeAlt
+                                            : Appearance.inirEverywhere ? Appearance.inir?.colPrimaryActive ?? Appearance.colors?.colPrimaryContainerActive ?? "blue"
+                                            : Appearance.colors?.colPrimaryContainerActive ?? "blue"
+    readonly property real buttonRadius: Appearance.zzzEverywhere ? Appearance.zzz.controlRadius
+                                       : Appearance.angelEverywhere ? Appearance.angel?.roundingSmall ?? 2
+                                       : Appearance.inirEverywhere ? Appearance.inir?.roundingSmall ?? Appearance.rounding?.small ?? 8
+                                       : Appearance.rounding?.small ?? 8
+
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.NoButton
@@ -64,12 +105,10 @@ Item {
 
         RippleButton {
             implicitWidth: 20; implicitHeight: 36
-            buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+            buttonRadius: root.buttonRadius
             colBackground: "transparent"
-            colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colLayer1Hover 
-                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1Hover
-            colRipple: Appearance.inirEverywhere ? Appearance.inir.colLayer1Active 
-                : Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer1Active
+            colBackgroundHover: root.colLayer1Hover
+            colRipple: root.colLayer1Active
             onClicked: root.weekOffset--
 
             contentItem: Item {
@@ -77,7 +116,7 @@ Item {
                     anchors.centerIn: parent
                     text: "chevron_left"
                     iconSize: 12
-                    color: Appearance.inirEverywhere ? Appearance.inir.colTextMuted : Appearance.colors.colOutline
+                    color: root.colSubtext
                 }
             }
 
@@ -91,7 +130,7 @@ Item {
             text: root.displayedMonth
             font.pixelSize: Appearance.font.pixelSize.smallest
             font.weight: Font.Medium
-            color: Appearance.inirEverywhere ? Appearance.inir.colLabel : Appearance.colors.colPrimary
+            color: root.colLabel
             Layout.leftMargin: 4
 
             Behavior on opacity {
@@ -103,10 +142,10 @@ Item {
         // Botón para volver a hoy
         RippleButton {
             implicitWidth: 24; implicitHeight: 36
-            buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+            buttonRadius: root.buttonRadius
             colBackground: "transparent"
-            colBackgroundHover: Appearance.inirEverywhere ? Appearance.inir.colPrimaryContainer : Appearance.colors.colPrimaryContainer
-            colRipple: Appearance.inirEverywhere ? Appearance.inir.colPrimaryActive : Appearance.colors.colPrimaryContainerActive
+            colBackgroundHover: root.colPrimaryContainer
+            colRipple: root.colPrimaryActive
             opacity: root.weekOffset !== 0 ? 1 : 0
             visible: opacity > 0
             onClicked: root.weekOffset = 0
@@ -121,7 +160,7 @@ Item {
                     anchors.centerIn: parent
                     text: "today"
                     iconSize: 14
-                    color: Appearance.inirEverywhere ? Appearance.inir.colLabel : Appearance.colors.colPrimary
+                    color: root.colLabel
                 }
             }
 
@@ -145,7 +184,7 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
                         text: modelData.dayName
                         font.pixelSize: Appearance.font.pixelSize.smallest
-                        color: Appearance.colors.colOutline
+                        color: root.colSubtext
                     }
 
                     StyledText {
@@ -154,9 +193,9 @@ Item {
                         font.pixelSize: Appearance.font.pixelSize.small
                         font.weight: modelData.isToday ? Font.Bold : Font.Normal
                         font.family: Appearance.font.family.numbers
-                        color: modelData.isToday ? Appearance.colors.colPrimary :
-                               modelData.isWeekend ? Appearance.colors.colSubtext :
-                               Appearance.colors.colOnLayer0
+                        color: modelData.isToday ? root.colPrimary
+                             : modelData.isWeekend ? root.colSubtext
+                             : root.colText
                     }
                 }
             }
@@ -164,10 +203,10 @@ Item {
 
         RippleButton {
             implicitWidth: 20; implicitHeight: 36
-            buttonRadius: Appearance.inirEverywhere ? Appearance.inir.roundingSmall : Appearance.rounding.small
+            buttonRadius: root.buttonRadius
             colBackground: "transparent"
-            colBackgroundHover: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurface : Appearance.colors.colLayer1Hover
-            colRipple: Appearance.auroraEverywhere ? Appearance.aurora.colSubSurfaceActive : Appearance.colors.colLayer1Active
+            colBackgroundHover: root.colLayer1Hover
+            colRipple: root.colLayer1Active
             onClicked: root.weekOffset++
 
             contentItem: Item {
@@ -175,7 +214,7 @@ Item {
                     anchors.centerIn: parent
                     text: "chevron_right"
                     iconSize: 12
-                    color: Appearance.colors.colOutline
+                    color: root.colSubtext
                 }
             }
 

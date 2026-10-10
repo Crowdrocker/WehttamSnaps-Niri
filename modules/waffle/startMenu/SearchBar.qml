@@ -31,11 +31,11 @@ FooterRectangle {
 
     Behavior on horizontalPadding {
         enabled: Config.options.waffles?.tweaks?.smootherSearchBar ?? false
-        animation: Looks.transition.move.createObject(this)
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
     Behavior on verticalPadding {
         enabled: Config.options.waffles?.tweaks?.smootherSearchBar ?? false
-        animation: Looks.transition.move.createObject(this)
+        animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
     }
 
     Rectangle {

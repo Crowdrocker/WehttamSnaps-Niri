@@ -1,0 +1,15 @@
+// WehttamSnaps Niri Configuration
+// Author: Matthew (WehttamSnaps)
+// GitHub: Crowdrocker
+// Based on your cyberpunk color palette: #ff5af1, #3b82ff, #00ffd1
+
+// Include modular configs
+import "conf.d/00-branding.kdl"
+import "conf.d/01-input.kdl"
+import "conf.d/02-workspaces.kdl"
+import "conf.d/03-keybinds.kdl"
+import "conf.d/04-window-rules.kdl"
+import "conf.d/05-appearance.kdl"
+import "conf.d/06-gaming.kdl"
+import "conf.d/07-jarvis.kdl"
+import "conf.d/08-webapps.kdl"

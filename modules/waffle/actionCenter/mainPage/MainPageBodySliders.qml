@@ -13,6 +13,7 @@ ColumnLayout {
     id: root
     property var screen: root.QsWindow.window?.screen
     property var brightnessMonitor: Brightness.getMonitorForScreen(screen)
+    onVisibleChanged: if (visible) root.brightnessMonitor?.refresh()
     spacing: 12
 
     RowLayout {
@@ -26,7 +27,7 @@ ColumnLayout {
             iconName: "weather-sunny"
 
             Behavior on animationValue {
-                animation: Looks.transition.longMovement.createObject(this)
+                animation: NumberAnimation { duration: Looks.transition.enabled ? 800 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.emphasize }
             }
         }
         
@@ -63,7 +64,7 @@ ColumnLayout {
             id: volumeSlider
             Layout.fillWidth: true
             property real modelValue: Audio.sink?.audio?.volume ?? 0
-            to: Audio.uiMaxSinkVolume
+            to: 1.5
 
             Binding {
                 target: volumeSlider

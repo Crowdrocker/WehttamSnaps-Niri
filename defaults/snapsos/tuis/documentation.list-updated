@@ -1,0 +1,27 @@
+MangoWM - Basic Configuration | firefox --new-tab https://mangowm.github.io/docs/configuration/basics
+MangoWM - monitors |firefox --new-tab https://mangowm.github.io/docs/configuration/monitors
+MangoWM - Input Devices | firefox --new-tab https://mangowm.github.io/docs/configuration/input
+MangoWM - Theming | firefox --new-tab https://mangowm.github.io/docs/visuals/theming
+MangoWM - Window Effects | firefox --new-tab https://mangowm.github.io/docs/visuals/effects
+MangoWM - Animations | firefox --new-tab https://mangowm.github.io/docs/visuals/animations
+MangoWM - Layouts | firefox --new-tab https://mangowm.github.io/docs/window-management/layouts
+MangoWM - Window and Tag Rules | firefox --new-tab https://mangowm.github.io/docs/window-management/rules
+MangoWM - Overview Mode | firefox --new-tab https://mangowm.github.io/docs/window-management/overview
+MangoWM - Scratchpad | firefox --new-tab https://mangowm.github.io/docs/window-management/scratchpad
+MangoWM - Key Binds and Dispatchers | firefox --new-tab https://mangowm.github.io/docs/bindings/keys
+MangoWM - Mouse Binds and Gestures | firefox --new-tab https://mangowm.github.io/docs/bindings/mouse-gestures
+MangoWM - IPC command line tool | firefox --new-tab https://mangowm.github.io/docs/ipc
+Dank Material Shell - Overview | firefox --new-tab https://danklinux.com/docs/dankmaterialshell/overview
+Dank Material Shell - Managing Your Install | firefox --new-tab https://danklinux.com/docs/dankmaterialshell/managing
+Dank Material Shell - IPC command line reference | firefox --new-tab https://danklinux.com/docs/dankmaterialshell/keybinds-ipc
+Dank Material Shell - Diagnostics | firefox --new-tab https://danklinux.com/docs/dankmaterialshell/cli-doctor
+Dank Material Shell - Application Themes | firefox --new-tab https://danklinux.com/docs/dankmaterialshell/application-themes
+Ghostty - Reference docs | firefox --new-tab https://ghostty.org/docs/config/reference
+Ghostty - Keybind Reference | firefox --new-tab https://ghostty.org/docs/config/keybind/reference
+CachyOS - Wiki | firefox --new-tab https://wiki.cachyos.org/cachyos_basic/navigation-guide/
+Arch - Wiki | firefox --new-tab https://wiki.archlinux.org/title/Main_page
+SDG-OS Help System (helptui) | ~/.config/snapsos/help/help.sh
+MangoWM - Config File Reference Sheet | ~/.config/snapsos/help/references.sh references
+MangoWM - Dispatcher Reference Sheet | ~/.config/snapsos/help/references.sh mangodispatchers
+MangoWM - IPC Reference Sheet | ~/.config/snapsos/help/references.sh mangoipc
+Dank Material Shell - IPC Reference Sheet | ~/.config/snapsos/help/references.sh DMSipc

@@ -1,0 +1,91 @@
+name: Bug Report
+description: Report something that is not working correctly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If the shell broke right after a system update or crashes at
+        startup, run `inir doctor` first — it detects and can fix the most
+        common cause (a Qt ABI mismatch).
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence describing what is broken
+      placeholder: Bar crashes when enabling the weather widget
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps to trigger the issue
+      placeholder: |
+        1. Enable weather widget in settings
+        2. Restart shell with inir restart
+        3. Bar crashes on startup
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead
+      placeholder: Weather widget should display without errors
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Output from `inir logs` (last 50 lines or relevant errors).
+        If the shell crashed, also include crash output if available.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Paste the output of these three commands:
+        ```
+        inir version
+        qs --version
+        niri msg version   # or: hyprctl version
+        ```
+        Plus your distro name (e.g. Arch Linux, Fedora 42).
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: family
+    attributes:
+      label: Panel family
+      options:
+        - iRiS
+        - ii (Material)
+        - Waffle
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration
+      description: Paste the relevant section from ~/.config/illogical-impulse/config.json if applicable
+      render: json
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Screenshots, display scale, GPU info, or other context

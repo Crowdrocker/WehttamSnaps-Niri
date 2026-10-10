@@ -6,6 +6,7 @@ MouseArea { // Right side | scroll to change volume
     signal scrollUp(delta: int)
     signal scrollDown(delta: int)
     signal movedAway()
+    signal rightClicked(point: point)
 
     property bool hovered: false
     property real lastScrollX: 0
@@ -13,7 +14,7 @@ MouseArea { // Right side | scroll to change volume
     property bool trackingScroll: false
     property real moveThreshold: 20
 
-    acceptedButtons: Qt.LeftButton
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
     hoverEnabled: true
 
     onEntered: {

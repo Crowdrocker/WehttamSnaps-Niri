@@ -1,6 +1,7 @@
 import qs
 import qs.services
 import qs.modules.common
+import qs.modules.common.functions
 import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Layouts
@@ -11,16 +12,16 @@ import Quickshell.Services.UPower
 
 Item {
     id: root
-    property bool borderless: Config.options.bar.borderless
-    implicitWidth: rowLayout.implicitWidth + rowLayout.spacing * 2
+    property bool borderless: Config.options?.bar?.borderless ?? false
+    readonly property color neutralIconColor: Appearance.zzzEverywhere ? Appearance.zzz.ink
+        : Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+    readonly property color dangerIconColor: Appearance.zzzEverywhere ? Appearance.zzz.signal
+        : Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError
+    // Exact content width — self-inflating (+spacing*2) made every group that
+    // ends with these buttons read asymmetric: the group's own padding is the
+    // spacing authority, modules must not add their own.
+    implicitWidth: rowLayout.implicitWidth
     implicitHeight: rowLayout.implicitHeight
-
-    // Screen share: any video node linked
-    readonly property bool screenShareActive: (Pipewire.links?.values ?? []).some(link => {
-        const src = link?.source?.name ?? "";
-        const tgt = link?.target?.name ?? "";
-        return src === "niri" || tgt === "niri";
-    })
 
     RowLayout {
         id: rowLayout
@@ -29,77 +30,132 @@ Item {
         anchors.centerIn: parent
 
         Loader {
-            active: Config.options.bar.utilButtons.showScreenSnip
-            visible: Config.options.bar.utilButtons.showScreenSnip
+            active: Config.options?.bar?.utilButtons?.showScreenSnip ?? true
+            visible: active
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
-                onClicked: Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "region", "screenshot"])
+                onClicked: Quickshell.execDetached([Quickshell.shellPath("scripts/inir"), "region", "screenshot"])
                 MaterialSymbol {
                     horizontalAlignment: Qt.AlignHCenter
                     fill: 1
                     text: "screenshot_region"
                     iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                    color: root.neutralIconColor
                 }
             }
         }
 
         Loader {
-            active: Config.options.bar.utilButtons.showScreenRecord
-            visible: Config.options.bar.utilButtons.showScreenRecord
-            sourceComponent: CircleUtilButton {
+            active: Config.options?.bar?.utilButtons?.showScreenRecord ?? false
+            visible: active
+            sourceComponent: Item {
+                id: recordButtonWrapper
                 Layout.alignment: Qt.AlignVCenter
-                onClicked: Quickshell.execDetached([Directories.recordScriptPath, "--fullscreen", "--sound"])
-                MaterialSymbol {
-                    horizontalAlignment: Qt.AlignHCenter
-                    fill: 1
-                    text: "videocam"
-                    iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                implicitWidth: screenRecordButton.implicitWidth
+                implicitHeight: screenRecordButton.implicitHeight
+
+                property bool isRecording: RecorderStatus.isRecording
+
+                CircleUtilButton {
+                    id: screenRecordButton
+                    anchors.fill: parent
+
+                    onClicked: {
+                        const args = [Directories.recordScriptPath]
+                        if (recordButtonWrapper.isRecording)
+                            args.push("--stop")
+                        else
+                            args.push("--fullscreen", "--sound")
+                        Quickshell.execDetached(args)
+                        RecorderStatus.scheduleQuickCheck()
+                    }
+
+                    Item {
+                        anchors.fill: parent
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            horizontalAlignment: Qt.AlignHCenter
+                            fill: 1
+                            text: "videocam"
+                            iconSize: Appearance.font.pixelSize.large
+                            color: recordButtonWrapper.isRecording
+                                ? root.dangerIconColor
+                                : root.neutralIconColor
+                        }
+
+                        // Pulsating indicator dot when recording
+                        Rectangle {
+                            scale: recordButtonWrapper.isRecording ? 1 : 0
+                            visible: scale > 0
+                            width: 6
+                            height: 6
+                            radius: 3
+                            color: root.dangerIconColor
+                            anchors {
+                                top: parent.top
+                                right: parent.right
+                            }
+
+                            Behavior on scale {
+                                enabled: Appearance.animationsEnabled
+                                NumberAnimation {
+                                    duration: Appearance.animation.elementMoveFast.duration
+                                    easing.type: Appearance.animation.elementMoveFast.type
+                                    easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
+                                }
+                            }
+
+                            SequentialAnimation on opacity {
+                                running: recordButtonWrapper.isRecording
+                                loops: Animation.Infinite
+                                NumberAnimation { to: 0.4; duration: Appearance.animation.elementMove.duration * 2 }
+                                NumberAnimation { to: 1.0; duration: Appearance.animation.elementMove.duration * 2 }
+                            }
+                        }
+                    }
                 }
             }
         }
 
         Loader {
-            active: Config.options.bar.utilButtons.showColorPicker
-            visible: Config.options.bar.utilButtons.showColorPicker
+            active: Config.options?.bar?.utilButtons?.showColorPicker ?? false
+            visible: active
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
-                onClicked: Quickshell.execDetached(["/usr/bin/hyprpicker", "-a"])
+                onClicked: ShellExec.execDetachedArgs(["/usr/bin/hyprpicker", "-a"], "Pick color")
                 MaterialSymbol {
                     horizontalAlignment: Qt.AlignHCenter
                     fill: 1
                     text: "colorize"
                     iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                    color: root.neutralIconColor
                 }
             }
         }
 
         Loader {
-            active: Config.options.bar.utilButtons.showNotepad
-            visible: Config.options.bar.utilButtons.showNotepad
+            active: Config.options?.bar?.utilButtons?.showNotepad ?? true
+            visible: active
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
                 onClicked: {
-                    GlobalStates.sidebarRightOpen = true
-                    // Ensure bottom widget group is expanded and focused on Notepad tab (index 2)
-                    Persistent.states.sidebar.bottomGroup.collapsed = false
-                    Persistent.states.sidebar.bottomGroup.tab = 2
+                    GlobalStates.sidebarRightRequestedWidget = "notepad"
+                    GlobalStates.openSidebarRight(root.QsWindow.window?.screen?.name ?? "")
                 }
                 MaterialSymbol {
                     horizontalAlignment: Qt.AlignHCenter
                     fill: 0
                     text: "edit_note"
                     iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                    color: root.neutralIconColor
                 }
             }
         }
 
         Loader {
-            active: Config.options.bar.utilButtons.showKeyboardToggle
-            visible: Config.options.bar.utilButtons.showKeyboardToggle
+            active: Config.options?.bar?.utilButtons?.showKeyboardToggle ?? true
+            visible: active
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
                 onClicked: GlobalStates.oskOpen = !GlobalStates.oskOpen
@@ -108,51 +164,160 @@ Item {
                     fill: 0
                     text: "keyboard"
                     iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                    color: root.neutralIconColor
+                }
+            }
+        }
+
+        // Keyboard layout switch (Niri only)
+        Loader {
+            active: (Config.options?.bar?.utilButtons?.showKeyboardLayoutSwitch ?? false)
+                    && CompositorService.isNiri
+                    && NiriService.hasMultipleKeyboardLayouts
+            visible: active
+            sourceComponent: CircleUtilButton {
+                Layout.alignment: Qt.AlignVCenter
+                onClicked: NiriService.switchLayout()
+                Item {
+                    anchors.fill: parent
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        horizontalAlignment: Qt.AlignHCenter
+                        fill: 0
+                        text: "language"
+                        iconSize: Appearance.font.pixelSize.large
+                        color: root.neutralIconColor
+                    }
                 }
             }
         }
 
         Loader {
             readonly property bool micInUse: Privacy.micActive || (Audio?.micBeingAccessed ?? false)
-            active: Config.options.bar.utilButtons.showMicToggle || micInUse
+            active: (Config.options?.bar?.utilButtons?.showMicToggle ?? false) || micInUse
             visible: active
             sourceComponent: CircleUtilButton {
                 id: micButton
                 Layout.alignment: Qt.AlignVCenter
-                
-                readonly property bool isMuted: Pipewire.defaultAudioSource?.audio?.muted ?? false
+
+                readonly property bool isMuted: Audio.micMuted
                 readonly property bool isInUse: (Privacy.micActive || (Audio?.micBeingAccessed ?? false))
-                
-                onClicked: Quickshell.execDetached(["/usr/bin/wpctl", "set-mute", "@DEFAULT_SOURCE@", "toggle"])
-                
+
+                onClicked: Audio.toggleMicMute()
+
                 Item {
                     anchors.fill: parent
-                    
+
                     MaterialSymbol {
                         anchors.centerIn: parent
                         horizontalAlignment: Qt.AlignHCenter
                         fill: micButton.isInUse ? 1 : 0
+                        animateFill: true
                         text: micButton.isMuted ? "mic_off" : "mic"
                         iconSize: Appearance.font.pixelSize.large
-                        color: micButton.isInUse && !micButton.isMuted 
-                            ? Appearance.colors.colError 
-                            : Appearance.colors.colOnLayer2
+                        color: micButton.isInUse && !micButton.isMuted
+                            ? root.dangerIconColor
+                            : (Appearance.angelEverywhere ? Appearance.angel.colText
+                             : Appearance.inirEverywhere ? Appearance.inir.colOnLayer2
+                             : Appearance.zzzEverywhere ? Appearance.zzz.accent
+                             : Appearance.auroraEverywhere ? Appearance.colors.colOnSurface
+                             : Appearance.colors.colOnLayer2)
                     }
-                    
+
                     Rectangle {
-                        visible: micButton.isInUse && !micButton.isMuted
+                        scale: micButton.isInUse && !micButton.isMuted ? 1 : 0
+                        visible: scale > 0
                         width: 6
                         height: 6
                         radius: 3
-                        color: Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError
+                        color: root.dangerIconColor
                         anchors { top: parent.top; right: parent.right }
-                        
+
+                        Behavior on scale {
+                            enabled: Appearance.animationsEnabled
+                            NumberAnimation {
+                                duration: Appearance.animation.elementMoveFast.duration
+                                easing.type: Appearance.animation.elementMoveFast.type
+                                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
+                            }
+                        }
+
                         SequentialAnimation on opacity {
                             running: micButton.isInUse && !micButton.isMuted
                             loops: Animation.Infinite
-                            NumberAnimation { to: 0.4; duration: 800 }
-                            NumberAnimation { to: 1.0; duration: 800 }
+                            NumberAnimation { to: 0.4; duration: Appearance.animation.elementMove.duration * 2 }
+                            NumberAnimation { to: 1.0; duration: Appearance.animation.elementMove.duration * 2 }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Screen casting toggle (PR #29 by levpr1c)
+        // Toggles Niri dynamic casting to configured output
+        Loader {
+            active: (Config.options?.bar?.utilButtons?.showScreenCast ?? false)
+                    && CompositorService.isNiri
+            visible: active
+            sourceComponent: CircleUtilButton {
+                id: screenCastButton
+                Layout.alignment: Qt.AlignVCenter
+
+                readonly property bool isCasting: Persistent.states.screenCast.active
+
+                onClicked: {
+                    const output = Config.options?.bar?.utilButtons?.screenCastOutput ?? "HDMI-A-1"
+
+                    if (isCasting) {
+                        Quickshell.execDetached(["niri", "msg", "action", "clear-dynamic-cast-target"])
+                        Persistent.states.screenCast.active = false
+                    } else {
+                        Quickshell.execDetached(["niri", "msg", "action", "set-dynamic-cast-monitor", output])
+                        Persistent.states.screenCast.active = true
+                    }
+                }
+
+                Item {
+                    anchors.fill: parent
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        horizontalAlignment: Qt.AlignHCenter
+                        fill: screenCastButton.isCasting ? 1 : 0
+                        animateFill: true
+                        text: "visibility"
+                        iconSize: Appearance.font.pixelSize.large
+                        color: screenCastButton.isCasting
+                            ? root.dangerIconColor
+                            : root.neutralIconColor
+                    }
+
+                    Rectangle {
+                        scale: screenCastButton.isCasting ? 1 : 0
+                        visible: scale > 0
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: root.dangerIconColor
+                        anchors {
+                            top: parent.top
+                            right: parent.right
+                        }
+
+                        Behavior on scale {
+                            enabled: Appearance.animationsEnabled
+                            NumberAnimation {
+                                duration: Appearance.animation.elementMoveFast.duration
+                                easing.type: Appearance.animation.elementMoveFast.type
+                                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
+                            }
+                        }
+
+                        SequentialAnimation on opacity {
+                            running: screenCastButton.isCasting
+                            loops: Animation.Infinite
+                            NumberAnimation { to: 0.4; duration: Appearance.animation.elementMove.duration * 2 }
+                            NumberAnimation { to: 1.0; duration: Appearance.animation.elementMove.duration * 2 }
                         }
                     }
                 }
@@ -160,46 +325,26 @@ Item {
         }
 
         Loader {
-            active: root.screenShareActive
+            active: Config.options?.bar?.utilButtons?.showDarkModeToggle ?? true
             visible: active
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
-                
-                MaterialSymbol {
-                    horizontalAlignment: Qt.AlignHCenter
-                    fill: 1
-                    text: "visibility"
-                    iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colError : Appearance.colors.colError
-                }
-            }
-        }
-
-        Loader {
-            active: Config.options.bar.utilButtons.showDarkModeToggle
-            visible: Config.options.bar.utilButtons.showDarkModeToggle
-            sourceComponent: CircleUtilButton {
-                Layout.alignment: Qt.AlignVCenter
                 onClicked: event => {
-                    if (Appearance.m3colors.darkmode) {
-                        Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--mode", "light", "--noswitch"]);
-                    } else {
-                        Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--mode", "dark", "--noswitch"]);
-                    }
+                    MaterialThemeLoader.setDarkMode(!Appearance.m3colors.darkmode)
                 }
                 MaterialSymbol {
                     horizontalAlignment: Qt.AlignHCenter
                     fill: 0
                     text: Appearance.m3colors.darkmode ? "light_mode" : "dark_mode"
                     iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                    color: root.neutralIconColor
                 }
             }
         }
 
         Loader {
-            active: Config.options.bar.utilButtons.showPerformanceProfileToggle
-            visible: Config.options.bar.utilButtons.showPerformanceProfileToggle
+            active: Config.options?.bar?.utilButtons?.showPerformanceProfileToggle ?? false
+            visible: active
             sourceComponent: CircleUtilButton {
                 Layout.alignment: Qt.AlignVCenter
                 onClicked: event => {
@@ -225,7 +370,7 @@ Item {
                         case PowerProfile.Performance: return "local_fire_department"
                     }
                     iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.inirEverywhere ? Appearance.inir.colText : Appearance.colors.colOnLayer2
+                    color: root.neutralIconColor
                 }
             }
         }

@@ -2,8 +2,13 @@ pragma ComponentBehavior: Bound
 
 import qs
 import qs.modules.common
+import qs.modules.common.widgets
+import qs.services
+import qs.modules.waffle.looks
 import QtQuick
 import QtQuick.Effects
+import QtMultimedia
+import Qt5Compat.GraphicalEffects as GE
 import Quickshell
 import Quickshell.Wayland
 
@@ -28,34 +33,88 @@ Variants {
         anchors.right: true
 
         color: "transparent"
+        visible: true
+
+        // Multi-monitor wallpaper support
+        readonly property string _perMonitorMainPath: {
+            if (WallpaperListener.multiMonitorEnabled) {
+                const monName = WallpaperListener.getMonitorName(backdropWindow.modelData)
+                const data = WallpaperListener.effectivePerMonitor[monName]
+                if (data && data.path) return data.path
+            }
+            return Config.options?.background?.wallpaperPath ?? ""
+        }
 
         // Waffle backdrop config
         readonly property var wBackdrop: Config.options?.waffles?.background?.backdrop ?? {}
-        
+
         readonly property int backdropBlurRadius: wBackdrop.blurRadius ?? 32
+        // Match ii: backdrop still needs a full-quality source before blur. A
+        // half-resolution decode is visibly softened again when scaled to the
+        // output, especially for low-resolution wallpapers and HiDPI screens.
+        readonly property int backdropDecodeOverflow: 64
+        readonly property real backdropDecodeScale: Math.max(1, backdropWindow.devicePixelRatio ?? 1)
+        readonly property size backdropSourceSize: Qt.size(
+            Math.ceil(((screen?.width ?? 1920) + backdropDecodeOverflow * 2) * backdropDecodeScale),
+            Math.ceil(((screen?.height ?? 1080) + backdropDecodeOverflow * 2) * backdropDecodeScale))
+        readonly property int thumbnailBlurStrength: Config.options?.waffles?.background?.effects?.thumbnailBlurStrength ?? (Config.options?.background?.effects?.thumbnailBlurStrength ?? 50)
+        readonly property bool enableAnimatedBlur: wBackdrop.enableAnimatedBlur ?? false
         readonly property int backdropDim: wBackdrop.dim ?? 35
         readonly property real backdropSaturation: (wBackdrop.saturation ?? 0) / 100.0
         readonly property real backdropContrast: (wBackdrop.contrast ?? 0) / 100.0
         readonly property bool vignetteEnabled: wBackdrop.vignetteEnabled ?? false
         readonly property real vignetteIntensity: wBackdrop.vignetteIntensity ?? 0.5
         readonly property real vignetteRadius: wBackdrop.vignetteRadius ?? 0.7
+        readonly property bool enableAnimation: wBackdrop.enableAnimation ?? false
 
-        // Wallpaper path - backdrop can have its own wallpaper
-        readonly property string effectiveWallpaperPath: {
-            // Check if backdrop has its own wallpaper
-            const useBackdropOwn = !(wBackdrop.useMainWallpaper ?? true);
-            if (useBackdropOwn && wBackdrop.wallpaperPath) {
-                return wBackdrop.wallpaperPath;
+        // Per-monitor backdrop path (if multi-monitor enabled and monitor has custom backdrop)
+        readonly property string _perMonitorBackdropPath: {
+            if (WallpaperListener.multiMonitorEnabled) {
+                const monName = WallpaperListener.getMonitorName(backdropWindow.modelData)
+                const data = WallpaperListener.effectivePerMonitor[monName]
+                if (data && data.backdropPath) return data.backdropPath
             }
-            
-            // Otherwise use waffle wallpaper (which may be shared with Material ii)
-            const wBg = Config.options?.waffles?.background ?? {};
-            const useMainForWaffle = wBg.useMainWallpaper ?? true;
-            if (useMainForWaffle) {
-                return Config.options?.background?.wallpaperPath ?? "";
-            }
-            return wBg.wallpaperPath || Config.options?.background?.wallpaperPath || "";
+            return ""
         }
+
+        // Raw wallpaper path (before thumbnail substitution)
+        readonly property string wallpaperPathRaw: {
+            const useBackdropOwn = !(wBackdrop.useMainWallpaper ?? true);
+            if (useBackdropOwn) {
+                // Per-monitor backdrop takes priority, then global backdrop
+                const perMonBd = _perMonitorBackdropPath
+                if (perMonBd) return perMonBd
+                if (wBackdrop.wallpaperPath) return wBackdrop.wallpaperPath
+            }
+            const wBg = Config.options?.waffles?.background ?? {};
+            if (wBg.useMainWallpaper ?? true) {
+                return _perMonitorMainPath;
+            }
+            return wBg.wallpaperPath || _perMonitorMainPath;
+        }
+        
+        readonly property bool wallpaperIsVideo: {
+            const lowerPath = wallpaperPathRaw.toLowerCase();
+            return lowerPath.endsWith(".mp4") || lowerPath.endsWith(".webm") || lowerPath.endsWith(".mkv") || lowerPath.endsWith(".avi") || lowerPath.endsWith(".mov");
+        }
+        
+        readonly property bool wallpaperIsGif: {
+            return wallpaperPathRaw.toLowerCase().endsWith(".gif");
+        }
+
+        readonly property string effectiveWallpaperPath: wallpaperPathRaw
+        readonly property string frozenVideoFramePath: {
+            const _dep = Wallpapers.videoFirstFrames
+            if (!wallpaperIsVideo || enableAnimation)
+                return ""
+            const frame = Wallpapers.getVideoFirstFramePath(wallpaperPathRaw)
+            if (!frame) {
+                Wallpapers.ensureVideoFirstFrame(wallpaperPathRaw)
+                return ""
+            }
+            return frame.startsWith("file://") ? frame : ("file://" + frame)
+        }
+        readonly property bool useFrozenVideoFrame: frozenVideoFramePath.length > 0
 
         // Build proper file:// URL
         readonly property string wallpaperUrl: {
@@ -67,20 +126,157 @@ Variants {
 
         Item {
             anchors.fill: parent
+            clip: true
 
-            Image {
+            // Blur edge compensation: MultiEffect fades at boundaries because the
+            // Gaussian kernel has no pixels beyond the item edge. To fix this, all
+            // wallpaper source items are oversized by blurMax (64px) on every side,
+            // and this parent clips the result to exact screen bounds.
+            readonly property int blurOverflow: backdropWindow.backdropDecodeOverflow
+
+            // Keep the hidden Overview resource settled. The visible desktop owns
+            // wallpaper motion; this backdrop follows the path without replaying a
+            // second wallpaper transition of its own.
+            WallpaperCrossfader {
                 id: wallpaper
                 anchors.fill: parent
+                anchors.margins: -parent.blurOverflow
                 fillMode: Image.PreserveAspectCrop
-                source: backdropWindow.wallpaperUrl
-                asynchronous: true
-                cache: true
+                source: backdropWindow.wallpaperUrl && !backdropWindow.wallpaperIsGif && !backdropWindow.wallpaperIsVideo
+                    ? backdropWindow.wallpaperUrl
+                    : ""
+                sourceSize: backdropWindow.backdropSourceSize
+                visible: !backdropWindow.wallpaperIsGif && !backdropWindow.wallpaperIsVideo
+                enableTransitions: false
             }
 
-            MultiEffect {
+            // Animated GIF wallpaper
+            // Always loaded for GIFs: plays when animation enabled, frozen (first frame) when disabled
+            AnimatedImage {
+                id: gifWallpaper
                 anchors.fill: parent
+                anchors.margins: -parent.blurOverflow
+                fillMode: Image.PreserveAspectCrop
+                source: backdropWindow.wallpaperIsGif
+                    ? (backdropWindow.wallpaperPathRaw.startsWith("file://")
+                        ? backdropWindow.wallpaperPathRaw
+                        : "file://" + backdropWindow.wallpaperPathRaw)
+                    : ""
+                asynchronous: true
+                cache: false
+                // No sourceSize for GIFs - let Qt handle native size for performance
+                visible: backdropWindow.wallpaperIsGif
+                playing: visible && backdropWindow.enableAnimation && !Wallpapers.batteryPauseActive
+                    && !GlobalStates.screenLocked && !Looks.gameModeActive
+
+                layer.enabled: visible && Appearance.effectsEnabled
+                    && backdropWindow.enableAnimatedBlur
+                    && backdropWindow.backdropBlurRadius > 0
+                layer.effect: MultiEffect {
+                    blurEnabled: true
+                    blur: (backdropWindow.backdropBlurRadius * Math.max(0, Math.min(1, backdropWindow.thumbnailBlurStrength / 100))) / 100.0
+                    blurMax: 64
+                    saturation: backdropWindow.backdropSaturation
+                    contrast: backdropWindow.backdropContrast
+                }
+            }
+
+            // When backdrop animation is disabled, a cached representative frame
+            // is equivalent to a paused video and lets Qt release the decoder.
+            Image {
+                id: frozenVideoWallpaper
+                anchors.fill: parent
+                anchors.margins: -parent.blurOverflow
+                visible: backdropWindow.useFrozenVideoFrame
+                source: visible ? backdropWindow.frozenVideoFramePath : ""
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                cache: false
+                smooth: true
+                sourceSize: backdropWindow.backdropSourceSize
+
+                layer.enabled: visible && Appearance.effectsEnabled
+                    && backdropWindow.enableAnimatedBlur
+                    && backdropWindow.backdropBlurRadius > 0
+                layer.effect: MultiEffect {
+                    blurEnabled: true
+                    blur: (backdropWindow.backdropBlurRadius * Math.max(0, Math.min(1, backdropWindow.thumbnailBlurStrength / 100))) / 100.0
+                    blurMax: 64
+                    saturation: backdropWindow.backdropSaturation
+                    contrast: backdropWindow.backdropContrast
+                }
+            }
+
+            // Keep a live decoder only while animation is enabled, or briefly
+            // until the first-frame cache becomes available.
+            Video {
+                id: videoWallpaper
+                anchors.fill: parent
+                anchors.margins: -parent.blurOverflow
+                visible: backdropWindow.wallpaperIsVideo && !backdropWindow.useFrozenVideoFrame
+                // Empty once the frozen frame stands in, so the decoder is released; until then the paused
+                // first frame is the fallback.
+                source: {
+                    if (!backdropWindow.wallpaperIsVideo || backdropWindow.useFrozenVideoFrame) return "";
+                    const path = backdropWindow.wallpaperPathRaw;
+                    if (!path) return "";
+                    return path.startsWith("file://") ? path : ("file://" + path);
+                }
+                fillMode: VideoOutput.PreserveAspectCrop
+                loops: MediaPlayer.Infinite
+                muted: true
+                autoPlay: true
+
+                readonly property bool shouldPlay: backdropWindow.enableAnimation && !Wallpapers.batteryPauseActive
+                    && !GlobalStates.screenLocked && !Looks.gameModeActive
+
+                function pauseAndShowFirstFrame() {
+                    pause()
+                    seek(0)
+                }
+
+                onPlaybackStateChanged: {
+                    if (playbackState === MediaPlayer.PlayingState && !shouldPlay) {
+                        pauseAndShowFirstFrame()
+                    }
+                    if (playbackState === MediaPlayer.StoppedState && visible && shouldPlay) {
+                        play()
+                    }
+                }
+
+                onShouldPlayChanged: {
+                    if (visible && backdropWindow.wallpaperIsVideo) {
+                        if (shouldPlay) play()
+                        else pauseAndShowFirstFrame()
+                    }
+                }
+
+                onVisibleChanged: {
+                    if (visible && backdropWindow.wallpaperIsVideo) {
+                        if (shouldPlay) play()
+                        else pauseAndShowFirstFrame()
+                    } else {
+                        pause()
+                    }
+                }
+
+                layer.enabled: visible && Appearance.effectsEnabled
+                    && backdropWindow.enableAnimatedBlur
+                    && backdropWindow.backdropBlurRadius > 0
+                layer.effect: MultiEffect {
+                    blurEnabled: true
+                    blur: (backdropWindow.backdropBlurRadius * Math.max(0, Math.min(1, backdropWindow.thumbnailBlurStrength / 100))) / 100.0
+                    blurMax: 64
+                    saturation: backdropWindow.backdropSaturation
+                    contrast: backdropWindow.backdropContrast
+                }
+            }
+
+            // Blur effect (only for static images)
+            MultiEffect {
+                anchors.fill: wallpaper
                 source: wallpaper
-                visible: wallpaper.status === Image.Ready
+                visible: wallpaper.ready && !backdropWindow.wallpaperIsGif && !backdropWindow.wallpaperIsVideo
                 blurEnabled: backdropWindow.backdropBlurRadius > 0
                 blur: backdropWindow.backdropBlurRadius / 100.0
                 blurMax: 64

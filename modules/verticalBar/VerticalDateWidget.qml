@@ -11,8 +11,8 @@ Item { // Full hitbox
 
     implicitHeight: content.implicitHeight
     implicitWidth: Appearance.sizes.verticalBarWidth
-    property var dayOfMonth: DateTime.shortDate.split(/[-\/]/)[0]  // What if 🍔murica🦅? good question
-    property var monthOfYear: DateTime.shortDate.split(/[-\/]/)[1]
+    property string dayOfMonth: Qt.locale().toString(DateTime.clock.date, "dd")  // What if 🍔murica🦅? good question
+    property string monthOfYear: Qt.locale().toString(DateTime.clock.date, "MM")
 
     Item { // Boundaries for date numbers
         id: content
@@ -28,7 +28,8 @@ Item { // Full hitbox
 
             ShapePath {
                 strokeWidth: 1.2
-                strokeColor: Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
+                strokeColor: Appearance.regaliaEverywhere ? Appearance.regalia.onMuted
+                    : Appearance.inirEverywhere ? Appearance.inir.colTextSecondary : Appearance.colors.colSubtext
                 fillColor: "transparent"
                 startX: content.width - diagonalLine.padding
                 startY: diagonalLine.padding

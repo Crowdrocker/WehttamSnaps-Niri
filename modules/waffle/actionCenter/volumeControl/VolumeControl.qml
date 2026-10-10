@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import qs
 import qs.services
+import qs.services.deferred
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.widgets
@@ -61,8 +62,7 @@ Item {
                 text: Translation.tr("More volume settings")
                 onClicked: {
                     GlobalStates.waffleActionCenterOpen = false
-                    const cmd = Config.options?.apps?.volumeMixer ?? "pavucontrol"
-                    ShellExec.execCmd(cmd)
+                    AppLauncher.launch("volumeMixer")
                 }
             }
         }
@@ -81,7 +81,7 @@ Item {
                 required property var modelData
                 icon.name: WIcons.audioDeviceIcon(modelData)
                 text: Audio.friendlyDeviceName(modelData)
-                checked: (root.output ? Audio.sink : Audio.source) === modelData
+                checked: modelData.id === (root.output ? Audio.sink : Audio.source)?.id
                 onClicked: {
                     if (root.output) Audio.setDefaultSink(modelData);
                     else Audio.setDefaultSource(modelData);
@@ -128,7 +128,7 @@ Item {
         }
 
         Repeater {
-            model: root.output ? Audio.outputAppNodes : Audio.inputAppNodes
+            model: root.output ? MprisController.mixerAppNodes : Audio.inputAppNodes
             delegate: VolumeEntry {
                 required property var modelData
                 node: modelData

@@ -14,11 +14,16 @@ MouseArea {
     property bool isSelected: false
     property bool isHovered: false
 
-    property color colBackground: isHovered ? Appearance.colors.colPrimary 
-        : isSelected ? Appearance.colors.colSecondaryContainer 
+    property color colBackground: Appearance.regaliaEverywhere
+        ? (isSelected ? Appearance.regalia.primaryPlate
+            : isHovered ? Appearance.regalia.controlPlateHover : "transparent")
+        : isHovered ? Appearance.colors.colPrimary
+        : isSelected ? Appearance.colors.colSecondaryContainer
         : ColorUtils.transparentize(Appearance.colors.colPrimaryContainer)
-    property color colText: isHovered ? Appearance.colors.colOnPrimary 
-        : isSelected ? Appearance.colors.colOnSecondaryContainer 
+    property color colText: Appearance.regaliaEverywhere
+        ? (isSelected ? Appearance.regalia.primaryPlateInk : Appearance.regalia.onColor)
+        : isHovered ? Appearance.colors.colOnPrimary
+        : isSelected ? Appearance.colors.colOnSecondaryContainer
         : Appearance.colors.colOnLayer1
 
     signal activated()
@@ -30,12 +35,20 @@ MouseArea {
         id: background
         anchors.fill: parent
         anchors.margins: 3
-        radius: Appearance.rounding.small
-        color: root.colBackground
-        border.width: root.isSelected ? 2 : 0
+        radius: Appearance.regaliaEverywhere ? Appearance.regalia.roundSmall : Appearance.rounding.small
+        color: Appearance.regaliaEverywhere ? "transparent" : root.colBackground
+        border.width: Appearance.regaliaEverywhere ? 0 : (root.isSelected ? 2 : 0)
         border.color: Appearance.colors.colPrimary
+
+        RegaliaControlFace {
+            anchors.fill: parent
+            visible: Appearance.regaliaEverywhere
+            fillColor: root.colBackground
+            radius: background.radius
+            selected: root.isSelected
+        }
         Behavior on color {
-            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            animation: ColorAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
         }
         Behavior on border.width {
             NumberAnimation { duration: 150 }
@@ -64,7 +77,7 @@ MouseArea {
                 active: root.useThumbnail
                 sourceComponent: ThumbnailImage {
                     id: thumbnailImage
-                    generateThumbnail: false
+                    generateThumbnail: true
                     sourcePath: fileModelData.filePath
                     cache: true
                     asynchronous: true
@@ -73,21 +86,7 @@ MouseArea {
                     sourceSize.width: 256  // Use standard thumbnail size
                     sourceSize.height: 256
 
-                    Connections {
-                        target: Wallpapers
-                        function onThumbnailGenerated(directory) {
-                            if (FileUtils.parentDirectory(thumbnailImage.sourcePath) !== directory) return;
-                            thumbnailImage.source = "";
-                            thumbnailImage.source = thumbnailImage.thumbnailPath;
-                        }
-                        function onThumbnailGeneratedFile(filePath) {
-                            if (Qt.resolvedUrl(thumbnailImage.sourcePath) !== Qt.resolvedUrl(filePath)) return;
-                            thumbnailImage.source = "";
-                            thumbnailImage.source = thumbnailImage.thumbnailPath;
-                        }
-                    }
-
-                    layer.enabled: true
+                    layer.enabled: Appearance.effectsEnabled
                     layer.effect: OpacityMask {
                         maskSource: Rectangle {
                             width: imageContainer.width

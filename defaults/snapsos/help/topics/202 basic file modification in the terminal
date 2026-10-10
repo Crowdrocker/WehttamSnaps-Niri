@@ -1,0 +1,57 @@
+> basic file modification in the terminal
+
+Modifying files and directories is a fundamental skill for working in the terminal. SNAPS-OS includes tools like `micro` and `nano` for editing files, alongside standard commands for creating, copying, moving, and deleting files.
+
+---
+
+### Creating Files and Directories
+- `mkdir <dirname>`: Creates a new directory. For example, `mkdir projects` creates a directory named "projects" in the current working directory.
+
+  Use `mkdir -p <path/to/dir>` to create nested directories. For example, `mkdir -p projects/snapsos/scripts` creates all directories in the path, even if intermediate directories don't exist.
+
+- `touch <filename>`: Creates an empty file or updates the timestamp of an existing file. For example, `touch notes.txt` creates an empty file named `notes.txt`.
+
+---
+
+### Copying and Moving Files
+- `cp <source> <destination>`: Copies a file or directory to a new location. For example, `cp file.txt ~/backups/` copies "file.txt" to the "backups" directory under your home folder.
+
+  Use `cp -r <source> <destination>` to copy directories recursively. For example, `cp -r projects/ ~/backups/` copies the entire "projects" directory and its contents.
+
+  you can use a wildcard (\*) to copy multiple files, for example: `cp -r projects/* ~/backups/` will copy all the files inside projects to ~/backups/, rather than copying the projects directory itself to backups.
+
+- `mv <source> <destination>`: Moves or renames a file or directory. For example, `mv oldname.txt newname.txt` renames the file, while `mv file.txt ~/documents/` moves the file to the "documents" directory.
+
+  you can also combine these by including the new filename in the destination path: `mv oldname.txt ~/documents/newname.txt`
+---
+
+### Deleting Files and Directories
+- `rm <filename>`: Deletes a file. For example, `rm notes.txt` deletes the file "notes.txt".
+
+  Use `rm -r <dirname>` to delete a directory and its contents recursively. For example, `rm -r projects/` deletes the "projects" directory and all its files.
+
+  Use `rmdir <dirname>` to delete an empty directory. For example, `rmdir empty_folder/` deletes the directory if it is empty.
+
+  be careful with this command, as this will perform a *hard delete*, meaning the files are not recoverable without specialized bitwise file recovery software.
+
+---
+
+### Editing Files
+SNAPS-OS includes two terminal-based text editors:
+- `micro`: A modern, user-friendly editor. Open a file with `micro <filename>`. For example, `micro notes.txt` opens notes.txt in Micro.
+  - Save with `Ctrl+S` and quit with `Ctrl+Q`.
+
+    micro is the default text editor used in SNAPS-OS scripts.
+
+- `nano`: A simple, classic editor. Open a file with `nano <filename>`. For example, `nano notes.txt` opens "notes.txt" in Nano.
+  - Save with `Ctrl+O` and quit with `Ctrl+X`.
+
+---
+
+### Writing to Files
+- `echo "text" > file.txt`: Overwrites the content of "file.txt" with the text "text", creating the file if it does not exist. For example, `echo "Hello, SNAPS-OS!" > greeting.txt` creates "greeting.txt" with the text "hello, SNAPS-OS!"
+
+- `echo "text" >> file.txt`: Appends "text" to "file.txt", creating the file if it does not exist. For example, `echo "New line" >> greeting.txt` appends "New line" to the file.
+
+- `tee`: Writes input to a file and displays it in the terminal at the same time. For example, `echo "Hello" | tee output.txt` writes "Hello" to `output.txt` and prints it to the terminal. this is primarily used to log the output of a command while still getting the output in the terminal.
+

@@ -1,0 +1,43 @@
+{
+    "custom/volume-up": {
+        "on-click": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+        "format": "▲"
+    },
+    "custom/volume-bar": {
+        "exec": "~/.config/snapsos/wayshell/configs/volume-bar.sh",
+        "interval": 0.3,
+        "rotate": 90,
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+        "format": "{}"
+    },
+    "custom/volume-down": {
+        "on-click": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+        "format": "▼"
+    },
+    "custom/volume-icon": {
+        "exec": "~/.config/snapsos/wayshell/configs/volume-icon.sh",
+        "interval": 1,
+        "on-click": "pavucontrol",
+        "format": "{}"
+    },
+    "custom/brightness-up": {
+        "on-click": "brightnessctl set +5%",
+        "format": "▲"
+    },
+    "custom/brightness-bar": {
+        "exec": "~/.config/snapsos/wayshell/configs/brightness-bar.sh",
+        "interval": 1,
+        "rotate": 90,
+        "on-scroll-up": "brightnessctl set +5%",
+        "on-scroll-down": "brightnessctl set 5%-",
+        "format": "{}"
+    },
+    "custom/brightness-down": {
+        "on-click": "brightnessctl set 5%-",
+        "format": "▼"
+    },
+    "custom/brightness-icon": {
+        "format": ""
+    }
+}

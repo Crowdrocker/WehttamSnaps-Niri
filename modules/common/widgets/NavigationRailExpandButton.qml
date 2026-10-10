@@ -11,11 +11,11 @@ RippleButton {
     downAction: () => {
         parent.expanded = !parent.expanded;
     }
-    buttonRadius: Appearance.rounding.full
+    buttonRadius: Appearance.editorialEverywhere ? Appearance.rounding.small : Appearance.rounding.full
 
     rotation: root.parent.expanded ? 0 : -180
     Behavior on rotation {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+        animation: NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Appearance.animation.elementMoveFast.type; easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve }
     }
 
     contentItem: MaterialSymbol {

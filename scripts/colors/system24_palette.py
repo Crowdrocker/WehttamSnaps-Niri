@@ -13,12 +13,27 @@ from __future__ import annotations
 
 import json
 import os
+import math
 from colorsys import rgb_to_hls, hls_to_rgb
 from pathlib import Path
 from typing import Dict, Tuple
 
 
 COLOR_SOURCE = Path(
+    os.environ.get(
+        "QUICKSHELL_PALETTE_JSON",
+        "~/.local/state/quickshell/user/generated/app-palette.json",
+    )
+).expanduser()
+
+RAW_COLOR_SOURCE = Path(
+    os.environ.get(
+        "QUICKSHELL_RAW_PALETTE_JSON",
+        "~/.local/state/quickshell/user/generated/palette.json",
+    )
+).expanduser()
+
+FALLBACK_COLOR_SOURCE = Path(
     os.environ.get(
         "QUICKSHELL_COLORS_JSON",
         "~/.local/state/quickshell/user/generated/colors.json",
@@ -35,7 +50,14 @@ OUTPUT_FILE = Path(
 MIDNIGHT_OUTPUT_FILE = Path(
     os.environ.get(
         "MIDNIGHT_DMS_CSS",
-        "~/.config/vesktop/themes/ii-midnight.theme.css",
+        "~/.config/vesktop/themes/inir-midnight.theme.css",
+    )
+).expanduser()
+
+TUI_OUTPUT_FILE = Path(
+    os.environ.get(
+        "INIR_TUI_CSS",
+        "~/.config/vesktop/themes/inir-tui.theme.css",
     )
 ).expanduser()
 
@@ -43,8 +65,8 @@ MIDNIGHT_OUTPUT_FILE = Path(
 def _resolve_output_files(env_var: str, default_path: Path) -> list[Path]:
     """Return a list of paths to write the theme to.
 
-    Different builds/packaging may use different XDG config folder casing
-    (e.g. ~/.config/vesktop vs ~/.config/Vesktop).
+    Different Discord client builds may use different config folders/casing
+    (e.g. ~/.config/vesktop, ~/.config/Vesktop, ~/.config/equicord).
     If the env var is set, it remains authoritative.
     """
 
@@ -56,6 +78,10 @@ def _resolve_output_files(env_var: str, default_path: Path) -> list[Path]:
     candidates = [
         Path(f"~/.config/vesktop/themes/{basename}").expanduser(),
         Path(f"~/.config/Vesktop/themes/{basename}").expanduser(),
+        Path(f"~/.config/equicord/themes/{basename}").expanduser(),
+        Path(f"~/.config/Equicord/themes/{basename}").expanduser(),
+        Path(f"~/.config/equibop/themes/{basename}").expanduser(),
+        Path(f"~/.config/Equibop/themes/{basename}").expanduser(),
     ]
 
     existing_dirs = [p for p in candidates if p.parent.exists()]
@@ -64,22 +90,22 @@ def _resolve_output_files(env_var: str, default_path: Path) -> list[Path]:
 
     return [default_path]
 
+
 # Template for the full theme file
-THEME_TEMPLATE = '''/**
+THEME_TEMPLATE = """/**
  * @name iNiR Material
  * @description Material Design Discord theme with Material You colors.
  * @author refact0r (system24 base), iNiR (Material adaptation)
  * @version 2.2.0
- * @source https://github.com/end-4/iNiR
+ * @source https://github.com/snowarch/iNiR
  */
 
 /*
  * Base theme import:
- * - Prefer a local copy if present (more reliable on flaky networks / CSP).
- * - Keep the remote import as fallback.
+ * - A local copy (system24.local.css next to this file) is imported first when it exists.
+ * - The remote import keeps the theme working without it.
  */
-@import url('system24.local.css');
-@import url('https://refact0r.github.io/system24/build/system24.css');
+{local_import}@import url('https://refact0r.github.io/system24/build/system24.css');
 @import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700&display=swap');
 
 body {{
@@ -89,7 +115,7 @@ body {{
     letter-spacing: -0.02ch;
     --gap: 12px;
     --divider-thickness: 4px;
-    --border-thickness: 2px;
+    --border-thickness: 1px;
     --border-hover-transition: 0.2s ease;
     --animations: on;
     --list-item-transition: 0.2s ease;
@@ -126,14 +152,69 @@ body {{
 {palette_css}
 
 /* Material Design System */
-'''
+"""
 
-MIDNIGHT_THEME_TEMPLATE = '''/**
- * @name ii-midnight
- * @description dank-discord / midnight style theme using iNiR Material You colors.
+TUI_THEME_TEMPLATE = """/**
+ * @name iNiR TUI
+ * @description System24 TUI layout with iNiR Material You colors.
+ * @author refact0r (system24 base), iNiR (palette integration)
+ * @version 2.2.0
+ * @source https://github.com/snowarch/inir
+ */
+
+{local_import}@import url('https://refact0r.github.io/system24/build/system24.css');
+
+body {{
+    --font: 'JetBrainsMono Nerd Font';
+    --code-font: 'JetBrainsMono Nerd Font';
+    font-weight: 300;
+    letter-spacing: -0.05ch;
+    --gap: 12px;
+    --divider-thickness: 4px;
+    --border-thickness: 2px;
+    --border-hover-transition: 0.2s ease;
+    --animations: on;
+    --list-item-transition: 0.2s ease;
+    --dms-icon-svg-transition: 0.4s ease;
+    --top-bar-height: var(--gap);
+    --top-bar-button-position: titlebar;
+    --top-bar-title-position: off;
+    --subtle-top-bar-title: off;
+    --custom-window-controls: off;
+    --window-control-size: 14px;
+    --custom-dms-icon: off;
+    --dms-icon-svg-size: 90%;
+    --dms-icon-color-before: var(--text-4);
+    --dms-icon-color-after: var(--text-1);
+    --custom-dms-background: off;
+    --background-image: off;
+    --transparency-tweaks: off;
+    --remove-bg-layer: off;
+    --panel-blur: off;
+    --blur-amount: 12px;
+    --bg-floating: var(--bg-3);
+    --small-user-panel: on;
+    --unrounding: on;
+    --round-pfp: off;
+    --remove-pfp-decor: off;
+    --custom-spotify-bar: on;
+    --ascii-titles: on;
+    --ascii-loader: system24;
+    --panel-labels: on;
+    --label-color: var(--text-5);
+    --label-font-weight: 500;
+}}
+
+/* Material You Palette - Auto-generated */
+{palette_css}
+"""
+
+MIDNIGHT_THEME_TEMPLATE = """/**
+ * @name iNiR Midnight
+ * @description iNiR Midnight Discord theme with Material You colors.
  * @author iNiR (Material palette injection)
  * @version 2.2.0
- * @source https://github.com/end-4/iNiR
+ * @source https://github.com/snowarch/iNiR
  */
 
 /*
@@ -141,8 +222,7 @@ MIDNIGHT_THEME_TEMPLATE = '''/**
  * - Prefer your local copy (if you have it in the same folder).
  * - Fallback to remote so the theme works on fresh installs.
  */
-@import url('dank-discord.css');
-@import url('https://refact0r.github.io/midnight-discord/build/midnight.css');
+{local_import}@import url('https://refact0r.github.io/midnight-discord/build/midnight.css');
 
 /* Material You Palette - Auto-generated */
 {palette_css}
@@ -152,15 +232,15 @@ MIDNIGHT_THEME_TEMPLATE = '''/**
  * The base theme can still style hover states, but the strong accent overlay is removed.
  */
 :root, :root:root, body, #app-mount {{
-    --hover: transparent;
-    --active: transparent;
-    --active-2: transparent;
-    --message-hover: transparent;
+    --hover: color-mix(in hsl, var(--text-3), transparent 92%);
+    --active: color-mix(in hsl, var(--text-3), transparent 86%);
+    --active-2: color-mix(in hsl, var(--text-3), transparent 80%);
+    --message-hover: color-mix(in hsl, var(--text-3), transparent 94%);
     --border-hover: var(--border);
     --border-light: var(--border);
     --button-border: var(--border);
 }}
-'''
+"""
 
 
 def _ensure_parent(path: Path) -> None:
@@ -168,12 +248,19 @@ def _ensure_parent(path: Path) -> None:
 
 
 def _load_colors() -> Dict[str, str]:
-    if not COLOR_SOURCE.exists():
+    source = (
+        COLOR_SOURCE
+        if COLOR_SOURCE.exists()
+        else RAW_COLOR_SOURCE
+        if RAW_COLOR_SOURCE.exists()
+        else FALLBACK_COLOR_SOURCE
+    )
+    if not source.exists():
         raise FileNotFoundError(
-            f"Material colors file not found: {COLOR_SOURCE}. "
+            f"Material colors file not found: {COLOR_SOURCE}, {RAW_COLOR_SOURCE}, or {FALLBACK_COLOR_SOURCE}. "
             "Ensure switchwall.sh has been executed successfully."
         )
-    with COLOR_SOURCE.open("r", encoding="utf-8") as fh:
+    with source.open("r", encoding="utf-8") as fh:
         data = json.load(fh)
     return {k: v.lower() for k, v in data.items()}
 
@@ -184,7 +271,11 @@ def _hex_to_rgb(color: str) -> Tuple[int, int, int]:
 
 
 def _rgb_to_hex(rgb) -> str:
-    r, g, b = (max(0, min(int(round(v)), 255)) for v in rgb)
+    # Keep parity with Go generator (math.Round rounds .5 away from zero).
+    def _round_half_up(v: float) -> int:
+        return int(math.floor(v + 0.5))
+
+    r, g, b = (max(0, min(_round_half_up(v), 255)) for v in rgb)
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
@@ -227,6 +318,9 @@ def _build_palette(colors: Dict[str, str]) -> Dict[str, str]:
     on_surface = colors["on_surface"]
     on_surface_variant = colors["on_surface_variant"]
     on_primary = colors["on_primary"]
+    # Status keeps its meaning: green is success, not whatever hue the theme's tertiary has.
+    success = colors.get("success") or tertiary
+    warning = colors.get("app_warning") or _mix(primary, tertiary, 0.3)
 
     palette: Dict[str, str] = {}
 
@@ -271,42 +365,43 @@ def _build_palette(colors: Dict[str, str]) -> Dict[str, str]:
     palette["--accent-3"] = _adjust_lightness(primary, -0.05)
     palette["--accent-4"] = _adjust_lightness(primary, -0.10)
     palette["--accent-5"] = _adjust_lightness(primary, -0.15)
-    palette["--accent-new"] = primary  # Use accent color instead of error for NEW badge
+    # Notification badges and NEW: the filled alert pigment when the palette has one (iRiS), else the accent.
+    palette["--accent-new"] = colors.get("error_fill") or primary
 
     # === MENTION/REPLY GRADIENTS ===
     palette["--mention"] = (
         f"linear-gradient(to right, "
-        f"color-mix(in hsl, {primary}, transparent 70%) 40%, transparent)"
+        f"color-mix(in hsl, {primary}, transparent 90%) 40%, transparent)"
     )
     palette["--mention-hover"] = (
         f"linear-gradient(to right, "
-        f"color-mix(in hsl, {primary}, transparent 85%) 40%, transparent)"
+        f"color-mix(in hsl, {primary}, transparent 95%) 40%, transparent)"
     )
     palette["--reply"] = (
         f"linear-gradient(to right, "
-        f"color-mix(in hsl, {on_surface_variant}, transparent 85%) 40%, transparent)"
+        f"color-mix(in hsl, {on_surface_variant}, transparent 90%) 40%, transparent)"
     )
     palette["--reply-hover"] = (
         f"linear-gradient(to right, "
-        f"color-mix(in hsl, {on_surface_variant}, transparent 92%) 40%, transparent)"
+        f"color-mix(in hsl, {on_surface_variant}, transparent 95%) 40%, transparent)"
     )
 
     # === STATUS COLORS ===
-    palette["--online"] = tertiary
+    palette["--online"] = success
     palette["--dnd"] = error
     palette["--idle"] = secondary
-    palette["--streaming"] = _adjust_lightness(tertiary, 0.10)
+    palette["--streaming"] = _adjust_lightness(secondary, 0.10)
     palette["--offline"] = on_surface_variant
 
     # === BORDER COLORS ===
-    palette["--border-light"] = _rgba(outline, 0.15)
-    palette["--border"] = _rgba(outline, 0.30)
-    palette["--border-hover"] = primary
-    palette["--button-border"] = _rgba(outline, 0.12)
+    palette["--border-light"] = _rgba(outline, 0.12)
+    palette["--border"] = _rgba(outline, 0.22)
+    palette["--border-hover"] = _rgba(_mix(outline, primary, 0.35), 0.50)
+    palette["--button-border"] = _rgba(outline, 0.16)
 
     # === BASE COLOR LADDERS ===
     # These are used throughout system24 for various UI elements
-    
+
     def make_ladder(base: str) -> list:
         """Create 5-step color ladder from base color."""
         return [
@@ -317,12 +412,13 @@ def _build_palette(colors: Dict[str, str]) -> Dict[str, str]:
             _adjust_lightness(base, -0.15),
         ]
 
-    # Red ladder (from error color)
-    for i, color in enumerate(make_ladder(error), 1):
+    # Red ladder: Discord paints badges and danger buttons with it, so it starts from the filled alert when the
+    # palette has one (iRiS), the text red otherwise.
+    for i, color in enumerate(make_ladder(colors.get("error_fill") or error), 1):
         palette[f"--red-{i}"] = color
 
-    # Green ladder (from tertiary - usually green-ish)
-    for i, color in enumerate(make_ladder(tertiary), 1):
+    # Green ladder (from success)
+    for i, color in enumerate(make_ladder(success), 1):
         palette[f"--green-{i}"] = color
 
     # Blue ladder (from secondary)
@@ -330,9 +426,7 @@ def _build_palette(colors: Dict[str, str]) -> Dict[str, str]:
         palette[f"--blue-{i}"] = color
 
     # Yellow ladder (mix of primary and tertiary for warm tone)
-    yellow_base = _mix(primary, tertiary, 0.3)
-    yellow_base = _adjust_lightness(yellow_base, 0.05)
-    for i, color in enumerate(make_ladder(yellow_base), 1):
+    for i, color in enumerate(make_ladder(warning), 1):
         palette[f"--yellow-{i}"] = color
 
     # Purple ladder (mix of primary and secondary)
@@ -356,12 +450,40 @@ def _build_palette(colors: Dict[str, str]) -> Dict[str, str]:
     return palette
 
 
+def _discord_roles_css(palette: Dict[str, str]) -> str:
+    """Discord's own text roles, scoped where the client defines them so they win.
+
+    The base themes map only part of Discord's palette; the rest keeps the client's own theme, so with Discord on its
+    dark theme names and headers stayed white over a light palette. --white stays Midnight's ink on colour (--text-0):
+    Discord writes badge counts and accent buttons with it, so mapping it to the ink left them dark on dark."""
+    roles = {
+        "--header-primary": "--text-1", "--header-secondary": "--text-3", "--text-strong": "--text-1",
+        "--text-normal": "--text-2", "--text-default": "--text-2", "--text-muted": "--text-5", "--text-subtle": "--text-4",
+        "--interactive-normal": "--text-4", "--interactive-hover": "--text-2", "--interactive-active": "--text-1",
+        "--interactive-muted": "--text-5", "--channels-default": "--text-4", "--channel-icon": "--text-4",
+        "--text-primary": "--text-1", "--text-secondary": "--text-3", "--text-tertiary": "--text-5",
+        # Discord's own white (badge counts, buttons, icons on colour) is the palette's ink on colour.
+        "--white": "--text-0", "--white-500": "--text-0", "--text-overlay-light": "--text-0",
+    }
+    lines = [":is(.theme-dark, .theme-light):not(.custom-user-profile-theme), :is(.theme-dark, .theme-light) .theme-dark, :is(.theme-dark, .theme-light) .theme-light {"]
+    lines += [f"    {key}: var({value});" for key, value in roles.items()]
+    lines.append("}")
+    if sum(_hex_to_rgb(palette["--bg-4"])) > 3 * 128:
+        # Discord keeps its dark theme under a light palette and writes role colours inline as they are: a white role
+        # name vanished on the paper. It reads in the palette's ink instead.
+        lines.append(
+            ':is([class*="username"], [class*="roleColor"], [class*="mention"])[style*="color: rgb(255, 255, 255)"] '
+            "{ color: var(--text-1) !important; }"
+        )
+    return "\n".join(lines)
+
+
 def _build_palette_css(palette: Dict[str, str]) -> str:
     palette_lines = [":root, :root:root, body, #app-mount {"]
     for key in sorted(palette.keys()):
         palette_lines.append(f"    {key}: {palette[key]};")
     palette_lines.append("}")
-    return "\n".join(palette_lines)
+    return "\n".join(palette_lines) + "\n\n" + _discord_roles_css(palette)
 
 
 def _write_palette(palette: Dict[str, str]) -> None:
@@ -370,22 +492,39 @@ def _write_palette(palette: Dict[str, str]) -> None:
 
     system24_outputs = _resolve_output_files("SYSTEM24_PALETTE_CSS", OUTPUT_FILE)
     midnight_outputs = _resolve_output_files("MIDNIGHT_DMS_CSS", MIDNIGHT_OUTPUT_FILE)
+    tui_outputs = _resolve_output_files("INIR_TUI_CSS", TUI_OUTPUT_FILE)
 
-    for out in (system24_outputs + midnight_outputs):
+    for out in system24_outputs + midnight_outputs + tui_outputs:
         _ensure_parent(out)
 
-    system24_content = THEME_TEMPLATE.format(palette_css=palette_css)
-    midnight_content = MIDNIGHT_THEME_TEMPLATE.format(palette_css=palette_css)
-
     for out in system24_outputs:
-        with out.open("w", encoding="utf-8") as fh:
-            fh.write(system24_content)
-        print(f"Generated: {out}")
+        _write_theme(out, THEME_TEMPLATE, palette_css, "system24.local.css")
 
     for out in midnight_outputs:
-        with out.open("w", encoding="utf-8") as fh:
-            fh.write(midnight_content)
-        print(f"Generated: {out}")
+        _write_theme(out, MIDNIGHT_THEME_TEMPLATE, palette_css, "midnight-discord.local.css")
+        legacy_out = out.parent / "ii-midnight.theme.css"
+        if legacy_out != out:
+            legacy_out.unlink(missing_ok=True)
+
+    for out in tui_outputs:
+        _write_theme(out, TUI_THEME_TEMPLATE, palette_css, "system24.local.css")
+
+
+def _write_theme(out: Path, template: str, palette_css: str, local_copy: str) -> None:
+    # Vencord serves @imports from the themes folder with net.fetch, and Electron logs a missing
+    # file with console.error in the main process. A client started from a terminal that has
+    # since closed dies on that write (EIO), so the optional local copy is imported only if present.
+    local_import = f"@import url('{local_copy}');\n" if (out.parent / local_copy).is_file() else ""
+    content = template.format(palette_css=palette_css, local_import=local_import)
+    # A running client reloads its theme on any write, even with the same bytes.
+    try:
+        if out.read_text(encoding="utf-8") == content:
+            return
+    except OSError:
+        pass
+    with out.open("w", encoding="utf-8") as fh:
+        fh.write(content)
+    print(f"Generated: {out}")
 
 
 def main() -> None:

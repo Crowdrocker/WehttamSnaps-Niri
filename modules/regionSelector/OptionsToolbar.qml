@@ -12,7 +12,8 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// Options toolbar
+// Options toolbar — unified snip controls: pick the action and the region shape
+// inline, plus instant fullscreen capture and color picker.
 Toolbar {
     id: root
 
@@ -21,68 +22,91 @@ Toolbar {
     property var selectionMode
     // Signals
     signal dismiss()
+    signal fullscreenRequested()
+    signal colorPickerRequested()
 
-    MaterialShape {
-        Layout.fillHeight: true
-        Layout.leftMargin: 2
-        Layout.rightMargin: 2
-        implicitSize: 36 // Intentionally smaller because this one is brighter than others
-        shape: switch (root.action) {
-            case RegionSelection.SnipAction.Copy:
-            case RegionSelection.SnipAction.Edit:
-                return MaterialShape.Shape.Cookie4Sided;
-            case RegionSelection.SnipAction.Search:
-                return MaterialShape.Shape.Pentagon;
-            case RegionSelection.SnipAction.CharRecognition:
-                return MaterialShape.Shape.Sunny;
-            case RegionSelection.SnipAction.Record:
-            case RegionSelection.SnipAction.RecordWithSound:
-                return MaterialShape.Shape.Gem;
-            default:
-                return MaterialShape.Shape.Cookie12Sided;
-        }
-        color: Appearance.colors.colPrimary
-        MaterialSymbol {
-            anchors.centerIn: parent
-            iconSize: 22
-            color: Appearance.colors.colOnPrimary
-            animateChange: true
-            text: switch (root.action) {
-                case RegionSelection.SnipAction.Copy:
-                case RegionSelection.SnipAction.Edit:
-                    return "content_cut";
-                case RegionSelection.SnipAction.Search:
-                    return "image_search";
-                case RegionSelection.SnipAction.CharRecognition:
-                    return "document_scanner";
-                case RegionSelection.SnipAction.Record:
-                case RegionSelection.SnipAction.RecordWithSound:
-                    return "videocam";
-                default:
-                    return "";
-            }
+    // Region actions selectable in-overlay (order = tab index)
+    readonly property var actionList: [
+        { "action": RegionSelection.SnipAction.Copy,            "icon": "content_cut",      "name": Translation.tr("Shot") },
+        { "action": RegionSelection.SnipAction.Edit,            "icon": "draw",             "name": Translation.tr("Edit") },
+        { "action": RegionSelection.SnipAction.CharRecognition, "icon": "document_scanner", "name": Translation.tr("OCR") },
+        { "action": RegionSelection.SnipAction.Search,          "icon": "image_search",     "name": Translation.tr("Search") },
+        { "action": RegionSelection.SnipAction.Record,          "icon": "videocam",         "name": Translation.tr("Record") }
+    ]
+    function indexForAction(a) {
+        for (let i = 0; i < root.actionList.length; i++)
+            if (root.actionList[i].action === a) return i;
+        return 0;
+    }
+
+    function persistSnipChoice(): void {
+        if (!(Config.options?.regionSelector?.rememberSnipChoice ?? true)) return
+        const isRecord = root.action === RegionSelection.SnipAction.Record
+            || root.action === RegionSelection.SnipAction.RecordWithSound
+        const updates = { "regionSelector.lastMode": root.selectionMode }
+        if (!isRecord) updates["regionSelector.lastAction"] = root.action
+        Config.setNestedValues(updates)
+    }
+
+    // Action selector
+    ToolbarTabBar {
+        id: actionBar
+        Layout.alignment: Qt.AlignVCenter
+        tabButtonList: root.actionList.map(a => ({"icon": a.icon, "name": a.name}))
+        // Only explicit choices change the action; programmatic index moves
+        // (including tab population) must never write state back.
+        onUserSelected: index => {
+            const a = root.actionList[index]?.action;
+            if (a !== undefined && a !== root.action) root.action = a;
+            root.persistSnipChoice();
         }
     }
 
+    // Region shape (applies when drawing a region)
     ToolbarTabBar {
-        id: tabBar
-        Layout.fillWidth: true
-        maxWidth: tabBar.parent?.width ?? -1
+        id: modeBar
+        Layout.alignment: Qt.AlignVCenter
         tabButtonList: [
             {"icon": "activity_zone", "name": Translation.tr("Rect")},
             {"icon": "gesture", "name": Translation.tr("Circle")}
         ]
-        onCurrentIndexChanged: {
-            root.selectionMode = currentIndex === 0 ? RegionSelection.SelectionMode.RectCorners : RegionSelection.SelectionMode.Circle;
+        onUserSelected: index => {
+            root.selectionMode = index === 0 ? RegionSelection.SelectionMode.RectCorners : RegionSelection.SelectionMode.Circle;
+            root.persistSnipChoice();
         }
     }
 
+    // Instant tools (no region selection needed)
+    FloatingActionButton {
+        Layout.alignment: Qt.AlignVCenter
+        baseSize: 40
+        iconText: "fullscreen"
+        onClicked: root.fullscreenRequested()
+        StyledToolTip { text: Translation.tr("Capture fullscreen") }
+        colBackground: Appearance.zzzEverywhere ? Appearance.zzz.sticker : Appearance.colors.colSecondaryContainer
+        colBackgroundHover: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryHover : Appearance.colors.colSecondaryContainerHover
+        colRipple: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryActive : Appearance.colors.colSecondaryContainerActive
+        colOnBackground: Appearance.zzzEverywhere ? Appearance.zzz.onSticker : Appearance.colors.colOnSecondaryContainer
+    }
+    FloatingActionButton {
+        Layout.alignment: Qt.AlignVCenter
+        baseSize: 40
+        iconText: "colorize"
+        onClicked: root.colorPickerRequested()
+        StyledToolTip { text: Translation.tr("Color picker") }
+        colBackground: Appearance.zzzEverywhere ? Appearance.zzz.sticker : Appearance.colors.colSecondaryContainer
+        colBackgroundHover: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryHover : Appearance.colors.colSecondaryContainerHover
+        colRipple: Appearance.zzzEverywhere ? Appearance.colors.colPrimaryActive : Appearance.colors.colSecondaryContainerActive
+        colOnBackground: Appearance.zzzEverywhere ? Appearance.zzz.onSticker : Appearance.colors.colOnSecondaryContainer
+    }
+
+    onActionChanged: actionBar.setCurrentIndex(root.indexForAction(root.action))
     onSelectionModeChanged: {
-        tabBar.setCurrentIndex(selectionMode === RegionSelection.SelectionMode.RectCorners ? 0 : 1);
+        modeBar.setCurrentIndex(selectionMode === RegionSelection.SelectionMode.RectCorners ? 0 : 1);
     }
 
     Component.onCompleted: {
-        tabBar.setCurrentIndex(selectionMode === RegionSelection.SelectionMode.RectCorners ? 0 : 1);
+        actionBar.setCurrentIndex(root.indexForAction(root.action));
+        modeBar.setCurrentIndex(selectionMode === RegionSelection.SelectionMode.RectCorners ? 0 : 1);
     }
-
 }

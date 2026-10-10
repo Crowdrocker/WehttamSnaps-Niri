@@ -19,12 +19,15 @@ Item {
             fill: parent
             margins: Appearance.sizes.elevationMargin
         }
-        radius: Appearance.rounding.full
-        color: Appearance.inirEverywhere ? Appearance.inir.colLayer1
+        radius: Appearance.editorialEverywhere ? Appearance.editorial.radius : Appearance.rounding.full
+        color: Appearance.angelEverywhere ? Appearance.angel.colGlassPopup
+             : Appearance.inirEverywhere ? Appearance.inir.colLayer1
              : Appearance.auroraEverywhere ? Appearance.aurora.colPopupSurface
              : Appearance.colors.colLayer0
-        border.width: Appearance.auroraEverywhere || Appearance.inirEverywhere ? 1 : 0
-        border.color: Appearance.inirEverywhere ? Appearance.inir.colBorder 
+        border.width: Appearance.angelEverywhere ? Appearance.angel.cardBorderWidth
+            : Appearance.auroraEverywhere || Appearance.inirEverywhere ? 1 : 0
+        border.color: Appearance.angelEverywhere ? Appearance.angel.colCardBorder
+            : Appearance.inirEverywhere ? Appearance.inir.colBorder 
             : Appearance.auroraEverywhere ? Appearance.aurora.colTooltipBorder : "transparent"
         implicitHeight: contentRow.implicitHeight + 18
 
@@ -44,12 +47,22 @@ Item {
                 Layout.preferredWidth: 30
                 Layout.preferredHeight: 30
 
+                CookieFace {
+                    anchors.fill: parent
+                    visible: Appearance.cookieEverywhere
+                    role: "badge"
+                    selected: VoiceSearch.recording || VoiceSearch.transcribing
+                    color: Appearance.colors.colPrimaryContainer
+                }
+
                 MaterialSymbol {
                     anchors.centerIn: parent
                     text: VoiceSearch.transcribing ? "cloud_upload" : "mic"
                     iconSize: 24
                     fill: 1
-                    color: Appearance.colors.colPrimary
+                    color: Appearance.cookieEverywhere
+                        ? Appearance.colors.colOnPrimaryContainer
+                        : Appearance.colors.colPrimary
 
                     // Pulse animation while recording
                     SequentialAnimation on scale {

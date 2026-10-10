@@ -61,6 +61,16 @@ Singleton {
         }
     }
 
+    // Covers the path where Config was ALREADY ready before this singleton was
+    // instantiated (hot-reload, or deferred loading after Config.ready fired) —
+    // onReadyChanged never re-arms in that case. _applyPreferredProfile is
+    // idempotent via _initialized, so running both is safe.
+    Component.onCompleted: {
+        if (Config.ready) {
+            Qt.callLater(() => root._applyPreferredProfile())
+        }
+    }
+
     Connections {
         target: PowerProfiles
         function onProfileChanged() {

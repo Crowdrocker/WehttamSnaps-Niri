@@ -4,14 +4,20 @@ import QtQuick.Dialogs
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 
 Item {
     id: root
     required property string label
     required property string colorKey
+    property string configPath: "appearance.customTheme." + colorKey
+    property string contrastAgainst: ""  // Key to check contrast against (e.g., "m3background")
     signal colorChanged()
 
-    property color currentColor: Config.options?.appearance?.customTheme?.[colorKey] ?? "#888888"
+    property color currentColor: Config.getNestedValue(root.configPath, "#888888")
+    property color bgColor: contrastAgainst ? (Config.options?.appearance?.customTheme?.[contrastAgainst] ?? "#000000") : "#000000"
+    property real ratio: contrastAgainst ? ColorUtils.contrastRatio(currentColor, bgColor) : 0
+    property bool showContrast: contrastAgainst !== ""
 
     Layout.fillWidth: true
     implicitHeight: column.implicitHeight
@@ -21,10 +27,54 @@ Item {
         anchors.fill: parent
         spacing: 4
 
-        StyledText {
-            text: root.label
-            font.pixelSize: Appearance.font.pixelSize.smallest
-            color: Appearance.colors.colSubtext
+        RowLayout {
+            spacing: 4
+
+            StyledText {
+                text: root.label
+                font.pixelSize: Appearance.font.pixelSize.smallest
+                color: Appearance.colors.colSubtext
+            }
+
+            // Contrast indicator
+            Rectangle {
+                visible: root.showContrast
+                implicitWidth: contrastRow.implicitWidth + 6
+                implicitHeight: 16
+                radius: 8
+                color: root.ratio >= 4.5 ? Appearance.colors.colSuccessContainer
+                     : root.ratio >= 3 ? Appearance.colors.colWarningContainer
+                     : Appearance.colors.colErrorContainer
+
+                RowLayout {
+                    id: contrastRow
+                    anchors.centerIn: parent
+                    spacing: 2
+
+                    MaterialSymbol {
+                        text: root.ratio >= 4.5 ? "check" : "warning"
+                        iconSize: 10
+                        color: root.ratio >= 4.5 ? Appearance.colors.colOnSuccessContainer
+                             : root.ratio >= 3 ? Appearance.colors.colOnWarningContainer
+                             : Appearance.colors.colOnErrorContainer
+                    }
+
+                    StyledText {
+                        text: root.ratio.toFixed(1) + ":1"
+                        font.pixelSize: 9
+                        font.family: Appearance.font.family.monospace
+                        color: root.ratio >= 4.5 ? Appearance.colors.colOnSuccessContainer
+                             : root.ratio >= 3 ? Appearance.colors.colOnWarningContainer
+                             : Appearance.colors.colOnErrorContainer
+                    }
+                }
+
+                StyledToolTip {
+                    text: root.ratio >= 4.5 ? Translation.tr("WCAG AA ✓")
+                        : root.ratio >= 3 ? Translation.tr("Low contrast")
+                        : Translation.tr("Poor contrast - hard to read")
+                }
+            }
         }
 
         RippleButton {
@@ -72,8 +122,13 @@ Item {
         id: colorDialog
         selectedColor: root.currentColor
         onAccepted: {
-            Config.options.appearance.customTheme[root.colorKey] = selectedColor.toString()
+            Config.setNestedValue(root.configPath, selectedColor.toString())
             root.colorChanged()
         }
+    }
+
+    SettingsNativeDialogGuard {
+        dialog: colorDialog
+        dialogKey: "color-picker-row-" + root.configPath
     }
 }

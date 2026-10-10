@@ -1,0 +1,178 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+
+    "display": {
+        "separator": " ➜ "
+    },
+    "modules": [
+        "break",
+        "break",
+
+        {
+            "type": "title",
+            "key": " ID   ",
+            "keyColor": "36",
+            "keyWidth": 11
+        },
+        {
+            "type": "custom",
+            "format": "╭──────────────────────────────────────────────────────────────────────────────╮"
+        },
+        {
+            "type": "os",
+            "key": " OS   ",
+            "keyColor": "31"
+        },
+        {
+            "type": "kernel",
+            "key": " ├    ",
+            "keyColor": "31"
+        },
+        {
+            "type": "packages",
+            "format": "{} (pacman)",
+            "key": " ├  󰮯  ",
+            "keyColor": "31"
+        },
+        {
+            "type": "shell",
+            "key": " ╰    ",
+            "keyColor": "31"
+        },
+        "break",
+
+        {
+            "type": "wm",
+            "key": " WM   ",
+            "keyColor": "32"
+        },
+        {
+            "type": "wmtheme",
+            "key": " ├  󰉼  ",
+            "keyColor": "32"
+        },
+        {
+            "type": "icons",
+            "key": " ├  󰀻  ",
+            "keyColor": "32"
+        },
+        {
+            "type": "cursor",
+            "key": " ├  󰆿  ",
+            "keyColor": "32"
+        },
+        {
+            "type": "terminal",
+            "key": " ├    ",
+            "keyColor": "32"
+        },
+        {
+            "type": "terminalfont",
+            "key": " ╰    ",
+            "keyColor": "32"
+        },
+        "break",
+
+        {
+            "type": "board",
+            "format": "{1} ({2})",
+            "key": " PC   ",
+            "keyColor": "33"
+        },
+        {
+            "type": "cpu",
+            "format": "{1} ({3}) @ {7}",
+            "key": " ├    ",
+            "keyColor": "33"
+        },
+        {
+            "type": "gpu",
+            "format": "{1} {2} @ {12}",
+            "key": " ├  󰢮  ",
+            "keyColor": "33"
+        },
+        {
+            "type": "memory",
+            "key": " ├    ",
+            "keyColor": "33",
+            "percent": {
+                "type": 3,
+                "green": 30,
+                "yellow": 70
+            }
+        },
+        {
+            "type": "swap",
+            "key": " ├  󰓡  ",
+            "keyColor": "33",
+            "percent": {
+                "type": 3,
+                "green": 30,
+                "yellow": 70
+            }
+        },
+        {
+            "type": "disk",
+            "key": " ├  󰋊  ",
+            "keyColor": "33",
+            "percent": {
+                "type": 3,
+                "green": 30,
+                "yellow": 70
+            }
+        },
+        {
+            "type": "monitor",
+            "key": " ├    ",
+            "format" : "{name}: {width}x{height}px {inch}\" {refresh-rate}Hz {ppi}ppi",
+            "keyColor": "33"
+        },
+        {
+            "type": "sound",
+            "key": " ╰    ",
+            "keyColor": "33"
+        },
+        "break",
+
+        {
+            "type": "uptime",
+            "key": " UP 󱑎  ",
+            "keyColor": "34"
+        },
+        {
+            "type": "datetime",
+            "format": "{11}.{3}.{1}",
+            "key": " ├    ",
+            "keyColor": "34"
+        },
+        {
+            "type": "command",
+            "key": " ╰    ",
+            "keyColor": "34",
+            "text" : "birth_install=$(stat -c %W /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
+        },
+        "break",
+        {
+            "type": "localip",
+            "key": " IP 󰲝  ",
+            "keyColor": "37"
+        },
+        {
+            "type": "publicip",
+            "key": " ╰  󰖟  ",
+            "keyColor": "37"
+        },
+        {
+            "type": "custom",
+            "format": "╰──────────────────────────────────────────────────────────────────────────────╯"
+        },
+        "break",
+
+        {
+            "type": "custom",
+            "format": "       \u001b[90m󰣙  \u001b[91m󰣙  \u001b[92m󰣙  \u001b[93m󰣙  \u001b[94m󰣙  \u001b[95m󰣙  \u001b[96m󰣙  \u001b[97m󰣙                     \u001b[90m󰣙  \u001b[31m󰣙  \u001b[32m󰣙  \u001b[33m󰣙  \u001b[34m󰣙  \u001b[35m󰣙  \u001b[36m󰣙  \u001b[37m󰣙 "
+        },
+        "break",
+        "break"
+    ]
+}

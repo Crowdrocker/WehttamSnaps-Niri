@@ -1,0 +1,109 @@
+╔══════════════════════════════════════════════════════════════╗
+║  WehttamSnaps Keybind Cheatsheet                            ║
+║  github.com/Crowdrocker  |  twitch.tv/WehttamSnaps          ║
+╚══════════════════════════════════════════════════════════════╝
+
+── Launcher ──────────────────────────────────────────────
+  Super+d                      rofi -show drun
+
+── Apps ──────────────────────────────────────────────
+  Super+Ctrl+slash             kitty --class="floating_shell" -e sh -c "cat read"
+  Super+e                      kate
+
+── Windows ──────────────────────────────────────────────
+  Super+alt+c                  move position center
+  Super+Ctrl+h                 move left
+  Super+Ctrl+j                 move down
+  Super+Ctrl+k                 move up
+  Super+Ctrl+r                 mode "resize"
+  Super+Ctrl+semicolon         move right
+  Super+Ctrl+v                 floating toggle
+  Super+Down                   focus down
+  Super+equal                  resize grow width 10 ppt
+  Super+F11                    fullscreen toggle
+  Super+grave                  scratchpad show
+  Super+Left                   focus left
+  Super+minus                  resize shrink width 10 ppt
+  Super+q                      kill
+  Super+r                      swaymsg resize set width 50ppt
+  Super+Right                  focus right
+  Super+Shift+equal            resize grow height 10 ppt
+  Super+Shift+minus            resize shrink height 10 ppt
+  Super+Shift+p                swaymsg output \* dpms off
+  Super+Shift+v                focus mode_toggle
+  Super+t                      layout toggle split
+  Super+Up                     focus up
+  Super+w                      layout tabbed
+
+── Media ──────────────────────────────────────────────
+  XF86AudioStop                playerctl stop
+  XF86MonBrightnessDown        brightnessctl set 10%-
+  XF86MonBrightnessUp          brightnessctl set +10%
+
+── Gaming ──────────────────────────────────────────────
+  Super+alt+l                  lutris
+  Super+alt+p                  protonup-qt
+  Super+alt+s                  steam-launch && steam
+  Super+F12                    && \
+
+── Photography ──────────────────────────────────────────────
+  Super+Ctrl+g                 gimp
+  Super+Shift+i                krita
+  Super+Shift+k                digikam
+
+── Browser ──────────────────────────────────────────────
+  Super+b                      brave
+  Super+Ctrl+t                 twitch
+  Super+Ctrl+y                 youtube
+
+── Webapps ──────────────────────────────────────────────
+  Super+Ctrl+d                 discord
+  Super+Ctrl+s                 spotify
+
+── JARVIS ──────────────────────────────────────────────
+  Alt+F1                       lock && gtklock
+  Alt+s                        shutdown && noctalia
+  Alt+Shift+c                  reload && exec reload
+  Alt+v                        float && swaymsg floating toggle
+  Ctrl+F10                     && screenshot
+  F10                          grim -g "$(slurp)" - | swappy -f - && screenshot
+  Shift+F10                    && screenshot
+  Super+b                      browser && brave
+  Super+Ctrl+l                 locking-screen && swaylock
+  Super+f                      files && thunar
+  Super+m                      spotify && spotify
+  Super+o                      obs && obs
+  Super+p                      spotify && spotify
+  Super+Return                 terminal && kitty
+  Super+Shift+b                browser && brave --new-window https://dashboard.twitch.tv
+  Super+Shift+c                reloading-config && swaymsg reload
+  Super+Shift+Ctrl+e           export && photo-export
+  Super+Shift+g                stream-start
+  Super+Shift+j                -e
+  Super+Shift+q                closing-window && swaymsg kill
+  Super+Shift+r                status-report && \
+  Super+Shift+s                reload && ~/scripts/github-backup.sh[cite: 1]
+  XF86AudioLowerVolume         volume-down && pactl set-sink-volume @DEFAULT_SINK@ -5%
+  XF86AudioNext                playerctl next && music-next
+  XF86AudioPlay                playerctl play-pause && music-play
+  XF86AudioPrev                playerctl previous && music-previous
+  XF86AudioRaiseVolume         volume-up && pactl set-sink-volume @DEFAULT_SINK@ +5%
+
+── System ──────────────────────────────────────────────
+  Super+alt+e                  swaymsg exit
+  Super+Ctrl+e                 swaynag -t warning -m 'Systems Offline?' -B 'Yes' '
+  Super+s                      noctalia controlCenter toggle
+  Super+Shift+slash            swaymsg -t get_bindings | less
+
+── Other ──────────────────────────────────────────────
+  Super+comma                  noctalia settings toggle
+  Super+Shift+Ctrl+s           \
+  Super+Shift+d                nwg-drawer
+  Super+Shift+f                dolphin
+  Super+Shift+space            rofi
+  Super+space                  noctalia launcher toggle
+  XF86AudioMicMute             pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+── Resize Mode (Super+Ctrl+R) ──────────────────────────────
+  Left/H    shrink width    Right/;   grow width
+  Up/K      shrink height   Down/J    grow height

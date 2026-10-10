@@ -1,26 +1,27 @@
 # Default Keybinds
 
-These are the default keybinds shipped with ii. They live in `~/.config/niri/config.kdl` after install.
+These are the default keybinds shipped with iNiR. They live in `~/.config/niri/config.d/70-binds.kdl` after install.
 
 Change them. Break them. Make them yours. We won't judge.
 
 ---
 
-## ii Controls
+## iNiR Shell
 
 | Key | Action |
 |-----|--------|
+| `Mod+Space` | iNiR overview / app launcher |
 | `Mod+Tab` | Niri overview (native compositor) |
-| `Mod+Space` | ii overview (daemon) |
-| `Super+G` | ii overlay (search, widgets) |
-| `Alt+Tab` | ii window switcher (next) |
-| `Alt+Shift+Tab` | ii window switcher (previous) |
-| `Super+V` | Clipboard history |
-| `Super+/` | Cheatsheet |
-| `Super+,` | Settings |
-| `Super+Alt+L` | Lock screen |
+| `Super+G` | Floating tools (notes, images, crosshair, resources) |
+| `Alt+Tab` | Niri Recent Windows (next) |
+| `Alt+Shift+Tab` | Niri Recent Windows (previous) |
+| `Mod+V` | Clipboard history |
+| `Mod+/` | Cheatsheet |
+| `Mod+,` | Settings |
+| `Mod+Alt+L` | Lock screen |
 | `Ctrl+Alt+T` | Wallpaper selector |
-| `Mod+Shift+W` | Cycle panel family (ii ↔ waffle) |
+| `Mod+Shift+W` | Cycle panel family (ii → waffle → iRiS → ii) |
+| `Mod+Shift+Q` | Session / power dialog |
 
 ---
 
@@ -28,11 +29,13 @@ Change them. Break them. Make them yours. We won't judge.
 
 | Key | Action |
 |-----|--------|
-| `Super+Shift+S` | Region screenshot |
-| `Super+Shift+X` | Region OCR |
-| `Super+Shift+A` | Region image search |
-| `Print` | Full screenshot (native) |
+| `Mod+Shift+S` | Region screenshot |
+| `Mod+Shift+X` | Region OCR |
+| `Mod+Shift+A` | Region image search |
+| `Mod+Shift+R` | Region screen recording (with audio) |
+| `Print` | Niri's screenshot tool: pick an area, a screen or a window |
 | `Ctrl+Print` | Screenshot current screen |
+| `Mod+Print` | Screenshot current screen (the Windows and GNOME key) |
 | `Alt+Print` | Screenshot current window |
 
 ---
@@ -41,28 +44,66 @@ Change them. Break them. Make them yours. We won't judge.
 
 | Key | Action |
 |-----|--------|
-| `Super+Q` | Close window (with optional confirmation) |
-| `Super+D` | Maximize column |
-| `Super+F` | Toggle fullscreen |
-| `Super+A` | Toggle floating |
+| `Mod+Q` | Close window (with confirmation) |
+| `Mod+D` | Maximize column (keeps gaps) |
+| `Mod+F` | Toggle fullscreen |
+| `Mod+A` | Toggle floating / tiling |
+| `Mod+Shift+V` | Switch focus between floating and tiling layers |
 
 ### Focus
 
 | Key | Action |
 |-----|--------|
-| `Super+Left/H` | Focus left |
-| `Super+Right/L` | Focus right |
-| `Super+Up/K` | Focus up |
-| `Super+Down/J` | Focus down |
+| `Mod+Left/H` | Focus column left |
+| `Mod+Right/L` | Focus column right |
+| `Mod+Up/K` | Focus window up |
+| `Mod+Down/J` | Focus window down |
+| `Mod+Home` | Focus first column |
+| `Mod+End` | Focus last column |
 
 ### Move
 
 | Key | Action |
 |-----|--------|
-| `Super+Shift+Left/H` | Move left |
-| `Super+Shift+Right/L` | Move right |
-| `Super+Shift+Up/K` | Move up |
-| `Super+Shift+Down/J` | Move down |
+| `Mod+Shift+Left/H` | Move column left |
+| `Mod+Shift+Right/L` | Move column right |
+| `Mod+Shift+Up/K` | Move window up |
+| `Mod+Shift+Down/J` | Move window down |
+| `Mod+Ctrl+Home` | Move column to first |
+| `Mod+Ctrl+End` | Move column to last |
+
+---
+
+## Column Layout
+
+Niri arranges windows in an infinite horizontal strip. These binds control column sizing and stacking.
+
+| Key | Action |
+|-----|--------|
+| `Mod+R` | Cycle preset column widths (⅓ → ½ → ⅔) |
+| `Mod+Ctrl+R` | Reset window height |
+| `Mod+C` | Center focused column |
+| `Mod+Minus` | Shrink column width 10% |
+| `Mod+Equal` | Grow column width 10% |
+| `Mod+Shift+Minus` | Shrink window height 10% |
+| `Mod+Shift+Equal` | Grow window height 10% |
+| `Mod+[` | Consume/expel window left (stack or unstack) |
+| `Mod+]` | Consume/expel window right (stack or unstack) |
+
+---
+
+## Multi-Monitor
+
+| Key | Action |
+|-----|--------|
+| `Mod+Ctrl+Left` | Focus monitor left |
+| `Mod+Ctrl+Right` | Focus monitor right |
+| `Mod+Ctrl+Up` | Focus monitor up |
+| `Mod+Ctrl+Down` | Focus monitor down |
+| `Mod+Ctrl+Shift+Left` | Move column to monitor left |
+| `Mod+Ctrl+Shift+Right` | Move column to monitor right |
+| `Mod+Ctrl+Shift+Up` | Move column to monitor up |
+| `Mod+Ctrl+Shift+Down` | Move column to monitor down |
 
 ---
 
@@ -70,8 +111,14 @@ Change them. Break them. Make them yours. We won't judge.
 
 | Key | Action |
 |-----|--------|
-| `Super+1-9` | Focus workspace 1-9 |
-| `Super+Shift+1-5` | Move window to workspace 1-5 |
+| `Mod+1-9` | Focus workspace 1-9 |
+| `Mod+Ctrl+1-9` | Move column to workspace 1-9 |
+| `Mod+Page_Down` | Focus workspace down |
+| `Mod+Page_Up` | Focus workspace up |
+| `Mod+Ctrl+Page_Down` | Move column to workspace down |
+| `Mod+Ctrl+Page_Up` | Move column to workspace up |
+| `Mod+WheelScrollDown` | Focus workspace down (mouse) |
+| `Mod+WheelScrollUp` | Focus workspace up (mouse) |
 
 ---
 
@@ -79,48 +126,66 @@ Change them. Break them. Make them yours. We won't judge.
 
 | Key | Action |
 |-----|--------|
-| `Super+T` / `Super+Return` | Terminal (foot) |
-| `Super+E` | File manager (dolphin) |
+| `Mod+T` / `Mod+Return` | Terminal |
+| `Super+E` | File manager (Nautilus) |
+| `Super+W` | Browser |
 
 ---
 
-## System
+## Session & System
 
 | Key | Action |
 |-----|--------|
-| `Super+Shift+E` | Quit Niri |
-| `Super+Shift+O` | Power off monitors |
-| `Super+Escape` | Toggle keyboard shortcuts inhibit |
+| `Mod+Shift+E` | Quit Niri |
+| `Mod+Shift+O` | Power off monitors |
+| `Mod+Escape` | Toggle keyboard shortcuts inhibit |
 
 ---
 
-## Media Keys
+## Media & Hardware Keys
+
+All media/volume/brightness keys are routed through iNiR IPC for OSD feedback.
 
 | Key | Action |
 |-----|--------|
 | `XF86AudioRaiseVolume` | Volume up |
 | `XF86AudioLowerVolume` | Volume down |
 | `XF86AudioMute` | Toggle mute |
+| `XF86AudioMicMute` | Toggle mic mute |
+| `XF86AudioPlay/Pause` | Play/pause |
+| `XF86AudioNext` | Next track |
+| `XF86AudioPrev` | Previous track |
+| `XF86MonBrightnessUp` | Brightness up |
+| `XF86MonBrightnessDown` | Brightness down |
+| `Ctrl+Mod+Space` / `Mod+Shift+P` | Play/pause (keyboard) |
+| `Mod+Alt+N` / `Mod+Shift+N` | Next track (keyboard) |
+| `Mod+Alt+P` / `Mod+Shift+B` | Previous track (keyboard) |
+| `Mod+Shift+M` | Toggle mute (keyboard) |
+| `Ctrl+Alt+F` | EasyEffects Equalizer (enable it first in Settings → Modules → Optional) |
 
 ---
 
 ## Customizing
 
-Edit `~/.config/niri/config.kdl` to change keybinds. See [IPC.md](IPC.md) for all available ii targets you can bind.
+Keybinds live in `~/.config/niri/config.d/70-binds.kdl`. Add personal overrides in `90-user-extra.kdl` (never touched by updates).
 
-Example (because you're definitely going to ask):
+The distributed Alt-Tab uses Niri's native `recent-windows` surface. Its
+preview timing, highlight and size are tuned in `config.d/20-layout-and-overview.kdl`.
+To use iNiR's switcher instead, pick it under Settings → Panels → Tools → Alt+Tab (Waffle: Waffle Style →
+Alt+Tab Switcher), or run `inir altSwitcher opens inir`. That adds a marked block at the end of
+`90-user-extra.kdl`; choosing Niri again, or `inir altSwitcher opens niri`, removes it.
+
+See [IPC.md](IPC.md) for all available iNiR targets you can bind.
 
 ```kdl
+// In 90-user-extra.kdl
 binds {
-    // Your custom binds
-    Super+P { spawn "qs" "-c" "ii" "ipc" "call" "session" "toggle"; }
+    Super+P { spawn "inir" "session" "toggle"; }
 }
 ```
 
-Then reload Niri so it actually notices:
+Niri auto-reloads on save. If it doesn't pick up a change, force it:
 
 ```bash
 niri msg action load-config-file
 ```
-
-If your keybind doesn't work, you probably forgot to reload. Don't worry, we've all been there.

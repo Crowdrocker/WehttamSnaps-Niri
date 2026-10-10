@@ -18,7 +18,7 @@ Item {
     rotation: (360 / 60 * clockSecond) + 90
 
     Behavior on rotation {
-        enabled: Config.options.background.widgets.clock.cookie.constantlyRotate // Animating every second is expensive...
+        enabled: Config.getNestedValue("background.widgets.clock.cookie.constantlyRotate", false) // Animating every second is expensive...
         animation: RotationAnimation {
             direction: RotationAnimation.Clockwise
             duration: 1000 // 1 second
@@ -37,10 +37,10 @@ Item {
         radius: Math.min(width, height) / 2
         color: root.color
         Behavior on implicitHeight {
-            animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+            animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
         }
         Behavior on implicitWidth {
-            animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+            animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
         }
     }
 
@@ -64,7 +64,7 @@ Item {
             radius: Appearance.rounding.small
 
             Behavior on implicitWidth {
-                animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
+                animation: NumberAnimation { duration: Appearance.animation.elementResize.duration; easing.type: Appearance.animation.elementResize.type; easing.bezierCurve: Appearance.animation.elementResize.bezierCurve }
             }
         }
     }

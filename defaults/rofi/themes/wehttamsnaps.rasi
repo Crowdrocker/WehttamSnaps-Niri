@@ -1,0 +1,292 @@
+/**
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║  wehttamsnaps.rasi — J.A.R.V.I.S. Rofi Theme                   ║
+ * ║  WehttamSnaps · github.com/Crowdrocker · twitch.tv/WehttamSnaps ║
+ * ║                                                                  ║
+ * ║  Used by:                                                        ║
+ * ║    • Super + D        → App launcher (drun)                      ║
+ * ║    • Super + J        → J.A.R.V.I.S. menu (dmenu)               ║
+ * ║    • Super + H        → Keybinds cheat sheet (dmenu)             ║
+ * ║    • Super + V        → Clipboard manager (dmenu)                ║
+ * ║    • sound-system     → Internal dmenu calls                     ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ */
+
+/* ════════════════════════════════════════════════════════════════════
+   VARIABLES — WehttamSnaps Brand Palette
+   ════════════════════════════════════════════════════════════════════ */
+* {
+    /* Brand colors */
+    ws-cyan:        #00ffd1;
+    ws-cyan-dim:    #00ffd166;
+    ws-cyan-glow:   #00ffd122;
+    ws-blue:        #3b82ff;
+    ws-blue-dim:    #3b82ff66;
+    ws-pink:        #ff5af1;
+    ws-pink-dim:    #ff5af155;
+
+    /* Backgrounds */
+    ws-bg:          #080012ee;
+    ws-bg-solid:    #080012;
+    ws-surface:     #0e001cdd;
+    ws-surface2:    #160026cc;
+    ws-hover:       #1a0030cc;
+    ws-selected:    #00ffd115;
+    ws-border:      #00ffd133;
+    ws-border-alt:  #3b82ff44;
+
+    /* Text */
+    ws-text:        #cce8e4;
+    ws-text-dim:    #cce8e488;
+    ws-text-muted:  #cce8e444;
+
+    /* Transparency */
+    transparent:    #00000000;
+
+    /* Reset rofi defaults */
+    background-color:   @transparent;
+    text-color:         @ws-text;
+    border-color:       @transparent;
+    spacing:            0;
+    padding:            0;
+    margin:             0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   WINDOW — Main container
+   ════════════════════════════════════════════════════════════════════ */
+window {
+    width:              680px;
+    background-color:   @ws-bg;
+    border:             1px solid;
+    border-color:       @ws-border;
+    border-radius:      10px;
+    padding:            0;
+
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MAIN BOX — Outer layout wrapper
+   ════════════════════════════════════════════════════════════════════ */
+mainbox {
+    background-color:   @transparent;
+    padding:            0;
+    children:           [ inputbar, message, listview ];
+    spacing:            0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   INPUTBAR — Search / prompt bar
+   ════════════════════════════════════════════════════════════════════ */
+inputbar {
+    background-color:   @ws-surface;
+    border:             0px 0px 1px 0px;
+    border-color:       @ws-border;
+    border-radius:      10px 10px 0px 0px;
+    padding:            0;
+    spacing:            0;
+    children:           [ prompt, textbox-prompt-colon, entry, num-filtered-rows, textbox-num-sep, num-rows ];
+}
+
+prompt {
+    background-color:   @transparent;
+    text-color:         @ws-cyan;
+    padding:            14px 0px 14px 18px;
+    font:               "JetBrainsMono Nerd Font Bold 11";
+    /* Prompt is set per-script: "J.A.R.V.I.S." or "LAUNCH" etc */
+}
+
+textbox-prompt-colon {
+    background-color:   @transparent;
+    text-color:         @ws-cyan-dim;
+    padding:            14px 8px 14px 6px;
+    str:                "//";
+    font:               "JetBrainsMono Nerd Font Bold 11";
+}
+
+entry {
+    background-color:   @transparent;
+    text-color:         @ws-text;
+    placeholder:        "Search...";
+    placeholder-color:  @ws-text-muted;
+    padding:            14px 12px 14px 0px;
+    font:               "JetBrainsMono Nerd Font 11";
+    cursor:             text;
+}
+
+num-filtered-rows {
+    background-color:   @transparent;
+    text-color:         @ws-text-muted;
+    padding:            14px 4px 14px 0px;
+    font:               "JetBrainsMono Nerd Font 9";
+}
+
+textbox-num-sep {
+    background-color:   @transparent;
+    text-color:         @ws-text-muted;
+    str:                "/";
+    padding:            14px 4px 14px 0px;
+    font:               "JetBrainsMono Nerd Font 9";
+}
+
+num-rows {
+    background-color:   @transparent;
+    text-color:         @ws-text-muted;
+    padding:            14px 16px 14px 0px;
+    font:               "JetBrainsMono Nerd Font 9";
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MESSAGE — shown via -mesg flag (used in keyhints)
+   ════════════════════════════════════════════════════════════════════ */
+message {
+    background-color:   @ws-surface2;
+    border:             0px 0px 1px 0px;
+    border-color:       @ws-border-alt;
+    padding:            8px 18px;
+}
+
+textbox {
+    background-color:   @transparent;
+    text-color:         @ws-blue;
+    font:               "JetBrainsMono Nerd Font 9";
+    vertical-align:     0.5;
+    horizontal-align:   0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LISTVIEW — The results list
+   ════════════════════════════════════════════════════════════════════ */
+listview {
+    background-color:   @transparent;
+    border:             0px;
+    padding:            6px 0px;
+    spacing:            0px;
+    lines:              10;
+    columns:            1;
+    fixed-height:       false;
+    scrollbar:          false;
+    cycle:              true;
+    dynamic:            true;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ELEMENT — Individual list items
+   ════════════════════════════════════════════════════════════════════ */
+element {
+    background-color:   @transparent;
+    text-color:         @ws-text;
+    padding:            9px 18px;
+    border-radius:      0px;
+    border:             0px;
+    spacing:            10px;
+    orientation:        horizontal;
+    cursor:             pointer;
+}
+
+element normal.normal {
+    background-color:   @transparent;
+    text-color:         @ws-text;
+}
+
+element normal.urgent {
+    background-color:   @transparent;
+    text-color:         @ws-pink;
+}
+
+element normal.active {
+    background-color:   @transparent;
+    text-color:         @ws-cyan;
+}
+
+element selected.normal {
+    background-color:   @ws-selected;
+    text-color:         @ws-cyan;
+    border:             0px 0px 0px 2px;
+    border-color:       @ws-cyan;
+    border-radius:      0px;
+}
+
+element selected.urgent {
+    background-color:   @ws-pink-dim;
+    text-color:         @ws-pink;
+}
+
+element selected.active {
+    background-color:   @ws-cyan-glow;
+    text-color:         @ws-cyan;
+}
+
+element alternate.normal {
+    background-color:   @transparent;
+    text-color:         @ws-text;
+}
+
+element alternate.active {
+    background-color:   @transparent;
+    text-color:         @ws-cyan;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ELEMENT ICON — App icons in drun mode
+   ════════════════════════════════════════════════════════════════════ */
+element-icon {
+    background-color:   @transparent;
+    size:               24px;
+    border:             0px;
+    cursor:             inherit;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ELEMENT TEXT — Label inside each list item
+   ════════════════════════════════════════════════════════════════════ */
+element-text {
+    background-color:   @transparent;
+    text-color:         inherit;
+    font:               "JetBrainsMono Nerd Font 10";
+    vertical-align:     0.5;
+    horizontal-align:   0;
+    cursor:             inherit;
+    highlight:          bold #00ffd1;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ════════════════════════════════════════════════════════════════════ */
+scrollbar {
+    background-color:   @ws-surface2;
+    handle-color:       @ws-cyan-dim;
+    handle-width:       4px;
+    border-radius:      2px;
+    width:              4px;
+    border:             0px;
+    padding:            2px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MODE SWITCHER — drun / run / ssh tabs (if enabled)
+   ════════════════════════════════════════════════════════════════════ */
+mode-switcher {
+    background-color:   @ws-surface;
+    border:             1px 0px 0px 0px;
+    border-color:       @ws-border;
+    border-radius:      0px 0px 10px 10px;
+    padding:            6px;
+    spacing:            4px;
+}
+
+button {
+    background-color:   @transparent;
+    text-color:         @ws-text-dim;
+    border-radius:      4px;
+    padding:            6px 14px;
+    font:               "JetBrainsMono Nerd Font Bold 9";
+    cursor:             pointer;
+}
+
+button selected {
+    background-color:   @ws-cyan-glow;
+    text-color:         @ws-cyan;
+    border:             1px solid;
+    border-color:       @ws-border;
+}

@@ -1,0 +1,324 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 10 — Input devices, gestures & cursor
+// ─────────────────────────────────────────────────────────────────────────────
+// Docs: https://niri-wm.github.io/niri/Configuration:-Input
+//
+// Omitting a setting leaves it at the libinput / Niri default.
+// All values here are applied live — no restart needed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+input {
+    keyboard {
+        xkb {
+            // Set rules, model, layout, variant, options.
+            // See xkeyboard-config(7) for full reference.
+            //
+            // Examples:
+            //   layout "us,es"
+            //   options "grp:win_space_toggle,compose:ralt,ctrl:nocaps"
+            //
+            // If this section is empty, Niri reads xkb settings from
+            // org.freedesktop.locale1 (controlled via `localectl`).
+            layout "us"
+        }
+
+        // Enable numlock at login. Remove to leave it off.
+         numlock
+
+        // How quickly held keys start repeating (ms) and how fast (chars/s).
+        repeat-delay 250
+        repeat-rate 50
+    }
+
+    touchpad {
+        // Remove "tap" to require a physical click.
+        tap
+        tap-button-map "left-right-middle"
+
+        // Scroll direction: uncomment for macOS-style "natural" scrolling.
+        // natural-scroll
+
+        // Disable touchpad while typing (dwt) or while the trackpoint is in use (dwtp).
+        // dwt
+        // dwtp
+
+        // Disable the touchpad entirely when an external mouse is plugged in.
+        // disabled-on-external-mouse
+    }
+
+    mouse {
+        // "flat" = raw movement, "adaptive" = acceleration curve.
+        accel-profile "flat"
+
+        // Adjust pointer speed: -1.0 (slowest) … 0.0 (default) … 1.0 (fastest).
+        // accel-speed 0.0
+    }
+
+    // Trackpoint (ThinkPad nub, etc.).
+    // trackpoint {
+    //     accel-profile "flat"
+    //     accel-speed 0.0
+    // }
+
+    // "Mod" = Super on bare metal, Alt inside a nested Niri window.
+    mod-key "Super"
+    mod-key-nested "Alt"
+
+    // Warp the cursor to the center of a newly focused window.
+    // warp-mouse-to-focus
+
+    // Focus windows automatically when the mouse enters them.
+    // max-scroll-amount="0%" limits it to windows already fully on screen.
+    // focus-follows-mouse max-scroll-amount="0%"
+}
+
+// ── Gestures ────────────────────────────────────────────────────────────────
+// Hot corners: move cursor to the top-left corner to open Niri's overview.
+// iNiR has its own overview (Mod+Space), so you may want to disable this.
+gestures {
+    hot-corners {
+        // off
+    }
+}
+
+// ── Cursor theme ────────────────────────────────────────────────────────────
+cursor {
+    xcursor-theme "capitaine-cursors-light"
+    xcursor-size 24
+    hide-when-typing
+}
+
+// ── Output / monitor configuration
+// ╭───────────────────────────── OUTPUT OVERRIDES ─────────────────────────────────────╮
+
+// Secondary 1080p Monitor (Positioned on the Left)
+output "DP-1" {
+    mode "1920x1080@60.000"
+    scale 1.0
+    // Positioned left of the main monitor (x equals negative width)
+    position x=-0 y=0
+    backdrop-color "#001100"
+}
+
+// Main Samsung Monitor (Forced 1080p - Positioned on the Right)
+output "DP-2" {
+    mode "1920x1080@60.000"
+    scale 1.0
+    position x=1920 y=0
+    variable-refresh-rate // On-demand adaptive synchronization
+    focus-at-startup
+    backdrop-color "#001100"
+}
+
+// ╰──────────────────────────────────────────────────────────────────────────────────╯
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ╭─────────────────────────────── WORKSPACES ───────────────────────────────────────╮
+workspace "1" { open-on-output "DP-2"; }  // Browser (Main Center)
+workspace "2" { open-on-output "DP-2"; }  // Terminal / Development
+workspace "3" { open-on-output "DP-2"; }  // Gaming
+workspace "4" { open-on-output "DP-2"; }  // Streaming / OBS
+workspace "5" { open-on-output "DP-2"; }  // Photography / GIMP / Darktable
+workspace "6" { open-on-output "DP-2"; }  // Media / Video Editing
+
+workspace "7" { open-on-output "DP-1"; }  // Communication / Discord (Left Monitor)
+workspace "8" { open-on-output "DP-1"; }  // Music / Audio Production (Left Monitor)
+
+workspace "9" { open-on-output "DP-2"; }  // File Management
+workspace "10" { open-on-output "DP-2"; } // Misc / Overflow
+// ╰──────────────────────────────────────────────────────────────────────────────────╯
+
+// [Keep all your window-rules for modding, gaming, and webapps exactly as they are]
+
+
+
+
+// === WORKSPACE ORGANIZATION ===
+
+// Assign modding tools to specific workspaces
+window-rule {
+    match app-id="^steamtinkerlaunch$|^wabbajack$"
+    open-on-workspace "3"
+}
+
+// Modding file managers on workspace 4
+window-rule {
+    match title="^mods$|^download$|^tools"
+    open-on-workspace "4"
+}
+
+// Modding browsers on workspace 5
+window-rule {
+    match title="^nexusmods$|^loot$|^modding"
+    open-on-workspace "5"
+}
+
+// === GAMING - Fullscreen & Performance ===
+window-rule {
+    match app-id="^steam$"
+    match title="Tom Clancy's The Division"
+    match title="Tom Clancy's The Division 2"
+    match title="Cyberpunk 2077"
+    match title="Fallout 4"
+    match title="FarCry 5"
+    match title="Ghost Recon Breakpoint"
+    match title="Marvel's Avengers"
+    match title="Need for Speed Payback"
+    match title="Rise of the Tomb Raider"
+    match title="Shadow of the Tomb Raider"
+    match title="The First Descendant"
+    match title="Warframe"
+    match title="Watch Dogs"
+    match title="Watch Dogs 2"
+    match title="Watch Dogs: Legion"
+    match title="Call of Duty"
+    open-maximized true
+    open-on-workspace "3"
+    draw-border-with-background false
+}
+
+window-rule {
+    match app-id="^net.lutris.Lutris$"
+    match app-id="^heroic$"
+    match app-id="bottles"
+    open-maximized true
+    open-on-workspace "3"
+}
+
+// ─────────────────── MODDING TOOLS - Floating Windows ───────────────────────
+
+window-rule {
+    match title="Vortex"
+    match title="Mod Organizer"
+    match title="Mod Organizer 2"
+    match title="Wabbajack"
+    match app-id="^com.nexusmods"
+    match title="Special Offers"
+    match title="Friends List"
+    match title="Steam Settings"
+    open-floating true
+    open-on-workspace "3"
+}
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+}
+// ────────────────────────── BROWSERS - Workspace 1 ─────────────────────────────
+
+window-rule {
+    match app-id="^brave-browser$"
+    match app-id="^firefox$"
+    match app-id="^Vivaldi-stable$"
+    match app-id="^chromium$"
+    match app-id="^zen-alpha$"
+    match app-id="^google-chrome$"
+    open-maximized true
+    open-on-workspace "1"
+}
+
+
+// ──────────────────── TERMINAL / DEVELOPMENT - Workspace 2 ────────────────────
+
+window-rule {
+    match app-id="^com.mitchellh.ghostty$"
+    match app-id="^kitty$"
+    match app-id="^Alacritty$"
+    match app-id="^foot$"
+    draw-border-with-background false
+    open-on-workspace "2"
+}
+
+window-rule {
+    match app-id="^org.kde.kate$"
+    match app-id="^code$"
+    match app-id="^neovide$"
+    open-maximized true
+    open-on-workspace "2"
+}
+
+// ─────────────────────── PHOTOGRAPHY - Workspace 5 ───────────────────────────
+
+window-rule {
+    match app-id="^gimp"
+    match app-id="^org.gimp.GIMP$"
+    match app-id="^darktable$"
+    match app-id="^rawtherapee$"
+    match app-id="^digikam$"
+    match app-id="^org.inkscape.Inkscape$"
+    match app-id="^krita$"
+    open-maximized true
+    open-on-workspace "5"
+}
+
+// ────────────────────── STREAMING / OBS - Workspace 4 ───────────────────────
+
+window-rule {
+    match app-id="^com.obsproject.Studio$"
+    open-maximized true
+    open-on-workspace "4"
+}
+
+// ───────────────────── MEDIA / EDITING - Workspace 6 ──────────────────────────
+
+window-rule {
+    match app-id="^kdenlive$"
+    match app-id="^org.openshot"
+    match app-id="^blender$"
+    match app-id="^com.obsproject.Studio$"
+    open-maximized true
+    open-on-workspace "6"
+}
+
+window-rule {
+    match app-id="^mpv$"
+    match app-id="^vlc$"
+    match app-id="^celluloid$"
+    open-on-workspace "6"
+}
+
+// ──────────────────── COMMUNICATION - Workspace 7 ─────────────────────────────
+
+window-rule {
+    match app-id="^discord$"
+    match app-id="^vesktop$"
+    match app-id="^Signal$"
+    match app-id="^telegram"
+    match app-id="^Slack$"
+    match app-id="^teams"
+    open-on-workspace "7"
+}
+
+window-rule {
+    match at-startup=true app-id="discord"
+    match app-id="^qpwgraph$"
+    open-on-workspace "7"
+    open-maximized true
+}
+
+// ─────────────────────── MUSIC - Workspace 8 ───────────────────────────────────
+
+window-rule {
+    match app-id="^spotify$"
+    match app-id="^com.spotify.Client$"
+    match title="Spotify"
+    open-maximized true
+    open-on-workspace "8"
+}
+
+window-rule {
+    match app-id="^cava$"
+    match app-id="^ardour"
+    match app-id="^lmms$"
+    open-on-workspace "8"
+}
+
+// ────────────────── FILE MANAGEMENT - Workspace 9 ────────────────────────────
+
+window-rule {
+    match app-id="^thunar$"
+    match app-id=r#"^org\.gnome\.Nautilus$"#
+    match app-id="^dolphin$"
+    match app-id="^nemo$"
+    open-on-workspace "9"
+}

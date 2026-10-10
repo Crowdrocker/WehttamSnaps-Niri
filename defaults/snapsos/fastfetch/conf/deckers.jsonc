@@ -1,0 +1,40 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "height": 24,
+        "padding": { "top": 1, "left": 1, "right": 6 }
+    },
+    "display": {
+        "separator": " ",
+        "key": {
+            "width": 16
+        }
+    },
+    "modules": [
+        { "type": "custom", "format": "\u001b[1;31m 󰊠 \u001b[1;35m󰊠 \u001b[1;36m󰊠 \u001b[1;33m󰮯 \u001b[0;33m······\u001b[1;96mTERMINALLY \u001b[1;94mONLINE" },
+        { "type": "custom", "format": "┌────────────────────────────────────────────┐" },
+        { "type": "os", "key": "    OS", "keyColor": "red", "format": "{2}" },
+        { "type": "kernel", "key": "    Kernel", "keyColor": "red", "format": "{2}" },
+        { "type": "packages", "key": "  󰏖  Packages", "keyColor": "red", "format": "󰮯 {1}      {flatpak-system}" },
+        { "type": "display", "key": "  󰍹  Display", "keyColor": "green", "format": "{1}x{2} {3}Hz" },
+        { "type": "wm", "key": "  󰨇  WM", "keyColor": "green", "format": "{2}" },
+        { "type": "de", "key": "  󰧨  DE", "keyColor": "green", "format": "{2} {3}" },
+        { "type": "theme", "key": "  󰏘  Theme", "keyColor": "yellow", "format": "{2}" },
+        { "type": "icons", "key": "  󰉋  Icons", "keyColor": "yellow", "format": "{2}" },
+        { "type": "terminal", "key": "  󰆍  Terminal", "keyColor": "cyan", "format": "{5} 󰔰 {6}" },
+        { "type": "command", "key": "  󰞷  Shell", "keyColor": "cyan", "text": "echo $SHELL | awk -F/ '{print $NF}'" },
+        { "type": "custom", "format": "└────────────────────────────────────────────┘" },
+        "break",
+        { "type": "title", "format": "  \u001b[38;5;228m     \u001b[38;5;208m{1}\u001b[38;5;242m@\u001b[38;5;141m{2} \u001b[38;5;228m  \u001b[38;5;25m  \u001b[38;5;30m 󱓞 󱓟  " },
+        { "type": "custom", "format": "┌────────────────────────────────────────────┐" },
+        { "type": "cpu", "key": "    CPU", "keyColor": "blue", "format": "{1}" },
+        { "type": "gpu", "key": "  󰢮  GPU", "keyColor": "blue", "format": "{1} {2}" },
+        { "type": "memory", "key": "    Memory", "keyColor": "cyan", "format": "{1} / {2} {3}" },
+        { "type": "disk", "key": "  󰋊  Disk", "keyColor": "cyan", "format": "{1} / {2} {3}" },
+        { "type": "command", "key": "    OS Age", "keyColor": "magenta", "text": "echo \"$(($(($(date +%s) - $(stat -c %W /))) / 86400)) days \u001b[9;31m\u001b[0m\"" },
+        { "type": "uptime", "key": "  󰅐  Uptime", "keyColor": "magenta" },
+        { "type": "custom", "format": "└────────────────────────────────────────────┘" },
+        { "type": "colors", "symbol": "circle" }
+    ]
+}
+

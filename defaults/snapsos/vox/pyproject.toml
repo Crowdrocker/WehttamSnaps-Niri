@@ -1,0 +1,14 @@
+[project]
+name = "vox"
+version = "0.1.0"
+description = "Wake-word activated, offline voice-to-commands with tree-based bindings"
+requires-python = ">=3.10"
+dependencies = []
+license = {text = "MIT"}
+
+[project.scripts]
+vox = "vox.cli:main"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"

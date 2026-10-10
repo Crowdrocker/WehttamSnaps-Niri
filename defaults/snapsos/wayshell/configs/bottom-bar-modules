@@ -1,0 +1,111 @@
+{
+    "custom/elevated-daemon": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh --daemon",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 5
+    },
+    "custom/elevated-pin": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh pin",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1,
+        "on-click": "~/.config/snapsos/wayshell/configs/elevated-pin.sh"
+    },
+    "custom/elevated-1": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh 1",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1,
+        "on-click": "~/.config/snapsos/wayshell/configs/elevated-focus.sh 1"
+    },
+    "custom/elevated-2": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh 2",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1,
+        "on-click": "~/.config/snapsos/wayshell/configs/elevated-focus.sh 2"
+    },
+    "custom/elevated-3": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh 3",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1,
+        "on-click": "~/.config/snapsos/wayshell/configs/elevated-focus.sh 3"
+    },
+    "custom/elevated-4": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh 4",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1,
+        "on-click": "~/.config/snapsos/wayshell/configs/elevated-focus.sh 4"
+    },
+    "custom/elevated-5": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh 5",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1,
+        "on-click": "~/.config/snapsos/wayshell/configs/elevated-focus.sh 5"
+    },
+    "custom/cap": {
+        "exec": "~/.config/snapsos/wayshell/configs/elevated-daemon.sh cap",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 1
+    },
+    "custom/focused-cap": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh cap",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 2
+    },
+    "custom/focused-daemon": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh --daemon",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 3
+    },
+    "custom/focused-pin": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh pin",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 2,
+        "on-click": "~/.config/snapsos/wayshell/configs/focused-pin.sh"
+    },
+    "custom/focused-cpu": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh cpu",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 2
+    },
+    "custom/focused-mem": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh mem",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 2
+    },
+    "custom/focused-fps-daemon": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh --fps-daemon",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 1
+    },
+    "custom/focused-fps": {
+        "exec": "~/.config/snapsos/wayshell/configs/focused-daemon.sh fps",
+        "return-type": "json",
+        "format": "{text}",
+        "interval": 86400,
+        "signal": 3
+    }
+}

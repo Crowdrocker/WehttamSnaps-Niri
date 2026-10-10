@@ -2,9 +2,9 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
+import Quickshell.Services.Mpris
 import qs
 import qs.services
 import qs.modules.common
@@ -18,21 +18,54 @@ WBarAttachedPanelContent {
     revealFromSides: true
     revealFromLeft: true
 
-    Component.onCompleted: {
-        if (GlobalStates.waffleWidgetsOpen)
-            ResourceUsage.ensureRunning()
-    }
-
-    Connections {
-        target: GlobalStates
-        function onWaffleWidgetsOpenChanged() {
-            if (GlobalStates.waffleWidgetsOpen) {
-                ResourceUsage.ensureRunning()
-            }
-        }
-    }
+    property QtObject resourceMonitor: ResourceUsageMonitor { active: GlobalStates.waffleWidgetsOpen }
 
     readonly property bool barAtBottom: Config.options?.waffles?.bar?.bottom ?? false
+    readonly property var quickActionDefinitions: [
+        { id: "files", icon: "folder", label: Translation.tr("Files"), show: Config.options?.waffles?.widgetsPanel?.showFiles ?? true },
+        { id: "terminal", icon: "terminal", label: Translation.tr("Terminal"), show: Config.options?.waffles?.widgetsPanel?.showTerminal ?? true },
+        { id: "settings", icon: "settings", label: Translation.tr("Settings"), show: Config.options?.waffles?.widgetsPanel?.showSettings ?? true },
+        { id: "wallpaper", icon: "image", label: Translation.tr("Wallpaper"), show: Config.options?.waffles?.widgetsPanel?.showWallpaper ?? true },
+        { id: "screenshot", icon: "screenshot", label: Translation.tr("Screenshot"), show: Config.options?.waffles?.widgetsPanel?.showScreenshot ?? true },
+        { id: "screenRecord", icon: "record", label: RecorderStatus.isRecording ? Translation.tr("Stop") : Translation.tr("Record"), show: Config.options?.waffles?.widgetsPanel?.showScreenRecord ?? true },
+        { id: "session", icon: "power", label: Translation.tr("Session"), show: Config.options?.waffles?.widgetsPanel?.showSession ?? true }
+    ]
+    readonly property var enabledQuickActions: quickActionDefinitions.filter(action => action.show)
+
+    function runQuickAction(actionId: string): void {
+        switch (actionId) {
+        case "files":
+            ShellExec.execDetachedArgs(["/usr/bin/nautilus"], "Launch Files")
+            break
+        case "terminal":
+            AppLauncher.launch("terminal")
+            break
+        case "settings":
+            ShellExec.execDetachedArgs([Quickshell.shellPath("scripts/inir"), "settings"], "Open iNiR settings")
+            break
+        case "wallpaper": {
+            const useMain = Config.options?.waffles?.background?.useMainWallpaper ?? true
+            Config.setNestedValue("wallpaperSelector.selectionTarget", useMain ? "main" : "waffle")
+            Quickshell.execDetached([Quickshell.shellPath("scripts/inir"), "wallpaperSelector", "toggle"])
+            break
+        }
+        case "screenshot":
+            // Resolve action/mode explicitly — a bare regionSelectorOpen=true
+            // inherits whatever a previous record/lens use left behind.
+            GlobalStates.openRegionScreenshot()
+            break
+        case "screenRecord":
+            GlobalActions.runById("screen-record", "")
+            break
+        case "session":
+            GlobalStates.sessionOpen = true
+            break
+        default:
+            return
+        }
+
+        GlobalStates.waffleWidgetsOpen = false
+    }
 
     contentItem: ColumnLayout {
         anchors {
@@ -43,34 +76,45 @@ WBarAttachedPanelContent {
             margins: root.visualMargin
             bottomMargin: 0
         }
-        spacing: 12
+        spacing: Looks.dp(12)
 
         WPane {
             Layout.fillWidth: true
+            screenX: root.panelScreenX + root.visualMargin * 2
+            screenY: root.panelScreenY + root.visualMargin * 2
+            screenWidth: root._screenW
+            screenHeight: root._screenH
             contentItem: WidgetsPaneContent {}
         }
     }
 
     component WidgetsPaneContent: Rectangle {
         id: paneContent
-        implicitWidth: 360
-        implicitHeight: contentColumn.implicitHeight
+        implicitWidth: Looks.dp(380)
+        implicitHeight: Math.min(Math.max(contentColumn.implicitHeight, 80), root._screenH - 80)
         color: Looks.colors.bgPanelBody
+        clip: true
+
+        Flickable {
+            anchors.fill: parent
+            contentHeight: contentColumn.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
 
         ColumnLayout {
             id: contentColumn
-            anchors.fill: parent
+            width: parent.width
             spacing: 0
 
             // Header
             BodyRectangle {
                 Layout.fillWidth: true
-                implicitHeight: 48
+                implicitHeight: Looks.dp(56)
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 16
+                    anchors.leftMargin: Looks.dp(16)
+                    anchors.rightMargin: Looks.dp(16)
 
                     WText {
                         text: Translation.tr("Widgets")
@@ -81,40 +125,40 @@ WBarAttachedPanelContent {
                     Item { Layout.fillWidth: true }
 
                     WBorderlessButton {
-                        implicitWidth: 32
-                        implicitHeight: 32
+                        implicitWidth: Looks.dp(32)
+                        implicitHeight: Looks.dp(32)
                         contentItem: FluentIcon {
                             anchors.centerIn: parent
                             icon: "settings"
-                            implicitSize: 16
+                            implicitSize: Looks.dp(16)
                         }
                         onClicked: {
-                            Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"])
+                            Quickshell.execDetached([Quickshell.shellPath("scripts/inir"), "settings"])
                             GlobalStates.waffleWidgetsOpen = false
                         }
                     }
                 }
             }
 
-            WPanelSeparator { visible: Config.options.waffles?.widgetsPanel?.showDateTime }
+            WPanelSeparator { visible: Config.options?.waffles?.widgetsPanel?.showDateTime ?? true }
 
             // Date & Time widget
             BodyRectangle {
                 Layout.fillWidth: true
-                implicitHeight: dateTimeContent.implicitHeight + 32
-                visible: Config.options.waffles?.widgetsPanel?.showDateTime
+                implicitHeight: dateTimeContent.implicitHeight + Looks.dp(36)
+                visible: Config.options?.waffles?.widgetsPanel?.showDateTime ?? true
 
                 RowLayout {
                     id: dateTimeContent
                     anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 16
+                    anchors.margins: Looks.dp(18)
+                    spacing: Looks.dp(16)
 
                     ColumnLayout {
-                        spacing: 4
+                        spacing: Looks.dp(4)
                         WText {
                             text: DateTime.time
-                            font.pixelSize: 42
+                            font.pixelSize: Looks.dp(46)
                             font.weight: Font.DemiBold
                         }
                         WText {
@@ -128,52 +172,55 @@ WBarAttachedPanelContent {
 
                     ColumnLayout {
                         Layout.alignment: Qt.AlignVCenter
-                        spacing: 4
+                        spacing: Looks.dp(6)
                         WText {
                             text: Translation.tr("Uptime")
                             font.pixelSize: Looks.font.pixelSize.tiny
-                            color: Looks.colors.fg1
+                            color: Looks.colors.subfg
+                            font.weight: Font.Medium
                         }
                         WText {
                             text: DateTime.uptime || "--"
-                            font.pixelSize: Looks.font.pixelSize.normal
+                            font.pixelSize: Looks.font.pixelSize.large
+                            font.weight: Font.DemiBold
                         }
                     }
                 }
             }
 
-            WPanelSeparator { visible: Config.options.waffles?.widgetsPanel?.showWeather && Weather.data.temp !== undefined && Weather.data.temp !== "" }
+            WPanelSeparator { visible: (Config.options?.waffles?.widgetsPanel?.showWeather ?? true) && Weather.data.temp !== undefined && Weather.data.temp !== "" }
 
             // Weather widget
             BodyRectangle {
                 Layout.fillWidth: true
-                implicitHeight: weatherContent.implicitHeight + 32
-                visible: Config.options.waffles?.widgetsPanel?.showWeather && Weather.data.temp !== undefined && Weather.data.temp !== ""
+                implicitHeight: weatherContent.implicitHeight + Looks.dp(32)
+                visible: (Config.options?.waffles?.widgetsPanel?.showWeather ?? true) && Weather.data.temp !== undefined && Weather.data.temp !== ""
 
                 ColumnLayout {
                     id: weatherContent
                     anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 12
+                    anchors.margins: Looks.dp(16)
+                    spacing: Looks.dp(12)
 
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 12
+                        spacing: Looks.dp(12)
 
                         FluentIcon {
-                            icon: "weather-sunny"
-                            implicitSize: 48
+                            icon: Weather.isNightNow() ? "weather-moon" : "weather-sunny"
+                            implicitSize: Looks.dp(48)
+                            color: Weather.isNightNow() ? Looks.colors.accent : Looks.colors.fg
                         }
 
                         ColumnLayout {
-                            spacing: 2
+                            spacing: Looks.dp(2)
                             WText {
                                 text: Weather.data.temp || "--°"
-                                font.pixelSize: 32
+                                font.pixelSize: Looks.dp(32)
                                 font.weight: Font.DemiBold
                             }
                             WText {
-                                text: Config.options.waffles?.widgetsPanel?.weatherHideLocation ? Translation.tr("Weather") : (Weather.data.city || "")
+                                text: Weather.showVisibleCity ? Weather.visibleCity : Translation.tr("Weather")
                                 color: Looks.colors.fg1
                             }
                         }
@@ -181,7 +228,7 @@ WBarAttachedPanelContent {
                         Item { Layout.fillWidth: true }
 
                         ColumnLayout {
-                            spacing: 2
+                            spacing: Looks.dp(2)
                             WText {
                                 text: Translation.tr("Feels ") + (Weather.data.tempFeelsLike || "--")
                                 font.pixelSize: Looks.font.pixelSize.small
@@ -195,48 +242,149 @@ WBarAttachedPanelContent {
                         }
                     }
 
-                    // Extra weather info row
+                    // Detail stat grid
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 4
+                        rowSpacing: Looks.dp(12)
+                        columnSpacing: Looks.dp(12)
+
+                        WeatherStat { statLabel: Translation.tr("Wind"); statValue: (Weather.data.wind + " " + Weather.data.windDir).trim() }
+                        WeatherStat { statLabel: Translation.tr("UV"); statValue: String(Weather.data.uv); visible: String(Weather.data.uv) !== "0" && String(Weather.data.uv) !== "" }
+                        WeatherStat { statLabel: Translation.tr("Pressure"); statValue: Weather.data.press }
+                        WeatherStat { statLabel: Translation.tr("Visibility"); statValue: Weather.data.visib }
+                        WeatherStat { statLabel: Translation.tr("Precip"); statValue: Weather.data.precip }
+                        WeatherStat { statLabel: Translation.tr("Sunrise"); statValue: Weather.data.sunrise }
+                        WeatherStat { statLabel: Translation.tr("Sunset"); statValue: Weather.data.sunset }
+                        WeatherStat { statLabel: Network.online ? Translation.tr("Refreshed") : Translation.tr("Offline, from"); statValue: Weather.updatedLabel }
+                    }
+
+                    // Daily forecast with temperature-range bars
+                    ColumnLayout {
+                        id: waffleForecast
+                        Layout.fillWidth: true
+                        visible: (Weather.data.forecast ?? []).length > 1
+                        spacing: Looks.dp(3)
+                        readonly property var fc: Weather.data.forecast ?? []
+                        readonly property real wMin: { let m = Infinity; for (const d of fc) if (!isNaN(d.loVal) && d.loVal < m) m = d.loVal; return m === Infinity ? 0 : m }
+                        readonly property real wMax: { let m = -Infinity; for (const d of fc) if (!isNaN(d.hiVal) && d.hiVal > m) m = d.hiVal; return m === -Infinity ? 1 : m }
+
+                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Looks.colors.bg2Border; Layout.bottomMargin: Looks.dp(4) }
+
+                        Repeater {
+                            model: waffleForecast.fc
+                            delegate: RowLayout {
+                                required property var modelData
+                                required property int index
+                                Layout.fillWidth: true
+                                spacing: Looks.dp(10)
+                                WText {
+                                    Layout.preferredWidth: Looks.dp(38)
+                                    text: modelData.dayName
+                                    font.pixelSize: Looks.font.pixelSize.small
+                                    color: index === 0 ? Looks.colors.fg : Looks.colors.fg1
+                                }
+                                WText {
+                                    Layout.preferredWidth: Looks.dp(34)
+                                    horizontalAlignment: Text.AlignRight
+                                    text: modelData.lo
+                                    font.pixelSize: Looks.font.pixelSize.small
+                                    color: Looks.colors.fg1
+                                }
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignVCenter
+                                    implicitHeight: Looks.dp(4); radius: Looks.dp(2)
+                                    color: Looks.colors.bg1Base
+                                    readonly property real span: Math.max(1, waffleForecast.wMax - waffleForecast.wMin)
+                                    readonly property real x0: isNaN(modelData.loVal) ? 0 : (modelData.loVal - waffleForecast.wMin) / span
+                                    readonly property real x1: isNaN(modelData.hiVal) ? 1 : (modelData.hiVal - waffleForecast.wMin) / span
+                                    Rectangle {
+                                        x: parent.width * parent.x0
+                                        width: Math.max(parent.height, parent.width * (parent.x1 - parent.x0))
+                                        height: parent.height; radius: parent.radius
+                                        color: Looks.colors.accent
+                                    }
+                                }
+                                WText {
+                                    Layout.preferredWidth: Looks.dp(34)
+                                    text: modelData.hi
+                                    font.pixelSize: Looks.font.pixelSize.small
+                                    font.weight: Font.Medium
+                                }
+                            }
+                        }
+                    }
+
+                    // Moon phase
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 16
+                        spacing: Looks.dp(10)
+                        FluentIcon {
+                            icon: "weather-moon"
+                            implicitSize: Looks.dp(18)
+                            color: Looks.colors.accent
+                        }
+                        WText {
+                            text: Weather.moonPhaseName
+                            font.pixelSize: Looks.font.pixelSize.small
+                            font.weight: Font.Medium
+                        }
+                        Item { Layout.fillWidth: true }
+                        WText {
+                            text: Translation.tr("%1% lit").arg(Math.round(Weather.moonIllumination * 100))
+                            font.pixelSize: Looks.font.pixelSize.small
+                            color: Looks.colors.fg1
+                        }
+                    }
 
-                        ColumnLayout {
-                            spacing: 2
-                            WText { text: Translation.tr("Wind"); font.pixelSize: Looks.font.pixelSize.tiny; color: Looks.colors.fg1 }
-                            WText { text: Weather.data.wind + " " + Weather.data.windDir; font.pixelSize: Looks.font.pixelSize.small }
+                    // Air quality (only when available)
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: Looks.dp(8)
+                        visible: Weather.airQuality.available
+
+                        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Looks.colors.bg2Border }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            WText {
+                                text: Translation.tr("Air Quality")
+                                font.pixelSize: Looks.font.pixelSize.small
+                                font.weight: Font.Medium
+                            }
+                            Item { Layout.fillWidth: true }
+                            WText {
+                                text: Weather.airQuality.aqi + " " + Weather.airQuality.scale + " · " + Weather.airQuality.label
+                                font.pixelSize: Looks.font.pixelSize.small
+                                color: Looks.colors.accent
+                                font.weight: Font.Medium
+                            }
                         }
-                        ColumnLayout {
-                            spacing: 2
-                            WText { text: Translation.tr("UV"); font.pixelSize: Looks.font.pixelSize.tiny; color: Looks.colors.fg1 }
-                            WText { text: String(Weather.data.uv); font.pixelSize: Looks.font.pixelSize.small }
-                        }
-                        ColumnLayout {
-                            spacing: 2
-                            WText { text: "☀"; font.pixelSize: Looks.font.pixelSize.tiny; color: Looks.colors.fg1 }
-                            WText { text: Weather.data.sunrise; font.pixelSize: Looks.font.pixelSize.small }
-                        }
-                        ColumnLayout {
-                            spacing: 2
-                            WText { text: "☾"; font.pixelSize: Looks.font.pixelSize.tiny; color: Looks.colors.fg1 }
-                            WText { text: Weather.data.sunset; font.pixelSize: Looks.font.pixelSize.small }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: Looks.dp(12)
+                            WeatherStat { statLabel: "PM2.5"; statValue: Weather.airQuality.pm25 }
+                            WeatherStat { statLabel: "PM10"; statValue: Weather.airQuality.pm10 }
+                            WeatherStat { statLabel: Translation.tr("Ozone"); statValue: Weather.airQuality.ozone }
                         }
                     }
                 }
             }
 
-            WPanelSeparator { visible: Config.options.waffles?.widgetsPanel?.showSystem }
+            WPanelSeparator { visible: Config.options?.waffles?.widgetsPanel?.showSystem ?? true }
 
             // System Resources widget
             BodyRectangle {
                 Layout.fillWidth: true
-                implicitHeight: sysContent.implicitHeight + 32
-                visible: Config.options.waffles?.widgetsPanel?.showSystem
+                implicitHeight: sysContent.implicitHeight + Looks.dp(36)
+                visible: Config.options?.waffles?.widgetsPanel?.showSystem ?? true
 
                 ColumnLayout {
                     id: sysContent
                     anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 10
+                    anchors.margins: Looks.dp(18)
+                    spacing: Looks.dp(14)
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -247,11 +395,11 @@ WBarAttachedPanelContent {
                         }
                         Item { Layout.fillWidth: true }
                         WBorderlessButton {
-                            implicitWidth: 28
-                            implicitHeight: 28
-                            contentItem: FluentIcon { anchors.centerIn: parent; icon: "apps"; implicitSize: 14 }
+                            implicitWidth: Looks.dp(28)
+                            implicitHeight: Looks.dp(28)
+                            contentItem: FluentIcon { anchors.centerIn: parent; icon: "open"; implicitSize: Looks.dp(14) }
                             onClicked: {
-                                Quickshell.execDetached(["missioncenter"])
+                                Session.launchTaskManager()
                                 GlobalStates.waffleWidgetsOpen = false
                             }
                         }
@@ -260,23 +408,26 @@ WBarAttachedPanelContent {
                     // CPU
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 4
+                        spacing: Looks.dp(6)
                         RowLayout {
                             Layout.fillWidth: true
-                            WText { text: Translation.tr("CPU"); font.pixelSize: Looks.font.pixelSize.small }
+                            WText { text: Translation.tr("CPU"); font.pixelSize: Looks.font.pixelSize.small; font.weight: Font.Medium }
                             Item { Layout.fillWidth: true }
                             WText {
                                 text: Math.round(ResourceUsage.cpuUsage * 100) + "%"
                                 font.pixelSize: Looks.font.pixelSize.small
+                                font.weight: Font.DemiBold
                                 color: ResourceUsage.cpuUsage > 0.8 ? Looks.colors.danger : Looks.colors.fg1
                             }
                         }
                         Rectangle {
-                            Layout.fillWidth: true; height: 4; radius: 2; color: Looks.colors.bg1Base
+                            Layout.fillWidth: true; height: Looks.dp(8); radius: 4; color: Looks.colors.bg1Base
                             Rectangle {
-                                width: parent.width * Math.min(1, ResourceUsage.cpuUsage); height: parent.height; radius: 2
+                                width: parent.width * Math.min(1, ResourceUsage.cpuUsage); height: parent.height; radius: 4
                                 color: ResourceUsage.cpuUsage > 0.8 ? Looks.colors.danger : Looks.colors.accent
-                                Behavior on width { NumberAnimation { duration: 300 } }
+                                Behavior on width {
+                                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+                                }
                             }
                         }
                     }
@@ -284,25 +435,28 @@ WBarAttachedPanelContent {
                     // Memory
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 4
+                        spacing: Looks.dp(6)
                         RowLayout {
                             Layout.fillWidth: true
-                            WText { text: Translation.tr("RAM"); font.pixelSize: Looks.font.pixelSize.small }
+                            WText { text: Translation.tr("RAM"); font.pixelSize: Looks.font.pixelSize.small; font.weight: Font.Medium }
                             Item { Layout.fillWidth: true }
                             WText {
                                 readonly property string used: (ResourceUsage.memoryUsed / (1024 * 1024)).toFixed(1)
                                 readonly property string total: ResourceUsage.maxAvailableMemoryString
                                 text: used + " / " + total
                                 font.pixelSize: Looks.font.pixelSize.small
+                                font.weight: Font.DemiBold
                                 color: ResourceUsage.memoryUsedPercentage > 0.9 ? Looks.colors.danger : Looks.colors.fg1
                             }
                         }
                         Rectangle {
-                            Layout.fillWidth: true; height: 4; radius: 2; color: Looks.colors.bg1Base
+                            Layout.fillWidth: true; height: Looks.dp(8); radius: 4; color: Looks.colors.bg1Base
                             Rectangle {
-                                width: parent.width * Math.min(1, ResourceUsage.memoryUsedPercentage); height: parent.height; radius: 2
+                                width: parent.width * Math.min(1, ResourceUsage.memoryUsedPercentage); height: parent.height; radius: 4
                                 color: ResourceUsage.memoryUsedPercentage > 0.9 ? Looks.colors.danger : Looks.colors.accent
-                                Behavior on width { NumberAnimation { duration: 300 } }
+                                Behavior on width {
+                                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+                                }
                             }
                         }
                     }
@@ -310,62 +464,79 @@ WBarAttachedPanelContent {
                     // Swap (if available)
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 4
+                        spacing: Looks.dp(6)
                         visible: ResourceUsage.swapTotal > 1
                         RowLayout {
                             Layout.fillWidth: true
-                            WText { text: Translation.tr("Swap"); font.pixelSize: Looks.font.pixelSize.small }
+                            WText { text: Translation.tr("Swap"); font.pixelSize: Looks.font.pixelSize.small; font.weight: Font.Medium }
                             Item { Layout.fillWidth: true }
                             WText {
                                 readonly property string used: (ResourceUsage.swapUsed / (1024 * 1024)).toFixed(1)
                                 readonly property string total: ResourceUsage.maxAvailableSwapString
                                 text: used + " / " + total
                                 font.pixelSize: Looks.font.pixelSize.small
+                                font.weight: Font.DemiBold
                                 color: ResourceUsage.swapUsedPercentage > 0.8 ? Looks.colors.danger : Looks.colors.fg1
                             }
                         }
                         Rectangle {
-                            Layout.fillWidth: true; height: 4; radius: 2; color: Looks.colors.bg1Base
+                            Layout.fillWidth: true; height: Looks.dp(8); radius: 4; color: Looks.colors.bg1Base
                             Rectangle {
-                                width: parent.width * Math.min(1, ResourceUsage.swapUsedPercentage); height: parent.height; radius: 2
+                                width: parent.width * Math.min(1, ResourceUsage.swapUsedPercentage); height: parent.height; radius: 4
                                 color: ResourceUsage.swapUsedPercentage > 0.8 ? Looks.colors.danger : Looks.colors.accent
-                                Behavior on width { NumberAnimation { duration: 300 } }
+                                Behavior on width {
+                                    animation: NumberAnimation { duration: Looks.transition.enabled ? Looks.transition.duration.medium : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard }
+                                }
                             }
                         }
                     }
                 }
             }
 
-            WPanelSeparator { visible: Config.options.waffles?.widgetsPanel?.showMedia && MprisController.activePlayer !== null }
+            WPanelSeparator {
+                opacity: ((Config.options?.waffles?.widgetsPanel?.showMedia ?? true) && MprisController.activePlayer !== null) ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveFast.duration; easing.type: Easing.OutCubic } }
+            }
 
             // Media widget (if playing)
             BodyRectangle {
                 id: mediaWidget
                 Layout.fillWidth: true
-                implicitHeight: mediaContent.implicitHeight
-                visible: Config.options.waffles?.widgetsPanel?.showMedia && MprisController.activePlayer !== null
+                implicitHeight: ((Config.options?.waffles?.widgetsPanel?.showMedia ?? true) && MprisController.activePlayer !== null) ? mediaContent.implicitHeight : 0
+                visible: implicitHeight > 0
+                Behavior on implicitHeight { enabled: Appearance.animationsEnabled; NumberAnimation { duration: Appearance.animation.elementMoveEnter.duration; easing.type: Appearance.animation.elementMoveEnter.type; easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve } }
+                clip: true
                 color: "transparent"
 
                 // Volume feedback overlay
                 Rectangle {
                     id: mediaVolumeOverlay
                     anchors.centerIn: parent
-                    width: 80
-                    height: 80
+                    width: Looks.dp(80)
+                    height: Looks.dp(80)
                     radius: Looks.radius.medium
                     color: ColorUtils.transparentize(Looks.colors.bg0, 0.15)
                     opacity: 0
                     visible: opacity > 0
                     z: 100
 
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: Looks.transition.enabled ? Looks.transition.duration.normal : 0
+                            easing.type: Easing.BezierSpline
+                            easing.bezierCurve: Looks.transition.easing.bezierCurve.standard
+                        }
+                    }
+
                     ColumnLayout {
                         anchors.centerIn: parent
-                        spacing: 4
+                        spacing: Looks.dp(4)
 
                         FluentIcon {
                             Layout.alignment: Qt.AlignHCenter
-                            icon: MprisController.activePlayer?.volume > 0 ? "speaker" : "speaker-mute"
-                            implicitSize: 24
+                            icon: (MprisController.activePlayer?.volume ?? 0) > 0 ? "speaker" : "speaker-mute"
+                            implicitSize: Looks.dp(24)
                         }
 
                         WText {
@@ -374,10 +545,6 @@ WBarAttachedPanelContent {
                             font.pixelSize: Looks.font.pixelSize.normal
                             font.weight: Font.DemiBold
                         }
-                    }
-
-                    Behavior on opacity {
-                        NumberAnimation { duration: 150 }
                     }
 
                     Timer {
@@ -392,13 +559,14 @@ WBarAttachedPanelContent {
                     anchors.fill: parent
                     acceptedButtons: Qt.NoButton
                     onWheel: wheel => {
-                        if (!MprisController.activePlayer?.volumeSupported) return
+                        if (!MprisController.canChangeVolume) return
                         const step = 0.05
+                        const current = MprisController.getVolume()
                         if (wheel.angleDelta.y > 0)
-                            MprisController.activePlayer.volume = Math.min(1, MprisController.activePlayer.volume + step)
+                            MprisController.setVolume(Math.min(1, current + step))
                         else if (wheel.angleDelta.y < 0)
-                            MprisController.activePlayer.volume = Math.max(0, MprisController.activePlayer.volume - step)
-                        
+                            MprisController.setVolume(Math.max(0, current - step))
+
                         // Show volume feedback
                         mediaVolumeOverlay.opacity = 1
                         mediaVolumeHideTimer.restart()
@@ -408,71 +576,65 @@ WBarAttachedPanelContent {
                 Rectangle {
                     id: mediaContent
                     anchors.fill: parent
-                    implicitHeight: 140
+                    implicitHeight: Looks.dp(140)
                     color: Looks.colors.bgPanelBody
                     clip: true
 
-                    // Blurred album art background
-                    Image {
-                        id: bgArt
-                        anchors.fill: parent
-                        source: MprisController.activePlayer?.trackArtUrl ?? ""
-                        fillMode: Image.PreserveAspectCrop
-                        visible: false
-                    }
-                    FastBlur {
-                        anchors.fill: parent
-                        source: bgArt
-                        radius: 64
-                        visible: bgArt.source != ""
-                    }
+                    readonly property MprisPlayer activePlayer: MprisController.activePlayer
+                    readonly property string effectiveArtUrl: MprisController.isYtMusicActive ? YtMusic.currentThumbnail : (MprisController.artUrlOf(activePlayer) ?? "")
+                    readonly property string effectiveTitle: MprisController.isYtMusicActive ? YtMusic.currentTitle : (MprisController.titleOf(activePlayer) ?? "")
+                    readonly property string effectiveArtist: MprisController.isYtMusicActive ? YtMusic.currentArtist : (MprisController.artistOf(activePlayer) ?? "")
+
                     Rectangle {
                         anchors.fill: parent
-                        color: Looks.colors.bgPanelBody
+                        color: Looks.colors.bgPanelFooterBase
                         opacity: 0.75
                     }
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
+                        anchors.margins: Looks.dp(16)
+                        spacing: Looks.dp(16)
 
                         // Album art
                         Rectangle {
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 100
-                            radius: 8
+                            Layout.preferredWidth: Looks.dp(108)
+                            Layout.preferredHeight: Looks.dp(108)
+                            radius: Looks.radius.xLarge
                             color: Looks.colors.bg1Base
                             clip: true
 
                             Image {
+                                id: mediaArtImage
                                 anchors.fill: parent
-                                source: MprisController.activePlayer?.trackArtUrl ?? ""
+                                source: MediaArtwork.displaySource
                                 fillMode: Image.PreserveAspectCrop
-                                visible: source != ""
+                                asynchronous: true
+                                cache: false
+                                visible: MediaArtwork.ready && status === Image.Ready
                             }
                             FluentIcon {
                                 anchors.centerIn: parent
                                 icon: "music-note-2"
-                                implicitSize: 40
-                                visible: !MprisController.activePlayer?.trackArtUrl
+                                implicitSize: Looks.dp(40)
+                                visible: !MediaArtwork.ready || mediaArtImage.status !== Image.Ready
                             }
                         }
 
                         ColumnLayout {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            spacing: 4
+                            spacing: Looks.dp(4)
 
                             Item { Layout.fillHeight: true }
 
                             RowLayout {
                                 Layout.fillWidth: true
-                                spacing: 8
+                                spacing: Looks.dp(8)
 
                                 WText {
                                     Layout.fillWidth: true
-                                    text: StringUtils.cleanMusicTitle(MprisController.activePlayer?.trackTitle) ?? Translation.tr("No media")
+                                    text: StringUtils.cleanMusicTitle(MprisController.titleOf(MprisController.activePlayer)) ?? Translation.tr("No media")
                                     font.pixelSize: Looks.font.pixelSize.large
                                     font.weight: Font.DemiBold
                                     elide: Text.ElideRight
@@ -481,12 +643,12 @@ WBarAttachedPanelContent {
                                 // Player app icon
                                 IconImage {
                                     id: playerAppIcon
-                                    Layout.preferredWidth: 20
-                                    Layout.preferredHeight: 20
+                                    Layout.preferredWidth: Looks.dp(20)
+                                    Layout.preferredHeight: Looks.dp(20)
                                     source: {
                                         const de = MprisController.activePlayer?.desktopEntry ?? "";
                                         const identity = (MprisController.activePlayer?.identity ?? "").toLowerCase();
-                                        
+
                                         // Special cases for common players
                                         if (identity.includes("spotify")) return Quickshell.iconPath("spotify", "");
                                         if (identity.includes("firefox")) return Quickshell.iconPath("firefox", "");
@@ -495,14 +657,14 @@ WBarAttachedPanelContent {
                                         if (identity.includes("vlc")) return Quickshell.iconPath("vlc", "");
                                         if (identity.includes("mpv")) return Quickshell.iconPath("mpv", "");
                                         if (identity.includes("youtube")) return Quickshell.iconPath("youtube", "");
-                                        
+
                                         // Try desktop entry icon
                                         const entry = DesktopEntries.byId(de) ?? DesktopEntries.heuristicLookup(de);
                                         if (entry?.icon) return Quickshell.iconPath(entry.icon, "");
-                                        
+
                                         // Fallback to identity as icon name
                                         if (identity) return Quickshell.iconPath(identity, "");
-                                        
+
                                         return "";
                                     }
                                     // Only show if loaded successfully
@@ -512,7 +674,7 @@ WBarAttachedPanelContent {
 
                             WText {
                                 Layout.fillWidth: true
-                                text: MprisController.activePlayer?.trackArtist ?? ""
+                                text: MprisController.artistOf(MprisController.activePlayer) ?? ""
                                 font.pixelSize: Looks.font.pixelSize.normal
                                 color: Looks.colors.fg1
                                 elide: Text.ElideRight
@@ -523,29 +685,31 @@ WBarAttachedPanelContent {
 
                             RowLayout {
                                 Layout.fillWidth: true
-                                spacing: 4
+                                spacing: Looks.dp(4)
 
                                 WBorderlessButton {
-                                    implicitWidth: 40
-                                    implicitHeight: 40
-                                    contentItem: FluentIcon { anchors.centerIn: parent; icon: "previous"; implicitSize: 18 }
-                                    onClicked: MprisController.activePlayer?.previous()
+                                    implicitWidth: Looks.dp(40)
+                                    implicitHeight: Looks.dp(40)
+                                    enabled: MprisController.canGoPrevious
+                                    contentItem: FluentIcon { anchors.centerIn: parent; icon: "previous"; implicitSize: Looks.dp(18) }
+                                    onClicked: MprisController.previous()
                                 }
                                 WBorderlessButton {
-                                    implicitWidth: 48
-                                    implicitHeight: 48
+                                    implicitWidth: Looks.dp(48)
+                                    implicitHeight: Looks.dp(48)
                                     contentItem: FluentIcon {
                                         anchors.centerIn: parent
                                         icon: MprisController.activePlayer?.isPlaying ? "pause" : "play"
-                                        implicitSize: 24
+                                        implicitSize: Looks.dp(24)
                                     }
-                                    onClicked: MprisController.activePlayer?.togglePlaying()
+                                    onClicked: MprisController.togglePlaying()
                                 }
                                 WBorderlessButton {
-                                    implicitWidth: 40
-                                    implicitHeight: 40
-                                    contentItem: FluentIcon { anchors.centerIn: parent; icon: "next"; implicitSize: 18 }
-                                    onClicked: MprisController.activePlayer?.next()
+                                    implicitWidth: Looks.dp(40)
+                                    implicitHeight: Looks.dp(40)
+                                    enabled: MprisController.canGoNext
+                                    contentItem: FluentIcon { anchors.centerIn: parent; icon: "next"; implicitSize: Looks.dp(18) }
+                                    onClicked: MprisController.next()
                                 }
                             }
                         }
@@ -553,112 +717,169 @@ WBarAttachedPanelContent {
                 }
             }
 
-            WPanelSeparator { visible: Config.options.waffles?.widgetsPanel?.showQuickActions }
+            WPanelSeparator { visible: Config.options?.waffles?.widgetsPanel?.showQuickActions ?? true }
 
-            // Quick actions
-            BodyRectangle {
+            // Quick actions — use Loader to fully unload when disabled
+            Loader {
                 Layout.fillWidth: true
-                implicitHeight: actionsContent.implicitHeight + 32
-                visible: Config.options.waffles?.widgetsPanel?.showQuickActions
+                active: Config.options?.waffles?.widgetsPanel?.showQuickActions ?? true
+                visible: active
+                sourceComponent: BodyRectangle {
+                    implicitHeight: actionsContent.implicitHeight + Looks.dp(36)
 
-                ColumnLayout {
-                    id: actionsContent
-                    anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 12
+                    ColumnLayout {
+                        id: actionsContent
+                        anchors.fill: parent
+                        anchors.margins: Looks.dp(18)
+                        spacing: Looks.dp(14)
 
-                    WText {
-                        text: Translation.tr("Quick Actions")
-                        font.pixelSize: Looks.font.pixelSize.large
-                        font.weight: Font.DemiBold
+                        WText {
+                            text: Translation.tr("Quick Actions")
+                            font.pixelSize: Looks.font.pixelSize.large
+                            font.weight: Font.DemiBold
+                        }
+
+                        Grid {
+                            Layout.fillWidth: true
+                            columns: 3
+                            spacing: Looks.dp(10)
+
+                            Repeater {
+                                model: root.enabledQuickActions
+
+                                delegate: QuickActionButton {
+                                    required property var modelData
+                                    width: (parent.width - Looks.dp(16)) / 3
+                                    iconName: modelData.icon
+                                    label: modelData.label
+                                    onClicked: root.runQuickAction(modelData.id)
+                                }
+                            }
+                        }
                     }
+                }
+            }
 
-                    Flow {
-                        Layout.fillWidth: true
-                        spacing: 8
+            WPanelSeparator { visible: Config.options?.waffles?.widgetsPanel?.showColorScheme ?? true }
 
-                        QuickActionButton {
-                            iconName: "folder"
-                            label: Translation.tr("Files")
-                            onClicked: {
-                                Quickshell.execDetached(["/usr/bin/nautilus"])
-                                GlobalStates.waffleWidgetsOpen = false
-                            }
+            // Scheme variant selector
+            Loader {
+                Layout.fillWidth: true
+                active: Config.options?.waffles?.widgetsPanel?.showColorScheme ?? true
+                visible: active
+                sourceComponent: BodyRectangle {
+                    implicitHeight: schemeContent.implicitHeight + Looks.dp(36)
+
+                    ColumnLayout {
+                        id: schemeContent
+                        anchors.fill: parent
+                        anchors.margins: Looks.dp(18)
+                        spacing: Looks.dp(14)
+
+                        WText {
+                            text: Translation.tr("Color Scheme")
+                            font.pixelSize: Looks.font.pixelSize.large
+                            font.weight: Font.DemiBold
                         }
 
-                        QuickActionButton {
-                            iconName: "terminal"
-                            label: Translation.tr("Terminal")
-                            onClicked: {
-                                const cmd = Config.options?.apps?.terminal ?? "foot"
-                                ShellExec.execCmd(cmd)
-                                GlobalStates.waffleWidgetsOpen = false
+                        ConfigSelectionArray {
+                            Layout.fillWidth: true
+                            currentValue: Config.options?.appearance?.palette?.type ?? "auto"
+                            onSelected: newValue => {
+                                Config.setNestedValue("appearance.palette.type", newValue)
+                                if (ThemeService.isAutoTheme) {
+                                    Quickshell.execDetached(["/usr/bin/bash", "-c", `${Directories.wallpaperSwitchScriptPath} --noswitch --type ${newValue}`]);
+                                } else {
+                                    const hex = MaterialThemeLoader.colorToHex(Appearance.m3colors.m3primary)
+                                    const mode = Appearance.m3colors.darkmode ? "dark" : "light"
+                                    MaterialThemeLoader.applySchemeVariant(hex, newValue, mode)
+                                }
                             }
-                        }
-
-                        QuickActionButton {
-                            iconName: "settings"
-                            label: Translation.tr("Settings")
-                            onClicked: {
-                                Quickshell.execDetached(["/usr/bin/qs", "-c", "ii", "ipc", "call", "settings", "open"])
-                                GlobalStates.waffleWidgetsOpen = false
-                            }
-                        }
-
-                        QuickActionButton {
-                            iconName: "image"
-                            label: Translation.tr("Wallpaper")
-                            onClicked: {
-                                GlobalStates.wallpaperSelectorOpen = true
-                                GlobalStates.waffleWidgetsOpen = false
-                            }
-                        }
-
-                        QuickActionButton {
-                            iconName: "screenshot"
-                            label: Translation.tr("Screenshot")
-                            onClicked: {
-                                GlobalStates.waffleWidgetsOpen = false
-                                GlobalStates.regionSelectorOpen = true
-                            }
-                        }
-
-                        QuickActionButton {
-                            iconName: "power"
-                            label: Translation.tr("Session")
-                            onClicked: {
-                                GlobalStates.waffleWidgetsOpen = false
-                                GlobalStates.sessionOpen = true
-                            }
+                            options: [
+                                { "value": "auto",                 "displayName": Translation.tr("Auto") },
+                                { "value": "scheme-content",       "displayName": Translation.tr("Content") },
+                                { "value": "scheme-expressive",    "displayName": Translation.tr("Expressive") },
+                                { "value": "scheme-fidelity",      "displayName": Translation.tr("Fidelity") },
+                                { "value": "scheme-fruit-salad",   "displayName": Translation.tr("Fruit Salad") },
+                                { "value": "scheme-monochrome",    "displayName": Translation.tr("Monochrome") },
+                                { "value": "scheme-neutral",       "displayName": Translation.tr("Neutral") },
+                                { "value": "scheme-rainbow",       "displayName": Translation.tr("Rainbow") },
+                                { "value": "scheme-tonal-spot",    "displayName": Translation.tr("Tonal Spot") }
+                            ]
                         }
                     }
                 }
             }
 
             // Bottom padding
-            Item { Layout.fillWidth: true; implicitHeight: 8 }
+            Item { Layout.fillWidth: true; implicitHeight: Looks.dp(8) }
+        }
+        } // Flickable
+    }
+
+    component WeatherStat: ColumnLayout {
+        id: stat
+        property string statLabel
+        property string statValue
+        spacing: Looks.dp(2)
+        WText {
+            text: stat.statLabel
+            font.pixelSize: Looks.font.pixelSize.tiny
+            color: Looks.colors.fg1
+            elide: Text.ElideRight
+            Layout.fillWidth: true
+        }
+        WText {
+            text: stat.statValue
+            font.pixelSize: Looks.font.pixelSize.small
+            font.weight: Font.Medium
+            elide: Text.ElideRight
+            Layout.fillWidth: true
         }
     }
 
-    component QuickActionButton: WBorderlessButton {
+    component QuickActionButton: Rectangle {
         id: actionBtn
         required property string iconName
         required property string label
+        signal clicked()
 
-        implicitWidth: 100
-        implicitHeight: 64
+        implicitHeight: Looks.dp(72)
+        radius: Looks.radius.large
+        color: actionMa.containsMouse ? Looks.colors.bg2Hover : Looks.colors.bg1Base
+        border.width: 1
+        border.color: actionMa.containsMouse ? Looks.colors.bg2Border : "transparent"
 
-        contentItem: ColumnLayout {
-            spacing: 4
+        scale: actionMa.pressed ? 0.96 : 1.0
+        Behavior on scale { animation: NumberAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.OutQuad } }
+        Behavior on color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
+
+        MouseArea {
+            id: actionMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: actionBtn.clicked()
+        }
+
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Looks.dp(8)
+
             FluentIcon {
                 Layout.alignment: Qt.AlignHCenter
                 icon: actionBtn.iconName
-                implicitSize: 22
+                implicitSize: Looks.dp(20)
+                color: actionMa.containsMouse ? Looks.colors.accent : Looks.colors.fg
+                Behavior on color { animation: ColorAnimation { duration: Looks.transition.enabled ? 70 : 0; easing.type: Easing.BezierSpline; easing.bezierCurve: Looks.transition.easing.bezierCurve.standard } }
             }
+
             WText {
                 Layout.alignment: Qt.AlignHCenter
                 text: actionBtn.label
                 font.pixelSize: Looks.font.pixelSize.small
+                font.weight: actionMa.containsMouse ? Font.Medium : Font.Normal
+                color: actionMa.containsMouse ? Looks.colors.fg : Looks.colors.fg1
             }
         }
     }
