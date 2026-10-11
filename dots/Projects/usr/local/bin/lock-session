@@ -1,0 +1,28 @@
+#!/bin/bash
+# Colors from your palette
+CYAN="00ffff"
+PURPLE="8a2be2"
+PINK="ff5af1"
+
+swaylock \
+  --daemonize \
+  --ignore-empty-password \
+  --show-failed-attempts \
+  --image ~/Pictures/swaylock-bg.jpg \
+  --scaling=fill \
+  --effect-blur=5x3 \
+  --effect-vignette 0.3:0.8 \
+  --indicator \
+  --indicator-radius=100 \
+  --indicator-thickness=20 \
+  --ring-color "$PURPLE" \
+  --key-hl-color "$CYAN" \
+  --line-color 00000000 \
+  --inside-color 00000088 \
+  --separator-color 00000000 \
+  --fade-in 0.2 \
+  --font "Noto Sans" \
+  --font-size=24 \
+  --text-color "$CYAN" \
+  --line-uses-inside \
+  --clock \

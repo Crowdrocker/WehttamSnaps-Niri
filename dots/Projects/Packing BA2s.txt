@@ -1,0 +1,51 @@
+Packing BA2s
+
+For textures:
+
+Open Archive 2
+Go to Archive -> Settings and set Format to DDS
+Drop textures folder on Archive2
+Go to File -> Save as and name the folder adding "- Textures" to the name
+Set the location to save
+Press OK and wait until program will finish packing
+Done, you have textures packed in BA2
+
+
+For materials/meshes:
+
+Open Archive 2
+Go to Archive -> Settings and set Format to General
+Drop files folder on Archive2
+Go to File -> Save as and name the folder adding "- Main" to the name
+Set the location to save
+Press OK and wait until program will finish packing
+Done, you have files packed in BA2
+
+
+
+Unpacking BA2s
+
+It's a good idea to unpack few texture mods and pack them together into one single BA2. Less mods and plugins to load in your mod manager, also loading time is reduced.
+
+Open Archive2
+Drop BA2 on the window
+Go to Archive -> Extract All To...
+Set the location to unpack the files
+Wait few second until process ends
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

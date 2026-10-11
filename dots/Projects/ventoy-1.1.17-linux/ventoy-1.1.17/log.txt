@@ -1,0 +1,844 @@
+[2026/07/10 13:38:39] 
+[2026/07/10 13:38:39] =========================================================
+[2026/07/10 13:38:39] =========================================================
+[2026/07/10 13:38:39] =============== VentoyGui x86_64 ===============
+[2026/07/10 13:38:39] =========================================================
+[2026/07/10 13:38:39] =========================================================
+[2026/07/10 13:38:39] log file is <log.txt>
+[2026/07/10 13:38:39] pid:92063 ppid:1142 uid:1000 euid:1000
+[2026/07/10 13:38:39] adjust dir:0  current path:/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17
+[2026/07/10 13:38:39] =========RAW ARGS BEGIN===========
+[2026/07/10 13:38:39] argv[0]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/VentoyGUI.x86_64>
+[2026/07/10 13:38:39] =========RAW ARGS END===========
+[2026/07/10 13:38:39] uname -m <x86_64> 64bit
+[2026/07/10 13:38:39] Build bit is 64 (x86_64)
+[2026/07/10 13:38:39] Now detect the GUI type ...
+[2026/07/10 13:38:39] 4862 libs found in cache format 1
+[2026/07/10 13:38:39] LIB:<libgtk-4.so.1>
+[2026/07/10 13:38:39] LIB:<libgtk-3.so.0>
+[2026/07/10 13:38:39] LIB:<libgtk-x11-2.0.so.0>
+[2026/07/10 13:38:39] LIB:<libQt6Xml.so.6>
+[2026/07/10 13:38:39] LIB:<libQt5X11Extras.so.5>
+[2026/07/10 13:38:39] ldconfig lib flags 0x37
+[2026/07/10 13:38:39] lib flags GLADE2:[NO] GTK2:[YES] GTK3:[YES] GTK4:[YES] QT4:[NO] QT5:[YES] QT6:[YES]
+[2026/07/10 13:38:39] distro_check_gui_env ...
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Key arch is not found in json data.
+[2026/07/10 13:38:39] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:38:39] Can not distinguish GTK and QT, default use GTK.
+[2026/07/10 13:38:39] This is gtk3 X environment.
+[2026/07/10 13:38:39] exe = /home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3
+[2026/07/10 13:38:39] execute permission check success.
+[2026/07/10 13:38:39] === XDG_SESSION_TYPE is <wayland> ===
+[2026/07/10 13:38:39] Force GDK_BACKEND from wayland to x11 for better compatibility
+[2026/07/10 13:38:39] EUID check failed.
+[2026/07/10 13:38:39] try restart self by pkexec ...
+[2026/07/10 13:38:39] Find pkexec at </usr/bin/pkexec>
+[2026/07/10 13:38:39] create environment param 62
+[2026/07/10 13:38:39] =========PKEXEC ARGS BEGIN===========
+[2026/07/10 13:38:39] argv[0]=</usr/bin/pkexec>
+[2026/07/10 13:38:39] argv[1]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/VentoyGUI.x86_64>
+[2026/07/10 13:38:39] argv[2]=<_vtoy_env_str_=HOME=/home/wehttamsnaps
+LANG=en_US.UTF-8
+LC_ADDRESS=en_US.UTF-8
+LC_IDENTIFICATION=en_US.UTF-8
+LC_MEASUREMENT=en_US.UTF-8
+LC_MONETARY=en_US.UTF-8
+LC_NAME=en_US.UTF-8
+LC_NUMERIC=en_US.UTF-8
+LC_PAPER=en_US.UTF-8
+LC_TELEPHONE=en_US.UTF-8
+LC_TIME=en_US.UTF-8
+LOGNAME=wehttamsnaps
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+SHELL=/bin/zsh
+USER=wehttamsnaps
+XDG_DATA_DIRS=/home/wehttamsnaps/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+XDG_RUNTIME_DIR=/run/user/1000
+CUDA_DISABLE_PERF_BOOST=1
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+DEBUGINFOD_URLS=https://debuginfod.archlinux.org https://debuginfod.cachyos.org 
+DESKTOP_SESSION=/usr/share/wayland-sessions/plasma.desktop
+DISPLAY=:0
+GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/wehttamsnaps/.gtkrc-2.0:/home/wehttamsnaps/.config/gtkrc-2.0
+GTK_RC_FILES=/etc/gtk/gtkrc:/home/wehttamsnaps/.gtkrc:/home/wehttamsnaps/.config/gtkrc
+ICEAUTHORITY=/run/user/1000/iceauth_YnseqO
+KDE_APPLICATIONS_AS_SCOPE=1
+KDE_FULL_SESSION=true
+KDE_SESSION_UID=1000
+KDE_SESSION_VERSION=6
+MAIL=/var/spool/mail/wehttamsnaps
+MOTD_SHOWN=pam
+OLDPWD=/home/wehttamsnaps
+PAM_KWALLET5_LOGIN=/run/user/1000/kwallet5.socket
+PWD=/home/wehttamsnaps
+QT_WAYLAND_RECONNECT=1
+SESSION_MANAGER=local/snapspc:@/tmp/.ICE-unix/1972,unix/snapspc:/tmp/.ICE-unix/1972
+VSSCRIPT_PATH=/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so
+WAYLAND_DISPLAY=wayland-0
+XAUTHORITY=/run/user/1000/xauth_ukTsDM
+XDG_CONFIG_DIRS=/home/wehttamsnaps/.config/kdedefaults:/etc/xdg
+XDG_CURRENT_DESKTOP=KDE
+XDG_MENU_PREFIX=plasma-
+XDG_SEAT=seat0
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+XDG_SESSION_CLASS=user
+XDG_SESSION_DESKTOP=KDE
+XDG_SESSION_ID=2
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+XDG_SESSION_TYPE=wayland
+XDG_VTNR=2
+XKB_DEFAULT_LAYOUT=us
+XKB_DEFAULT_MODEL=pc105
+_JAVA_AWT_WM_NONREPARENTING=1
+MANAGERPID=1142
+MANAGERPIDFDID=28785
+INVOCATION_ID=03f20d363a5f408882e6e57c09585f91
+JOURNAL_STREAM=10:1094370
+SYSTEMD_EXEC_PID=90687
+MEMORY_PRESSURE_WATCH=/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-dbus\x2d:1.2\x2dorg.freedesktop.FileManager1.slice/dbus-:1.2-org.freedesktop.FileManager1@0.service/memory.pressure
+MEMORY_PRESSURE_WRITE=c29tZSAyMDAwMDAgMjAwMDAwMAA=
+GIO_LAUNCHED_DESKTOP_FILE_PID=92063
+GDK_BACKEND=x11
+>
+[2026/07/10 13:38:39] argv[3]=<_vtoy_gui_path_=/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:38:39] =========PKEXEC ARGS END===========
+[2026/07/10 13:38:44] 
+[2026/07/10 13:38:44] =========================================================
+[2026/07/10 13:38:44] =========================================================
+[2026/07/10 13:38:44] =============== VentoyGui x86_64 ===============
+[2026/07/10 13:38:44] =========================================================
+[2026/07/10 13:38:44] =========================================================
+[2026/07/10 13:38:44] log file is <log.txt>
+[2026/07/10 13:38:44] pid:92063 ppid:1142 uid:0 euid:0
+[2026/07/10 13:38:44] adjust dir:0  current path:/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17
+[2026/07/10 13:38:44] =========RAW ARGS BEGIN===========
+[2026/07/10 13:38:44] argv[0]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/VentoyGUI.x86_64>
+[2026/07/10 13:38:44] argv[1]=<_vtoy_env_str_=HOME=/home/wehttamsnaps
+LANG=en_US.UTF-8
+LC_ADDRESS=en_US.UTF-8
+LC_IDENTIFICATION=en_US.UTF-8
+LC_MEASUREMENT=en_US.UTF-8
+LC_MONETARY=en_US.UTF-8
+LC_NAME=en_US.UTF-8
+LC_NUMERIC=en_US.UTF-8
+LC_PAPER=en_US.UTF-8
+LC_TELEPHONE=en_US.UTF-8
+LC_TIME=en_US.UTF-8
+LOGNAME=wehttamsnaps
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+SHELL=/bin/zsh
+USER=wehttamsnaps
+XDG_DATA_DIRS=/home/wehttamsnaps/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+XDG_RUNTIME_DIR=/run/user/1000
+CUDA_DISABLE_PERF_BOOST=1
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+DEBUGINFOD_URLS=https://debuginfod.archlinux.org https://debuginfod.cachyos.org 
+DESKTOP_SESSION=/usr/share/wayland-sessions/plasma.desktop
+DISPLAY=:0
+GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/wehttamsnaps/.gtkrc-2.0:/home/wehttamsnaps/.config/gtkrc-2.0
+GTK_RC_FILES=/etc/gtk/gtkrc:/home/wehttamsnaps/.gtkrc:/home/wehttamsnaps/.config/gtkrc
+ICEAUTHORITY=/run/user/1000/iceauth_YnseqO
+KDE_APPLICATIONS_AS_SCOPE=1
+KDE_FULL_SESSION=true
+KDE_SESSION_UID=1000
+KDE_SESSION_VERSION=6
+MAIL=/var/spool/mail/wehttamsnaps
+MOTD_SHOWN=pam
+OLDPWD=/home/wehttamsnaps
+PAM_KWALLET5_LOGIN=/run/user/1000/kwallet5.socket
+PWD=/home/wehttamsnaps
+QT_WAYLAND_RECONNECT=1
+SESSION_MANAGER=local/snapspc:@/tmp/.ICE-unix/1972,unix/snapspc:/tmp/.ICE-unix/1972
+VSSCRIPT_PATH=/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so
+WAYLAND_DISPLAY=wayland-0
+XAUTHORITY=/run/user/1000/xauth_ukTsDM
+XDG_CONFIG_DIRS=/home/wehttamsnaps/.config/kdedefaults:/etc/xdg
+XDG_CURRENT_DESKTOP=KDE
+XDG_MENU_PREFIX=plasma-
+XDG_SEAT=seat0
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+XDG_SESSION_CLASS=user
+XDG_SESSION_DESKTOP=KDE
+XDG_SESSION_ID=2
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+XDG_SESSION_TYPE=wayland
+XDG_VTNR=2
+XKB_DEFAULT_LAYOUT=us
+XKB_DEFAULT_MODEL=pc105
+_JAVA_AWT_WM_NONREPARENTING=1
+MANAGERPID=1142
+MANAGERPIDFDID=28785
+INVOCATION_ID=03f20d363a5f408882e6e57c09585f91
+JOURNAL_STREAM=10:1094370
+SYSTEMD_EXEC_PID=90687
+MEMORY_PRESSURE_WATCH=/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-dbus\x2d:1.2\x2dorg.freedesktop.FileManager1.slice/dbus-:1.2-org.freedesktop.FileManager1@0.service/memory.pressure
+MEMORY_PRESSURE_WRITE=c29tZSAyMDAwMDAgMjAwMDAwMAA=
+GIO_LAUNCHED_DESKTOP_FILE_PID=92063
+GDK_BACKEND=x11
+>
+[2026/07/10 13:38:44] argv[2]=<_vtoy_gui_path_=/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:38:44] =========RAW ARGS END===========
+[2026/07/10 13:38:44] recover environ 62 62
+[2026/07/10 13:38:44] recover success, argc=1 evecve </home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:38:44] =========EXECVE ARGS BEGIN===========
+[2026/07/10 13:38:44] argv[0]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:38:44] =========EXECVE ARGS END===========
+[2026/07/10 13:38:44] ================================================
+[2026/07/10 13:38:44] ===== Ventoy2Disk 1.1.17 powered by GTK3.x =====
+[2026/07/10 13:38:44] ================================================
+[2026/07/10 13:38:44] log file is <log.txt> lastsize:9698
+[2026/07/10 13:38:44] ini file is <./Ventoy2Disk.ini>
+[2026/07/10 13:38:44] ventoy_disk_enumerate_all
+[2026/07/10 13:38:44] get disk info sdf
+[2026/07/10 13:38:44] is 4k native disk <sdf> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdf
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdf
+[2026/07/10 13:38:44] Not valid ventoy partition layout [2048 1953523119] [0 0]
+[2026/07/10 13:38:44] disk:</dev/sdf 8:80> model:<Seagate USB (USB)> size:1000204885504 (1024 GB)
+[2026/07/10 13:38:44] /dev/sdf NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdd
+[2026/07/10 13:38:44] is 4k native disk <sdd> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdd
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdd
+[2026/07/10 13:38:44] Not valid ventoy partition layout [2048 1953452032] [0 0]
+[2026/07/10 13:38:44] disk:</dev/sdd 8:48> model:<WD My Passport 0820 (USB)> size:1000170586112 (1024 GB)
+[2026/07/10 13:38:44] /dev/sdd NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdb
+[2026/07/10 13:38:44] is 4k native disk <sdb> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdb
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdb
+[2026/07/10 13:38:44] Invalid efi part2 name <root>
+[2026/07/10 13:38:44] disk:</dev/sdb 8:16> model:<ATA KINGSTON SH103S3 (scsi)> size:120034123776 (120 GB)
+[2026/07/10 13:38:44] /dev/sdb NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdi
+[2026/07/10 13:38:44] is 4k native disk <sdi> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdi
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdi
+[2026/07/10 13:38:44] disk /dev/sdi is too small 0
+[2026/07/10 13:38:44] disk:</dev/sdi 8:128> model:<Generic- SD/MMC (USB)> size:0 (0 GB)
+[2026/07/10 13:38:44] /dev/sdi NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdg
+[2026/07/10 13:38:44] is 4k native disk <sdg> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdg
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdg
+[2026/07/10 13:38:44] disk /dev/sdg is too small 0
+[2026/07/10 13:38:44] disk:</dev/sdg 8:96> model:<Generic- Compact Flash (USB)> size:0 (0 GB)
+[2026/07/10 13:38:44] /dev/sdg NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sde
+[2026/07/10 13:38:44] is 4k native disk <sde> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sde
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sde
+[2026/07/10 13:38:44] NO ventoy efi part layout <2048 0>
+[2026/07/10 13:38:44] disk:</dev/sde 8:64> model:<WD easystore 2647 (USB)> size:5000947302400 (5000 GB)
+[2026/07/10 13:38:44] /dev/sde NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdc
+[2026/07/10 13:38:44] is 4k native disk <sdc> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdc
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdc
+[2026/07/10 13:38:44] NO ventoy efi part layout <2048 0>
+[2026/07/10 13:38:44] disk:</dev/sdc 8:32> model:<ATA PNY CS900 1TB SS (scsi)> size:1000204886016 (1024 GB)
+[2026/07/10 13:38:44] /dev/sdc NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sda
+[2026/07/10 13:38:44] is 4k native disk <sda> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sda
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sda
+[2026/07/10 13:38:44] NO ventoy efi part layout <0 0>
+[2026/07/10 13:38:44] disk:</dev/sda 8:0> model:<ATA SanDisk SDSSDA12 (scsi)> size:120034123776 (120 GB)
+[2026/07/10 13:38:44] /dev/sda NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdj
+[2026/07/10 13:38:44] is 4k native disk <sdj> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdj
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdj
+[2026/07/10 13:38:44] disk /dev/sdj is too small 0
+[2026/07/10 13:38:44] disk:</dev/sdj 8:144> model:<Generic- M.S./M.S.Pro/HG (USB)> size:0 (0 GB)
+[2026/07/10 13:38:44] /dev/sdj NO Ventoy detected
+[2026/07/10 13:38:44] get disk info sdh
+[2026/07/10 13:38:44] is 4k native disk <sdh> <0>
+[2026/07/10 13:38:44] get disk size from sysfs for sdh
+[2026/07/10 13:38:44] ventoy_get_vtoy_data /dev/sdh
+[2026/07/10 13:38:44] disk /dev/sdh is too small 0
+[2026/07/10 13:38:44] disk:</dev/sdh 8:112> model:<Generic- SM/xD-Picture (USB)> size:0 (0 GB)
+[2026/07/10 13:38:44] /dev/sdh NO Ventoy detected
+[2026/07/10 13:38:44] ============= DISK DUMP ============
+[2026/07/10 13:38:44] /dev/sdd [1024 GB] WD My Passport 0820 (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sde [5000 GB] WD easystore 2647 (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdf [1024 GB] Seagate USB (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdg [0 GB] Generic- Compact Flash (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdh [0 GB] Generic- SM/xD-Picture (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdi [0 GB] Generic- SD/MMC (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdj [0 GB] Generic- M.S./M.S.Pro/HG (USB)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sda [120 GB] ATA SanDisk SDSSDA12 (scsi)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdb [120 GB] ATA KINGSTON SH103S3 (scsi)	Ventoy: NA
+[2026/07/10 13:38:44] /dev/sdc [1024 GB] ATA PNY CS900 1TB SS (scsi)	Ventoy: NA
+[2026/07/10 13:38:45] on_init_window ...
+[2026/07/10 13:38:45] load_languages ...
+[2026/07/10 13:38:45] current language <English (English)>
+[2026/07/10 13:38:45] fill_dev_list total disk: 10 showall:0
+[2026/07/10 13:38:45] combox count:7, active:sdd id:0
+[2026/07/10 13:39:10] on_exit_window ...
+[2026/07/10 13:39:11] ######## Ventoy2Disk GTK 1.1.17 exit ########
+[2026/07/10 13:39:13] 
+[2026/07/10 13:39:13] =========================================================
+[2026/07/10 13:39:13] =========================================================
+[2026/07/10 13:39:13] =============== VentoyGui x86_64 ===============
+[2026/07/10 13:39:13] =========================================================
+[2026/07/10 13:39:13] =========================================================
+[2026/07/10 13:39:13] log file is <log.txt>
+[2026/07/10 13:39:13] pid:92527 ppid:1142 uid:1000 euid:1000
+[2026/07/10 13:39:13] adjust dir:0  current path:/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17
+[2026/07/10 13:39:13] =========RAW ARGS BEGIN===========
+[2026/07/10 13:39:13] argv[0]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/VentoyGUI.x86_64>
+[2026/07/10 13:39:13] =========RAW ARGS END===========
+[2026/07/10 13:39:13] uname -m <x86_64> 64bit
+[2026/07/10 13:39:13] Build bit is 64 (x86_64)
+[2026/07/10 13:39:13] Now detect the GUI type ...
+[2026/07/10 13:39:13] 4862 libs found in cache format 1
+[2026/07/10 13:39:13] LIB:<libgtk-4.so.1>
+[2026/07/10 13:39:13] LIB:<libgtk-3.so.0>
+[2026/07/10 13:39:13] LIB:<libgtk-x11-2.0.so.0>
+[2026/07/10 13:39:13] LIB:<libQt6Xml.so.6>
+[2026/07/10 13:39:13] LIB:<libQt5X11Extras.so.5>
+[2026/07/10 13:39:13] ldconfig lib flags 0x37
+[2026/07/10 13:39:13] lib flags GLADE2:[NO] GTK2:[YES] GTK3:[YES] GTK4:[YES] QT4:[NO] QT5:[YES] QT6:[YES]
+[2026/07/10 13:39:13] distro_check_gui_env ...
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Key arch is not found in json data.
+[2026/07/10 13:39:13] check <env> <DESKTOP_SESSION> <equal>
+[2026/07/10 13:39:13] Can not distinguish GTK and QT, default use GTK.
+[2026/07/10 13:39:13] This is gtk3 X environment.
+[2026/07/10 13:39:13] exe = /home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3
+[2026/07/10 13:39:13] execute permission check success.
+[2026/07/10 13:39:13] === XDG_SESSION_TYPE is <wayland> ===
+[2026/07/10 13:39:13] Force GDK_BACKEND from wayland to x11 for better compatibility
+[2026/07/10 13:39:13] EUID check failed.
+[2026/07/10 13:39:13] try restart self by pkexec ...
+[2026/07/10 13:39:13] Find pkexec at </usr/bin/pkexec>
+[2026/07/10 13:39:13] create environment param 62
+[2026/07/10 13:39:13] =========PKEXEC ARGS BEGIN===========
+[2026/07/10 13:39:13] argv[0]=</usr/bin/pkexec>
+[2026/07/10 13:39:13] argv[1]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/VentoyGUI.x86_64>
+[2026/07/10 13:39:13] argv[2]=<_vtoy_env_str_=HOME=/home/wehttamsnaps
+LANG=en_US.UTF-8
+LC_ADDRESS=en_US.UTF-8
+LC_IDENTIFICATION=en_US.UTF-8
+LC_MEASUREMENT=en_US.UTF-8
+LC_MONETARY=en_US.UTF-8
+LC_NAME=en_US.UTF-8
+LC_NUMERIC=en_US.UTF-8
+LC_PAPER=en_US.UTF-8
+LC_TELEPHONE=en_US.UTF-8
+LC_TIME=en_US.UTF-8
+LOGNAME=wehttamsnaps
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+SHELL=/bin/zsh
+USER=wehttamsnaps
+XDG_DATA_DIRS=/home/wehttamsnaps/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+XDG_RUNTIME_DIR=/run/user/1000
+CUDA_DISABLE_PERF_BOOST=1
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+DEBUGINFOD_URLS=https://debuginfod.archlinux.org https://debuginfod.cachyos.org 
+DESKTOP_SESSION=/usr/share/wayland-sessions/plasma.desktop
+DISPLAY=:0
+GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/wehttamsnaps/.gtkrc-2.0:/home/wehttamsnaps/.config/gtkrc-2.0
+GTK_RC_FILES=/etc/gtk/gtkrc:/home/wehttamsnaps/.gtkrc:/home/wehttamsnaps/.config/gtkrc
+ICEAUTHORITY=/run/user/1000/iceauth_YnseqO
+KDE_APPLICATIONS_AS_SCOPE=1
+KDE_FULL_SESSION=true
+KDE_SESSION_UID=1000
+KDE_SESSION_VERSION=6
+MAIL=/var/spool/mail/wehttamsnaps
+MOTD_SHOWN=pam
+OLDPWD=/home/wehttamsnaps
+PAM_KWALLET5_LOGIN=/run/user/1000/kwallet5.socket
+PWD=/home/wehttamsnaps
+QT_WAYLAND_RECONNECT=1
+SESSION_MANAGER=local/snapspc:@/tmp/.ICE-unix/1972,unix/snapspc:/tmp/.ICE-unix/1972
+VSSCRIPT_PATH=/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so
+WAYLAND_DISPLAY=wayland-0
+XAUTHORITY=/run/user/1000/xauth_ukTsDM
+XDG_CONFIG_DIRS=/home/wehttamsnaps/.config/kdedefaults:/etc/xdg
+XDG_CURRENT_DESKTOP=KDE
+XDG_MENU_PREFIX=plasma-
+XDG_SEAT=seat0
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+XDG_SESSION_CLASS=user
+XDG_SESSION_DESKTOP=KDE
+XDG_SESSION_ID=2
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+XDG_SESSION_TYPE=wayland
+XDG_VTNR=2
+XKB_DEFAULT_LAYOUT=us
+XKB_DEFAULT_MODEL=pc105
+_JAVA_AWT_WM_NONREPARENTING=1
+MANAGERPID=1142
+MANAGERPIDFDID=28785
+INVOCATION_ID=03f20d363a5f408882e6e57c09585f91
+JOURNAL_STREAM=10:1094370
+SYSTEMD_EXEC_PID=90687
+MEMORY_PRESSURE_WATCH=/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-dbus\x2d:1.2\x2dorg.freedesktop.FileManager1.slice/dbus-:1.2-org.freedesktop.FileManager1@0.service/memory.pressure
+MEMORY_PRESSURE_WRITE=c29tZSAyMDAwMDAgMjAwMDAwMAA=
+GIO_LAUNCHED_DESKTOP_FILE_PID=92527
+GDK_BACKEND=x11
+>
+[2026/07/10 13:39:13] argv[3]=<_vtoy_gui_path_=/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:39:13] =========PKEXEC ARGS END===========
+[2026/07/10 13:39:17] 
+[2026/07/10 13:39:17] =========================================================
+[2026/07/10 13:39:17] =========================================================
+[2026/07/10 13:39:17] =============== VentoyGui x86_64 ===============
+[2026/07/10 13:39:17] =========================================================
+[2026/07/10 13:39:17] =========================================================
+[2026/07/10 13:39:17] log file is <log.txt>
+[2026/07/10 13:39:17] pid:92527 ppid:1142 uid:0 euid:0
+[2026/07/10 13:39:17] adjust dir:0  current path:/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17
+[2026/07/10 13:39:17] =========RAW ARGS BEGIN===========
+[2026/07/10 13:39:17] argv[0]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/VentoyGUI.x86_64>
+[2026/07/10 13:39:17] argv[1]=<_vtoy_env_str_=HOME=/home/wehttamsnaps
+LANG=en_US.UTF-8
+LC_ADDRESS=en_US.UTF-8
+LC_IDENTIFICATION=en_US.UTF-8
+LC_MEASUREMENT=en_US.UTF-8
+LC_MONETARY=en_US.UTF-8
+LC_NAME=en_US.UTF-8
+LC_NUMERIC=en_US.UTF-8
+LC_PAPER=en_US.UTF-8
+LC_TELEPHONE=en_US.UTF-8
+LC_TIME=en_US.UTF-8
+LOGNAME=wehttamsnaps
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+SHELL=/bin/zsh
+USER=wehttamsnaps
+XDG_DATA_DIRS=/home/wehttamsnaps/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+XDG_RUNTIME_DIR=/run/user/1000
+CUDA_DISABLE_PERF_BOOST=1
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+DEBUGINFOD_URLS=https://debuginfod.archlinux.org https://debuginfod.cachyos.org 
+DESKTOP_SESSION=/usr/share/wayland-sessions/plasma.desktop
+DISPLAY=:0
+GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/wehttamsnaps/.gtkrc-2.0:/home/wehttamsnaps/.config/gtkrc-2.0
+GTK_RC_FILES=/etc/gtk/gtkrc:/home/wehttamsnaps/.gtkrc:/home/wehttamsnaps/.config/gtkrc
+ICEAUTHORITY=/run/user/1000/iceauth_YnseqO
+KDE_APPLICATIONS_AS_SCOPE=1
+KDE_FULL_SESSION=true
+KDE_SESSION_UID=1000
+KDE_SESSION_VERSION=6
+MAIL=/var/spool/mail/wehttamsnaps
+MOTD_SHOWN=pam
+OLDPWD=/home/wehttamsnaps
+PAM_KWALLET5_LOGIN=/run/user/1000/kwallet5.socket
+PWD=/home/wehttamsnaps
+QT_WAYLAND_RECONNECT=1
+SESSION_MANAGER=local/snapspc:@/tmp/.ICE-unix/1972,unix/snapspc:/tmp/.ICE-unix/1972
+VSSCRIPT_PATH=/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so
+WAYLAND_DISPLAY=wayland-0
+XAUTHORITY=/run/user/1000/xauth_ukTsDM
+XDG_CONFIG_DIRS=/home/wehttamsnaps/.config/kdedefaults:/etc/xdg
+XDG_CURRENT_DESKTOP=KDE
+XDG_MENU_PREFIX=plasma-
+XDG_SEAT=seat0
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+XDG_SESSION_CLASS=user
+XDG_SESSION_DESKTOP=KDE
+XDG_SESSION_ID=2
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+XDG_SESSION_TYPE=wayland
+XDG_VTNR=2
+XKB_DEFAULT_LAYOUT=us
+XKB_DEFAULT_MODEL=pc105
+_JAVA_AWT_WM_NONREPARENTING=1
+MANAGERPID=1142
+MANAGERPIDFDID=28785
+INVOCATION_ID=03f20d363a5f408882e6e57c09585f91
+JOURNAL_STREAM=10:1094370
+SYSTEMD_EXEC_PID=90687
+MEMORY_PRESSURE_WATCH=/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-dbus\x2d:1.2\x2dorg.freedesktop.FileManager1.slice/dbus-:1.2-org.freedesktop.FileManager1@0.service/memory.pressure
+MEMORY_PRESSURE_WRITE=c29tZSAyMDAwMDAgMjAwMDAwMAA=
+GIO_LAUNCHED_DESKTOP_FILE_PID=92527
+GDK_BACKEND=x11
+>
+[2026/07/10 13:39:17] argv[2]=<_vtoy_gui_path_=/home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:39:17] =========RAW ARGS END===========
+[2026/07/10 13:39:17] recover environ 62 62
+[2026/07/10 13:39:17] recover success, argc=1 evecve </home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:39:17] =========EXECVE ARGS BEGIN===========
+[2026/07/10 13:39:17] argv[0]=</home/wehttamsnaps/Projects/ventoy-1.1.17-linux/ventoy-1.1.17/tool/x86_64/Ventoy2Disk.gtk3>
+[2026/07/10 13:39:17] =========EXECVE ARGS END===========
+[2026/07/10 13:39:17] ================================================
+[2026/07/10 13:39:17] ===== Ventoy2Disk 1.1.17 powered by GTK3.x =====
+[2026/07/10 13:39:17] ================================================
+[2026/07/10 13:39:17] log file is <log.txt> lastsize:25017
+[2026/07/10 13:39:17] ini file is <./Ventoy2Disk.ini>
+[2026/07/10 13:39:17] ventoy_disk_enumerate_all
+[2026/07/10 13:39:17] get disk info sdf
+[2026/07/10 13:39:17] is 4k native disk <sdf> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdf
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdf
+[2026/07/10 13:39:17] Not valid ventoy partition layout [2048 1953523119] [0 0]
+[2026/07/10 13:39:17] disk:</dev/sdf 8:80> model:<Seagate USB (USB)> size:1000204885504 (1024 GB)
+[2026/07/10 13:39:17] /dev/sdf NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdd
+[2026/07/10 13:39:17] is 4k native disk <sdd> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdd
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdd
+[2026/07/10 13:39:17] Not valid ventoy partition layout [2048 1953452032] [0 0]
+[2026/07/10 13:39:17] disk:</dev/sdd 8:48> model:<WD My Passport 0820 (USB)> size:1000170586112 (1024 GB)
+[2026/07/10 13:39:17] /dev/sdd NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdb
+[2026/07/10 13:39:17] is 4k native disk <sdb> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdb
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdb
+[2026/07/10 13:39:17] Invalid efi part2 name <root>
+[2026/07/10 13:39:17] disk:</dev/sdb 8:16> model:<ATA KINGSTON SH103S3 (scsi)> size:120034123776 (120 GB)
+[2026/07/10 13:39:17] /dev/sdb NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdk
+[2026/07/10 13:39:17] is 4k native disk <sdk> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdk
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdk
+[2026/07/10 13:39:17] ventoy partition layout check OK: [2048 29964288] [29966336 65536]
+[2026/07/10 13:39:17] now check secure boot for /dev/sdk ...
+[2026/07/10 13:39:17] /EFI/BOOT/grubx64_real.efi find, secure boot in enabled
+[2026/07/10 13:39:17] disk:</dev/sdk 8:160> model:<SanDisk Cruzer Glide (USB)> size:15376318464 (16 GB)
+[2026/07/10 13:39:17] /dev/sdk Ventoy:<1.1.16> MBR secureboot:1 preserve:0
+[2026/07/10 13:39:17] get disk info sdi
+[2026/07/10 13:39:17] is 4k native disk <sdi> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdi
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdi
+[2026/07/10 13:39:17] disk /dev/sdi is too small 0
+[2026/07/10 13:39:17] disk:</dev/sdi 8:128> model:<Generic- SD/MMC (USB)> size:0 (0 GB)
+[2026/07/10 13:39:17] /dev/sdi NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdg
+[2026/07/10 13:39:17] is 4k native disk <sdg> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdg
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdg
+[2026/07/10 13:39:17] disk /dev/sdg is too small 0
+[2026/07/10 13:39:17] disk:</dev/sdg 8:96> model:<Generic- Compact Flash (USB)> size:0 (0 GB)
+[2026/07/10 13:39:17] /dev/sdg NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sde
+[2026/07/10 13:39:17] is 4k native disk <sde> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sde
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sde
+[2026/07/10 13:39:17] NO ventoy efi part layout <2048 0>
+[2026/07/10 13:39:17] disk:</dev/sde 8:64> model:<WD easystore 2647 (USB)> size:5000947302400 (5000 GB)
+[2026/07/10 13:39:17] /dev/sde NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdc
+[2026/07/10 13:39:17] is 4k native disk <sdc> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdc
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdc
+[2026/07/10 13:39:17] NO ventoy efi part layout <2048 0>
+[2026/07/10 13:39:17] disk:</dev/sdc 8:32> model:<ATA PNY CS900 1TB SS (scsi)> size:1000204886016 (1024 GB)
+[2026/07/10 13:39:17] /dev/sdc NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sda
+[2026/07/10 13:39:17] is 4k native disk <sda> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sda
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sda
+[2026/07/10 13:39:17] NO ventoy efi part layout <0 0>
+[2026/07/10 13:39:17] disk:</dev/sda 8:0> model:<ATA SanDisk SDSSDA12 (scsi)> size:120034123776 (120 GB)
+[2026/07/10 13:39:17] /dev/sda NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdj
+[2026/07/10 13:39:17] is 4k native disk <sdj> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdj
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdj
+[2026/07/10 13:39:17] disk /dev/sdj is too small 0
+[2026/07/10 13:39:17] disk:</dev/sdj 8:144> model:<Generic- M.S./M.S.Pro/HG (USB)> size:0 (0 GB)
+[2026/07/10 13:39:17] /dev/sdj NO Ventoy detected
+[2026/07/10 13:39:17] get disk info sdh
+[2026/07/10 13:39:17] is 4k native disk <sdh> <0>
+[2026/07/10 13:39:17] get disk size from sysfs for sdh
+[2026/07/10 13:39:17] ventoy_get_vtoy_data /dev/sdh
+[2026/07/10 13:39:17] disk /dev/sdh is too small 0
+[2026/07/10 13:39:17] disk:</dev/sdh 8:112> model:<Generic- SM/xD-Picture (USB)> size:0 (0 GB)
+[2026/07/10 13:39:17] /dev/sdh NO Ventoy detected
+[2026/07/10 13:39:17] ============= DISK DUMP ============
+[2026/07/10 13:39:17] /dev/sdd [1024 GB] WD My Passport 0820 (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sde [5000 GB] WD easystore 2647 (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdf [1024 GB] Seagate USB (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdg [0 GB] Generic- Compact Flash (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdh [0 GB] Generic- SM/xD-Picture (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdi [0 GB] Generic- SD/MMC (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdj [0 GB] Generic- M.S./M.S.Pro/HG (USB)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdk [16 GB] SanDisk Cruzer Glide (USB)	Ventoy: 1.1.16 MBR secureboot:1 preserve:0
+[2026/07/10 13:39:17] /dev/sda [120 GB] ATA SanDisk SDSSDA12 (scsi)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdb [120 GB] ATA KINGSTON SH103S3 (scsi)	Ventoy: NA
+[2026/07/10 13:39:17] /dev/sdc [1024 GB] ATA PNY CS900 1TB SS (scsi)	Ventoy: NA
+[2026/07/10 13:39:17] on_init_window ...
+[2026/07/10 13:39:17] load_languages ...
+[2026/07/10 13:39:17] current language <English (English)>
+[2026/07/10 13:39:17] fill_dev_list total disk: 11 showall:0
+[2026/07/10 13:39:17] combox count:8, active:sdk id:7
+[2026/07/10 13:39:53] install_thread ...
+[2026/07/10 13:39:53] ==================================================================================
+[2026/07/10 13:39:53] ===== ventoy install /dev/sdk style:MBR secureboot:1 align4K:1 reserve:0 =========
+[2026/07/10 13:39:53] ==================================================================================
+[2026/07/10 13:39:53] /dev/sdk mounted </dev/sdk1 /run/media/wehttamsnaps/Ventoy exfat rw,nosuid,nodev,relatime,uid=1000,gid=1000,fmask=0022,dmask=0022,iocharset=utf8,errors=remount-ro 0 0
+>
+[2026/07/10 13:39:53] disk is mounted, now try to unmount it ...
+[2026/07/10 13:39:53] umount </dev/sdk> </run/media/wehttamsnaps/Ventoy> [ success ]
+[2026/07/10 13:39:53] disk is not mounted now, we can do the install ...
+[2026/07/10 13:39:53] start install thread SanDisk Cruzer Glide (USB) ...
+[2026/07/10 13:39:53] func handler install <{ "result" : "success" }>
+[2026/07/10 13:39:53] set percent 1
+[2026/07/10 13:39:53] ventoy_install_thread run ...
+[2026/07/10 13:39:53] check disk sdk
+[2026/07/10 13:39:53] disk is not mounted now, we can do continue ...
+[2026/07/10 13:39:53] ventoy_clean_disk fd:11 size:15376318464
+[2026/07/10 13:39:53] write disk at off:0 writelen:65536 datalen:65536
+[2026/07/10 13:39:53] write disk at off:15376252928 writelen:65536 datalen:65536
+[2026/07/10 13:39:53] read core.img.xz rc:0 len:455192
+[2026/07/10 13:39:53] ventoy_unxz_stg1_img len:455192 rc:0
+[2026/07/10 13:39:53] set percent 8
+[2026/07/10 13:39:53] read disk.img.xz rc:0 len:13405224
+[2026/07/10 13:39:53] set percent 8
+[2026/07/10 13:39:53] set percent 11
+[2026/07/10 13:39:53] set percent 14
+[2026/07/10 13:39:53] set percent 16
+[2026/07/10 13:39:53] set percent 19
+[2026/07/10 13:39:53] set percent 22
+[2026/07/10 13:39:53] set percent 25
+[2026/07/10 13:39:53] set percent 32
+[2026/07/10 13:39:53] set percent 35
+[2026/07/10 13:39:53] set percent 37
+[2026/07/10 13:39:53] set percent 41
+[2026/07/10 13:39:53] set percent 45
+[2026/07/10 13:39:53] set percent 51
+[2026/07/10 13:39:53] set percent 54
+[2026/07/10 13:39:54] set percent 56
+[2026/07/10 13:39:54] ventoy_unxz_efipart_img len:13405224 rc:0 unxzlen:33554432
+[2026/07/10 13:39:54] Fill MBR part table
+[2026/07/10 13:39:54] Disk signature: 0x3e744f4c
+[2026/07/10 13:39:54] no need to align with 4KB
+[2026/07/10 13:39:54] ReservedSector: 0
+[2026/07/10 13:39:54] Part1StartSector:2048 Part1SectorCount:29964288 Part2StartSector:29966336
+[2026/07/10 13:39:54] Formatting part1 exFAT /dev/sdk ...
+[0126/07/10 13:39:54] Creating... 
+[0126/07/10 13:39:54] Flushing... 
+[2026/07/10 13:39:54] set percent 61
+[2026/07/10 13:39:54] set percent 61
+[2026/07/10 13:39:54] Formatting part2 EFI ...
+[2026/07/10 13:39:54] Formatting part2 EFI offset:15342764032 ...
+[2026/07/10 13:39:54] VentoyProcSecureBoot 1 ...
+[2026/07/10 13:39:54] Secure boot is enabled ...
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] write disk writelen:1048576 datalen:1048576 [ success ]
+[2026/07/10 13:39:54] Writing legacy grub ...
+[2026/07/10 13:39:54] Write MBR stage1 ...
+[2026/07/10 13:39:54] lseek offset:512(512) writelen:1048064(1048064)
+[2026/07/10 13:39:54] fsync data1...
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:54] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:55] set percent 80
+[2026/07/10 13:39:56] set percent 80
+[2026/07/10 13:39:56] Checking part2 efi data /dev/sdk ...
+[2026/07/10 13:39:56] set percent 82
+[2026/07/10 13:39:56] set percent 82
+[2026/07/10 13:39:56] set percent 82
+[2026/07/10 13:39:56] set percent 82
+[2026/07/10 13:39:56] set percent 82
+[2026/07/10 13:39:56] set percent 82
+[2026/07/10 13:39:56] set percent 83
+[2026/07/10 13:39:56] set percent 83
+[2026/07/10 13:39:56] set percent 83
+[2026/07/10 13:39:56] set percent 83
+[2026/07/10 13:39:56] set percent 85
+[2026/07/10 13:39:56] set percent 85
+[2026/07/10 13:39:56] set percent 85
+[2026/07/10 13:39:56] set percent 85
+[2026/07/10 13:39:56] set percent 85
+[2026/07/10 13:39:56] set percent 87
+[2026/07/10 13:39:56] set percent 87
+[2026/07/10 13:39:56] set percent 87
+[2026/07/10 13:39:57] set percent 87
+[2026/07/10 13:39:57] set percent 88
+[2026/07/10 13:39:57] set percent 88
+[2026/07/10 13:39:57] set percent 88
+[2026/07/10 13:39:57] set percent 88
+[2026/07/10 13:39:57] set percent 88
+[2026/07/10 13:39:57] set percent 90
+[2026/07/10 13:39:57] set percent 90
+[2026/07/10 13:39:57] set percent 90
+[2026/07/10 13:39:57] set percent 90
+[2026/07/10 13:39:57] set percent 91
+[2026/07/10 13:39:57] set percent 91
+[2026/07/10 13:39:57] set percent 91
+[2026/07/10 13:39:57] set percent 91
+[2026/07/10 13:39:57] set percent 93
+[2026/07/10 13:39:57] set percent 93
+[2026/07/10 13:39:57] set percent 93
+[2026/07/10 13:39:57] set percent 93
+[2026/07/10 13:39:57] efi part data check success
+[2026/07/10 13:39:57] Writting Partition Table style:0...
+[2026/07/10 13:39:57] Writting MBR Partition Table 0 512
+[2026/07/10 13:39:57] fsync data2...
+[2026/07/10 13:39:57] ====================================
+[2026/07/10 13:39:57] ====== ventoy install success ======
+[2026/07/10 13:39:57] ====================================
+[2026/07/10 13:39:57] set percent 100
+[2026/07/10 13:39:57] ventoy_disk_enumerate_all
+[2026/07/10 13:39:57] get disk info sdf
+[2026/07/10 13:39:57] is 4k native disk <sdf> <0>
+[2026/07/10 13:39:57] get disk size from sysfs for sdf
+[2026/07/10 13:39:57] ventoy_get_vtoy_data /dev/sdf
+[2026/07/10 13:39:57] Not valid ventoy partition layout [2048 1953523119] [0 0]
+[2026/07/10 13:39:57] disk:</dev/sdf 8:80> model:<Seagate USB (USB)> size:1000204885504 (1024 GB)
+[2026/07/10 13:39:57] /dev/sdf NO Ventoy detected
+[2026/07/10 13:39:57] get disk info sdd
+[2026/07/10 13:39:57] is 4k native disk <sdd> <0>
+[2026/07/10 13:39:57] get disk size from sysfs for sdd
+[2026/07/10 13:39:57] ventoy_get_vtoy_data /dev/sdd
+[2026/07/10 13:39:57] Not valid ventoy partition layout [2048 1953452032] [0 0]
+[2026/07/10 13:39:57] disk:</dev/sdd 8:48> model:<WD My Passport 0820 (USB)> size:1000170586112 (1024 GB)
+[2026/07/10 13:39:57] /dev/sdd NO Ventoy detected
+[2026/07/10 13:39:57] get disk info sdb
+[2026/07/10 13:39:57] is 4k native disk <sdb> <0>
+[2026/07/10 13:39:57] get disk size from sysfs for sdb
+[2026/07/10 13:39:57] ventoy_get_vtoy_data /dev/sdb
+[2026/07/10 13:39:57] Invalid efi part2 name <root>
+[2026/07/10 13:39:57] disk:</dev/sdb 8:16> model:<ATA KINGSTON SH103S3 (scsi)> size:120034123776 (120 GB)
+[2026/07/10 13:39:57] /dev/sdb NO Ventoy detected
+[2026/07/10 13:39:57] get disk info sdk
+[2026/07/10 13:39:57] is 4k native disk <sdk> <0>
+[2026/07/10 13:39:57] get disk size from sysfs for sdk
+[2026/07/10 13:39:57] ventoy_get_vtoy_data /dev/sdk
+[2026/07/10 13:39:57] ventoy partition layout check OK: [2048 29964288] [29966336 65536]
+[2026/07/10 13:39:57] now check secure boot for /dev/sdk ...
+[2026/07/10 13:39:58] /EFI/BOOT/grubx64_real.efi find, secure boot in enabled
+[2026/07/10 13:39:58] disk:</dev/sdk 8:160> model:<SanDisk Cruzer Glide (USB)> size:15376318464 (16 GB)
+[2026/07/10 13:39:58] /dev/sdk Ventoy:<1.1.17> MBR secureboot:1 preserve:0
+[2026/07/10 13:39:58] get disk info sdi
+[2026/07/10 13:39:58] is 4k native disk <sdi> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sdi
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sdi
+[2026/07/10 13:39:58] disk /dev/sdi is too small 0
+[2026/07/10 13:39:58] disk:</dev/sdi 8:128> model:<Generic- SD/MMC (USB)> size:0 (0 GB)
+[2026/07/10 13:39:58] /dev/sdi NO Ventoy detected
+[2026/07/10 13:39:58] get disk info sdg
+[2026/07/10 13:39:58] is 4k native disk <sdg> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sdg
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sdg
+[2026/07/10 13:39:58] disk /dev/sdg is too small 0
+[2026/07/10 13:39:58] disk:</dev/sdg 8:96> model:<Generic- Compact Flash (USB)> size:0 (0 GB)
+[2026/07/10 13:39:58] /dev/sdg NO Ventoy detected
+[2026/07/10 13:39:58] get disk info sde
+[2026/07/10 13:39:58] is 4k native disk <sde> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sde
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sde
+[2026/07/10 13:39:58] NO ventoy efi part layout <2048 0>
+[2026/07/10 13:39:58] disk:</dev/sde 8:64> model:<WD easystore 2647 (USB)> size:5000947302400 (5000 GB)
+[2026/07/10 13:39:58] /dev/sde NO Ventoy detected
+[2026/07/10 13:39:58] get disk info sdc
+[2026/07/10 13:39:58] is 4k native disk <sdc> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sdc
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sdc
+[2026/07/10 13:39:58] NO ventoy efi part layout <2048 0>
+[2026/07/10 13:39:58] disk:</dev/sdc 8:32> model:<ATA PNY CS900 1TB SS (scsi)> size:1000204886016 (1024 GB)
+[2026/07/10 13:39:58] /dev/sdc NO Ventoy detected
+[2026/07/10 13:39:58] get disk info sda
+[2026/07/10 13:39:58] is 4k native disk <sda> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sda
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sda
+[2026/07/10 13:39:58] NO ventoy efi part layout <0 0>
+[2026/07/10 13:39:58] disk:</dev/sda 8:0> model:<ATA SanDisk SDSSDA12 (scsi)> size:120034123776 (120 GB)
+[2026/07/10 13:39:58] /dev/sda NO Ventoy detected
+[2026/07/10 13:39:58] get disk info sdj
+[2026/07/10 13:39:58] is 4k native disk <sdj> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sdj
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sdj
+[2026/07/10 13:39:58] disk /dev/sdj is too small 0
+[2026/07/10 13:39:58] disk:</dev/sdj 8:144> model:<Generic- M.S./M.S.Pro/HG (USB)> size:0 (0 GB)
+[2026/07/10 13:39:58] /dev/sdj NO Ventoy detected
+[2026/07/10 13:39:58] get disk info sdh
+[2026/07/10 13:39:58] is 4k native disk <sdh> <0>
+[2026/07/10 13:39:58] get disk size from sysfs for sdh
+[2026/07/10 13:39:58] ventoy_get_vtoy_data /dev/sdh
+[2026/07/10 13:39:58] disk /dev/sdh is too small 0
+[2026/07/10 13:39:58] disk:</dev/sdh 8:112> model:<Generic- SM/xD-Picture (USB)> size:0 (0 GB)
+[2026/07/10 13:39:58] /dev/sdh NO Ventoy detected
+[2026/07/10 13:40:00] set percent 0
+[2026/07/10 13:40:00] fill_dev_list total disk: 11 showall:0
+[2026/07/10 13:40:00] combox count:8, active:sdk id:7
+[2026/07/10 13:40:02] on_exit_window ...
+[2026/07/10 13:40:02] ######## Ventoy2Disk GTK 1.1.17 exit ########

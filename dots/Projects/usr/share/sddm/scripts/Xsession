@@ -1,0 +1,93 @@
+#! /bin/sh
+# Xsession - run as user
+# Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+
+# This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
+# Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
+
+# Import the login environment for some shells by starting them as login shell
+# and executing this script. Inside, SDDM_XSESSION_PROFILE_READ will be set and
+# it continues below.
+if [ -z "$SDDM_XSESSION_PROFILE_READ" ]; then
+  export SDDM_XSESSION_PROFILE_READ=1
+
+  case $SHELL in
+    */bash|*/zsh)
+      exec $SHELL --login -c 'exec "$@"' - $0 "$@"
+      ;;
+    */csh|*/tcsh)
+      exec $SHELL -c 'if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; exec $argv' $0 "$@"
+      ;;
+    */fish)
+      [ -f /etc/profile ] && . /etc/profile
+      [ -f $HOME/.profile ] && . $HOME/.profile
+      exec $SHELL --login -c 'exec $argv' $0 "$@"
+      ;;
+    *) # Plain sh, ksh, and anything we do not know.
+      [ -f /etc/profile ] && . /etc/profile
+      [ -f $HOME/.profile ] && . $HOME/.profile
+      exec $0 "$@"
+      ;;
+  esac
+
+  exit 1
+fi
+unset SDDM_XSESSION_PROFILE_READ
+
+[ -f /etc/xprofile ] && . /etc/xprofile
+[ -f /usr/local/etc/xprofile ] && . /usr/local/etc/xprofile
+[ -f $HOME/.xprofile ] && . $HOME/.xprofile
+
+# run all system xinitrc shell scripts.
+if [ -d /etc/X11/xinit/xinitrc.d ]; then
+  for i in /etc/X11/xinit/xinitrc.d/* ; do
+  if [ -x "$i" ]; then
+    . "$i"
+  fi
+  done
+fi
+
+# Load Xsession scripts
+# OPTIONFILE, USERXSESSION, USERXSESSIONRC and ALTUSERXSESSION are required
+# by the scripts to work
+xsessionddir="/etc/X11/Xsession.d"
+OPTIONFILE=/etc/X11/Xsession.options
+USERXSESSION=$HOME/.xsession
+USERXSESSIONRC=$HOME/.xsessionrc
+ALTUSERXSESSION=$HOME/.Xsession
+
+if [ -d "$xsessionddir" ]; then
+    for i in `ls $xsessionddir`; do
+        script="$xsessionddir/$i"
+        echo "Loading X session script $script"
+        if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\{1,\}$' > /dev/null; then
+            . "$script"
+        fi
+    done
+fi
+
+if [ -d /etc/X11/Xresources ]; then
+  for i in /etc/X11/Xresources/*; do
+    [ -f $i ] && xrdb -merge $i
+  done
+elif [ -f /etc/X11/Xresources ]; then
+  xrdb -merge /etc/X11/Xresources
+fi
+[ -f $HOME/.Xresources ] && xrdb -merge $HOME/.Xresources
+
+if [ -f "$USERXSESSIONRC" ]; then
+  . "$USERXSESSIONRC"
+fi
+if [ -f "$USERXSESSION" ]; then
+  . "$USERXSESSION"
+fi
+
+if [ -z "$*" ]; then
+    exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
+    exit 1
+fi
+
+# Note: This script is called with the whole session commandline as a single first argument.
+# To run it properly, word splitting has to be performed by the shell, i.e. $@ or $0 without quotes.
+exec $@
+exit 1

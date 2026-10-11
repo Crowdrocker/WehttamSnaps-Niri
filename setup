@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# iNiR setup - installer and maintenance entrypoint
+# SNAPS-OS setup - installer and maintenance entrypoint
 # Commands: install, update, status, migrate, doctor, rollback, my-changes, uninstall (or TUI if no args)
 
 resolve_bootstrap_repo_root() {

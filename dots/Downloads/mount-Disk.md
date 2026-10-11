@@ -1,0 +1,59 @@
+sudo mkdir -p /mnt/LINUXDRIVE
+sudo mkdir -p /mnt/EXTRA1TB
+sudo mkdir -p /mnt/GAMEDRIVE
+sudo mkdir -p /mnt/WettamSnapsMain
+
+sudo mount /dev/sdc1 /mnt/LINUXDRIVE
+sudo mount /dev/sdd1 /mnt/EXTRA1TB
+sudo mount /dev/sde1 /mnt/GAMEDRIVE
+sudo mount -t ntfs-3g /dev/sdf1 /mnt/WettamSnapsMain
+
+sudo unmount /dev/sdb1 /mnt/LINUXDRIVE-1
+sudo udiskie-umount /dev/sdd1 /mnt/PC-EXTRA-2
+sudo udiskie-umount /dev/sde1 /mnt/GAMEDRIVE
+sudo udiskie-umount /dev/sdj1 /mnt/Wettam-Snaps-Main
+
+echo "========================================"
+echo "Arch Linux Disk Mounting Cheat Sheet"
+echo "========================================"
+
+echo -e "\n📋 QUICK MOUNT COMMANDS:"
+echo "# Mount drive: udisksctl mount -b /dev/sdXY"
+echo "# Unmount: udisksctl unmount -b /dev/sdXY"
+echo "# List drives: lsblk -f"
+
+echo -e "\n🎯 YOUR DRIVES CHEAT SHEET:"
+echo "PC-EXTRA-2:      udisksctl mount -b /dev/sdd1"
+echo "Wettam Snaps Main: udisksctl mount -b /dev/sde1"
+echo "GAMEDRIVE:       udisksctl mount -b /dev/sdj1"
+echo "LINUXDRIVE-1:    udisksctl mount -b /dev/sdb1"
+
+echo -e "\n🔍 CHECK DRIVE STATUS:"
+echo "# See all drives: lsblk -f"
+echo "# See mounted drives: df -h | grep -E '(/dev/sd|/mnt/)'"
+echo "# Check drive health: sudo smartctl -a /dev/sdX"
+
+# --- WehttamSnaps Data Drives ---
+
+# /dev/sdc1 -> LINUXDRIVE
+UUID=2be94340-fe0c-464c-9afc-fde6ddc300cc  /mnt/LINUXDRIVE        ext4    defaults,noatime,nofail    0 2
+
+# /dev/sde1 -> EXTRA1TB
+UUID=d3283959-c9d3-494a-b832-72f961ea7a92  /mnt/EXTRA1TB          ext4    defaults,noatime,nofail    0 2
+
+# /dev/sdd1 -> GAMEDRIVE
+UUID=3f996c97-b699-4208-b9fc-1a64bc65b478  /mnt/GAMEDRIVE         ext4    defaults,noatime,nofail    0 2
+
+# NTFS Drive (Ensure correct mount options for gaming/Steam compatibility if running Proton games)
+UUID=2C66D88566D850E6                      /mnt/WettamSnapsMain   ntfs-3g defaults,uid=1000,gid=1000,dmask=022,fmask=111,nofail  0 0
+
+
+echo -e "\n📁 AUTO-MOUNT AT BOOT (fstab):"
+echo "# Edit fstab: sudo nano /etc/fstab"
+echo "# Example entry:"
+echo "/dev/sdd1 /mnt/PC-EXTRA-2 ntfs-3g defaults,uid=1000,gid=1000,umask=002 0 0"
+echo ""
+echo "# Apply changes:"
+echo "sudo systemctl daemon-reload"
+echo "sudo mount -a"
+

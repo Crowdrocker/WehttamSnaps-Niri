@@ -1,0 +1,807 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   WehttamSnaps GTK3 Theme — Cyberpunk Dark
+   github.com/Crowdrocker  |  twitch.tv/WehttamSnaps
+   Install: ~/.themes/WehttamSnaps/gtk-3.0/gtk.css
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Variables ──────────────────────────────────────────────────────── */
+@define-color bg0          #06060f;
+@define-color bg1          #0a0a1c;
+@define-color bg2          #0e0e24;
+@define-color bg3          #141428;
+@define-color bg4          #1a1a38;
+@define-color border       #1a1a3a;
+@define-color border_focus #00ffd1;
+
+@define-color cyan         #00ffd1;
+@define-color cyan_dim     rgba(0,255,209,0.15);
+@define-color cyan_glow    rgba(0,255,209,0.08);
+@define-color blue         #3b82ff;
+@define-color blue_dim     rgba(59,130,255,0.15);
+@define-color pink         #ff5af1;
+@define-color orange       #ff6b1a;
+@define-color red          #ff1744;
+@define-color red_dim      rgba(255,23,68,0.15);
+@define-color green        #00e676;
+
+@define-color fg0          #c8d0e8;
+@define-color fg1          #8890aa;
+@define-color fg2          #4a5070;
+@define-color fg3          #2a2a4a;
+
+@define-color selected_bg  rgba(0,255,209,0.12);
+@define-color selected_fg  #00ffd1;
+@define-color hover_bg     rgba(0,255,209,0.06);
+@define-color active_bg    rgba(0,255,209,0.18);
+
+/* ══════════════════════════════════════════════════════════════════════
+   BASE / WINDOW
+   ══════════════════════════════════════════════════════════════════════ */
+
+* {
+    -gtk-icon-shadow: none;
+    outline: none;
+    outline-width: 0;
+    outline-style: none;
+}
+
+window,
+.background {
+    background-color: @bg0;
+    color: @fg0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TITLE BAR & HEADER BAR
+   ══════════════════════════════════════════════════════════════════════ */
+
+headerbar,
+.titlebar {
+    background-color: @bg1;
+    color: @fg0;
+    border-bottom: 1px solid @border;
+    padding: 4px 8px;
+    min-height: 36px;
+    box-shadow: none;
+}
+
+headerbar:backdrop,
+.titlebar:backdrop {
+    background-color: @bg0;
+    color: @fg2;
+    border-bottom: 1px solid @fg3;
+}
+
+/* Window title text */
+headerbar .title,
+.titlebar .title {
+    font-weight: bold;
+    font-size: 10pt;
+    color: @fg0;
+}
+
+headerbar .subtitle,
+.titlebar .subtitle {
+    font-size: 8pt;
+    color: @fg2;
+}
+
+/* Header bar buttons (close/min/max) */
+headerbar button,
+.titlebar button {
+    background-color: @bg2;
+    color: @fg1;
+    border: 1px solid @border;
+    border-radius: 2px;
+    padding: 3px 7px;
+    min-width: 0;
+    min-height: 0;
+    box-shadow: none;
+}
+
+headerbar button:hover,
+.titlebar button:hover {
+    background-color: @bg3;
+    color: @fg0;
+    border-color: @fg2;
+}
+
+headerbar button.close,
+.titlebar button.close {
+    color: @red;
+    border-color: @red;
+}
+
+headerbar button.close:hover,
+.titlebar button.close:hover {
+    background-color: @red_dim;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════════════════════════════════ */
+
+button {
+    background-color: @bg2;
+    color: @fg0;
+    border: 1px solid @border;
+    border-radius: 2px;
+    padding: 5px 12px;
+    min-height: 28px;
+    box-shadow: none;
+    transition: background-color 80ms, border-color 80ms, color 80ms;
+}
+
+button:hover {
+    background-color: @bg3;
+    border-color: @fg2;
+    color: @fg0;
+}
+
+button:active,
+button:checked {
+    background-color: @cyan_dim;
+    border-color: @cyan;
+    color: @cyan;
+}
+
+button:disabled {
+    background-color: @bg1;
+    color: @fg3;
+    border-color: @fg3;
+}
+
+/* Suggested action (primary) button */
+button.suggested-action {
+    background-color: @cyan_dim;
+    color: @cyan;
+    border-color: @cyan;
+    font-weight: bold;
+}
+
+button.suggested-action:hover {
+    background-color: rgba(0,255,209,0.22);
+}
+
+/* Destructive action button */
+button.destructive-action {
+    background-color: @red_dim;
+    color: @red;
+    border-color: @red;
+}
+
+button.destructive-action:hover {
+    background-color: rgba(255,23,68,0.22);
+}
+
+/* Flat buttons (toolbar etc.) */
+button.flat {
+    background-color: transparent;
+    border-color: transparent;
+    color: @fg1;
+}
+
+button.flat:hover {
+    background-color: @hover_bg;
+    color: @fg0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ENTRIES / TEXT INPUT
+   ══════════════════════════════════════════════════════════════════════ */
+
+entry {
+    background-color: @bg1;
+    color: @fg0;
+    border: 1px solid @border;
+    border-radius: 2px;
+    padding: 5px 10px;
+    caret-color: @cyan;
+    box-shadow: none;
+}
+
+entry:focus {
+    border-color: @cyan;
+    background-color: @bg2;
+    box-shadow: inset 0 0 0 1px @cyan_glow;
+}
+
+entry:disabled {
+    background-color: @bg0;
+    color: @fg3;
+    border-color: @fg3;
+}
+
+entry selection {
+    background-color: @selected_bg;
+    color: @selected_fg;
+}
+
+/* Search entry */
+.search-bar entry,
+searchentry {
+    border-radius: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LABELS
+   ══════════════════════════════════════════════════════════════════════ */
+
+label {
+    color: @fg0;
+}
+
+label:disabled {
+    color: @fg3;
+}
+
+label selection {
+    background-color: @selected_bg;
+    color: @selected_fg;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MENUS & DROPDOWNS
+   ══════════════════════════════════════════════════════════════════════ */
+
+menu,
+.menu,
+.context-menu {
+    background-color: @bg1;
+    color: @fg0;
+    border: 1px solid @border;
+    border-radius: 2px;
+    padding: 3px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+
+menuitem {
+    background-color: transparent;
+    color: @fg0;
+    padding: 5px 14px;
+    min-height: 24px;
+}
+
+menuitem:hover,
+menuitem:focus {
+    background-color: @selected_bg;
+    color: @cyan;
+}
+
+menuitem:disabled {
+    color: @fg3;
+}
+
+menuitem arrow {
+    color: @fg2;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+/* Separator in menus */
+separator,
+menuitem separator {
+    background-color: @border;
+    min-height: 1px;
+    margin: 3px 0;
+}
+
+/* Menu bar (top of app windows) */
+menubar {
+    background-color: @bg1;
+    color: @fg0;
+    border-bottom: 1px solid @border;
+    padding: 0 2px;
+}
+
+menubar > menuitem {
+    padding: 4px 10px;
+    border-radius: 0;
+}
+
+menubar > menuitem:hover,
+menubar > menuitem:focus {
+    background-color: @selected_bg;
+    color: @cyan;
+}
+
+/* Dropdown / combo box */
+combobox button,
+combobox .combo {
+    background-color: @bg1;
+    border-color: @border;
+    color: @fg0;
+    border-radius: 2px;
+    padding: 4px 8px;
+}
+
+combobox button:hover {
+    border-color: @fg2;
+    background-color: @bg2;
+}
+
+combobox button:focus {
+    border-color: @cyan;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LISTS & TREEVIEW (Thunar file list etc.)
+   ══════════════════════════════════════════════════════════════════════ */
+
+treeview,
+.view {
+    background-color: @bg0;
+    color: @fg0;
+    border: none;
+}
+
+treeview:hover {
+    background-color: @hover_bg;
+}
+
+treeview:selected,
+treeview:selected:focus,
+.view:selected {
+    background-color: @selected_bg;
+    color: @selected_fg;
+}
+
+treeview header button {
+    background-color: @bg1;
+    color: @fg1;
+    border-bottom: 1px solid @border;
+    border-right: 1px solid @border;
+    border-radius: 0;
+    padding: 4px 8px;
+    font-size: 9pt;
+}
+
+treeview header button:hover {
+    background-color: @bg2;
+    color: @fg0;
+}
+
+/* Alternating row colours — subtle */
+treeview.view:nth-child(even) {
+    background-color: rgba(10,10,28,0.4);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SIDEBAR (Thunar places panel)
+   ══════════════════════════════════════════════════════════════════════ */
+
+.sidebar,
+placessidebar {
+    background-color: @bg1;
+    border-right: 1px solid @border;
+    color: @fg0;
+}
+
+.sidebar row,
+placessidebar row {
+    padding: 4px 8px;
+    border-radius: 0;
+    color: @fg1;
+    min-height: 28px;
+}
+
+.sidebar row:hover,
+placessidebar row:hover {
+    background-color: @hover_bg;
+    color: @fg0;
+}
+
+.sidebar row:selected,
+.sidebar row:selected:focus,
+placessidebar row:selected {
+    background-color: @selected_bg;
+    color: @cyan;
+}
+
+/* Section headings in sidebar */
+.sidebar .sidebar-section-header,
+placessidebar .sidebar-section-header {
+    color: @fg2;
+    font-size: 8pt;
+    font-weight: bold;
+    padding: 8px 10px 2px 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   NOTEBOOK / TABS
+   ══════════════════════════════════════════════════════════════════════ */
+
+notebook {
+    background-color: @bg0;
+}
+
+notebook header {
+    background-color: @bg1;
+    border-bottom: 1px solid @border;
+}
+
+notebook header tab {
+    background-color: transparent;
+    color: @fg2;
+    padding: 6px 16px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin: 0 1px;
+}
+
+notebook header tab:hover {
+    color: @fg0;
+    background-color: @hover_bg;
+}
+
+notebook header tab:checked {
+    color: @cyan;
+    background-color: @bg0;
+    border-bottom-color: @cyan;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SCROLLBARS
+   ══════════════════════════════════════════════════════════════════════ */
+
+scrollbar {
+    background-color: @bg1;
+    border: none;
+}
+
+scrollbar slider {
+    background-color: @bg4;
+    border-radius: 10px;
+    min-width: 6px;
+    min-height: 6px;
+    border: 1px solid @border;
+    margin: 2px;
+}
+
+scrollbar slider:hover {
+    background-color: @fg2;
+}
+
+scrollbar slider:active {
+    background-color: @cyan;
+}
+
+scrollbar.vertical {
+    border-left: 1px solid @border;
+}
+
+scrollbar.horizontal {
+    border-top: 1px solid @border;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHECKBOXES & RADIO BUTTONS
+   ══════════════════════════════════════════════════════════════════════ */
+
+checkbutton,
+radiobutton {
+    color: @fg0;
+    padding: 3px;
+}
+
+checkbutton check,
+radiobutton radio {
+    background-color: @bg1;
+    border: 1px solid @border;
+    border-radius: 2px;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+checkbutton check:hover,
+radiobutton radio:hover {
+    border-color: @cyan;
+}
+
+checkbutton check:checked,
+radiobutton radio:checked {
+    background-color: @cyan_dim;
+    border-color: @cyan;
+    color: @cyan;
+}
+
+radiobutton radio {
+    border-radius: 50%;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PROGRESS BARS & SCALES
+   ══════════════════════════════════════════════════════════════════════ */
+
+progressbar trough {
+    background-color: @bg2;
+    border: 1px solid @border;
+    border-radius: 2px;
+    min-height: 6px;
+}
+
+progressbar progress {
+    background-color: @cyan;
+    border-radius: 2px;
+    min-height: 6px;
+}
+
+progressbar.osd trough {
+    background-color: rgba(6,6,15,0.85);
+}
+
+scale trough {
+    background-color: @bg2;
+    border: 1px solid @border;
+    border-radius: 10px;
+    min-height: 4px;
+    min-width: 4px;
+}
+
+scale highlight {
+    background-color: @cyan;
+    border-radius: 10px;
+}
+
+scale slider {
+    background-color: @fg0;
+    border: 1px solid @border;
+    border-radius: 50%;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+scale slider:hover {
+    background-color: @cyan;
+    border-color: @cyan;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TOOLTIPS
+   ══════════════════════════════════════════════════════════════════════ */
+
+tooltip {
+    background-color: @bg2;
+    color: @fg0;
+    border: 1px solid @border;
+    border-radius: 2px;
+    padding: 4px 8px;
+}
+
+tooltip label {
+    color: @fg0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DIALOGS
+   ══════════════════════════════════════════════════════════════════════ */
+
+dialog {
+    background-color: @bg0;
+    color: @fg0;
+}
+
+dialog .dialog-action-area {
+    background-color: @bg1;
+    border-top: 1px solid @border;
+    padding: 8px;
+}
+
+messagedialog {
+    background-color: @bg0;
+}
+
+messagedialog .message-area {
+    padding: 20px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TOOLBAR
+   ══════════════════════════════════════════════════════════════════════ */
+
+toolbar {
+    background-color: @bg1;
+    border-bottom: 1px solid @border;
+    padding: 3px;
+}
+
+toolbar button {
+    background-color: transparent;
+    border-color: transparent;
+    color: @fg1;
+    padding: 4px 6px;
+    border-radius: 2px;
+}
+
+toolbar button:hover {
+    background-color: @hover_bg;
+    color: @fg0;
+    border-color: @border;
+}
+
+toolbar button:active,
+toolbar button:checked {
+    background-color: @cyan_dim;
+    color: @cyan;
+    border-color: @cyan;
+}
+
+toolbar separator {
+    background-color: @border;
+    min-width: 1px;
+    margin: 4px 3px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   STATUSBAR
+   ══════════════════════════════════════════════════════════════════════ */
+
+statusbar {
+    background-color: @bg1;
+    color: @fg2;
+    border-top: 1px solid @border;
+    padding: 2px 8px;
+    font-size: 9pt;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FRAME & BORDERS
+   ══════════════════════════════════════════════════════════════════════ */
+
+frame {
+    border: 1px solid @border;
+    border-radius: 2px;
+}
+
+frame > border {
+    border: 1px solid @border;
+    border-radius: 2px;
+}
+
+.frame {
+    border: 1px solid @border;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SPINNERS & ICONS
+   ══════════════════════════════════════════════════════════════════════ */
+
+spinner {
+    color: @cyan;
+}
+
+image {
+    color: @fg1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   POPOVER
+   ══════════════════════════════════════════════════════════════════════ */
+
+popover {
+    background-color: @bg1;
+    border: 1px solid @border;
+    border-radius: 2px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+
+popover > arrow {
+    background-color: @bg1;
+    border-color: @border;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   NOTIFICATIONS (dunst uses its own config but GTK apps use this)
+   ══════════════════════════════════════════════════════════════════════ */
+
+.app-notification {
+    background-color: @bg2;
+    border: 1px solid @border;
+    border-radius: 2px;
+    color: @fg0;
+    padding: 8px 12px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THUNAR SPECIFIC
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Path bar / location entry */
+.path-bar button {
+    background-color: transparent;
+    border: none;
+    color: @fg1;
+    padding: 3px 6px;
+    border-radius: 2px;
+}
+
+.path-bar button:hover {
+    background-color: @hover_bg;
+    color: @fg0;
+}
+
+.path-bar button.active,
+.path-bar button:checked {
+    color: @cyan;
+    background-color: @cyan_glow;
+}
+
+/* Icon view (thumbnail grid) */
+iconview {
+    background-color: @bg0;
+    color: @fg0;
+}
+
+iconview:hover {
+    background-color: @hover_bg;
+}
+
+iconview:selected {
+    background-color: @selected_bg;
+    color: @cyan;
+}
+
+iconview cell {
+    border-radius: 2px;
+    padding: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SWITCHES / TOGGLES
+   ══════════════════════════════════════════════════════════════════════ */
+
+switch {
+    background-color: @bg2;
+    border: 1px solid @border;
+    border-radius: 14px;
+    min-width: 44px;
+    min-height: 22px;
+}
+
+switch:checked {
+    background-color: @cyan_dim;
+    border-color: @cyan;
+}
+
+switch slider {
+    background-color: @fg2;
+    border-radius: 50%;
+    min-width: 18px;
+    min-height: 18px;
+    margin: 1px;
+}
+
+switch:checked slider {
+    background-color: @cyan;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SELECTION / HIGHLIGHT
+   ══════════════════════════════════════════════════════════════════════ */
+
+*:selected,
+*:selected:focus {
+    background-color: @selected_bg;
+    color: @selected_fg;
+}
+
+selection {
+    background-color: @selected_bg;
+    color: @selected_fg;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LINK BUTTONS
+   ══════════════════════════════════════════════════════════════════════ */
+
+*:link {
+    color: @cyan;
+}
+
+*:link:hover {
+    color: @blue;
+}
+
+*:visited {
+    color: @fg2;
+}

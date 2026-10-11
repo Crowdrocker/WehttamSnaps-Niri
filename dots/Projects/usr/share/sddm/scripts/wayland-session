@@ -1,0 +1,32 @@
+#!/bin/sh
+# wayland-session - run as user
+# Copyright (C) 2015-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+
+# This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
+# Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
+
+# Note: This script is called with the whole session commandline as a single first argument.
+# To run it properly, word splitting has to be performed by the shell, i.e. $@ or $0 without quotes.
+
+# Note that the respective logout scripts are not sourced.
+
+case $SHELL in
+  */bash|*/zsh)
+    exec $SHELL --login -c 'exec "$@"' - $@
+    ;;
+  */csh|*/tcsh)
+    exec $SHELL -c 'if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; exec $argv' $@
+    ;;
+  */fish)
+    [ -f /etc/profile ] && . /etc/profile
+    [ -f $HOME/.profile ] && . $HOME/.profile
+    exec $SHELL --login -c 'exec $argv' $@
+    ;;
+  *) # Plain sh, ksh, and anything we do not know.
+    [ -f /etc/profile ] && . /etc/profile
+    [ -f $HOME/.profile ] && . $HOME/.profile
+    exec $@
+    ;;
+esac
+
+exit 1
