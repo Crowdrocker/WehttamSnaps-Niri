@@ -1,0 +1,43 @@
+For controller users who have modified their Fallout4Prefs.ini uPipboyTargetHeight and uPipboyTargetWidth to double the resolution size of the Pipboy screen and found that the virtual mouse cursor on the map was locked to the top left quadrant I believe I have found a fix.
+
+In addition to doubling the values for the above you need to double the values that setup the boundaries for the virtual cursor in Fallout4Custom.ini.
+
+So both .ini files should have the following entries:
+
+Fallout4Prefs.ini
+
+[Display]
+uPipboyTargetHeight=1400
+uPipboyTargetWidth=1752
+
+Fallout4Custom.ini
+
+[Pipboy]
+uPipboyConstraintWidth=1450
+uPipboyConstraintWidth_PowerArmor=1110
+uPipboyConstraintHeight=1020
+uPipboyConstraintHeight_PowerArmor=760
+uPipboyConstraintTLX_PowerArmor=320
+uPipboyConstraintTLX=150
+uPipboyConstraintTLY=190
+uPipboyConstraintTLY_PowerArmor=320
+
+
+If you want to revert to defaults here are the DEFAULT values:
+Fallout4Prefs.ini
+
+[Display]
+uPipboyTargetHeight=700
+uPipboyTargetWidth=876
+
+Fallout4Custom.ini
+
+[Pipboy]
+uPipboyConstraintWidth=725
+uPipboyConstraintWidth_PowerArmor=555
+uPipboyConstraintHeight=510
+uPipboyConstraintHeight_PowerArmor=380
+uPipboyConstraintTLX_PowerArmor=160
+uPipboyConstraintTLX=75
+uPipboyConstraintTLY=95
+uPipboyConstraintTLY_PowerArmor=160

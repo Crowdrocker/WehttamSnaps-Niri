@@ -1,0 +1,304 @@
+[Document 0]
+URL=file:///home/wehttamsnaps/Projects/Randome TS.txt
+
+[Document 1]
+URL=file:///mnt/GAMEDRIVE/MY-NOTES/STEAMLAUNCH
+
+[Document 10]
+URL=
+
+[Document 11]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/execs.conf
+
+[Document 12]
+URL=file:///home/wehttamsnaps/Downloads/.Dotfiles-main/Configs/mango/Modules/Autostart.conf
+
+[Document 13]
+URL=file:///home/wehttamsnaps/Downloads/.Dotfiles-main/Configs/mango/Modules/Rules.conf
+
+[Document 14]
+URL=file:///home/wehttamsnaps/Downloads/.Dotfiles-main/Configs/mango/config.conf
+
+[Document 15]
+URL=file:///home/wehttamsnaps/.config/mango/custom/env.conf
+
+[Document 16]
+URL=file:///home/wehttamsnaps/.config/mango/custom/execs.conf
+
+[Document 17]
+URL=file:///home/wehttamsnaps/.config/mango/custom/general.conf
+
+[Document 18]
+URL=file:///home/wehttamsnaps/.config/mango/Modules/Autostart.conf
+
+[Document 19]
+URL=
+
+[Document 2]
+URL=file:///mnt/GAMEDRIVE/MY-NOTES/Steam Lauch Options
+
+[Document 20]
+URL=file:///home/wehttamsnaps/.config/mango/Modules/Keybinds.conf
+
+[Document 3]
+URL=
+
+[Document 4]
+URL=file:///mnt/GAMEDRIVE/MY-NOTES/store passwords, notes
+
+[Document 5]
+URL=file:///mnt/EXTRA1TB/WehttamSnaps-Niri-main/dots/.config/niri/snaps/30-workspaces.kdl
+
+[Document 6]
+URL=file:///home/wehttamsnaps/Projects/Randome TS-2.txt
+
+[Document 7]
+URL=file:///home/wehttamsnaps/.config/niri/Modules/Keybinds.kdl
+
+[Document 8]
+URL=file:///mnt/WettamSnapsMain/11111111111111111
+
+[Document 9]
+URL=
+
+[Kate Plugins]
+bookmarksplugin=false
+cmaketoolsplugin=false
+compilerexplorer=false
+eslintplugin=false
+externaltoolsplugin=true
+formatplugin=false
+katebacktracebrowserplugin=false
+katebuildplugin=false
+katecloseexceptplugin=false
+katecolorpickerplugin=false
+katectagsplugin=false
+katefilebrowserplugin=false
+katefiletreeplugin=true
+kategdbplugin=false
+kategitblameplugin=false
+kategpgplugin=false
+katekonsoleplugin=true
+kateprojectplugin=true
+katereplicodeplugin=false
+katesearchplugin=true
+kateshownonprintableplugin=false
+katesnippetsplugin=false
+katesqlplugin=false
+katesymbolviewerplugin=false
+katexmlcheckplugin=false
+katexmltoolsplugin=false
+keyboardmacrosplugin=false
+ktexteditorpreviewplugin=false
+latexcompletionplugin=false
+lspclientplugin=true
+openlinkplugin=false
+rainbowparens=false
+rbqlplugin=false
+tabswitcherplugin=true
+templateplugin=false
+textfilterplugin=true
+
+[MainWindow0]
+Active ViewSpace=0
+Kate-MDI-H-Splitter=0,1779,0
+Kate-MDI-Sidebar-0-Bar-0-TvList=kate_private_plugin_katefiletreeplugin,kateproject,kateprojectgit,lspclient_symbol_outline
+Kate-MDI-Sidebar-0-LastSize=200
+Kate-MDI-Sidebar-0-SectSizes=0
+Kate-MDI-Sidebar-0-Splitter=801
+Kate-MDI-Sidebar-1-Bar-0-TvList=
+Kate-MDI-Sidebar-1-LastSize=200
+Kate-MDI-Sidebar-1-SectSizes=0
+Kate-MDI-Sidebar-1-Splitter=801
+Kate-MDI-Sidebar-2-Bar-0-TvList=
+Kate-MDI-Sidebar-2-LastSize=200
+Kate-MDI-Sidebar-2-SectSizes=0
+Kate-MDI-Sidebar-2-Splitter=1779
+Kate-MDI-Sidebar-3-Bar-0-TvList=output,diagnostics,kate_plugin_katesearch,kateprojectinfo,kate_private_plugin_katekonsoleplugin
+Kate-MDI-Sidebar-3-LastSize=211
+Kate-MDI-Sidebar-3-SectSizes=0
+Kate-MDI-Sidebar-3-Splitter=1419
+Kate-MDI-Sidebar-Style=2
+Kate-MDI-Sidebar-Visible=true
+Kate-MDI-ToolView-diagnostics-Position=3
+Kate-MDI-ToolView-diagnostics-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-diagnostics-Visible=false
+Kate-MDI-ToolView-kate_plugin_katesearch-Position=3
+Kate-MDI-ToolView-kate_plugin_katesearch-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_plugin_katesearch-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Position=0
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Visible=false
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Position=3
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Visible=false
+Kate-MDI-ToolView-kateproject-Position=0
+Kate-MDI-ToolView-kateproject-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateproject-Visible=false
+Kate-MDI-ToolView-kateprojectgit-Position=0
+Kate-MDI-ToolView-kateprojectgit-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectgit-Visible=false
+Kate-MDI-ToolView-kateprojectinfo-Position=3
+Kate-MDI-ToolView-kateprojectinfo-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectinfo-Visible=false
+Kate-MDI-ToolView-lspclient_symbol_outline-Position=0
+Kate-MDI-ToolView-lspclient_symbol_outline-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-lspclient_symbol_outline-Visible=false
+Kate-MDI-ToolView-output-Position=3
+Kate-MDI-ToolView-output-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-output-Visible=false
+Kate-MDI-V-Splitter=0,589,211
+
+[MainWindow0 Settings]
+WindowState=8
+
+[MainWindow0-Splitter 0]
+Children=MainWindow0-ViewSpace 0,MainWindow0-ViewSpace 1
+Orientation=1
+Sizes=892,886
+
+[MainWindow0-ViewSpace 0]
+Active View=17
+Count=4
+Documents=0,1,2,3,4,5,6,9,10,7,11,12,13,14,15,16,17,18,19,20
+View 0=17
+View 1=18
+View 2=19
+View 3=20
+
+[MainWindow0-ViewSpace 0 0]
+CursorColumn=21
+CursorLine=233
+ScrollLine=226
+
+[MainWindow0-ViewSpace 0 15]
+CursorColumn=0
+CursorLine=36
+ScrollLine=31
+
+[MainWindow0-ViewSpace 0 17]
+CursorColumn=0
+CursorLine=2
+
+[MainWindow0-ViewSpace 0 18]
+CursorColumn=55
+CursorLine=19
+ScrollLine=9
+
+[MainWindow0-ViewSpace 0 2]
+CursorColumn=0
+CursorLine=2
+
+[MainWindow0-ViewSpace 0 20]
+CursorColumn=20
+CursorLine=130
+ScrollLine=20
+
+[MainWindow0-ViewSpace 0 5]
+CursorColumn=0
+CursorLine=326
+ScrollLine=301
+
+[MainWindow0-ViewSpace 0 6]
+CursorColumn=14
+CursorLine=361
+ScrollLine=374
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/Downloads/.Dotfiles-main/Configs/mango/Modules/Autostart.conf]
+CursorColumn=22
+CursorLine=6
+
+[MainWindow0-ViewSpace 1]
+Active View=8
+Count=1
+Documents=8
+View 0=8
+
+[MainWindow0-ViewSpace 1 10]
+CursorColumn=0
+CursorLine=22
+ScrollLine=2
+
+[MainWindow0-ViewSpace 1 11]
+ScrollLine=126
+
+[MainWindow0-ViewSpace 1 12]
+CursorColumn=79
+CursorLine=103
+ScrollLine=84
+
+[MainWindow0-ViewSpace 1 13]
+ScrollLine=126
+
+[MainWindow0-ViewSpace 1 14]
+CursorColumn=45
+CursorLine=50
+ScrollLine=45
+
+[MainWindow0-ViewSpace 1 8]
+ScrollLine=126
+
+[MainWindow0-ViewSpace 1 9]
+CursorColumn=0
+CursorLine=33
+ScrollLine=32
+
+[MainWindow0-ViewSpace 1 file:///home/wehttamsnaps/.config/niri/Modules/Keybinds.kdl]
+CursorColumn=79
+CursorLine=103
+ScrollLine=84
+
+[Open Documents]
+Count=21
+
+[Open MainWindows]
+Count=1
+
+[Plugin:kateprojectplugin:]
+projects=
+
+[Plugin:katesearchplugin:MainWindow:0]
+BinaryFiles=false
+CurrentExcludeFilter=0
+CurrentFilter=0
+ExcludeFilters=\\0
+ExpandSearchResults=false
+Filters=\\0
+FollowSymLink=false
+HiddenFiles=false
+MatchCase=false
+Place=0
+Recursive=true
+Replaces=DP-2,DP-1,include "./,//,paru --needed --noconfirm -S ,yay --needed --noconfirm -S\s
+Search=DP-1,ReiEmi,Nano_Nano,tserikalio,viv,yay --needed --noconfirm -S ,   \s
+SearchAsYouTypeAllProjects=true
+SearchAsYouTypeCurrentFile=true
+SearchAsYouTypeFolder=true
+SearchAsYouTypeOpenFiles=true
+SearchAsYouTypeProject=true
+SearchDiskFiles=
+SearchDiskFiless=\\0
+SizeLimit=128
+UseRegExp=false
+
+[Recent Files]
+File1[$e]=$HOME/.config/mango/hyprmango/execs.conf
+File10[$e]=$HOME/.config/niri/config.kdl
+File2[$e]=$HOME/.config/mango/Modules/Autostart.conf
+File3[$e]=$HOME/.config/mango/custom/rules.conf
+File4[$e]=$HOME/.config/mango/Modules/Keybinds.conf
+File5[$e]=/mnt/GAMEDRIVE/LinBack/inir-backup/.config/niri/eh/layouts.kdl
+File6[$e]=$HOME/.config/niri/snaps/08-workspaces.kdl
+File7[$e]=$HOME/.config/niri/snaps/03-envs.kdl
+File8[$e]=$HOME/.config/niri/snaps/02-bindings.kdl
+File9[$e]=$HOME/.config/niri/snaps/01-autostart.kdl
+Name1[$e]=execs.conf
+Name10[$e]=config.kdl
+Name2[$e]=Autostart.conf
+Name3[$e]=rules.conf
+Name4[$e]=Keybinds.conf
+Name5[$e]=layouts.kdl
+Name6[$e]=08-workspaces.kdl
+Name7[$e]=03-envs.kdl
+Name8[$e]=02-bindings.kdl
+Name9[$e]=01-autostart.kdl

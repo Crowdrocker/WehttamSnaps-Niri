@@ -1,0 +1,25 @@
+# --- Wayland & Desktop Integration ---
+env = XDG_CURRENT_DESKTOP,Wayland
+env = XDG_SESSION_TYPE,wayland
+env = XDG_SESSION_DESKTOP,Wayland
+
+# --- Qt6 / KDE Configuration (Matches your qt6ct setup) ---
+env = QT_QPA_PLATFORM,wayland;xcb
+env = QT_QPA_PLATFORMTHEME,qt6ct
+env = QT_QPA_PLATFORMTHEME_QT6,qt6ct
+env = QT_AUTO_SCREEN_SCALE_FACTOR,1
+env = QT_WAYLAND_DISABLE_WINDOWDECORATION,1
+
+# --- GTK Theme Defaults ---
+env = GDK_BACKEND,wayland,x11,*
+
+# --- Electron & Chromium (For OpenDeck and webapps) ---
+env = ELECTRON_OZONE_PLATFORM_HINT,auto
+
+# --- AMD GPU Acceleration (Mesa Vulkan & VAAPI) ---
+env = LIBVA_DRIVER_NAME,radeonsi
+env = VDPAU_DRIVER,radeonsi
+env = AMD_VULKAN_ICD,RADV
+
+# --- Wayland Desktop Portals (Fixes screen sharing & file pickers) ---
+env = XDG_MENU_PREFIX,arch-

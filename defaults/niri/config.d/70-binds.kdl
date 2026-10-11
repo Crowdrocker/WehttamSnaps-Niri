@@ -310,6 +310,90 @@ binds {
     Mod+Shift+P    { spawn "inir" "mpris" "playPause"; }
     Mod+Shift+N    { spawn "inir" "mpris" "next"; }
     Mod+Shift+B    { spawn "inir" "mpris" "previous"; }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Imported from Mango config
+    // ─────────────────────────────────────────────────────────────────────
+    // Lines starting with "// DUPE:" were NOT added because the key chord is
+    // already bound above (niri refuses to load duplicate chords) or the
+    // action already exists. Change the key to re-enable any of them.
+    // `spawn_shell` -> `spawn "sh" "-c" "..."` so ~, $(...) and && still work.
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ── SNAPS-OS custom scripts ──
+    Mod+M     hotkey-overlay-title="Mango config editor" { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/mango-config.sh"; }
+    Mod+Alt+M hotkey-overlay-title="Mango config explainer" { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/config-overview/menu.sh"; }
+    Mod+0     hotkey-overlay-title="SNAPS-OS tip" { spawn "sh" "-c" "notify-send \"SNAPS-OS Tips\" \"$(shuf -n 1 ~/.config/snapsos/tips/tips.list | sed 's/.*: //')\""; }
+    // DUPE: Mod+H (basic command helper) clashes with focus-column-left
+    // Mod+H { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/help/cmd-help.sh"; }
+    // DUPE: Mod+Shift+H (SNAPS-OS help menu) clashes with move-column-left
+    // Mod+Shift+H { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/help/help.sh"; }
+
+    // ── dotfile git sync (set the repo location before uncommenting) ──
+    // Mod+Ctrl+Tab { spawn "sh" "-c" "ghostty -e dotfile-git-sync ~/mydotfilerepo"; }
+
+    // ── Package managers (shelly + unipkg) ──
+    Mod+Y       hotkey-overlay-title="Shelly" { spawn "shelly-ui"; }
+    Mod+Shift+Y hotkey-overlay-title="unipkg TUI" { spawn "sh" "-c" "ghostty -e unipkg launch-tui"; }
+    // Alternate binds (omarchy TUIs)
+    // Mod+Y       { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/tuis/aur-install.sh"; }
+    // Mod+Shift+Y { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/tuis/pkg-install.sh"; }
+
+    // ── Glyphs ──
+    // DUPE: Mod+G (glyph input overlay) clashes with iNiR crosshair overlay
+    // Mod+G { spawn "/usr/bin/glyphs"; }
+    // DUPE: Mod+Shift+X (record glyphs) clashes with iNiR region OCR
+    // Mod+Shift+X { spawn "/usr/bin/glyphs" "--record"; }
+    Mod+Ctrl+G hotkey-overlay-title="Glyph dictionary" { spawn "/usr/bin/glyphs" "--dictionary"; }
+    // [p]ython trick stops pkill from matching its own sh -c command line.
+    Mod+Alt+W  hotkey-overlay-title="Close glyphs" { spawn "sh" "-c" "pkill -f \"[p]ython3 /usr/bin/glyphs\""; }
+    // DUPE: Mod+Shift+M (SNAPS-OS documentation) clashes with iNiR mute
+    // Mod+Shift+M { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/tuis/documentation.sh"; }
+    Mod+Shift+Tab hotkey-overlay-title="Project select" { spawn "sh" "-c" "ghostty -e ~/.config/snapsos/tuis/project-select.sh"; }
+
+    // ── Core applications (with J.A.R.V.I.S. sounds) ──
+    // DUPE: Mod+Return (ghostty + sound) clashes with iNiR terminal
+    // Mod+Return { spawn "sh" "-c" "/usr/bin/sound-system open-terminal && ghostty"; }
+    Mod+Shift+Return hotkey-overlay-title="Kitty" { spawn "kitty"; }
+    Mod+Alt+B hotkey-overlay-title="Firefox" { spawn "sh" "-c" "/usr/bin/sound-system launch-firefox && firefox"; }
+    // DUPE: Mod+Shift+B (brave) clashes with iNiR previous-track
+    // Mod+Shift+B { spawn "sh" "-c" "/usr/bin/sound-system launch-brave && brave"; }
+    // DUPE: Mod+E (dolphin) clashes with Super+E nautilus
+    // Mod+E { spawn "sh" "-c" "/usr/bin/sound-system open-files && dolphin"; }
+    // DUPE: Mod+Shift+T (kate) already bound above
+    // Mod+Shift+T { spawn "sh" "-c" "/usr/bin/sound-system launch-kate && kate"; }
+    // DUPE: Mod+Shift+O (OBS) clashes with power-off-monitors; OBS already on Mod+O
+    // Mod+Shift+O { spawn "sh" "-c" "/usr/bin/sound-system launch-obs && obs"; }
+    // DUPE: Alt+Shift+P (spotify) - Spotify already on Mod+P
+    // Alt+Shift+P { spawn "sh" "-c" "/usr/bin/sound-system launch-spotify && spotify-launcher"; }
+
+    // ── Webapps (Mod+Ctrl) ──
+    // DUPE: all four already exist above via webapp-launcher.sh (Mod+Ctrl+Y/T/S/D)
+    // Mod+Ctrl+Y { spawn "brave" "--app=https://youtube.com" "--profile-directory=YouTube"; }
+    // Mod+Ctrl+T { spawn "brave" "--app=https://twitch.tv" "--profile-directory=Twitch"; }
+    // Mod+Ctrl+S { spawn "brave" "--app=https://open.spotify.com" "--profile-directory=Spotify"; }
+    // Mod+Ctrl+D { spawn "brave" "--app=https://discord.com/app" "--profile-directory=Discord"; }
+
+    // ── WehttamSnaps specific ──
+    // DUPE: Mod+Shift+W (workmode) clashes with iNiR panelFamily cycle
+    // Mod+Shift+W { spawn "workmode"; }
+    Mod+Shift+G hotkey-overlay-title="Gamemode" { spawn "gamemode"; }
+    // DUPE: Mod+Shift+S (steam) clashes with iNiR region menu
+    // Mod+Shift+S { spawn "sh" "-c" "/usr/bin/sound-system steam-launch && steam"; }
+
+    // ── Screenshots (SNAPS-OS wayshell scripts) ──
+    // DUPE: Mod+F10 (region) clashes with niri screenshot-screen
+    // Mod+F10 { spawn "sh" "-c" "~/.config/snapsos/wayshell/configs/ss-capture.sh area"; }
+    // DUPE: plain F10 (toggle save mode) clashes with niri screenshot
+    // F10 { spawn "sh" "-c" "~/.config/snapsos/wayshell/configs/ss-mode-cycle.sh"; }
+    Mod+Ctrl+F10       hotkey-overlay-title="Screenshot window" { spawn "sh" "-c" "~/.config/snapsos/wayshell/configs/ss-capture.sh active"; }
+    Mod+Shift+F10      hotkey-overlay-title="Screenshot monitor" { spawn "sh" "-c" "~/.config/snapsos/wayshell/configs/ss-capture.sh output"; }
+    Mod+Ctrl+Shift+F10 hotkey-overlay-title="Screenshot all monitors" { spawn "sh" "-c" "~/.config/snapsos/wayshell/configs/ss-capture.sh screen"; }
+
+    // ── Swap workspaces (mark/swap) ──
+    // DUPE: Mod+J and Mod+Shift+J clash with focus-window-down / move-window-down
+    // Mod+J       { spawn "sh" "-c" "~/.config/snapsos/misc/marker.sh"; }
+    // Mod+Shift+J { spawn "sh" "-c" "~/.config/snapsos/misc/swapmarked.sh"; }
 }
 
 recent-windows {

@@ -1,0 +1,42 @@
+✅ Pre-Install Sanity Check
+Config & Dotfiles
+MangoWM config + your END-4 quickshell fork backed up (GitHub or WettamSnapsMain)
+.config/ folder included in the home backup — double-check quickshell, MangoWM, and any bar configs are in there
+OBS scenes/profiles if you had those set up
+
+
+Package Lists
+Official packages: pacman -Qqen > pkg-official.list
+AUR packages: pacman -Qqem > pkg-aur.list
+Both saved to WettamSnapsMain so they survive the wipe
+
+
+🔐 Most Common — Make the Folder + Scripts Executable
+
+bash
+chmod 755 ~/scripts
+
+This gives you (owner) full read/write/execute, and everyone else read/execute. Good default for a scripts folder.
+
+To also make everything inside executable recursively:
+bash
+chmod -R 755 ~/scripts
+
+
+⚡ Just Make Scripts Executable (Without Touching Permissions on the Folder)
+bash
+chmod +x ~/scripts/*.sh
+
+Or recursively for all .sh files nested inside:
+bash
+find ~/scripts -name "*.sh" -exec chmod +x {} \;
+
+
+🔒 If It's Personal Scripts Only (Tighter Security)
+bash
+chmod 700 ~/scripts
+
+
+
+
+

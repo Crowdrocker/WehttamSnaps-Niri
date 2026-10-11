@@ -1,0 +1,10 @@
+DXVK_ASYNC=1 PROTON_NO_ESYNC=1 mesa_glthread=true RADV_PERFTEST=aco  %command%
+
+
+
+
+
+
+
+
+

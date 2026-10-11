@@ -1,0 +1,5 @@
+# Mitigate driver leaks over long play sessions
+RADV_PERFTEST=sam
+VK_EXT_graphics_pipeline_library=1
+# Stop pipeline compilation queues from overflowing RAM/VRAM bounds
+__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1

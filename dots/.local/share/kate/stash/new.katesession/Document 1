@@ -1,0 +1,17 @@
+Application Title	Executable	Argument(s)
+xEdit	SSEdit.exe	-FO4 -IKnowWhatImDoing -AllowMasterFilesEdit
+Tick the Create files in mod instead of overwrite box and select the xEdit Output mod from the drop-down.
+xEditQuickAutoClean	SSEditQuickAutoClean.exe	-FO4
+Tick the Create files in mod instead of overwrite box and select the xEdit Output mod from the drop-down.
+LOOT	LOOT.exe	--game="Fallout4"
+xLODGen	xLODGenx64.exe	-lodgen -FO4 -o:"DriveLetter:\Modding\Tools\xLODGen\xLODGen_Output"
+Replace DriveLetter: with the drive letter of the 'Modding' folder.
+Tools can be arranged in any order using the up and down buttons above the list. This will dictate the order they are listed in the MO "Run" dropdown menu. When complete, close the window by clicking the [OK] button.
+
+PROTON_REMOTE_DEBUG_CMD="/mnt/LINUXDRIVE/Faugus/cheatengine77/drive_c/Program Files/Cheat Engine/cheatengine-x86_64.exe" %command%
+
+PROTON_REMOTE_DEBUG_CMD="/mnt/LINUXDRIVE/Games/Trainers/ShadowoftheTombRaiderPlus18Trainer.exe" PRESSURE_VESSEL_FILESYSTEMS_RW="/mnt/LINUXDRIVE/Games/Trainers/" %command%
+
+sudo cp -a /mnt/EXTRA1TB/MYBACK/usr/. /usr/
+/home/wehttamsnaps/wemod-launcher/wemod %command%
+VZ^^&H3YkjD3xpr3F905

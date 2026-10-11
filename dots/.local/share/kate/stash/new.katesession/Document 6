@@ -1,0 +1,69 @@
+trying to understand Modern First Person Controller Controls mod with VAFS Redux - Bullet Time and Manual Critical and Uneducated Shooter - QE Leaning and Gun Inertia.  how to get it set up. in the description it says Overview of The Core Controls
+
+A = Jump
+B = Sneak
+Y = Activate
+X = Reload
+Select = Pipboy
+Start = Menu
+L1+R1 = Vafs
+L1 = Modifier
+R1 = Melee
+R3 = Toggle POV
+L3 = Sprint
+Overview of Modkeys and Hotkeys
+
+L1 and R1 while Aim = Lean Left/Lean Right
+L1+Select = Wheelmenu
+L1+Start = Quick Modification Weapon
+L1+R1 = Vafs
+L1+R3 = Vafs Crit
+L1+Dpad L/R/D/U = Quickkey 1-4 (1-6 is Horizontal Favorite Column aka Left to right)
+Double click L1 = Stim (quickkey 7) (The highest favorite)
+Different Version Controls XDI Version For Compatibility with Extended Dialogue Interface
+
+DPAD Left and Right = Quickkey 5 and 6 (the both far right favs)
+B = Sneak AND Slide (for XDI user)
+DPAD Up and Down = Open Vanilla favorite
+
+
+
+
+Up is long-range. Sniper or missile, depending on the build
+Right is mid-range. Main rifle/pistol usually goes here
+Down is melee and traps/mines
+Left is molotov, frag, plasma grenades
+
+Muscle memoried to the point that I don't even have to think about it.
+
+Working from Center out on D-Pad
+
+Left: Molotovs, Frag Grenades, Frag Mines
+
+Up: Sniper Rifle, shorter scope Sniper Rifle (if carrying one), Bottle cap mines
+
+Right: Primary side arm (10mm or Combat rifle usually), Combat Shotgun, melee weapon (usually Pickmans Blade)
+
+Down: Purified Water, Stimpack, Radaway
+
+
+
+
+
+View Mod-Specific Keybinds
+Mod Feature	Key	Result
+VAFS (Slow-mo)	Z / G	Toggle Focus / Critical
+Vivid Weathers	Numpad /	Cycle Weather Effects
+Mute Music	Numpad 0	Instant Audio Killswitch
+Examine Prey	K	Specialized Hunting Menu
+Workshop Mode	Home	Enter/Exit Build Mode
+
+
+
+
+
+
+
+
+
+

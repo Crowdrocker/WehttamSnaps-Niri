@@ -1,0 +1,15 @@
+
+
+Border gradient: Niri uses a #ff5af1→#00ffd1 focus-ring gradient. Hyprland only supports solid border colors. Which do you prefer?
+    (d) Two-color border: #ff5af1 #00ffd1 (Hyprland supports 2 colors that blend diagonally)
+
+Layout engine: Niri is column-based. For Hyprland, do you want:
+
+    (a) Dwindle (spiral split — most popular, good general default)
+
+
+How complete should the conversion be?
+
+    (a) Everything that maps cleanly + clearly-marked TODOs for what doesn't (recommended)
+
+Yes I also want migration notes doc (a markdown file explaining each niri feature → Hyprland equivalent and what you'll need to adjust/test)? It's helpful given how much custom JARVIS/sound-system integration you have.

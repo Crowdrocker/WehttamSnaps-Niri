@@ -1,0 +1,16 @@
+sdgvox
+SDG-VOX
+
+
+SNAPS-VOX
+
+DXVK_STATE_CACHE=1 RADV_PERFTEST=fastclears gamescope -f -w 1920 -h 1080 -r 60 -- %command% -nogui
+
+
+Crowdrocker
+
+SNAPS-PKG
+unipkg
+SNAPS-REPO
+snaps
+snapstip

@@ -1,0 +1,240 @@
+[Document 0]
+URL=file:///home/wehttamsnaps/Projects/Randome TS-2.txt
+
+[Document 1]
+URL=
+stashedFile=/home/wehttamsnaps/.local/share/kate/stash/new.katesession/Document 1
+
+[Document 2]
+URL=
+stashedFile=/home/wehttamsnaps/.local/share/kate/stash/new.katesession/Document 2
+
+[Document 3]
+URL=file:///mnt/GAMEDRIVE/NIRI-post_install.sh
+
+[Document 4]
+URL=file:///home/wehttamsnaps/.local/share/mybash/.bashrc
+
+[Document 5]
+URL=file:///home/wehttamsnaps/.bashrc
+
+[Document 6]
+URL=file:///home/wehttamsnaps/.local/bin/inir
+
+[Document 7]
+URL=file:///home/wehttamsnaps/Downloads/binds.conf
+
+[Document 8]
+URL=file:///home/wehttamsnaps/.config/mango-old-19769/Modules/Autostart.conf
+
+[Document 9]
+URL=file:///home/wehttamsnaps/.config/mango-old-19769/hyprmango/execs.conf
+
+[Kate Plugins]
+bookmarksplugin=false
+cmaketoolsplugin=false
+compilerexplorer=false
+eslintplugin=false
+externaltoolsplugin=true
+formatplugin=false
+katebacktracebrowserplugin=false
+katebuildplugin=false
+katecloseexceptplugin=false
+katecolorpickerplugin=false
+katectagsplugin=false
+katefilebrowserplugin=false
+katefiletreeplugin=true
+kategdbplugin=false
+kategitblameplugin=false
+kategpgplugin=false
+katekonsoleplugin=true
+kateprojectplugin=true
+katereplicodeplugin=false
+katesearchplugin=true
+kateshownonprintableplugin=false
+katesnippetsplugin=false
+katesqlplugin=false
+katesymbolviewerplugin=false
+katexmlcheckplugin=false
+katexmltoolsplugin=false
+keyboardmacrosplugin=false
+ktexteditorpreviewplugin=false
+latexcompletionplugin=false
+lspclientplugin=true
+openlinkplugin=false
+rainbowparens=false
+rbqlplugin=false
+tabswitcherplugin=true
+templateplugin=false
+textfilterplugin=true
+
+[MainWindow0]
+Active ViewSpace=0
+Kate-MDI-H-Splitter=200,1647,0
+Kate-MDI-Sidebar-0-Bar-0-TvList=kate_private_plugin_katefiletreeplugin,kateproject,kateprojectgit,lspclient_symbol_outline
+Kate-MDI-Sidebar-0-LastSize=200
+Kate-MDI-Sidebar-0-SectSizes=0
+Kate-MDI-Sidebar-0-Splitter=724
+Kate-MDI-Sidebar-1-Bar-0-TvList=
+Kate-MDI-Sidebar-1-LastSize=200
+Kate-MDI-Sidebar-1-SectSizes=0
+Kate-MDI-Sidebar-1-Splitter=724
+Kate-MDI-Sidebar-2-Bar-0-TvList=
+Kate-MDI-Sidebar-2-LastSize=200
+Kate-MDI-Sidebar-2-SectSizes=0
+Kate-MDI-Sidebar-2-Splitter=1647
+Kate-MDI-Sidebar-3-Bar-0-TvList=output,diagnostics,kate_plugin_katesearch,kateprojectinfo,kate_private_plugin_katekonsoleplugin
+Kate-MDI-Sidebar-3-LastSize=227
+Kate-MDI-Sidebar-3-SectSizes=0
+Kate-MDI-Sidebar-3-Splitter=1574
+Kate-MDI-Sidebar-Style=2
+Kate-MDI-Sidebar-Visible=true
+Kate-MDI-ToolView-diagnostics-Position=3
+Kate-MDI-ToolView-diagnostics-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-diagnostics-Visible=false
+Kate-MDI-ToolView-kate_plugin_katesearch-Position=3
+Kate-MDI-ToolView-kate_plugin_katesearch-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_plugin_katesearch-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Position=0
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Position=3
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Visible=false
+Kate-MDI-ToolView-kateproject-Position=0
+Kate-MDI-ToolView-kateproject-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateproject-Visible=false
+Kate-MDI-ToolView-kateprojectgit-Position=0
+Kate-MDI-ToolView-kateprojectgit-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectgit-Visible=false
+Kate-MDI-ToolView-kateprojectinfo-Position=3
+Kate-MDI-ToolView-kateprojectinfo-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectinfo-Visible=false
+Kate-MDI-ToolView-lspclient_symbol_outline-Position=0
+Kate-MDI-ToolView-lspclient_symbol_outline-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-lspclient_symbol_outline-Visible=false
+Kate-MDI-ToolView-output-Position=3
+Kate-MDI-ToolView-output-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-output-Visible=false
+Kate-MDI-V-Splitter=0,496,227
+
+[MainWindow0 Settings]
+WindowState=8
+
+[MainWindow0-Splitter 0]
+Children=MainWindow0-ViewSpace 0,MainWindow0-ViewSpace 1
+Orientation=1
+Sizes=866,780
+
+[MainWindow0-ViewSpace 0]
+Active View=8
+Count=1
+Documents=0,1,3,4,5,6,7,8,9
+View 0=8
+
+[MainWindow0-ViewSpace 0 0]
+CursorColumn=31
+CursorLine=9
+
+[MainWindow0-ViewSpace 0 1]
+CursorColumn=0
+CursorLine=13
+
+[MainWindow0-ViewSpace 0 3]
+CursorColumn=0
+CursorLine=258
+ScrollLine=243
+
+[MainWindow0-ViewSpace 0 4]
+CursorColumn=0
+CursorLine=166
+ScrollLine=145
+
+[MainWindow0-ViewSpace 0 5]
+CursorColumn=0
+CursorLine=872
+ScrollLine=859
+
+[MainWindow0-ViewSpace 0 6]
+CursorColumn=33
+CursorLine=378
+ScrollLine=353
+
+[MainWindow0-ViewSpace 0 7]
+CursorColumn=34
+CursorLine=79
+ScrollLine=56
+
+[MainWindow0-ViewSpace 0 8]
+CursorColumn=0
+CursorLine=18
+ScrollLine=7
+
+[MainWindow0-ViewSpace 0 9]
+CursorColumn=0
+CursorLine=119
+
+[MainWindow0-ViewSpace 1]
+Active View=2
+Count=1
+Documents=2
+View 0=2
+
+[MainWindow0-ViewSpace 1 2]
+CursorColumn=18
+CursorLine=4
+
+[Open Documents]
+Count=10
+
+[Open MainWindows]
+Count=1
+
+[Plugin:kateprojectplugin:]
+projects=
+
+[Plugin:katesearchplugin:MainWindow:0]
+BinaryFiles=false
+CurrentExcludeFilter=0
+CurrentFilter=0
+ExcludeFilters=\\0
+ExpandSearchResults=false
+Filters=\\0
+FollowSymLink=false
+HiddenFiles=false
+MatchCase=false
+Place=0
+Recursive=true
+Replaces=sudo paru -S --noconfirm --needed\s
+Search=ALIASE,steam,noctalia,gaps_in,rounding,workspace_rule,Space,waybar,scripts,killclient,division,uPipboyTargetHeight,1263,fOverShoulderAddY,INPUT,Key,SDL_VIDEODRIVER,x=0 y=0,x=0 y=0 relative,steam_app,xdg-desktop-portal-wlr
+SearchAsYouTypeAllProjects=true
+SearchAsYouTypeCurrentFile=true
+SearchAsYouTypeFolder=true
+SearchAsYouTypeOpenFiles=true
+SearchAsYouTypeProject=true
+SearchDiskFiles=
+SearchDiskFiless=\\0
+SizeLimit=128
+UseRegExp=false
+
+[Recent Files]
+File1[$e]=/mnt/GAMEDRIVE/NIRI-post_install.sh
+File10[$e]=$HOME/.config/mango/autostart.conf
+File2[$e]=$HOME/.config/environment.d/99-game-fixes.conf
+File3[$e]=$HOME/.config/niri/scripts/audio-routing.sh
+File4[$e]=$HOME/.local/share/mybash/.bashrc
+File5[$e]=$HOME/.bashrc
+File6[$e]=$HOME/.local/bin/inir
+File7[$e]=$HOME/Downloads/binds.conf
+File8[$e]=$HOME/.config/mango-old-19769/Modules/Autostart.conf
+File9[$e]=$HOME/.config/mango-old-19769/hyprmango/execs.conf
+Name1[$e]=NIRI-post_install.sh
+Name10[$e]=autostart.conf
+Name2[$e]=99-game-fixes.conf
+Name3[$e]=audio-routing.sh
+Name4[$e]=.bashrc
+Name5[$e]=.bashrc
+Name6[$e]=inir
+Name7[$e]=binds.conf
+Name8[$e]=Autostart.conf
+Name9[$e]=execs.conf

@@ -1,0 +1,1 @@
+sudo nano /etc/fstab

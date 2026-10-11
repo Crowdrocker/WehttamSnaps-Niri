@@ -1,0 +1,249 @@
+[Document 0]
+URL=
+
+[Document 1]
+URL=file:///home/wehttamsnaps/.config/mango/autostart.conf
+
+[Document 10]
+URL=file:///home/wehttamsnaps/.config/mango/binds.conf
+
+[Document 11]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Environments.conf
+
+[Document 12]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Rules.conf
+
+[Document 2]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Autostart.conf
+
+[Document 3]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Keybinds.conf
+
+[Document 4]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Animations.conf
+
+[Document 5]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Blur.conf
+
+[Document 6]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Dwindle_layout.conf
+
+[Document 7]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/General.conf
+
+[Document 8]
+URL=file:///home/wehttamsnaps/.config/mango.bak/Modules/Master-Stack.conf
+
+[Document 9]
+URL=file:///home/wehttamsnaps/.config/mango.bak/config.conf
+
+[Kate Plugins]
+bookmarksplugin=false
+cmaketoolsplugin=false
+compilerexplorer=false
+eslintplugin=false
+externaltoolsplugin=true
+formatplugin=false
+katebacktracebrowserplugin=false
+katebuildplugin=false
+katecloseexceptplugin=false
+katecolorpickerplugin=false
+katectagsplugin=false
+katefilebrowserplugin=false
+katefiletreeplugin=true
+kategdbplugin=false
+kategitblameplugin=false
+kategpgplugin=false
+katekonsoleplugin=true
+kateprojectplugin=true
+katereplicodeplugin=false
+katesearchplugin=true
+kateshownonprintableplugin=false
+katesnippetsplugin=false
+katesqlplugin=false
+katesymbolviewerplugin=false
+katexmlcheckplugin=false
+katexmltoolsplugin=false
+keyboardmacrosplugin=false
+ktexteditorpreviewplugin=false
+latexcompletionplugin=false
+lspclientplugin=true
+openlinkplugin=false
+rainbowparens=false
+rbqlplugin=false
+tabswitcherplugin=true
+templateplugin=false
+textfilterplugin=true
+
+[MainWindow0]
+Active ViewSpace=1
+Kate-MDI-H-Splitter=160,1702,0
+Kate-MDI-Sidebar-0-Bar-0-TvList=kate_private_plugin_katefiletreeplugin,kateproject,kateprojectgit,lspclient_symbol_outline
+Kate-MDI-Sidebar-0-LastSize=160
+Kate-MDI-Sidebar-0-SectSizes=0
+Kate-MDI-Sidebar-0-Splitter=917
+Kate-MDI-Sidebar-1-Bar-0-TvList=
+Kate-MDI-Sidebar-1-LastSize=200
+Kate-MDI-Sidebar-1-SectSizes=0
+Kate-MDI-Sidebar-1-Splitter=917
+Kate-MDI-Sidebar-2-Bar-0-TvList=
+Kate-MDI-Sidebar-2-LastSize=200
+Kate-MDI-Sidebar-2-SectSizes=0
+Kate-MDI-Sidebar-2-Splitter=744
+Kate-MDI-Sidebar-3-Bar-0-TvList=output,diagnostics,kate_plugin_katesearch,kateprojectinfo,kate_private_plugin_katekonsoleplugin
+Kate-MDI-Sidebar-3-LastSize=211
+Kate-MDI-Sidebar-3-SectSizes=0
+Kate-MDI-Sidebar-3-Splitter=1610
+Kate-MDI-Sidebar-Style=2
+Kate-MDI-Sidebar-Visible=true
+Kate-MDI-ToolView-diagnostics-Position=3
+Kate-MDI-ToolView-diagnostics-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-diagnostics-Visible=false
+Kate-MDI-ToolView-kate_plugin_katesearch-Position=3
+Kate-MDI-ToolView-kate_plugin_katesearch-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_plugin_katesearch-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Position=0
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Visible=false
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Position=3
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Visible=false
+Kate-MDI-ToolView-kateproject-Position=0
+Kate-MDI-ToolView-kateproject-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateproject-Visible=true
+Kate-MDI-ToolView-kateprojectgit-Position=0
+Kate-MDI-ToolView-kateprojectgit-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectgit-Visible=false
+Kate-MDI-ToolView-kateprojectinfo-Position=3
+Kate-MDI-ToolView-kateprojectinfo-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectinfo-Visible=false
+Kate-MDI-ToolView-lspclient_symbol_outline-Position=0
+Kate-MDI-ToolView-lspclient_symbol_outline-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-lspclient_symbol_outline-Visible=false
+Kate-MDI-ToolView-output-Position=3
+Kate-MDI-ToolView-output-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-output-Visible=false
+Kate-MDI-V-Splitter=0,705,211
+
+[MainWindow0 Settings]
+WindowState=8
+
+[MainWindow0-Splitter 0]
+Children=MainWindow0-ViewSpace 0,MainWindow0-ViewSpace 1
+Orientation=1
+Sizes=852,849
+
+[MainWindow0-ViewSpace 0]
+Active View=2
+Count=11
+Documents=1,4,2,5,6,7,3,8,9,11,12
+View 0=1
+View 1=4
+View 10=12
+View 2=2
+View 3=5
+View 4=6
+View 5=7
+View 6=3
+View 7=8
+View 8=9
+View 9=11
+
+[MainWindow0-ViewSpace 0 1]
+CursorColumn=8
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 11]
+CursorColumn=0
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 12]
+CursorColumn=10
+CursorLine=182
+ScrollLine=175
+
+[MainWindow0-ViewSpace 0 2]
+CursorColumn=0
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 3]
+CursorColumn=27
+CursorLine=36
+ScrollLine=23
+
+[MainWindow0-ViewSpace 0 9]
+CursorColumn=37
+CursorLine=6
+
+[MainWindow0-ViewSpace 1]
+Active View=10
+Count=3
+Documents=0,10,1
+View 0=0
+View 1=10
+View 2=1
+
+[MainWindow0-ViewSpace 1 1]
+CursorColumn=17
+CursorLine=71
+ScrollLine=57
+
+[MainWindow0-ViewSpace 1 10]
+CursorColumn=19
+CursorLine=19
+ScrollLine=5
+
+[Open Documents]
+Count=13
+
+[Open MainWindows]
+Count=1
+
+[Plugin:kateprojectplugin:]
+projects=
+
+[Plugin:katesearchplugin:MainWindow:0]
+BinaryFiles=false
+CurrentExcludeFilter=0
+CurrentFilter=0
+ExcludeFilters=\\0
+ExpandSearchResults=false
+Filters=\\0
+FollowSymLink=false
+HiddenFiles=false
+MatchCase=false
+Place=0
+Recursive=true
+Replaces=F10,paru --needed --noconfirm -S ,yay --needed --noconfirm -S\s
+Search=print,idle,yay --needed --noconfirm -S ,   \s
+SearchAsYouTypeAllProjects=true
+SearchAsYouTypeCurrentFile=true
+SearchAsYouTypeFolder=true
+SearchAsYouTypeOpenFiles=true
+SearchAsYouTypeProject=true
+SearchDiskFiles=
+SearchDiskFiless=\\0
+SizeLimit=128
+UseRegExp=false
+
+[Recent Files]
+File1[$e]=$HOME/.config/mango.bak/Modules/General.conf
+File10[$e]=$HOME/.config/mango/autostart.conf
+File2[$e]=$HOME/.config/mango.bak/Modules/Rules.conf
+File3[$e]=$HOME/.config/mango.bak/Modules/Autostart.conf
+File4[$e]=$HOME/.config/mango/config.conf
+File5[$e]=$HOME/.config/mango/decoration.conf
+File6[$e]=$HOME/.config/mango/layouts.conf
+File7[$e]=$HOME/.config/mango/windowrules.conf
+File8[$e]=$HOME/.config/mango/environment.conf
+File9[$e]=$HOME/.config/mango/binds.conf
+Name1[$e]=General.conf
+Name10[$e]=autostart.conf
+Name2[$e]=Rules.conf
+Name3[$e]=Autostart.conf
+Name4[$e]=config.conf
+Name5[$e]=decoration.conf
+Name6[$e]=layouts.conf
+Name7[$e]=windowrules.conf
+Name8[$e]=environment.conf
+Name9[$e]=binds.conf

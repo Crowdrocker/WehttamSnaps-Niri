@@ -1,0 +1,320 @@
+[Document 0]
+URL=
+stashedFile=/home/wehttamsnaps/.local/share/kate/stash/EDITING.katesession/Document 0
+
+[Document 1]
+URL=
+stashedFile=/home/wehttamsnaps/.local/share/kate/stash/EDITING.katesession/Document 1
+
+[Document 10]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/50-startup.kdl
+
+[Document 11]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/60-animations.kdl
+
+[Document 12]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/80-layer-rules.kdl
+
+[Document 13]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/85-gaming.kdl
+
+[Document 14]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/90-user-extra.kdl
+
+[Document 15]
+URL=file:///home/wehttamsnaps/inir/distro/arch/inir-meta/PKGBUILD
+
+[Document 16]
+URL=file:///home/wehttamsnaps/inir/distro/arch/inir-shell/PKGBUILD
+
+[Document 17]
+URL=file:///home/wehttamsnaps/pkglist.txt
+
+[Document 18]
+URL=file:///mnt/GAMEDRIVE/WehttamSnaps-Niri/Packages/pkglist.txt
+
+[Document 19]
+URL=file:///home/wehttamsnaps/pkglist.txt
+
+[Document 2]
+URL=file:///mnt/GAMEDRIVE/WehttamSnaps-Niri/Packages/NEWpkglist.txt
+
+[Document 3]
+URL=file:///home/wehttamsnaps/.config/niri/snaps/30-workspaces.kdl
+
+[Document 4]
+URL=file:///home/wehttamsnaps/.config/niri/snaps/40-gaming.kdl
+
+[Document 5]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/70-binds.kdl
+
+[Document 6]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/10-input-and-cursor.kdl
+
+[Document 7]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/20-layout-and-overview.kdl
+
+[Document 8]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/30-window-rules.kdl
+
+[Document 9]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/40-environment.kdl
+
+[Kate Plugins]
+bookmarksplugin=false
+cmaketoolsplugin=false
+compilerexplorer=false
+eslintplugin=false
+externaltoolsplugin=true
+formatplugin=false
+katebacktracebrowserplugin=false
+katebuildplugin=false
+katecloseexceptplugin=false
+katecolorpickerplugin=false
+katectagsplugin=false
+katefilebrowserplugin=false
+katefiletreeplugin=true
+kategdbplugin=false
+kategitblameplugin=false
+kategpgplugin=false
+katekonsoleplugin=true
+kateprojectplugin=true
+katereplicodeplugin=false
+katesearchplugin=true
+kateshownonprintableplugin=false
+katesnippetsplugin=false
+katesqlplugin=false
+katesymbolviewerplugin=false
+katexmlcheckplugin=false
+katexmltoolsplugin=false
+keyboardmacrosplugin=false
+ktexteditorpreviewplugin=false
+latexcompletionplugin=false
+lspclientplugin=true
+openlinkplugin=false
+rainbowparens=false
+rbqlplugin=false
+tabswitcherplugin=true
+templateplugin=false
+textfilterplugin=true
+
+[MainWindow0]
+Active ViewSpace=0
+Kate-MDI-H-Splitter=408,1443,0
+Kate-MDI-Sidebar-0-Bar-0-TvList=kate_private_plugin_katefiletreeplugin,kateproject,kateprojectgit,lspclient_symbol_outline
+Kate-MDI-Sidebar-0-LastSize=408
+Kate-MDI-Sidebar-0-SectSizes=0
+Kate-MDI-Sidebar-0-Splitter=899
+Kate-MDI-Sidebar-1-Bar-0-TvList=
+Kate-MDI-Sidebar-1-LastSize=200
+Kate-MDI-Sidebar-1-SectSizes=0
+Kate-MDI-Sidebar-1-Splitter=899
+Kate-MDI-Sidebar-2-Bar-0-TvList=
+Kate-MDI-Sidebar-2-LastSize=200
+Kate-MDI-Sidebar-2-SectSizes=0
+Kate-MDI-Sidebar-2-Splitter=1443
+Kate-MDI-Sidebar-3-Bar-0-TvList=output,diagnostics,kate_plugin_katesearch,kateprojectinfo,kate_private_plugin_katekonsoleplugin
+Kate-MDI-Sidebar-3-LastSize=240
+Kate-MDI-Sidebar-3-SectSizes=0
+Kate-MDI-Sidebar-3-Splitter=1495
+Kate-MDI-Sidebar-Style=2
+Kate-MDI-Sidebar-Visible=true
+Kate-MDI-ToolView-diagnostics-Position=3
+Kate-MDI-ToolView-diagnostics-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-diagnostics-Visible=false
+Kate-MDI-ToolView-kate_plugin_katesearch-Position=3
+Kate-MDI-ToolView-kate_plugin_katesearch-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_plugin_katesearch-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Position=0
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Position=3
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Visible=false
+Kate-MDI-ToolView-kateproject-Position=0
+Kate-MDI-ToolView-kateproject-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateproject-Visible=false
+Kate-MDI-ToolView-kateprojectgit-Position=0
+Kate-MDI-ToolView-kateprojectgit-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectgit-Visible=false
+Kate-MDI-ToolView-kateprojectinfo-Position=3
+Kate-MDI-ToolView-kateprojectinfo-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectinfo-Visible=false
+Kate-MDI-ToolView-lspclient_symbol_outline-Position=0
+Kate-MDI-ToolView-lspclient_symbol_outline-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-lspclient_symbol_outline-Visible=false
+Kate-MDI-ToolView-output-Position=3
+Kate-MDI-ToolView-output-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-output-Visible=false
+Kate-MDI-V-Splitter=0,658,240
+
+[MainWindow0 Settings]
+WindowState=8
+
+[MainWindow0-Splitter 0]
+Children=MainWindow0-ViewSpace 0,MainWindow0-ViewSpace 1
+Orientation=1
+Sizes=1026,416
+
+[MainWindow0-ViewSpace 0]
+Active View=2
+Count=2
+Documents=1,2
+View 0=1
+View 1=2
+View 10=14
+View 2=16
+View 3=17
+View 4=18
+View 5=10
+View 6=11
+View 7=5
+View 8=12
+View 9=13
+
+[MainWindow0-ViewSpace 0 1]
+CursorColumn=0
+CursorLine=1
+
+[MainWindow0-ViewSpace 0 14]
+CursorColumn=0
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 15]
+CursorColumn=20
+CursorLine=20
+ScrollLine=9
+
+[MainWindow0-ViewSpace 0 17]
+CursorColumn=0
+CursorLine=480
+ScrollLine=459
+
+[MainWindow0-ViewSpace 0 18]
+ScrollLine=51
+
+[MainWindow0-ViewSpace 0 19]
+ScrollLine=114
+
+[MainWindow0-ViewSpace 0 2]
+ScrollLine=126
+
+[MainWindow0-ViewSpace 0 3]
+CursorColumn=66
+CursorLine=5
+ScrollLine=126
+
+[MainWindow0-ViewSpace 0 5]
+CursorColumn=4
+CursorLine=106
+ScrollLine=91
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/.config/niri/config.d/70-binds.kdl]
+CursorColumn=4
+CursorLine=106
+ScrollLine=91
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/.config/niri/config.d/90-user-extra.kdl]
+CursorColumn=0
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/.config/niri/snaps/10-wiri_keybinds.kdl]
+ScrollLine=44
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/.config/niri/snaps/30-workspaces.kdl]
+CursorColumn=66
+CursorLine=5
+ScrollLine=126
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/inir/distro/arch/inir-meta/PKGBUILD]
+CursorColumn=20
+CursorLine=20
+ScrollLine=9
+
+[MainWindow0-ViewSpace 0 file:///home/wehttamsnaps/pkglist.txt]
+CursorColumn=13
+CursorLine=437
+ScrollLine=420
+
+[MainWindow0-ViewSpace 0 file:///mnt/GAMEDRIVE/WehttamSnaps-Niri/Packages/pkglist.txt]
+CursorColumn=0
+CursorLine=347
+ScrollLine=332
+
+[MainWindow0-ViewSpace 0 file:///mnt/GAMEDRIVE/WehttamSnaps-Niri/sdata/dist-fedora/install-deps.sh]
+ScrollLine=40
+
+[MainWindow0-ViewSpace 0 file:///mnt/GAMEDRIVE/WehttamSnaps-Niri/setup]
+CursorColumn=34
+CursorLine=2849
+ScrollLine=2847
+
+[MainWindow0-ViewSpace 1]
+Active View=0
+Count=1
+Documents=0
+View 0=0
+
+[MainWindow0-ViewSpace 1 0]
+CursorColumn=0
+CursorLine=16
+
+[MainWindow0-ViewSpace 1 2]
+CursorColumn=31
+CursorLine=3
+ScrollLine=294
+
+[Open Documents]
+Count=3
+
+[Open MainWindows]
+Count=1
+
+[Plugin:kateprojectplugin:]
+projects=
+
+[Plugin:katesearchplugin:MainWindow:0]
+BinaryFiles=false
+CurrentExcludeFilter=0
+CurrentFilter=0
+ExcludeFilters=\\0
+ExpandSearchResults=false
+Filters=\\0
+FollowSymLink=false
+HiddenFiles=false
+MatchCase=false
+Place=0
+Recursive=true
+Replaces=SNAPS,snapspkg,SNAPS-VOX,snapsvox,snaps,.sh,/usr/bin/,/mnt/GAMEDRIVE/LinBack-2/_workspace_wehttamsnaps-obs/wehttamsnaps-obs/scene-cards,paru --needed --noconfirm -S ,yay --needed --noconfirm -S\s
+Search=iNiR,Mod+Alt+G,Mod+Alt+N,Mod+Shift+M,sdg,sdgvox,SDG-VOX,SDG,sdgpkg,starting Steam first,/usr/local/bin/,sound,SOUND="/usr/local/bin/sound-system",$rofi_input,rofi,SUPER+ALT\\,G,bind=SUPER+ALT\\,w,dms,tagrule=id:2\\,layout_name:dwindle\\,,tagrule=id:1\\,layout_name:dwindle\\,,Picture-in-Picture,/.config/sdgos,bind=SUPER+SHIFT\\,x,bind=SUPER+ALT\\,g
+SearchAsYouTypeAllProjects=true
+SearchAsYouTypeCurrentFile=true
+SearchAsYouTypeFolder=true
+SearchAsYouTypeOpenFiles=true
+SearchAsYouTypeProject=true
+SearchDiskFiles=
+SearchDiskFiless=\\0
+SizeLimit=128
+UseRegExp=false
+
+[Recent Files]
+File1[$e]=$HOME/.config/niri/config.d/60-animations.kdl
+File10[$e]=/mnt/GAMEDRIVE/WehttamSnaps-Niri/Packages/NEWpkglist.txt
+File2[$e]=$HOME/.config/niri/config.d/50-startup.kdl
+File3[$e]=$HOME/.config/niri/config.d/40-environment.kdl
+File4[$e]=$HOME/.config/niri/config.d/30-window-rules.kdl
+File5[$e]=$HOME/.config/niri/config.d/20-layout-and-overview.kdl
+File6[$e]=$HOME/.config/niri/config.d/10-input-and-cursor.kdl
+File7[$e]=$HOME/.config/niri/snaps/40-gaming.kdl
+File8[$e]=$HOME/.config/niri/snaps/30-workspaces.kdl
+File9[$e]=$HOME/.config/niri/snaps/10-wiri_keybinds.kdl
+Name1[$e]=60-animations.kdl
+Name10[$e]=NEWpkglist.txt
+Name2[$e]=50-startup.kdl
+Name3[$e]=40-environment.kdl
+Name4[$e]=30-window-rules.kdl
+Name5[$e]=20-layout-and-overview.kdl
+Name6[$e]=10-input-and-cursor.kdl
+Name7[$e]=40-gaming.kdl
+Name8[$e]=30-workspaces.kdl
+Name9[$e]=10-wiri_keybinds.kdl

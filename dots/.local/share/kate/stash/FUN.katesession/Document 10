@@ -1,0 +1,13 @@
+sdc
+└─sdc1 ext4   1.0   LINUXDRIVE      2be94340-fe0c-464c-9afc-fde6ddc300cc  241.7G    69% /mnt/LINUXDRIVE
+sdd
+└─sdd1 ext4   1.0   EXTRA1TB        d3283959-c9d3-494a-b832-72f961ea7a92  183.4G    75% /mnt/EXTRA1TB
+sde
+└─sde1 ext4   1.0   GAMEDRIVE       3f996c97-b699-4208-b9fc-1a64bc65b478    317G    60% /mnt/GAMEDRIVE
+sdf
+└─sdf1 ntfs         WettamSnapsMain 2C66D88566D850E6
+sdg
+sdh
+sdi
+sdj
+zram0  swap   1     zram0           5d261df4-a8f6-4a95-b9ce-462a8b717c2f                [SWAP]

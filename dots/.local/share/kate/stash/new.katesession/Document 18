@@ -1,0 +1,1368 @@
+# Organized Mod List for MO2
+# Base: The Midnight Ride (TMR) + your personal mods from Modname.txt
+#
+# Legend:
+#   [TMR]      = comes from The Midnight Ride guide - follow TMR install instructions exactly
+#   [TMR-OPT]  = listed as optional/minor fix in TMR
+#   [YOURS]    = from your Modname.txt, not in TMR
+#   [SKIP]     = deleted, obsolete, or superseded
+#   [CONFLICT] = you have this but TMR covers the same thing - read note
+#
+# IMPORTANT: For all [TMR] mods, follow TMR's exact install instructions,
+# FOMOD choices, and ini edits. Don't just install the latest version blindly.
+# ============================================================
+
+
+00. MASTER FILES & OFFICIAL CONTENT
+  00.1 Fallout 4 Master Files
+    (FO4 ESMs - MO2 auto-detects these)
+
+  00.2 Creation Club Content
+    (any CC content you own)
+
+
+# ============================================================
+01. CORE FRAMEWORK
+# TMR covers this entire section. Follow their separator layout.
+# TMR calls this "Utilities" but your separator is more granular.
+
+  01.1 Script Extender & Address Library
+    [TMR] Fallout 4 Script Extender (F4SE)
+    [TMR] Address Library for F4SE Plugins  (install: All In One)
+    [TMR] Backported Archive2 Support System
+    [YOURS] xSE PluginPreloader F4  (not in TMR, safe to add after)
+
+  01.2 Bug Fixes & Engine Fixes
+  # TMR Bug Fixes separator - install in this order per TMR:
+    [TMR] Unofficial Fallout 4 Patch - UFO4P
+    [TMR] Community Fixes Merged
+    [TMR] The Midnight Ride - Glitchfinder All-In-One
+    [TMR] Addictol  (install: OG version + Crash Logger)
+          NOTE: Addictol replaces/includes Buffout 4 and X-Cell.
+          Your old separate Addictol entry is covered here.
+    [TMR] Sprint Stuttering Fix
+    [TMR] Companion Shoots At Player Fix - F4SE
+    [TMR] Empty Vendor List Bug Fix - F4SE
+    [TMR] Magic Effect and Spell Engine Fixes - F4SE
+    [TMR] Follower AI Approach Reaction Fix - F4SE
+    [TMR] Wetness Shader Fix
+    [TMR] Fixed Gobo Effects
+    [TMR] Flutter Flicker Fixer For Foliage  (install: PRP 74.6 or later option)
+    [TMR] Previsibines Repair Pack (PRP)  (install: Full version)
+    [TMR] Weapon Debris Crash Fix  (AMD = skip unless you have NVFlex enabled)
+
+  # TMR Minor Fixes (optional but recommended):
+    [TMR-OPT] Weapon Behavior Ironsights movement direction lock fixes
+    [TMR-OPT] Melee Sneak Locomotion Animation Blending Fix
+    [TMR-OPT] NPC Drinking Fix
+    [TMR-OPT] Extended Fake Interiors - Commonwealth buildings fixes
+    [TMR-OPT] Moon Rotation Fix
+    [TMR-OPT] Midnight Cult Fix
+    [TMR-OPT] Blood Fixes
+    [TMR-OPT] Hair Specular Map Removal Thingy
+    [TMR-OPT] General Atomics Galleria Speaking Guard Gutsy Voice Fix
+    [TMR] Motion Vector Fixes  (install: Pre-NG version for 1.10.163)
+
+  # Your additional bug fixes not in TMR:
+    [YOURS] Facial Expression and Eyetracking Engine Fixes - F4SE
+    [YOURS] Leveled Item Fixes (LIF)
+    [YOURS] Pip-Boy Light Detection Fix - F4SE
+    [YOURS] This Made My Spline Stiff
+    [YOURS] Tina De Luca and Doctor Penske FACE FIX
+    [YOURS] True Grass - Invisible and Glowing Plants FIX
+    [YOURS] 3rd Person Behavior Fixes
+    [YOURS] Armor Penetration Bug Fix - F4SE
+    [YOURS] Billboards Transparent and Fade Fix
+    [YOURS] Gas Masks of the Wasteland Unofficial Revive Fix
+    [YOURS] Gasmasks of the Wasteland Bug Patch
+    [YOURS] Super Mutant Redux Dismemberment Fix
+
+  01.3 Papyrus Libraries & Extenders
+    [TMR] Garden of Eden Papyrus Script Extender  (install: OG version)
+    [TMR] Papyrus Common Library
+    [YOURS] Lighthouse Papyrus Extender
+    [YOURS] Console Util
+    [YOURS] SUP F4SE
+    [YOURS] Baka Framework
+    [YOURS] Hydra
+    [YOURS] KiLoader for Fallout 4
+    [YOURS] Actor Velocity Framework
+    [YOURS] Flashlight Disabling Manager - F4SE
+
+  01.4 Mod Configuration & Settings
+    [YOURS] Mod Configuration Menu
+          NOTE: TMR installs MCM under their UI section. Either location is fine,
+          but keep it before any mod that requires it.
+    [YOURS] MCM Settings Manager
+    [YOURS] MCM Categorizer - Sorter Folder Categories
+    [YOURS] MCM Categorizer Colors
+
+  01.5 Achievements Enabler
+    (add your achievements unlocker if used)
+
+
+# ============================================================
+02. UTILITIES
+
+  02.1 Save File Monitors
+    [YOURS] Canary Save File Monitor
+
+  02.2 Output Folders
+    (BodySlide / MCM / F4SE output folders)
+
+  02.3 Screenshot & Photo Mode Tools
+    [YOURS] FO4 Photo Mode
+    [YOURS] Barber and Surgery - Front and Back Camera
+
+  02.4 Debug & Testing Tools
+    [TMR] Better Console - F4SE  (TMR puts this in Utilities)
+    [TMR] Console Autocomplete   (TMR puts this in Utilities)
+    [TMR] RAW INPUT - The Ultimate Mouse Sensitivity Fix
+    [YOURS] FO4 Crash Log Auto Scanner And Setup Integrity Checker (CLASSIC)
+    [YOURS] P71 In Game Shop Mod Explorer
+    [YOURS] ConsoleEx - Console Extender - F4SE
+    [YOURS] Console Commands Extender
+    [YOURS] Fallout 4 Version Check Patcher
+
+
+# ============================================================
+03. USER INTERFACE
+# TMR has a "User Interface" separator. Their mods go here first.
+
+  03.1 HUD Frameworks
+    [YOURS] HUDFramework
+    [YOURS] FallUI - HUD
+    [YOURS] HUD Plus Plus
+
+  03.2 Inventory & Container UI
+    [YOURS] FallUI - Inventory
+    [YOURS] FallUI - Confirm Boxes
+    [YOURS] FallUI - Sleep and Wait
+    [YOURS] FallUI - Workbench
+    [YOURS] Prisma UI
+
+  03.3 Map & Pip-Boy Enhancements
+    [YOURS] FallUI - Map
+    [YOURS] Alternative Satellite World Maps
+    [YOURS] PipboyTabs
+    [YOURS] Project Arroyo - Pip-Boy 2000
+
+  03.4 HUD Widgets & Overlays
+    [TMR] Mod Configuration Menu  (if you prefer it here instead of 01.4)
+    [TMR] Crafting Highlight Fix
+    [TMR] Workshop Highlight Fix
+    [TMR] Alternative Activation Prompts
+    [YOURS] Companion Status HUD
+    [YOURS] Companion Status HUD - MCM Settings Menu With Hotkey
+    [YOURS] Companion Status UI Remastered
+    [YOURS] Companion Affinity Pip-Boy Tab
+    [YOURS] Companion Command Menu Overhaul
+    [YOURS] Condition Boy - Now with Condition Girl
+    [YOURS] Configurable Hotkeys
+    [YOURS] Custom Camera
+    [YOURS] Wheel Menu Remastered (F4SE)
+    [YOURS] Tarkov HUD Redux - EFT Preset for FallUI
+    [YOURS] Clock Widget - Show Real Time While Loading
+    [YOURS] LevelUpMenuEx
+    [YOURS] LevelUpMenuEx - Extended
+    [YOURS] Looks Menu Temp Scroll
+    [YOURS] LooksMenu
+    [YOURS] Looksmenu Player Rotation
+    [YOURS] Extended Facial Sculpting
+    [YOURS] Sniper Scope Overlay And Reticles Replacement
+    [YOURS] No More 3D Loading Screen
+    [YOURS] Vault Boy Coloured Animations
+    [YOURS] Fallen World - Main Menu
+
+  03.5 Dialogue Interface
+    [YOURS] Extended Dialogue Interface
+    [YOURS] Dialogue Camera - No Forced Auto Rotation
+    [YOURS] SCDC - Subjective Cinematic Dialogue Camera
+
+  03.6 Fonts & Text
+    [YOURS] EFT Font Replacer - Bender
+
+  03.7 Icon Libraries
+    [YOURS] FallUI - Icon Library
+    [YOURS] FIS - The NEW FallUI Item Sorter
+    [YOURS] FIS - Modern Age Icons Addon
+    [YOURS] FIS - Knundrum Library Addon
+    [YOURS] Icon Expansion Pack for FIS
+    [YOURS] Extra Icons for FIS
+
+
+# ============================================================
+04. GAMEPLAY FRAMEWORKS
+
+  04.1 Workshop Framework
+    [YOURS] Workshop Framework
+
+  04.2 Settlement Menu Manager
+    [YOURS] Settlement Menu Manager
+
+  04.3 Overlay Framework
+    [YOURS] Overlay Framework
+    [YOURS] Overlay Framework Save Bug Fix
+
+  04.4 Spell Perk Item Distributor (SPID)
+    [YOURS] Spell Perk Item Distributor
+
+  04.5 Base Object Swapper
+    [YOURS] Base Object Swapper
+
+  04.6 Keyword Frameworks
+    [TMR] Random Encounter Framework  (TMR puts this in Utilities)
+    [YOURS] Auto Beam - True Laser Sights Framework
+    [YOURS] Mag Poop - Visual Reload Framework
+    [YOURS] RobCo Patcher
+    [YOURS] Scaling Flag Remover
+    [YOURS] M8r98a4f2's Complex Item Sorter
+    [YOURS] Medical Asset Pack
+
+
+# ============================================================
+05. SIM SETTLEMENTS 2
+  (add SS2 Core, Ch2, Ch3, SS2 Extended if you use them)
+
+06. SS2 ADD-ONS & CITY PLANS
+  (add SS2 city plans and plot packs if you use them)
+
+
+# ============================================================
+07. AUDIO & SOUND
+
+  07.1 Audio Frameworks & Engines
+    [YOURS] Dynamic Music Overhaul Redux F4SE
+    [YOURS] Reverb and Ambiance Overhaul - Tweaked
+
+  07.2 Weapon Sounds
+    [YOURS] JSRS Sound Mod for Fallout 4
+    [YOURS] Fallout 4 Resound Project - Guns
+    [YOURS] COD Modern Warfare SFX Pack
+    [YOURS] Recoil Shake and Low Ammo Sounds
+
+  07.3 Footstep Sounds
+    [YOURS] JSRS Movement Sounds
+
+  07.4 Ambient & Environment Sounds
+    [YOURS] Ambient Tunnels - Audio Enhancement
+    [YOURS] More Menacing Rad Thunder Sounds
+    [YOURS] Diamond City Ambience
+    [YOURS] Louder Waves
+
+  07.5 Voice Replacers & NPC Voices
+    [YOURS] Assaultron Cyberpunk Voice Replacer
+    [YOURS] Workbench Humming - Cut content restored
+
+  07.6 Radio Stations
+    [YOURS] OLD WORLD RADIO - BOSTON
+    [YOURS] Fix Radio Subtitle
+    [YOURS] Atomic Radio and Tales from the Commonwealth
+
+  07.7 Music Replacements
+    [YOURS] Distortion - Combat Music Replacer
+    [YOURS] Faded Glory - A Post-Apocalyptic Soundscape
+    [YOURS] Fallout Suite - Soundtrack Extension for Fallout 4
+    [YOURS] Lost World - Immersive Soundtrack Replacer
+
+  07.8 Interface Sounds
+    [YOURS] STALKER UI sound replacer
+    [YOURS] Terminal Windows Startup Sounds
+
+  07.9 Item & Consumable Sounds
+    [YOURS] Jolly Item Sounds
+    [YOURS] AnotherOne Brutal Death
+    [YOURS] Better Low and Critical Health Heartbeat Sound Replacer
+    [YOURS] Gas Masks of the Wasteland - METRO EXODUS sound
+    [YOURS] Grenade Sound Options
+    [YOURS] Monsterum - DeathClaw Sounds Rework
+    [YOURS] Not Great Not Terrible - Scarier Geiger Counter Sounds
+    [YOURS] PipBoy Flashlight Sound - Metro Version
+    [YOURS] Russian Stimpack Replacer - Metro 2033 Audio
+    [YOURS] Tactical Weapon Foley - ADS Sounds
+    [YOURS] Tactical Weapon Foley - Weapon Equip Sounds
+
+
+# ============================================================
+08. WEATHER & LIGHTING
+# Place ENBs just before this section
+
+  [ENB - place just above 08]
+    [YOURS] ENB Extender for Fallout 4
+    [YOURS] ENB Helper for Fallout 4
+    [YOURS] Ghost ENB / HOPE / REACTOR / Halo / Joel's  (pick ONE)
+    [YOURS] Bitter Cold Commonwealth - With ENB Depth of Field (ReShade)
+
+  08.1 Weather Overhauls
+    [YOURS] True Storms - Wasteland Edition
+    [YOURS] Polluted Climate
+    [YOURS] xrayys surface clouds changer
+    [YOURS] Radiant Clouds and Fogs
+
+  08.2 Interior Lighting
+    [YOURS] Ultra Interior Lighting
+
+  08.3 Exterior Lighting
+    [YOURS] Night Time God Rays
+    [YOURS] Sunlight Alignment Tweak
+    [YOURS] ZP's Gobos
+    [YOURS] Improved Lighting Ballistics (ILB)
+
+  08.4 Water & Wetness Effects
+    [YOURS] Real Interiors - Persistent Weather
+    [YOURS] Glowing Sea Crater Clouds (LOD fixes)
+
+  08.5 Visual Fixes
+    [YOURS] Fallout 4 Particle Patch - No More Glowing Objects
+    [YOURS] Remove Grenade Bubble
+    [YOURS] Spitfire (Enhanced Muzzle FX)
+    [YOURS] Spitfire FX v0.5 II PATCH II
+    [YOURS] Enhanced Night Sky
+    [YOURS] CROSS Crit Gore-verhaul
+    [YOURS] Intro Tweaks
+
+
+# ============================================================
+09. TEXTURES - FOUNDATION
+
+  09.1 Textures - Base (Architecture, Interiors)
+    [YOURS] Vivid Fallout - All in One
+    [YOURS] BOREALIS - Landscape Retexture
+    [YOURS] VULKAN - Landscape Retexture
+    [YOURS] Very Zen Darker Roads
+    [YOURS] Darker Highways
+    [YOURS] Retro Aesthetics Institute Overhaul
+    [YOURS] Redder Rocket (2K-4K)
+    [YOURS] Faces of Nuka World - Thematic Terrain Replacements
+    [YOURS] The Natural Bundle - Assorted Textures (2K - 4K)
+
+  09.2 Textures - Landscape (Terrain, Roads)
+    [YOURS] ReTexture - Rubble Debris
+    [YOURS] Tile Rubble Remover
+    [YOURS] Remove Ugly Flat Trash
+    [YOURS] Paper Debris Removal And Extra Trash Removal Service
+    [YOURS] Northern Foothills Rocks Fix
+    [YOURS] Fallout Texture Overhaul - Quarry
+
+  09.3 Textures - Structures (Buildings, Debris)
+    [YOURS] BMered wooden crates
+    [YOURS] Construction Barrier Remake
+    [YOURS] Dilapidated Manual barrier Retexture
+    [YOURS] ModernHouseLOD
+    [YOURS] Workbench Rework
+    [YOURS] Cooking stove normal fix
+    [YOURS] Gloomy Glass - All transparent materials revised
+    [YOURS] Classic Nuka-Cola Machine
+    [YOURS] Better Military Cots
+    [YOURS] Barrel Bonanza - Fire Barrel Mesh Replacer
+    [YOURS] Immersive Water Pump
+    [YOURS] Mason Jar Cap Stash
+    [YOURS] Minutemen Flags for the Commonwealth Free Territory
+    [YOURS] Ultimate HD Flag Replacer - Redux
+    [YOURS] Radio Tower Transparency Fix
+    [YOURS] Billboards Normal Map Fix
+    [YOURS] dp- Midwest Revolution HD
+    [YOURS] All Halffaces / HFs mesh replacers (furniture, clutter, etc.)
+
+  09.4 Textures - Roads & Bridges
+    (move any road/bridge-specific textures here)
+
+  09.5 Textures - Vegetation
+    [YOURS] VELDT - Grass Retexture
+    [YOURS] VELDT - Greener Pastures
+    [YOURS] VELDT - No Glowing Sea grass
+    [YOURS] Far Harbor Evergreens - A Pine Tree Retexture
+    [YOURS] Wasteland Debris
+    [YOURS] Wasteland Graffiti
+    [YOURS] A Forest
+    [YOURS] A Forest Tree Trim
+    [YOURS] Better Landscape Grass
+    [YOURS] Grass Reworked
+    [YOURS] Grassphalts Be Gone
+    [YOURS] Looted World
+    [YOURS] More Vines
+    [YOURS] Seasons Change
+    [YOURS] The Fungal Forest
+    [YOURS] True Grass
+    [YOURS] Fireflies
+
+
+# ============================================================
+10. TEXTURES - EQUIPPABLES
+
+  10.1 Textures - Weapons
+    [YOURS] Scrap metal and makeshift welds - A Pipe Gun Retexture
+    [YOURS] Cryolator HD
+    [YOURS] The Flamer Project
+    [YOURS] AN-M14 TH3 Incendiary Grenade Replacer - Standalone
+    [YOURS] Modern Replacer - Flare Gun
+    [YOURS] Modern Replacer - AIO (4k - 2K - 1K)
+
+  10.2 Textures - Armor & Clothing
+    [YOURS] Enhanced Vanilla Armor and Clothing - EVAC
+    [YOURS] Eyewear and mask retexture
+
+  10.3 Textures - Power Armor
+    [YOURS] M150s Institute Power Armor HD Reboot
+
+  10.4 Textures - Pip-Boy & Accessories
+    (add Pip-Boy texture mods if any)
+
+
+# ============================================================
+11. TEXTURES - MISC
+
+  11.1 Textures - Creatures
+    [YOURS] LC's UHD Deathclaw
+    [YOURS] Texture reworks for the FallEvil series
+
+  11.2 Textures - NPCs
+    [YOURS] The Eyes Of Beauty Fallout Edition
+    [YOURS] Kirs freckles
+
+  11.3 Textures - Items & Clutter
+    [YOURS] Retextured Chems v.2 - Ephla's Unique Chems
+    [YOURS] Drinking Water Retexture
+    [YOURS] Holotape Visual Improvement
+    [YOURS] Holotape Visual Improvement - Patch Repository
+    [YOURS] 4P4 - Medkits - BOS (Base Object Swapper)
+    [YOURS] Oppressor's replacers (Alarm Clock, Baseball Glove, Metal Barrel, etc.)
+    [YOURS] Fabulous Fire Extinguisher (Replacer)
+    [YOURS] Retexture for the Fabulous Fire Extinguisher
+    [YOURS] Modern Replacer - Nuka-Cola
+    [YOURS] Modernish Replacer - 90s Computer
+    [YOURS] Natural Cubemaps
+    [YOURS] 3D Super Mutant Chains
+    [YOURS] America Rising 2 - Texture Improvements
+
+  11.4 Textures - Vehicles & Machinery
+    [YOURS] ZP's Rusted Cars
+    [YOURS] ZP's Tires
+
+  11.5 Textures - Effects & Particles
+    [YOURS] Enhanced Blood Textures
+    [YOURS] EVB with dismemberment
+
+
+# ============================================================
+12. CHARACTER RESOURCES
+
+  12.1 Body Frameworks
+    12.1.1 BodySlide & Outfit Studio
+      [YOURS] BodySlide and Outfit Studio
+
+    12.1.2 3BBB Physics (CBBE)
+      [YOURS] Caliente's Beautiful Bodies Enhancer -CBBE-
+
+    12.1.3 3BBB Physics (TWB)
+      (add TWB physics mods if used)
+
+  12.2 Head & Face Meshes
+    [YOURS] HiPoly Faces REDUX
+    [YOURS] 2K LooksMenu Customization Compendium ba2
+    [YOURS] Looks Menu Customization Compendium
+    [YOURS] Looks Menu Compendium 2k Textures FIXED
+
+  12.3 Skin Textures
+    12.3.1 Female Skin Textures
+      [YOURS] 4k Enhanced Vanilla Bodies Skin 2025 Edition
+      [YOURS] Enhanced Vanilla Bodies
+      [YOURS] Enhanced Vanilla Bodies BodySlide
+
+    12.3.2 Male Skin Textures
+      (add male skin mods)
+
+    12.3.3 BodyPaint & Overlays
+      [YOURS] LooksMenu Body Tattoos (CBBE)
+
+  12.4 Eyes
+    [YOURS] Looking Stranger - Heterochromia and Odd Eyes
+
+  12.5 Brows & Lashes
+    [YOURS] Appealing Moles
+
+
+# ============================================================
+13. HAIR & FACIAL HAIR
+
+  13.1 Female Hairstyles
+    [YOURS] Lots More Female Hairstyles
+    [YOURS] Commonwealth Cuts - KS Hairdos - ApachiiSkyHair
+    [YOURS] femshepping and radbeetle's KS Hairdos Conversions
+    [YOURS] Ponytail Hairstyles by Azar v3.0
+    [YOURS] Sleek Styles - a Hairstyle Pack
+
+  13.2 Male Hairstyles
+    [YOURS] Lots More Male Hairstyles
+    [SKIP]  Black Desert Online Hair - DELETED
+
+  13.3 Facial Hair & Beards
+    [YOURS] Beards N' Staches - A Facial Hair Expansion
+    [YOURS] Lots More Facial Hair
+
+  13.4 Hair Color Mods
+    (add if any)
+
+  13.5 Hair Physics
+    [YOURS] KS Hairdos - Addon(s) with Physics
+
+
+# ============================================================
+14. TATTOOS, MAKEUP & OVERLAYS
+
+  14.1 Body Tattoos
+    [YOURS] LooksMenu Body Tattoos (CBBE)
+
+  14.2 Face Tattoos
+    (add face tattoo mods)
+
+  14.3 Makeup & Warpaint
+    (add makeup mods)
+
+  14.4 Scars & Marks
+    (add scar mods)
+
+  14.5 Freckles & Skin Details
+    [YOURS] Kirs freckles
+
+  14.6 Vitiligo & Special Effects
+    (add if any)
+
+
+# ============================================================
+15. CHARACTER PRESETS
+
+  15.1 Female Presets
+    [YOURS] Alice Bodyslide Preset CBBE Fusion
+    [YOURS] Picturesque Presets for LooksMenu
+
+  15.2 Male Presets
+    (add male presets)
+
+  15.3 Looksmenu Customization Compendium
+    (handled in 12.2 - dependency note only)
+
+  15.4 Looksmenu Overlays
+    (add overlay mods)
+
+
+# ============================================================
+16. ANIMATION FRAMEWORK
+
+  16.1 Animation Frameworks
+    [YOURS] Immersive Animation Framework
+    [YOURS] Merged RootBehavior
+
+  16.2 Idles & Poses
+    [YOURS] More Natural Idle Animation NPCs
+    [YOURS] 3rd Person Animations - Sneak Idles and Shooting
+    [YOURS] Much Better 3rd Person Animations - MLVic's Edition
+    [YOURS] Much Better 3rd Person Animations Tactics
+
+  16.3 Movement Animations
+    [YOURS] First-Person Running with Hands Animations
+    [YOURS] First-Person Swimming Animations
+    [YOURS] 3rd Person Directional Power Armor Vanilla Movement Fix
+
+  16.4 Weapon Animations
+    [YOURS] Immersive Animation Framework - Alcohol Reanimation
+    [YOURS] Russian Stimpack Replacer
+    [YOURS] Vanilla Reanimation Project - Hunting Rifle
+    [YOURS] Vanilla Reanimation Project - Plasma Gun
+    [YOURS] Vanilla Reanimation Series - Double Barrel Shotgun
+    [SKIP]  OBSOLETE OLD Vanilla Reanimation Project - Pipe Guns
+    [YOURS] VRP Shared Content
+    [YOURS] Gas Masks of the Wasteland Mask Replacer
+    [YOURS] Super Mutant Equality a Super Mutant Weapon Expansion
+
+  16.5 Power Armor Animations
+    (add PA animation mods)
+
+  16.6 Facial Expressions
+    (add facial expression mods)
+
+  [Misc - no better home]
+    [YOURS] FO4 Animated Traffic Lights
+    [SKIP]  TBS - Turret Blind Spots - DELETED
+
+
+# ============================================================
+17. GAMEPLAY - COMBAT
+
+  17.1 Combat AI & Tactics
+    [YOURS] Combat AI Empowered
+    [YOURS] Chemfluence - AI Combat Dynamics
+    [YOURS] Enemies Fear Power Armor
+    [YOURS] Deadly Coursers (Simplified Courser Crusher)
+    [TMR]   Encounter Zone Recalculation (Continuous Level Scaling)
+            NOTE: TMR installs this under Gameplay. Follow their old files version.
+
+  17.2 Damage Overhauls
+    [YOURS] Dynamic Dismember System - F4SE
+    [YOURS] CROSS Crit Gore-verhaul
+
+  17.3 Ballistics & Projectile Mods
+    [YOURS] Commonwealth Ballistics - Penetration System - F4SE
+    [YOURS] Sighted Weapon Accuracy Fix
+
+  17.4 Hit Reactions & Effects
+    [TMR]   Hit Those Objects  (TMR installs this under Gameplay)
+    [TMR]   Hit Those Explosives
+    [TMR]   Molotov Cocktail Nerf
+    [YOURS] Burst Impact Blast FX
+    [YOURS] Better Casing Ejection
+
+  17.5 VATS Improvements
+    [YOURS] VAFS Redux - Bullet Time and Manual Critical
+
+  17.6 Stealth & Detection
+    [YOURS] STEALTH AND DETECTION SYSTEM
+
+
+# ============================================================
+18. GAMEPLAY - TACTICAL & IMMERSION
+
+  18.1 Tactical Systems
+    [YOURS] Uneducated Shooter - QE Leaning and Gun Inertia
+    [YOURS] Modern First Person Controller Controls
+    [TMR]   Bullet Counted Reload System (BCR)
+            NOTE: TMR installs specific old version. Follow TMR instructions.
+    [YOURS] Bullet in the Chamber - Expanded Weapon Mechanics
+    [YOURS] Manual Reload - F4SE
+    [YOURS] No Automatic Recoil Adjustment
+    [YOURS] Put Ur Gun In - Immersive Weapon Switch
+    [YOURS] Enhanced Movement
+    [YOURS] Low Profile Loader
+    [TMR]   Classic Holstered Weapons System (CHW)
+            NOTE: TMR installs specific old version (v1.06b).
+
+  18.2 Grenade & Explosive Overhauls
+    [YOURS] Better Explosives Redux
+    [YOURS] Pig's Improvised Explosives Pack
+    [YOURS] M84 FlashBang
+    [YOURS] BH Russian Grenade Pack
+    [YOURS] Bengal - long lasting Flare
+
+  18.3 Medical & Stimulant Systems (MAIM)
+    [YOURS] MAIM Redux - Headshots - Wounds - Bleeding - Pain - Meds
+    [YOURS] Stimpaks help you breathe
+    [YOURS] Running Breathing
+    [YOURS] Disable Healing on Level-Up F4SE
+
+  18.4 Survival Mechanics
+    [YOURS] Campsite - Simple Wasteland Camping
+    [YOURS] Fallout 4 - Hardcore Alternate Death
+    [TMR]   Unlimited Survival Mode - F4SE
+    [YOURS] Survival Mode Overhaul
+    [YOURS] Travel Pack - Immersive Fast Travel and Saving
+    [YOURS] Dynamic Helmet
+    [YOURS] Enjoy the Darkness - Flashlights and Night Vision
+    [YOURS] Fallsouls - Unpaused Game Menus
+    [YOURS] Vulture - Looting Takes Time And Actions Make Sound
+    [YOURS] Immersive Scrapping
+
+  18.5 Companion Frameworks
+    [TMR]   Simple Everyone's Best Friend
+            NOTE: TMR uses the Simpler version, not the original.
+            CONFLICT: You have the original "Everyone's Best Friend" - use TMR's version instead.
+    [YOURS] Disable Companion Collision
+    [YOURS] NPC Can Heal
+
+  18.6 Companion AI Improvements
+    [YOURS] NPCs Use Items
+
+
+# ============================================================
+19. WEAPONS - MODERN & TACTICAL
+
+  19.1 Weapon Frameworks & Keywords
+    [YOURS] Munitions - Ammo Expansion Project
+    [YOURS] The Attachment Pack
+    [YOURS] VRP Shared Content
+    [YOURS] Combined Arms Integration Project (CAIP)
+    [YOURS] Dak's Weapons on Super Mutants (Patch Repository)
+
+  19.2 Ammo & Munitions Mods
+    [YOURS] Armament - Ammunition and Ballistics Overhaul
+    [YOURS] Metro-Styled Currency (MGRs)
+
+  19.3 Weapon Retextures
+    [YOURS] Scrap metal and makeshift welds - A Pipe Gun Retexture
+
+  19.4 Modern Assault Rifles
+    [YOURS] AKs of the Wasteland
+    [YOURS] Combined Arms - Modern Weapon Pack
+    [YOURS] Combined Arms - Expansion Pack
+    [YOURS] Service Rifle Assault Carbine and Marksman Carbine
+    [YOURS] OTs-14 GROZA
+    [YOURS] Pig's Wasteland Weaponry - A Best Of Pack
+    [YOURS] Pig's Wasteland Weaponry - Raider's Armaments
+    [YOURS] Infantry Battle Rifle (T48 and FN FAL)
+    [YOURS] AER15 Modern Laser Assault Rifle
+    [YOURS] Another Another Millenia - A Weapon Pack
+    [YOURS] The All American - M1A1 Thompson - M1911 - M1 Garand - BAR
+
+  19.5 Modern SMGs & PDWs
+    [YOURS] 10mm SMG - A Fallout 3 Classic
+    [YOURS] .38 Machine Pistol (Mac-11)
+    [YOURS] Machineguns Rebirth
+
+  19.6 Modern Pistols
+    [YOURS] 12.7mm Pistol (Fallout New Vegas)
+    [YOURS] Colt Kimber Custom
+    [YOURS] The Assault Pistol (Colt SCAMP)
+    [YOURS] The Riot Pistol - (Linda Pistol)
+    [YOURS] The .22 Pistol Pack
+    [YOURS] The Handmade Pistol (Metro Lolife)
+    [YOURS] The Varmint Revolver (Taurus Judge)
+    [YOURS] Glock 86 - Plasma Pistol
+    [YOURS] Discharger Laser Pistol
+
+  19.7 Modern Sniper Rifles
+    [YOURS] Remington Model 700
+    [YOURS] AnotherOne Remington 700 Addon and Replacer
+    [YOURS] Bolt Actions of the Wasteland
+    [YOURS] Anti-Materiel Rifle - Rat Runners Arsenal
+    [YOURS] 20mm Anti Power Armor Rifle (PTRD-41)
+    [YOURS] Ruger Rifle Pack
+    [YOURS] Vintage Repeater (Winchester 1866 Henry 1860)
+    [YOURS] Makeshift Air Dart Rifle
+    [YOURS] M72 Gauss Rifle
+    [YOURS] M72 Gauss Rifle Attachment Pack
+    [YOURS] Wattz 3000 mkII Laser gun
+    [YOURS] X12 Plasmacaster
+    [YOURS] Accelerator Plasma Energy Weapon
+    [YOURS] Laser RCW - Fallout New Vegas
+
+  19.8 Modern Shotguns
+    [YOURS] Handmade Assault Shotgun (Raider Saiga)
+    [YOURS] AS-12 Heavy Assault Shotgun
+    [YOURS] Pump Actions of the Wasteland
+    [YOURS] Lever Action Shotgun (Winchester 1887)
+    [YOURS] The Varmint Shotgun (.410 Shotgun)
+
+  19.9 LMGs & Heavy Weapons
+    [YOURS] RPG-7V2
+    [YOURS] The Incendiary Launcher (M202 Flash)
+    [YOURS] The Automatic Rifle (Colt Monitor BAR)
+    [YOURS] Flamer Resurgent
+    [YOURS] Cryolator Reworked
+
+  19.10 Tactical Equipment & Gadgets
+    [YOURS] Gadgets of the Wasteland - Fallout x Metro
+    [YOURS] West Tek Tactical Optics
+    [YOURS] Makeshift Melee Weapon Pack
+    [YOURS] The Disruptor
+    [YOURS] Unarmed Gameplay Overhaul and SLIDE KICK
+
+  19.11 Weapon Sound Replacers
+    (weapon sounds are in 07.2)
+
+  19.12 Weapon Animation Replacers
+    (weapon animations are in 16.4)
+
+
+# ============================================================
+20. WEAPONS - VANILLA OVERHAULS
+
+  20.1 Vanilla Weapon Replacers
+    [YOURS] Modern Weapon Replacer - Combined Arms - Modern Weapon Pack
+    [YOURS] Modern Weapon Replacer - Combined Arms Expansion Pack
+    [YOURS] Remington 700 - Unofficial Integration Patch - Hunting Rifle Replacer
+
+  20.2 Weapon Mod Overhauls
+    [YOURS] New Equipment Overhaul (NEO)
+
+  20.3 See-Through Scopes
+    (add STS if used)
+
+  20.4 Weapon Retextures
+    (see 10.1 / 19.3)
+
+
+# ============================================================
+21. ARMOR & CLOTHING
+
+  21.1 Armor Frameworks
+    (add AWKCR alternative if used)
+
+  21.2 Armor Overhauls
+    [YOURS] Combat Armor Remodel
+    [YOURS] Leather Armor Remodel
+    [YOURS] Enhanced Vanilla Armor and Clothing - EVAC
+
+  21.3 New Armor Sets
+    [YOURS] B-35C Heavy Brotherhood of Steel armor + arm fix + BodySlide
+    [YOURS] BOS Infantry Armor + CBBE BodySlides
+    [YOURS] Boston Riot Armor
+    [YOURS] CROSS_Chosen_Of_Atom
+    [YOURS] CROSS_Courser Strigidae
+    [YOURS] CROSS_InstituteExpeditionarySuit
+    [YOURS] CROSS_BrotherhoodRecon
+    [YOURS] Eli's Armour Compendium - EAC
+    [YOURS] Ghillie Suits
+    [YOURS] Mercenary - Mash-ups pack
+    [YOURS] Rivets And Rage - A Scrappy Raider Armor Pack
+    [YOURS] Stalker + CBBE BodySlide
+    [YOURS] Tactical Courser
+    [YOURS] The Mercenary - Pack + Olive Drab retexture
+    [YOURS] Tumbajamba armor collection (all sets + CBBE conversions)
+    [YOURS] Apocalyptic Gunslinger - CBBE Refit with Bodyslide
+    [SKIP]  Apocalyptic Gunslinger - DELETED
+    [SKIP]  P.A.S. - Post Apocalyptic Survivor - DELETED
+
+  21.4 Clothing & Outfits
+    [YOURS] America Rising 2 - Fashion of the Enclave (Uniforms Revamped)
+    [YOURS] Fallout TV Show Inspired Cleric Robes
+    [YOURS] Mercenary Pack - Reinvention
+    [YOURS] Wastelanders Overalls CBBE
+    [YOURS] femshepping's Assorted Mashups
+
+  21.5 Tactical & Military Gear
+    [YOURS] Militarized Minutemen Rolled Sleeve Crash Fix
+    [YOURS] Minutemen Tactical Variety
+
+  21.6 Accessories (Backpacks, Belts, etc.)
+    [YOURS] Backpacks of the Commonwealth
+    [YOURS] K-9 Harness
+    [YOURS] K-9 Tactical Harness - REVAMPED
+    [YOURS] No Revolver in Holster - A Mercenary Pack Tweak for CHWS
+    [YOURS] West Tek Tactically ESL-ified Gloves
+
+  21.7 Headwear & Helmets
+    (add helmet mods)
+
+
+# ============================================================
+22. POWER ARMOR
+
+  22.1 Power Armor Overhauls
+    [YOURS] Strength in Steel - Brotherhood T60 Overhaul
+    [YOURS] PowerArmor Training
+    [YOURS] Classic Power Armor Training
+    [TMR]   No Sneaking in Power Armor
+
+  22.2 Power Armor Frameworks
+    (add PA frameworks)
+
+  22.3 New Power Armor Sets
+    [YOURS] Children of Atom Power Armor
+    [YOURS] Enclave X-02 Black Devil Power Armor
+    [YOURS] Hellfire X-03 Power Armor
+    [YOURS] InstitutePowerArmor
+    [YOURS] MidWest Power Armor Revolution
+    [YOURS] T 65 Power Armor
+    [YOURS] T-49 - Armor of the Storyteller
+    [YOURS] 4estGimp - T-49 Armor of the Storyteller Edit
+    [YOURS] The Glowing Nightmare
+    [YOURS] Tumbajamba's Raider Power Armor
+    [YOURS] Tumbajamba's Synth Power Armor
+
+  22.4 Power Armor Retextures
+    [YOURS] T 65 Power Armor - East Brotherhood of Steel Paint
+
+  22.5 Power Armor HUD & Systems
+    [YOURS] Immersive Power Armor HUD
+    [TMR]   SPARS - Simple Power Armor Reduction System
+
+
+# ============================================================
+23. CRAFTING & LOOTING
+
+  23.1 Crafting Frameworks
+    [YOURS] Climbable Ladders - Workshop and Mobile
+    [YOURS] Standalone Workbenches
+    [TMR]   Crafting Highlight Fix  (also fits 03.4 - either location fine)
+
+  23.2 Workbench Enhancements
+    [YOURS] Workbench Rework
+
+  23.3 Item Sorters
+    [YOURS] FIS - The NEW FallUI Item Sorter
+    [YOURS] M8r98a4f2's Complex Item Sorter
+    [YOURS] 4estGimp - M8r98a4f2's Complex Item Sorter Enhancements
+
+  23.4 Loot & Levelling
+    [TMR]   Loot Logic and Reduction
+    [TMR]   Legendaries They Can Use
+    [TMR]   Legendary Mutation Messages Fix - Cut Content Restored
+    [YOURS] Legendary Effect Overhaul (LEO)
+    [YOURS] Immersive Legendary Mutations
+    [YOURS] Engaging Loot of the Commonwealth
+    [YOURS] Portable Junk Recycler Mk 2
+    [YOURS] Unique - Quest Items Are Not Junk
+    [YOURS] Commonwealth Stashes
+    [TMR]   Remove Ammo from Dropped Guns  (TMR installs specific old version)
+    [YOURS] ArcJet no free ammo
+    [YOURS] Less Food in Exteriors or unmarked locations
+    [YOURS] Fewer Cap Stashes
+    [YOURS] Harder Barter - Expensive Prices
+
+  23.5 Ammo Crafting
+    (add ammo crafting mods)
+
+  23.6 Weapon & Armor Crafting
+    (add weapon/armor crafting mods)
+
+
+# ============================================================
+24. NPC OVERHAULS
+
+  24.1 NPC Appearance Overhauls
+    [YOURS] Diverse Wasteland - The Diverse Series All-in-One
+    [YOURS] We Have Names (and more) - All In One
+    [YOURS] All Synthetic Facelift mods (Atom Cats, BOS, Courser,
+            Covenant, Diamond City, Follower AIO, Goodneighbor,
+            Gunners, Institute, Merchants, Sanctuary, Silver Shroud,
+            Railroad, Nick Valentine, Old Longfellow)
+    [YOURS] New HiPoly - Ultimate Heather Casdin
+    [YOURS] The Ultimate Curie
+
+  24.2 NPC Voice Replacers
+    (add voice replacer mods)
+
+  24.3 Faction Overhauls
+    [YOURS] Improved America Rising 2 Enclave
+    [YOURS] Improved Brotherhood of Steel
+    [YOURS] Improved Institute
+    [YOURS] Improved Minutemen
+    [YOURS] Improved Nuka Raiders
+    [YOURS] Improved Railroad
+    [YOURS] Militarized Minutemen
+    [YOURS] Church of Atom Overhaul
+    [YOURS] ITO institute Technology Overhaul Full - Version 2
+
+  24.4 Enemy Overhauls
+    [YOURS] Combat AI Empowered
+    [YOURS] Deadly Coursers (Simplified Courser Crusher)
+    [YOURS] Improved Guards
+    [YOURS] Improved Hostile Factions
+    [YOURS] Hunter of the Commonwealth
+    [YOURS] REPUTATION
+
+  24.5 Creature Overhauls
+    [YOURS] Super Mutant Redux
+    [YOURS] Forced Evolution - Super Mutant Addons
+    [TMR]   Complex Vendors
+    [YOURS] NPCs Travel
+    [YOURS] NPCS Travel - Fixes (ESL flagged)
+
+
+# ============================================================
+25. COMPANIONS
+
+  25.1 Companion Frameworks
+    (add companion frameworks)
+
+  25.2 New Companions - Voiced
+    [YOURS] Heather Casdin - A Unique Companion Experience by llamaRCA
+
+  25.3 New Companions - Standalone
+    (add standalone companions)
+
+  25.4 Companion Overhauls
+    [YOURS] Valentine Jaw Sync
+
+  25.5 Companion Visuals
+    (add companion visual mods)
+
+
+# ============================================================
+26. VANILLA QUEST MODIFICATIONS
+
+  26.1 Quest Bug Fixes
+    [YOURS] Emirals Tales From The Commonwealth Fixes
+    [YOURS] Cryolator Moved To Fort Hagen
+    [YOURS] Skip Kellogg's Memories
+    [YOURS] Skip DiMA's Memory Games
+    [TMR]   Who's The General - Minutemen Quest Cleanup + Patch Hub
+    [TMR]   Keep Radiants in the Commonwealth UFO4P Version
+    [TMR]   More Weathervanes
+    [TMR]   More Diamond City Bounties
+    [YOURS] DLC Timing
+
+  26.2 Quest Expansions
+    [YOURS] Switchboard Reborn
+    [YOURS] Oppressive and Extended Concord
+    [TMR]   You And What Army 2
+    [TMR]   Integrated Addons
+
+  26.3 Dialogue Overhauls
+    [YOURS] Settler and Companion Dialogue Overhaul
+    [YOURS] The Danse Dilemma (pka Face Maxson etc.)
+
+  26.4 Quest Rewards & Outcomes
+    (add quest reward mods)
+
+
+# ============================================================
+27. NEW QUESTS & ADVENTURES
+
+  27.1 Quest Mod Frameworks
+    [TMR]   Random Encounter Framework  (also in 04.6)
+    [YOURS] Commonwealth Encounter Pack
+
+  27.2 Major Quest Mods
+    [YOURS] America Rising 2 - Legacy of the Enclave
+    [YOURS] America Rising 2 - Delayed Start
+    [YOURS] Lima Detachment
+    [YOURS] In The Flesh - A Horror Quest Mod
+    [YOURS] Vault 117 - A Horror Quest Mod
+
+  27.3 Dungeon & Location Quests
+    (add dungeon quest mods)
+
+  27.4 Companion Quests
+    (add companion quest mods)
+
+  27.5 Miscellaneous Quests
+    [YOURS] America Rising 2 - Armaments
+
+
+# ============================================================
+28. LOCATIONS - VANILLA EXPANSIONS
+
+  28.1 Settlement Expansions
+    [YOURS] We People Can Live In
+    [YOURS] Better Drumlin Diner
+    [YOURS] Concord Personified
+
+  28.2 Diamond City Overhauls
+    (add DC overhaul mods)
+
+  28.3 Goodneighbor Overhauls
+    (add GN overhaul mods)
+
+  28.4 Other Settlement Tweaks
+    [YOURS] No More Useless Beds - ESPless
+
+  28.5 Interior Cell Edits
+    (add interior cell mods)
+
+
+# ============================================================
+29. LOCATIONS - NEW WORLDSPACES
+
+  29.1 New Lands & Worldspaces
+    [YOURS] Boon Island - Isles Of New England
+    [YOURS] Misery Island - Isles Of New England
+
+  29.2 Point Lookout (Fallout 4)
+    (add if you have it)
+
+  29.3 New Settlements
+    [YOURS] Vault Tec in Concord
+    [YOURS] Red Rocket - Window Shutters and Custom Doors
+
+  29.4 Player Homes
+    [YOURS] Forgotten Pump House
+    [YOURS] Sailboat Abode - A Fast Travel Ship
+    [YOURS] The Top Floor Loft
+    [YOURS] The Top Floor Loft Enhanced
+    [YOURS] The Way Home 1 - Concord Hideout
+
+  29.5 New Dungeons
+    [YOURS] HeavyRAIN - Memoirs of Vault 111
+    [YOURS] Subway Runner - Revival
+
+
+# ============================================================
+30. SETTLEMENT MODS
+
+  30.1 Settlement Frameworks
+    [YOURS] Workshop Framework
+    [YOURS] Settle Everywhere
+    [YOURS] Visitors 2
+
+  30.2 Settlement Objects - Vanilla Menus
+    [YOURS] The Rebuild Collection - AIO
+    [YOURS] The Rebuild Collection - Shared Resources
+
+  30.3 Settlement Objects - Script Injected
+    (add script-injected settlement objects)
+
+  30.4 Settlement Menu Overhauls
+    (add SMM-based mods)
+
+  30.5 Scrapping & Precombine Mods
+    (PRP is in 01.2)
+
+  30.6 Transfer Settlement Blueprints
+    (add blueprints)
+
+
+# ============================================================
+31. CREATURES & ENEMIES
+
+  31.1 Creature Frameworks
+    (add creature frameworks)
+
+  31.2 Creature Expansions
+    [YOURS] FallEvil - Zombie Mega Pack
+    [YOURS] Reign of the Tyrants
+    [YOURS] Project NEMEAN - A Creature Mod
+    [YOURS] Defective Synths
+    [YOURS] Locked and Loaded - Gunners Addon
+
+  31.3 Creature Overhauls
+    [YOURS] Bovine Intervention - Brahmin Overhaul
+    [YOURS] Brahmin Variations
+    [YOURS] Deadlier Deathclaws
+    [YOURS] Dogs can grab player
+    [YOURS] Friendly Radstags - ESPless
+
+  31.4 Creature Retextures
+    [YOURS] LC's UHD Deathclaw
+    [YOURS] Texture reworks for the FallEvil series
+
+  31.5 SCOURGE & Enemy Scaling
+    [YOURS] Unleveled World - F4SE
+    [TMR]   Encounter Zone Recalculation  (also in 17.1)
+
+
+# ============================================================
+32. PERKS & SKILLS
+
+  32.1 Perk Overhauls
+    [YOURS] S7 Skill System - Vanilla Perk Overhaul
+
+  32.2 New Perks
+    [YOURS] PerkPointsPerLevel
+
+  32.3 Skill Systems
+    [YOURS] S7 Skill System - A Skyrim Style Leveling Overhaul
+    [YOURS] LevelUpMenuEx
+    [YOURS] LevelUpMenuEx - Extended
+
+  32.4 Trait Systems
+    [YOURS] KARMA
+    [YOURS] SPECIAL Speed Start
+
+
+# ============================================================
+33. IMMERSION
+
+  33.1 Immersion Frameworks
+    [YOURS] Pip-Boy Flashlight (Pipboy - Power Armor - Lamp Overhaul)
+    [YOURS] Pip-Boy Flashlight Patch
+    [YOURS] Pip-Boy Flashlight Animation
+    [YOURS] Flashlight Replace
+
+  33.2 Weather Effects on Gameplay
+    [YOURS] Wet Effects
+    [YOURS] Radiant Clouds and Fogs
+
+  33.3 Time & Needs
+    [YOURS] Feral Nights by SKK
+    [YOURS] Flashy(Joer) - Feral Infestations
+
+  33.4 Crime & Consequences
+    [YOURS] Grabbing Is Stealing
+    [TMR]   Simple Offence Suppression F4
+
+  33.5 Faction Interactions
+    [YOURS] Integrated Automatron
+
+  33.6 Ambient Systems
+    [YOURS] CRACKLE - Comforting fires for the discerning hobo
+    [YOURS] Sinking Bodies
+    [YOURS] Have a Seat
+    [YOURS] Immersive Squeaky Doors
+    [YOURS] Immersive Water Purification
+    [YOURS] Pip-Boy Radio Detection - F4SE
+    [YOURS] Pipboy Radio Toggle Hotkey
+    [YOURS] Assaultron Grab Skills
+    [YOURS] Deathclaw Grab Skills
+    [YOURS] Yaoguai Grab Skill
+    [YOURS] Splinterz - Breakable Wooden Doors
+    [YOURS] Combined Combat XP (F4SE)
+    [YOURS] Alternate Mine Defusing
+    [YOURS] First Person Death Cam
+    [YOURS] No Water Jump
+    [YOURS] Ultimate Hacking
+    [YOURS] Ultimate Lockpicking
+    [TMR]   To Your Face FO4
+    [TMR]   Dogmeat Follow Behind
+    [TMR]   Less Annoying Berry Mentats
+    [TMR]   Deadeye Weapon Effect Fix
+    [TMR]   Simple FOV Slider
+    [TMR]   Remember Lockpick Angle - Updated
+
+
+# ============================================================
+34. START & ALTERNATE START
+
+  34.1 Alternate Start Mods
+    [YOURS] Lucky 7 - Hardcore Start
+
+  34.2 Fast Start Mods
+    [YOURS] SKK Fast Start Location
+
+  34.3 Intro Replacements
+    [YOURS] Intro Tweaks
+
+  34.4 Pre-War Changes
+    (add pre-war change mods)
+
+
+# ============================================================
+35. PATCHES & COMPATIBILITY
+
+  35.1 UFO4P Patches
+    [TMR]   The Midnight Ride Resources (GA Galleria UFO4P Patch)
+    [TMR]   Loot Logic and Reduction - UFO4P Patch
+
+  35.2 SS2 Patches
+    (SS2 compatibility patches)
+
+  35.3 Weapon Patches
+    [YOURS] 1st Person Power Armor Footstep Fix for Various Weapon Mods
+    [YOURS] America Rising 2 - The Attachment Pack Compatibility Patch
+    [YOURS] DegenerateDak ESLified Patch Hub
+    [YOURS] Improved Lighting Ballistics - Muzzle and Tracer Patch
+    [YOURS] Munitions - Official Patch Repository
+    [YOURS] Reaper's RobCo Munitions Patches
+
+  35.4 Armor Patches
+    [YOURS] 4estGimp - Eli's Armor Compendium Edit
+    [YOURS] 4estGimp - Super Mutant Redux-No AWKCR
+    [YOURS] 4estGimp - T-49 - Armor of the Storyteller PA CIS INNR ini
+    [YOURS] 4estGimp - M72_GaussRifle_Edit
+
+  35.5 Quest Patches
+    [YOURS] Lima Detachment - America Rising 2 Integration
+    [YOURS] Lima Detachment - T5VPatch
+    [YOURS] XDI - America Rising 2 (AR2) Patch
+    [YOURS] Tales from the Commonwealth - eXoPatch
+    [YOURS] Forced Evolution - eXoPatch
+
+  35.6 SCOURGE Patches
+    (add SCOURGE patches)
+
+  35.7 RobCo Patches
+    [YOURS] West Tek Tactical Optics Patch - MCM Options
+
+  35.8 MAIM Patches
+    (add MAIM patches)
+
+  35.9 Patch Hubs
+    [YOURS] 4estGimp - Hunter of the Commonwealth Compacted
+    [YOURS] Random Encounter Framework Patch Hub
+    [YOURS] S7 Vanilla Perk Overhaul - Patch Hub
+    [YOURS] Fallout Anomaly 0.5 Patches
+    [YOURS] FallenWorld Resources
+    [YOURS] Immersive Animation Framework (IAF) - ESP-less Patches
+    [YOURS] A Forest True Grass Compatibility Patch
+    [YOURS] True Grass - Floating Grass Fix
+    [YOURS] Looks Menu Compendium 2k Textures FIXED
+    [TMR]   More Diamond City Bounties - Alt Activation Patch
+    [TMR]   Who's The General Patch Hub
+
+
+# ============================================================
+36. LATE LOADERS & CLEANUP
+
+  36.1 Late Loading Fixes
+    [YOURS] Outfit ReDress Fix
+    [TMR]   Assorted Modular Tweaks - ESPless + TMR Config
+            NOTE: TMR specifies their own config file - use it.
+
+  36.2 Consistency Patches
+    (add consistency patches)
+
+  36.3 Final Tweaks
+    (add final tweak mods)
+
+
+# ============================================================
+37. PERFORMANCE & OPTIMIZATION
+
+  37.1 Performance Fixes
+    [TMR]   High FPS Physics Fix  (TMR installs this - follow their ini edits exactly)
+            AMD + VRR: enable VRR in Adrenalin, set InGameFPS slightly below refresh rate.
+    [YOURS] Cell Offset Generator
+    [YOURS] Godrays Performance Fix Redux
+    [YOURS] MCM Booster
+
+  37.2 Precombine Restorations
+    [TMR]   Previsibines Repair Pack (PRP)  (also in 01.2 - PRP must load LAST
+            among all location-editing mods regardless of which separator you use)
+
+  37.3 FPS Fixers
+    [YOURS] Frame Generation  (AMD FSR3 compatible)
+    [YOURS] Upscaling          (AMD FSR2 compatible)
+
+
+# ============================================================
+38. CHEATS & TESTING
+  (add cheat/testing mods here)
+
+# ============================================================
+39. OUTPUT FOLDERS
+  39.1 F4SE Output
+  39.2 BodySlide Output
+  39.3 FO4Edit Output
+  39.4 ZEdit Output
+  39.5 MCM Output
+  39.6 Other Tool Outputs
+
+# ============================================================
+40. TO CONSIDER - TESTING
+  40.1 Mods to Evaluate
+    [YOURS] FO4LODGen Resources  (run LODGen after install is stable)
+    [YOURS] Performance optimization guide  (guide, not a mod)
+    [YOURS] Fallen World - Survival Wabbajack List  (Linux-compatible reference)
+
+  40.2 Conflict Testing
+    (mods to conflict-test)
+
+  40.3 New Mod Candidates
+    (new mods to evaluate)
+
+
+# ============================================================
+# CONFLICTS / THINGS TO RESOLVE:
+# ----------------------------------------------------------
+# 1. Everyone's Best Friend:
+#    TMR uses "Simple Everyone's Best Friend" - remove the original.
+#
+# 2. Assorted Modular Tweaks:
+#    TMR installs this with their own TMR Config file. Use their config.
+#    It goes in 36.1 (Late Loaders) per TMR's intent.
+#
+# 3. Weapon Debris Crash Fix:
+#    TMR says AMD/non-Turing GPUs can skip this. You're on AMD - skip it
+#    unless you specifically enabled NVFlex in BethINI Pie.
+#
+# 4. Remove Ammo from Dropped Guns:
+#    TMR installs a specific old version (v1.0.5.1). Follow TMR exactly.
+#
+# 5. Bullet Counted Reload System (BCR):
+#    TMR installs a specific old version. Follow TMR exactly.
+#
+# 6. Classic Holstered Weapons (CHW):
+#    TMR installs v1.06b (old files). Follow TMR exactly.
+#
+# 7. Encounter Zone Recalculation:
+#    TMR installs from "Old Files". Follow TMR exactly.
+#
+# 8. High FPS Physics Fix:
+#    TMR specifies OldGen (3rd file) with specific ini edits.
+#    On CachyOS + AMD with VRR: set InGameFPS to ~97% of your refresh rate.
+#
+# 9. Complex Vendors:
+#    In both TMR (Gameplay) and your list (NPC). One install, either location.
+#
+# 10. PRP load order:
+#    Must be AFTER all mods that edit locations/cells. In practice, keep it
+#    at the bottom of 37.2 or just before 36. (Late Loaders).
+#
+# CACHYOS / AMD NOTES:
+# ----------------------------------------------------------
+# - Follow TMR's Linux section for F4SE launch args under Proton
+# - High FPS Physics Fix: use their calculator for your exact refresh rate
+# - Frame Generation + Upscaling (doodlum): AMD FSR3/FSR2 work well
+# - Weapon Debris Crash Fix: skip on AMD
+# - Run BethINI Pie before any ini tweaks per TMR instructions
+# - LODGen: run after your full list is stable and conflict-resolved
+# ----------------------------------------------------------

@@ -1,0 +1,112 @@
+Sway fails to validate configuration files when multiple bindings target the same key combo or media key, causing the entire config reload to throw errors.
+
+Here are the duplicate key bindings identified in `05-keybinds.conf` and how to resolve them:
+
+---
+
+### 1. `$mod+j` Conflict
+
+* **Line 22:** `bindsym $mod+j exec $qsIpc quickshell:barToggle`
+
+* **Line 60:** `bindsym $mod+j exec $jarvis_menu`
+
+
+**Fix:** Choose one action for `$mod+j`. If `$mod+j` is intended to toggle the Quickshell bar, remap or comment out the J.A.R.V.I.S. menu binding:
+
+```sway
+# bindsym $mod+j exec $jarvis_menu
+bindsym $mod+shift+j exec $term -e $jarvis
+
+```
+
+---
+
+### 2. `$mod+ctrl+y` Conflict
+
+* **Line 27:** `bindsym $mod+ctrl+y exec $qsIpc quickshell:wallpaperSelectorToggle`
+
+* **Line 65:** `bindsym $mod+ctrl+y exec $scripts/webapps.sh youtube`
+
+
+**Fix:** Change one of the shortcuts (e.g., assign YouTube to `$mod+ctrl+u` or wallpaper to `$mod+y`):
+
+```sway
+# Webapps
+bindsym $mod+ctrl+u exec $scripts/webapps.sh youtube
+
+```
+
+---
+
+### 3. `$mod+ctrl+x` Conflict
+
+* **Line 23:** `bindsym $mod+ctrl+x exec $qsIpc quickshell:sessionToggle`
+
+* **Line 158:** `bindsym $mod+ctrl+p exec $scripts/powermenu.sh` *(Note: line 43 was already commented out, but line 23 was active)*
+
+
+
+**Fix:** Remove or comment out line 23 if using `powermenu.sh`, or keep line 23 and remove the redundant powermenu trigger.
+
+---
+
+### 4. `XF86MonBrightnessUp` / `XF86MonBrightnessDown` Duplicate
+
+* **Lines 26 & 27:**
+```sway
+bindsym XF86MonBrightnessUp   exec $qsIpc brightness increment
+bindsym XF86MonBrightnessDown exec $qsIpc brightness decrement
+```[cite: 11]
+
+```
+
+
+* **Lines 144 & 145:**
+```sway
+bindsym XF86MonBrightnessUp   exec brightnessctl set +10%
+bindsym XF86MonBrightnessDown exec brightnessctl set  10%-
+```[cite: 11]
+
+
+```
+
+
+
+**Fix:** Comment out or delete lines 144–145 so only Quickshell's IPC controls monitor brightness:
+
+```sway
+# ════════════════════════════════════════════════════════════════════
+#  BRIGHTNESS
+# ════════════════════════════════════════════════════════════════════
+# bindsym XF86MonBrightnessUp   exec brightnessctl set +10%
+# bindsym XF86MonBrightnessDown exec brightnessctl set  10%-
+
+```
+
+---
+
+### 5. `$mod+alt+l` Conflict
+
+* **Line 151:** `bindsym $mod+alt+l exec lutris`
+
+* **Line 157:** `bindsym $mod+alt+l exec $sound_system locking-screen && swaylock` *(Currently commented out on line 157, but double-check your config if uncommented)*
+
+
+
+---
+
+### Verification Strategy
+
+After saving the edits, test the config for duplicate bindings directly from your terminal:
+
+```bash
+swaymsg reload
+
+```
+
+If Sway still flags errors, run this command to print any remaining duplicate definitions in your configuration stack:
+
+```bash
+swaymsg -t get_bindings | grep -E "mod\+|XF86" | sort | uniq -d
+
+```

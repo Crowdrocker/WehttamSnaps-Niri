@@ -1,0 +1,292 @@
+[Document 0]
+URL=file:///home/wehttamsnaps/.config/hypr/monitors.lua
+
+[Document 1]
+URL=file:///mnt/EXTRA1TB/WehttamSnaps-Mango/config.d/20-window-rules.conf
+
+[Document 10]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/input.conf
+
+[Document 11]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/colors.conf
+
+[Document 12]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/misc.conf
+
+[Document 13]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/settings-ui.conf
+
+[Document 14]
+URL=
+stashedFile=/home/wehttamsnaps/.local/share/kate/stash/Calos.katesession/Document 14
+
+[Document 15]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/10-input-and-cursor.kdl
+
+[Document 16]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/20-layout-and-overview.kdl
+
+[Document 17]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/30-window-rules.kdl
+
+[Document 18]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/40-environment.kdl
+
+[Document 19]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/50-startup.kdl
+
+[Document 2]
+URL=
+stashedFile=/home/wehttamsnaps/.local/share/kate/stash/Calos.katesession/Document 2
+
+[Document 20]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/60-animations.kdl
+
+[Document 21]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/70-binds.kdl
+
+[Document 22]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/80-layer-rules.kdl
+
+[Document 23]
+URL=file:///home/wehttamsnaps/.config/niri/config.d/90-user-extra.kdl
+
+[Document 3]
+URL=file:///home/wehttamsnaps/.config/hypr/hyprland/env.lua
+
+[Document 4]
+URL=file:///home/wehttamsnaps/.config/mango/monitors.conf
+
+[Document 5]
+URL=file:///home/wehttamsnaps/.config/mango/monitors-duel-monitors.conf
+
+[Document 6]
+URL=file:///home/wehttamsnaps/.config/mango/mango.desktop
+
+[Document 7]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/env.conf
+
+[Document 8]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/layout.conf
+
+[Document 9]
+URL=file:///home/wehttamsnaps/.config/mango/hyprmango/execs.conf
+
+[Kate Plugins]
+bookmarksplugin=false
+cmaketoolsplugin=false
+compilerexplorer=false
+eslintplugin=false
+externaltoolsplugin=true
+formatplugin=false
+katebacktracebrowserplugin=false
+katebuildplugin=false
+katecloseexceptplugin=false
+katecolorpickerplugin=false
+katectagsplugin=false
+katefilebrowserplugin=false
+katefiletreeplugin=true
+kategdbplugin=false
+kategitblameplugin=false
+kategpgplugin=false
+katekonsoleplugin=true
+kateprojectplugin=true
+katereplicodeplugin=false
+katesearchplugin=true
+kateshownonprintableplugin=false
+katesnippetsplugin=false
+katesqlplugin=false
+katesymbolviewerplugin=false
+katexmlcheckplugin=false
+katexmltoolsplugin=false
+keyboardmacrosplugin=false
+ktexteditorpreviewplugin=false
+latexcompletionplugin=false
+lspclientplugin=true
+openlinkplugin=false
+rainbowparens=false
+rbqlplugin=false
+tabswitcherplugin=true
+templateplugin=false
+textfilterplugin=true
+
+[MainWindow0]
+Active ViewSpace=0
+Kate-MDI-H-Splitter=0,2516,0
+Kate-MDI-Sidebar-0-Bar-0-TvList=kate_private_plugin_katefiletreeplugin,kateproject,kateprojectgit,lspclient_symbol_outline
+Kate-MDI-Sidebar-0-LastSize=296
+Kate-MDI-Sidebar-0-SectSizes=0
+Kate-MDI-Sidebar-0-Splitter=1280
+Kate-MDI-Sidebar-1-Bar-0-TvList=
+Kate-MDI-Sidebar-1-LastSize=200
+Kate-MDI-Sidebar-1-SectSizes=0
+Kate-MDI-Sidebar-1-Splitter=1280
+Kate-MDI-Sidebar-2-Bar-0-TvList=
+Kate-MDI-Sidebar-2-LastSize=200
+Kate-MDI-Sidebar-2-SectSizes=0
+Kate-MDI-Sidebar-2-Splitter=2516
+Kate-MDI-Sidebar-3-Bar-0-TvList=output,diagnostics,kate_plugin_katesearch,kateprojectinfo,kate_private_plugin_katekonsoleplugin
+Kate-MDI-Sidebar-3-LastSize=211
+Kate-MDI-Sidebar-3-SectSizes=0
+Kate-MDI-Sidebar-3-Splitter=2264
+Kate-MDI-Sidebar-Style=2
+Kate-MDI-Sidebar-Visible=true
+Kate-MDI-ToolView-diagnostics-Position=3
+Kate-MDI-ToolView-diagnostics-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-diagnostics-Visible=false
+Kate-MDI-ToolView-kate_plugin_katesearch-Position=3
+Kate-MDI-ToolView-kate_plugin_katesearch-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_plugin_katesearch-Visible=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Position=0
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katefiletreeplugin-Visible=false
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Position=3
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kate_private_plugin_katekonsoleplugin-Visible=false
+Kate-MDI-ToolView-kateproject-Position=0
+Kate-MDI-ToolView-kateproject-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateproject-Visible=false
+Kate-MDI-ToolView-kateprojectgit-Position=0
+Kate-MDI-ToolView-kateprojectgit-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectgit-Visible=false
+Kate-MDI-ToolView-kateprojectinfo-Position=3
+Kate-MDI-ToolView-kateprojectinfo-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-kateprojectinfo-Visible=false
+Kate-MDI-ToolView-lspclient_symbol_outline-Position=0
+Kate-MDI-ToolView-lspclient_symbol_outline-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-lspclient_symbol_outline-Visible=false
+Kate-MDI-ToolView-output-Position=3
+Kate-MDI-ToolView-output-Show-Button-In-Sidebar=true
+Kate-MDI-ToolView-output-Visible=false
+Kate-MDI-V-Splitter=0,1052,227
+
+[MainWindow0 Settings]
+WindowState=10
+
+[MainWindow0-Splitter 0]
+Children=MainWindow0-ViewSpace 0,MainWindow0-ViewSpace 1
+Orientation=1
+Sizes=1258,1257
+
+[MainWindow0-ViewSpace 0]
+Active View=23
+Count=1
+Documents=0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23
+View 0=23
+View 1=14
+View 2=23
+
+[MainWindow0-ViewSpace 0 0]
+CursorColumn=0
+CursorLine=13
+
+[MainWindow0-ViewSpace 0 14]
+CursorColumn=0
+CursorLine=1
+
+[MainWindow0-ViewSpace 0 2]
+CursorColumn=0
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 23]
+ScrollLine=284
+
+[MainWindow0-ViewSpace 0 3]
+CursorColumn=31
+CursorLine=11
+
+[MainWindow0-ViewSpace 0 4]
+CursorColumn=87
+CursorLine=2
+
+[MainWindow0-ViewSpace 0 5]
+CursorColumn=0
+CursorLine=3
+
+[MainWindow0-ViewSpace 0 7]
+CursorColumn=0
+CursorLine=52
+ScrollLine=33
+
+[MainWindow0-ViewSpace 0 8]
+CursorColumn=20
+CursorLine=101
+ScrollLine=90
+
+[MainWindow0-ViewSpace 0 9]
+CursorColumn=185
+CursorLine=12
+ScrollLine=6
+
+[MainWindow0-ViewSpace 1]
+Active View=1
+Count=1
+Documents=2,1
+View 0=1
+
+[MainWindow0-ViewSpace 1 1]
+ScrollLine=19
+
+[MainWindow0-ViewSpace 1 8]
+CursorColumn=0
+CursorLine=36
+ScrollLine=17
+
+[MainWindow0-ViewSpace 1 file:///home/wehttamsnaps/.config/hypr/monitors.lua]
+CursorColumn=2
+CursorLine=12
+
+[Open Documents]
+Count=24
+
+[Open MainWindows]
+Count=1
+
+[Plugin:kateprojectplugin:]
+projects=
+
+[Plugin:katesearchplugin:MainWindow:0]
+BinaryFiles=false
+CurrentExcludeFilter=0
+CurrentFilter=0
+ExcludeFilters=\\0
+ExpandSearchResults=false
+Filters=\\0
+FollowSymLink=false
+HiddenFiles=false
+MatchCase=false
+Place=1
+Recursive=true
+Replaces=WEHTTAMSNAPS,Wehttamsnaps,paru --needed --noconfirm -S ,yay --needed --noconfirm -S\s
+Search=nvim,calos,borders,quickshell,hypr,Wehttamsnaps-toggle-output,local/share/Wehttamsnaps/bin,bin,current,local/share,CALOS,yay --needed --noconfirm -S ,   \s
+SearchAsYouTypeAllProjects=true
+SearchAsYouTypeCurrentFile=true
+SearchAsYouTypeFolder=true
+SearchAsYouTypeOpenFiles=true
+SearchAsYouTypeProject=true
+SearchDiskFiles=
+SearchDiskFiless=\\0
+SizeLimit=128
+UseRegExp=false
+
+[Recent Files]
+File1[$e]=$HOME/.config/mango/hyprmango/settings-ui.conf
+File10[$e]=$HOME/.config/niri/config.d/90-user-extra.kdl
+File2[$e]=$HOME/.config/niri/config.d/10-input-and-cursor.kdl
+File3[$e]=$HOME/.config/niri/config.d/20-layout-and-overview.kdl
+File4[$e]=$HOME/.config/niri/config.d/30-window-rules.kdl
+File5[$e]=$HOME/.config/niri/config.d/40-environment.kdl
+File6[$e]=$HOME/.config/niri/config.d/50-startup.kdl
+File7[$e]=$HOME/.config/niri/config.d/60-animations.kdl
+File8[$e]=$HOME/.config/niri/config.d/70-binds.kdl
+File9[$e]=$HOME/.config/niri/config.d/80-layer-rules.kdl
+Name1[$e]=settings-ui.conf
+Name10[$e]=90-user-extra.kdl
+Name2[$e]=10-input-and-cursor.kdl
+Name3[$e]=20-layout-and-overview.kdl
+Name4[$e]=30-window-rules.kdl
+Name5[$e]=40-environment.kdl
+Name6[$e]=50-startup.kdl
+Name7[$e]=60-animations.kdl
+Name8[$e]=70-binds.kdl
+Name9[$e]=80-layer-rules.kdl
